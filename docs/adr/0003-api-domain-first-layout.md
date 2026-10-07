@@ -23,16 +23,19 @@ Se organiza el código **por dominio**, con las capas **dentro** de cada uno. La
 ```text
 api/app/
 ├── main.py
-├── core/          # config, database, logging, exceptions (transversal)
-├── common/        # constantes, entidad base, modelo base, paginación, repositorio genérico
+├── core/          # config, database, logging, middleware, errores HTTP (RFC 9457), audit, security
+├── common/        # constantes, entidad base, modelo base, repositorio y servicio CRUD genéricos,
+│                  # fábrica de routers, esquemas comunes, errores de negocio
+├── auth/          # get_current_user, require_roles y matriz de permisos (raíz de composición, ADR 0004)
 ├── health/        # /health y /ready
 └── domains/
     └── <domain>/
-        ├── controller.py        # capa API: APIRouter y códigos HTTP
+        ├── controller.py        # capa API: routers (usa la fábrica CRUD de common/controller.py)
         ├── schemas.py           # capa API: contratos request/response (Pydantic)
-        ├── service.py           # capa aplicación: casos de uso
-        ├── entities.py          # capa dominio: entidades y reglas (Python puro)
-        ├── exceptions.py        # capa dominio: errores de negocio
+        ├── dependencies.py      # composición: construye los servicios con sus repositorios SQLAlchemy
+        ├── service.py           # capa aplicación: casos de uso y reglas de negocio
+        ├── entities.py          # capa dominio: entidades (dataclasses de Python puro)
+        ├── exceptions.py        # capa dominio: errores de negocio (solo si el dominio los necesita)
         ├── repository.py        # capa dominio: interfaz del repositorio (Protocol)
         ├── models.py            # capa infraestructura: modelos SQLAlchemy
         └── repository_impl.py   # capa infraestructura: implementación SQLAlchemy
@@ -57,11 +60,13 @@ Derivados de los módulos del brief:
 | --- | --- | --- | --- |
 | `entities.py`, `exceptions.py`, `repository.py` | Dominio | stdlib, `common.entities`, `common.constants` | FastAPI, SQLAlchemy, Pydantic |
 | `service.py` | Aplicación | dominio del mismo dominio, interfaces de otros dominios | FastAPI, SQLAlchemy |
-| `controller.py`, `schemas.py` | API | FastAPI, Pydantic, `service.py` | `models.py`, `repository_impl.py`, SQL |
+| `controller.py`, `schemas.py` | API | FastAPI, Pydantic, `service.py`, `dependencies.py` | `models.py`, `repository_impl.py`, SQL |
 | `models.py`, `repository_impl.py` | Infraestructura | SQLAlchemy, pgvector, `repository.py`, `entities.py` | FastAPI |
+| `dependencies.py` | Composición | Todo lo anterior, incluidos los `repository_impl.py` de otros dominios | Reglas de negocio |
 
-- La composición se hace en las dependencias de FastAPI: `controller.py` recibe el `service`, y una función `get_<x>_service` construye el servicio con su `repository_impl`.
-- Un dominio no importa `models.py` ni `repository_impl.py` de otro dominio.
+- La composición vive en `dependencies.py`: las funciones `get_<x>_service` construyen cada servicio con su `repository_impl` y la unidad de trabajo. `controller.py` solo recibe el servicio.
+- Un dominio no importa `models.py` ni `repository_impl.py` de otro dominio. La **única excepción** es `dependencies.py`, la raíz de composición: ahí se conectan, por ejemplo, el repositorio de temas de `courses` con el servicio de pasos de `learning_paths`. Los servicios dependen solo de las interfaces (`repository.py`) de los otros dominios.
+- Los repositorios, servicios y routers CRUD comparten una base genérica en `common/` (`SqlAlchemyCrudRepository`, `CrudService`, `build_crud_router`). Cada dominio solo declara su modelo, su entidad, sus esquemas y sus reglas de negocio.
 
 ## 5. Consecuencias
 

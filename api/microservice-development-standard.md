@@ -14,7 +14,7 @@
 | Rev. | Fecha | Cambios |
 | --- | --- | --- |
 | 1 | 2026-10 | Estándar propuesto inicial. |
-| 2 | 2026-10-07 | Adoptado para SmartMentor. Agrega: <br>• excepción monorepo (§3, §6, §22);<br>• organización por dominio (§3.1, [ADR 0003](../docs/adr/0003-api-domain-first-layout.md));<br>• versiones fijadas (§5.2) y pgvector (§5.5);<br>• control de desalineación entre esquema y modelos (§6);<br>• convenciones de API (§12) y errores RFC 9457 (§14);<br>• logs sin datos personales (§15);<br>• secciones §28 a §35: convenciones de datos, borrado lógico y auditoría, zona horaria, health/readiness, unidad de trabajo, imagen Docker, integración con la capa de IA y seguridad base.<br>También corrige errores tipográficos y enlaces de referencia. Documento traducido al español. |
+| 2 | 2026-10-07 | Adoptado para SmartMentor. La sección 35 (seguridad) queda implementada ([ADR 0004](../docs/adr/0004-authentication-keycloak-bearer.md)). Agrega: <br>• excepción monorepo (§3, §6, §22);<br>• organización por dominio (§3.1, [ADR 0003](../docs/adr/0003-api-domain-first-layout.md));<br>• versiones fijadas (§5.2) y pgvector (§5.5);<br>• control de desalineación entre esquema y modelos (§6);<br>• convenciones de API (§12) y errores RFC 9457 (§14);<br>• logs sin datos personales (§15);<br>• secciones §28 a §35: convenciones de datos, borrado lógico y auditoría, zona horaria, health/readiness, unidad de trabajo, imagen Docker, integración con la capa de IA y seguridad base.<br>También corrige errores tipográficos y enlaces de referencia. Documento traducido al español. |
 
 ---
 
@@ -192,13 +192,14 @@ Cuando un servicio tiene varios dominios de negocio, el código puede organizars
 api/
 ├── app/
 │   ├── main.py
-│   ├── core/              # configuración, base de datos (engine/sesión), logging, excepciones
+│   ├── core/              # configuración, base de datos (engine/sesión), logging, errores HTTP, auditoría
 │   ├── common/            # constantes/enums, entidad base, modelo base, paginación, repositorio genérico
 │   ├── health/            # /health y /ready
 │   └── domains/
 │       └── <domain>/
-│           ├── controller.py       # capa API: APIRouter, códigos de estado
+│           ├── controller.py       # capa API: routers (fábrica CRUD de common/controller.py)
 │           ├── schemas.py          # capa API: contratos de request/response
+│           ├── dependencies.py     # composición: servicios con sus repositorios concretos
 │           ├── service.py          # capa de aplicación: casos de uso
 │           ├── entities.py         # capa de dominio: entidades y reglas (Python puro)
 │           ├── exceptions.py       # capa de dominio: errores de negocio
@@ -220,10 +221,11 @@ Las **reglas de dependencia de §21 se aplican por archivo**, no por carpeta:
 | --- | --- | --- | --- |
 | `entities.py`, `exceptions.py`, `repository.py` | Dominio | stdlib, `common.entities`, `common.constants` | FastAPI, SQLAlchemy, Pydantic |
 | `service.py` | Aplicación | capa de dominio propia, interfaces de otros dominios | FastAPI, SQLAlchemy |
-| `controller.py`, `schemas.py` | API | FastAPI, Pydantic, `service.py` | `models.py`, `repository_impl.py`, SQL directo |
+| `controller.py`, `schemas.py` | API | FastAPI, Pydantic, `service.py`, `dependencies.py` | `models.py`, `repository_impl.py`, SQL directo |
 | `models.py`, `repository_impl.py` | Infraestructura | SQLAlchemy, pgvector, `repository.py` y `entities.py` propios | FastAPI |
+| `dependencies.py` | Composición | Todo lo anterior, incluidos los `repository_impl.py` de otros dominios | Reglas de negocio |
 
-Un dominio nunca importa `models.py` ni `repository_impl.py` de otro dominio.
+Un dominio nunca importa `models.py` ni `repository_impl.py` de otro dominio. La única excepción es `dependencies.py`, la raíz de composición: ahí se conectan las implementaciones concretas, y los servicios dependen solo de las interfaces.
 
 ---
 
@@ -1483,7 +1485,7 @@ created_at  timestamptz NOT NULL DEFAULT now()
   )
   ```
 
-  El `true` hace que el valor sea local a la transacción, lo que es seguro con pools de conexiones. Mientras no exista autenticación (decisión pendiente D-03), el usuario se toma de la cabecera `X-User-Id`, con `system` como valor por defecto. Esa cabecera es solo un dato para la auditoría: no autentica ni autoriza, y se elimina cuando el usuario salga del token.
+  El `true` hace que el valor sea local a la transacción, lo que es seguro con pools de conexiones. El valor es el id del usuario autenticado (`apply_audit_user` en `core/database.py`, llamado desde `get_current_user`). Mientras se resuelve o se crea el usuario, se registra `identity:<sub>`.
 
 # 30. Política de zona horaria
 
@@ -1528,17 +1530,15 @@ El brief aísla la IA en su propia capa (`ai/`: generación, RAG, motor de ruta 
 - Cada llamada al LLM se registra en `llm_call_logs` (tarea, modelo, versión del prompt, tokens, costo, latencia y estado), como exigen las métricas del brief.
 - El contenido generado se guarda en caché por tema y no se regenera por estudiante (brief: decisiones técnicas).
 
-# 35. Seguridad base
+# 35. Seguridad
 
-**Estado: fuera del alcance de la primera entrega.** El estándar deja definido el objetivo, y el detalle de la decisión pendiente está en D-03 de `proyecto/decisiones-pendientes.md`.
+Implementada en SmartMentor según el [ADR 0004](../docs/adr/0004-authentication-keycloak-bearer.md). El detalle de la decisión está en D-03 de `proyecto/decisiones-pendientes.md`.
 
-**Objetivo (pendiente):**
-
-- **Identidad delegada** a un proveedor OpenID Connect (Keycloak). La aplicación **no almacena contraseñas** y la tabla `users` no tiene `password_hash`; guarda solo `identity_provider` e `identity_subject`.
-- **Seguridad de la API con bearer tokens:** cada petición protegida envía `Authorization: Bearer <access_token>`. La API valida la firma con las llaves públicas del proveedor (JWKS) y verifica `iss`, `aud` y `exp`. Responde `401` si el token falta o es inválido, y `403` si el rol no basta.
-- **Autorización por roles** (`admin`, `teacher`, `student`) con una dependencia `require_role(...)` por endpoint, apoyada en `user_roles`.
-- **Si se llegara a guardar contraseñas** (no es el plan): hash `argon2id` con sal. Nunca cifrado reversible como AES.
-- **Estructura preparada:** `core/security.py` aloja la validación del token y `get_current_user`. En esta entrega no se usa.
-- CORS restringido a los orígenes conocidos del frontend.
-
-**Mientras tanto:** la API no autentica. Es solo para ambientes locales y de piloto, y no debe exponerse a internet. La cabecera `X-User-Id` sirve únicamente para auditoría, nunca para autorización.
+- **Identidad delegada** a un proveedor OpenID Connect (Keycloak). La aplicación **no almacena contraseñas** y la tabla `users` no tiene `password_hash`; guarda solo `identity_provider` e `identity_subject`. Si se llegara a guardar contraseñas (no es el plan): hash `argon2id` con sal, nunca cifrado reversible como AES.
+- **Bearer tokens:** cada petición protegida envía `Authorization: Bearer <access_token>`. La API valida la firma con las llaves públicas del proveedor (JWKS, solo RS256) y verifica `iss`, `aud` y `exp`. Responde `401` si el token falta o no es válido, `403` si el rol no basta y `503` si no alcanza al proveedor. El motivo exacto del rechazo va al log, no al cliente.
+- **Autorización por roles de la base de datos** (`user_roles`), no por los roles del token. La matriz de permisos vive en `app/auth/policies.py` y cada ruta CRUD recibe sus guardas de lectura y de escritura (`require_roles(...)`).
+- **Alta de usuarios:** `AuthenticationService` enlaza al usuario por `sub`, o por correo verificado la primera vez, y crea como `student` a quien no exista. Un correo sin verificar se rechaza.
+- **Estructura:** `core/security.py` valida el token (sin dependencias de dominio) y `app/auth/` es parte de la raíz de composición: conecta el validador con el servicio de identidad y expone `get_current_user` y `require_roles`.
+- **Configuración obligatoria:** `OIDC_ISSUER_URL`, `OIDC_JWKS_URL` y `OIDC_AUDIENCE`; la aplicación no arranca si faltan.
+- **Rutas públicas:** `/health`, `/ready` y la documentación OpenAPI.
+- **Pendiente:** CORS restringido a los orígenes del frontend, limitación de peticiones y endpoints de estudiante con verificación de pertenencia.

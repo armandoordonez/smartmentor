@@ -265,6 +265,7 @@ smartmentor/
 ├── app/                 # interfaz (Streamlit o Next.js)
 ├── api/                 # FastAPI: usuarios, cursos, rutas, evaluaciones
 ├── database/            # PostgreSQL + pgvector: Liquibase, bootstrap, backups, volumen local
+├── keycloak/            # proveedor de identidad (Keycloak): volumen local y guía de configuración
 ├── ai/                  # generación, RAG, motor de ruta, calificador
 ├── prompts/             # prompts versionados + esquemas JSON
 ├── data/                # syllabus de ejemplo y anotaciones (sin datos personales)
