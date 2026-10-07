@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/017-vector-indexes.xml">
+
+    <changeSet id="v1.0.0-017-vector-indexes" author="eduar.troyano">
+        <comment>Crea los índices HNSW (distancia coseno) sobre los embeddings de temas y perfiles. Provisional: dependen de la dimensión y del modelo de embeddings (pendiente D-01).</comment>
+        <sql>CREATE INDEX topics_embedding_hnsw_idx ON topics USING hnsw (embedding vector_cosine_ops)</sql>
+        <sql>CREATE INDEX enrollments_profile_embedding_hnsw_idx ON enrollments USING hnsw (profile_embedding vector_cosine_ops)</sql>
+        <rollback>
+            <sql>DROP INDEX IF EXISTS enrollments_profile_embedding_hnsw_idx</sql>
+            <sql>DROP INDEX IF EXISTS topics_embedding_hnsw_idx</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

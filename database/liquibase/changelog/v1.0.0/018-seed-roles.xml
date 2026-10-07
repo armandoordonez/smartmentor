@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/018-seed-roles.xml">
+
+    <changeSet id="v1.0.0-018-seed-roles" author="eduar.troyano">
+        <comment>Carga los tres roles iniciales de la plataforma: admin, teacher y student.</comment>
+        <insert tableName="roles">
+            <column name="code" value="admin"/>
+            <column name="name" value="Administrator"/>
+            <column name="description" value="Manages users, courses and configuration"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="teacher"/>
+            <column name="name" value="Teacher"/>
+            <column name="description" value="Creates courses, reviews syllabus and follows student progress"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="student"/>
+            <column name="name" value="Student"/>
+            <column name="description" value="Follows learning paths and takes assessments"/>
+        </insert>
+        <rollback>
+            <delete tableName="roles">
+                <where>code IN ('admin', 'teacher', 'student')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

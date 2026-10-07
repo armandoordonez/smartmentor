@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/012-create-table-path_steps.xml">
+
+    <changeSet id="v1.0.0-012-create-table-path_steps" author="eduar.troyano">
+        <comment>Crea la tabla path_steps: secuencia personalizada de temas de una inscripción (brief: Paso de ruta). Incluye secuencia propia, tabla de auditoría path_steps_audit y el trigger path_steps_audit_trg.</comment>
+
+        <createSequence sequenceName="path_steps_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="path_steps_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="path_steps" remarks="Personalized sequence of topics of an enrollment">
+                <column name="id" type="bigint" defaultValueSequenceNext="path_steps_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="path_steps_pkey" nullable="false"/>
+                </column>
+                <column name="enrollment_id" type="bigint" remarks="Enrollment the step belongs to">
+                    <constraints nullable="false" foreignKeyName="path_steps_enrollment_id_fk" references="enrollments(id)"/>
+                </column>
+                <column name="topic_id" type="bigint" remarks="Topic of the step">
+                    <constraints nullable="false" foreignKeyName="path_steps_topic_id_fk" references="topics(id)"/>
+                </column>
+                <column name="step_order" type="smallint" remarks="Position of the step in the personalized sequence">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="status" type="varchar(20)" remarks="Step status: pending, in_progress, passed, failed, skipped" defaultValueComputed="'pending'">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="score" type="numeric(5,2)" remarks="Best score obtained in the step"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="path_steps" constraintName="path_steps_enrollment_order_uq" columnNames="enrollment_id,step_order"/>
+        <addUniqueConstraint tableName="path_steps" constraintName="path_steps_enrollment_topic_uq" columnNames="enrollment_id,topic_id"/>
+        <createIndex tableName="path_steps" indexName="path_steps_topic_id_idx">
+            <column name="topic_id"/>
+        </createIndex>
+        <sql>ALTER TABLE path_steps ADD CONSTRAINT path_steps_status_ck CHECK (status IN ('pending', 'in_progress', 'passed', 'failed', 'skipped'))</sql>
+
+        <createTable tableName="path_steps_audit" remarks="Append-only change history of path_steps">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="path_steps_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="path_steps_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in path_steps">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE path_steps_audit ADD CONSTRAINT path_steps_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="path_steps_audit" indexName="path_steps_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER path_steps_audit_trg AFTER INSERT OR UPDATE OR DELETE ON path_steps FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS path_steps_audit_trg ON path_steps</sql>
+            <dropTable tableName="path_steps_audit"/>
+            <dropTable tableName="path_steps" cascadeConstraints="true"/>
+            <dropSequence sequenceName="path_steps_audit_id_seq"/>
+            <dropSequence sequenceName="path_steps_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

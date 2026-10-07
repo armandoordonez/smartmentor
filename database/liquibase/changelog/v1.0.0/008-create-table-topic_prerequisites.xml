@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/008-create-table-topic_prerequisites.xml">
+
+    <changeSet id="v1.0.0-008-create-table-topic_prerequisites" author="eduar.troyano">
+        <comment>Crea la tabla topic_prerequisites: aristas del grafo de prerrequisitos entre temas (reemplaza el arreglo prerrequisitos[] del brief). Incluye secuencia propia, tabla de auditoría topic_prerequisites_audit y el trigger topic_prerequisites_audit_trg.</comment>
+
+        <createSequence sequenceName="topic_prerequisites_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="topic_prerequisites_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="topic_prerequisites" remarks="Prerequisite edges between topics (DAG)">
+                <column name="id" type="bigint" defaultValueSequenceNext="topic_prerequisites_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="topic_prerequisites_pkey" nullable="false"/>
+                </column>
+                <column name="topic_id" type="bigint" remarks="Topic that has the prerequisite">
+                    <constraints nullable="false" foreignKeyName="topic_prerequisites_topic_id_fk" references="topics(id)"/>
+                </column>
+                <column name="prerequisite_topic_id" type="bigint" remarks="Topic that must be mastered first">
+                    <constraints nullable="false" foreignKeyName="topic_prerequisites_prerequisite_topic_id_fk" references="topics(id)"/>
+                </column>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="topic_prerequisites" constraintName="topic_prerequisites_uq" columnNames="topic_id,prerequisite_topic_id"/>
+        <createIndex tableName="topic_prerequisites" indexName="topic_prerequisites_prerequisite_topic_id_idx">
+            <column name="prerequisite_topic_id"/>
+        </createIndex>
+        <sql>ALTER TABLE topic_prerequisites ADD CONSTRAINT topic_prerequisites_not_self_ck CHECK (topic_id &lt;&gt; prerequisite_topic_id)</sql>
+
+        <createTable tableName="topic_prerequisites_audit" remarks="Append-only change history of topic_prerequisites">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="topic_prerequisites_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="topic_prerequisites_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in topic_prerequisites">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE topic_prerequisites_audit ADD CONSTRAINT topic_prerequisites_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="topic_prerequisites_audit" indexName="topic_prerequisites_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER topic_prerequisites_audit_trg AFTER INSERT OR UPDATE OR DELETE ON topic_prerequisites FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS topic_prerequisites_audit_trg ON topic_prerequisites</sql>
+            <dropTable tableName="topic_prerequisites_audit"/>
+            <dropTable tableName="topic_prerequisites" cascadeConstraints="true"/>
+            <dropSequence sequenceName="topic_prerequisites_audit_id_seq"/>
+            <dropSequence sequenceName="topic_prerequisites_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

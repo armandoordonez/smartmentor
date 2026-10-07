@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SmartMentor: changelog maestro del esquema de la base de datos `smartmentor`.
+
+  Autor:      eduar.troyano
+  Fecha:      2026-10-07
+  Recurso:    proyecto/brief.md, secciones "Modelo de datos principal" y
+              "Arquitectura técnica y stack sugerido" (PostgreSQL con pgvector como única base).
+  Decisiones: docs/adr/0001-postgres-pgvector.md y docs/adr/0002-liquibase-schema-versioning.md
+  Motor:      PostgreSQL 17 + pgvector 0.8.7, Liquibase 5.0.4
+  Operación:  database/liquibase/README.md
+
+  Cada versión vive en su propia carpeta (vX.Y.Z) e incluye sus changesets en orden.
+  Un changeset ya aplicado nunca se edita: las correcciones van en un changeset nuevo.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- v1.0.0: modelo de datos inicial de la cohorte 1 (14 tablas, auditoría, índices vectoriales, roles) -->
+    <include file="v1.0.0/db.changelog-v1.0.0.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

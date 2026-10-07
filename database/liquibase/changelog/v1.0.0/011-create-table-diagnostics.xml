@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/011-create-table-diagnostics.xml">
+
+    <changeSet id="v1.0.0-011-create-table-diagnostics" author="eduar.troyano">
+        <comment>Crea la tabla diagnostics: prueba diagnóstica de una inscripción (brief: Diagnóstico, 1 a 1). Incluye secuencia propia, tabla de auditoría diagnostics_audit y el trigger diagnostics_audit_trg.</comment>
+
+        <createSequence sequenceName="diagnostics_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="diagnostics_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="diagnostics" remarks="Diagnostic test of an enrollment (one per enrollment)">
+                <column name="id" type="bigint" defaultValueSequenceNext="diagnostics_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="diagnostics_pkey" nullable="false"/>
+                </column>
+                <column name="enrollment_id" type="bigint" remarks="Enrollment that took the diagnostic">
+                    <constraints nullable="false" foreignKeyName="diagnostics_enrollment_id_fk" references="enrollments(id)"/>
+                </column>
+                <column name="questions" type="jsonb" remarks="Generated diagnostic questions" defaultValueComputed="'[]'::jsonb">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="answers" type="jsonb" remarks="Student answers"/>
+                <column name="level_by_topic" type="jsonb" remarks="Estimated level per topic"/>
+                <column name="completed_at" type="timestamp with time zone" remarks="Moment the diagnostic was completed"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="diagnostics" constraintName="diagnostics_enrollment_uq" columnNames="enrollment_id"/>
+
+        <createTable tableName="diagnostics_audit" remarks="Append-only change history of diagnostics">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="diagnostics_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="diagnostics_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in diagnostics">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE diagnostics_audit ADD CONSTRAINT diagnostics_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="diagnostics_audit" indexName="diagnostics_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER diagnostics_audit_trg AFTER INSERT OR UPDATE OR DELETE ON diagnostics FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS diagnostics_audit_trg ON diagnostics</sql>
+            <dropTable tableName="diagnostics_audit"/>
+            <dropTable tableName="diagnostics" cascadeConstraints="true"/>
+            <dropSequence sequenceName="diagnostics_audit_id_seq"/>
+            <dropSequence sequenceName="diagnostics_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

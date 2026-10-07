@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/014-create-table-assessment_attempts.xml">
+
+    <changeSet id="v1.0.0-014-create-table-assessment_attempts" author="eduar.troyano">
+        <comment>Crea la tabla assessment_attempts: intentos de evaluación por tema o final (brief: Evaluación e intento). Incluye secuencia propia, tabla de auditoría assessment_attempts_audit y el trigger assessment_attempts_audit_trg.</comment>
+
+        <createSequence sequenceName="assessment_attempts_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="assessment_attempts_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="assessment_attempts" remarks="Attempts of topic quizzes and final assessments">
+                <column name="id" type="bigint" defaultValueSequenceNext="assessment_attempts_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="assessment_attempts_pkey" nullable="false"/>
+                </column>
+                <column name="enrollment_id" type="bigint" remarks="Enrollment that took the assessment">
+                    <constraints nullable="false" foreignKeyName="assessment_attempts_enrollment_id_fk" references="enrollments(id)"/>
+                </column>
+                <column name="path_step_id" type="bigint" remarks="Path step evaluated; null in the final assessment">
+                    <constraints nullable="true" foreignKeyName="assessment_attempts_path_step_id_fk" references="path_steps(id)"/>
+                </column>
+                <column name="assessment_type" type="varchar(10)" remarks="Assessment type: topic or final">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="attempt_number" type="smallint" remarks="Attempt number, starting at 1" defaultValueNumeric="1">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="questions" type="jsonb" remarks="Generated questions of the attempt" defaultValueComputed="'[]'::jsonb">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="answers" type="jsonb" remarks="Student answers"/>
+                <column name="score" type="numeric(5,2)" remarks="Score obtained as percentage"/>
+                <column name="passed" type="boolean" remarks="Whether the attempt reached the approval threshold"/>
+                <column name="submitted_at" type="timestamp with time zone" remarks="Moment the attempt was submitted"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <createIndex tableName="assessment_attempts" indexName="assessment_attempts_enrollment_id_idx">
+            <column name="enrollment_id"/>
+        </createIndex>
+        <createIndex tableName="assessment_attempts" indexName="assessment_attempts_path_step_id_idx">
+            <column name="path_step_id"/>
+        </createIndex>
+        <sql>ALTER TABLE assessment_attempts ADD CONSTRAINT assessment_attempts_type_ck CHECK (assessment_type IN ('topic', 'final'))</sql>
+        <sql>ALTER TABLE assessment_attempts ADD CONSTRAINT assessment_attempts_step_ck CHECK ((assessment_type = 'topic' AND path_step_id IS NOT NULL) OR (assessment_type = 'final' AND path_step_id IS NULL))</sql>
+        <sql>ALTER TABLE assessment_attempts ADD CONSTRAINT assessment_attempts_number_ck CHECK (attempt_number &gt;= 1)</sql>
+
+        <createTable tableName="assessment_attempts_audit" remarks="Append-only change history of assessment_attempts">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="assessment_attempts_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="assessment_attempts_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in assessment_attempts">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE assessment_attempts_audit ADD CONSTRAINT assessment_attempts_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="assessment_attempts_audit" indexName="assessment_attempts_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER assessment_attempts_audit_trg AFTER INSERT OR UPDATE OR DELETE ON assessment_attempts FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS assessment_attempts_audit_trg ON assessment_attempts</sql>
+            <dropTable tableName="assessment_attempts_audit"/>
+            <dropTable tableName="assessment_attempts" cascadeConstraints="true"/>
+            <dropSequence sequenceName="assessment_attempts_audit_id_seq"/>
+            <dropSequence sequenceName="assessment_attempts_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

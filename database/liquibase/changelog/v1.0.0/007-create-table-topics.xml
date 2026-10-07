@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/007-create-table-topics.xml">
+
+    <changeSet id="v1.0.0-007-create-table-topics" author="eduar.troyano">
+        <comment>Crea la tabla topics: temas del syllabus, nodos del grafo de prerrequisitos (brief: Tema). La columna embedding es provisional (D-01). Incluye secuencia propia, tabla de auditoría topics_audit y el trigger topics_audit_trg.</comment>
+
+        <createSequence sequenceName="topics_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="topics_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="topics" remarks="Course topics, nodes of the prerequisites DAG">
+                <column name="id" type="bigint" defaultValueSequenceNext="topics_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="topics_pkey" nullable="false"/>
+                </column>
+                <column name="course_id" type="bigint" remarks="Course the topic belongs to">
+                    <constraints nullable="false" foreignKeyName="topics_course_id_fk" references="courses(id)"/>
+                </column>
+                <column name="name" type="varchar(200)" remarks="Topic name">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="description" type="text" remarks="Topic description"/>
+                <column name="learning_outcomes" type="jsonb" remarks="Measurable learning outcomes of the topic" defaultValueComputed="'[]'::jsonb">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="bloom_level" type="varchar(20)" remarks="Bloom taxonomy level of the topic"/>
+                <column name="embedding" type="vector(1024)" remarks="Topic embedding. Dimension is provisional (pending decision D-01)"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <createIndex tableName="topics" indexName="topics_course_id_idx">
+            <column name="course_id"/>
+        </createIndex>
+        <sql>ALTER TABLE topics ADD CONSTRAINT topics_bloom_level_ck CHECK (bloom_level IS NULL OR bloom_level IN ('remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'))</sql>
+
+        <createTable tableName="topics_audit" remarks="Append-only change history of topics">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="topics_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="topics_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in topics">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE topics_audit ADD CONSTRAINT topics_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="topics_audit" indexName="topics_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER topics_audit_trg AFTER INSERT OR UPDATE OR DELETE ON topics FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS topics_audit_trg ON topics</sql>
+            <dropTable tableName="topics_audit"/>
+            <dropTable tableName="topics" cascadeConstraints="true"/>
+            <dropSequence sequenceName="topics_audit_id_seq"/>
+            <dropSequence sequenceName="topics_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/013-create-table-resources.xml">
+
+    <changeSet id="v1.0.0-013-create-table-resources" author="eduar.troyano">
+        <comment>Crea la tabla resources: recursos (video o texto) de un tema, compartidos entre estudiantes (brief: Recurso). Incluye secuencia propia, tabla de auditoría resources_audit y el trigger resources_audit_trg.</comment>
+
+        <createSequence sequenceName="resources_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="resources_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="resources" remarks="Video or text resources of a topic, shared among students">
+                <column name="id" type="bigint" defaultValueSequenceNext="resources_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="resources_pkey" nullable="false"/>
+                </column>
+                <column name="topic_id" type="bigint" remarks="Topic the resource belongs to">
+                    <constraints nullable="false" foreignKeyName="resources_topic_id_fk" references="topics(id)"/>
+                </column>
+                <column name="resource_type" type="varchar(10)" remarks="Resource type: video or text">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="url" type="varchar(1000)" remarks="Resource URL (videos)"/>
+                <column name="content" type="text" remarks="Generated text content"/>
+                <column name="sources" type="jsonb" remarks="Sources cited by the generated content (RAG)"/>
+                <column name="prompt_version" type="varchar(50)" remarks="Version of the prompt that generated the resource"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <createIndex tableName="resources" indexName="resources_topic_id_idx">
+            <column name="topic_id"/>
+        </createIndex>
+        <sql>ALTER TABLE resources ADD CONSTRAINT resources_type_ck CHECK (resource_type IN ('video', 'text'))</sql>
+        <sql>ALTER TABLE resources ADD CONSTRAINT resources_url_or_content_ck CHECK (url IS NOT NULL OR content IS NOT NULL)</sql>
+
+        <createTable tableName="resources_audit" remarks="Append-only change history of resources">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="resources_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="resources_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in resources">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE resources_audit ADD CONSTRAINT resources_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="resources_audit" indexName="resources_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER resources_audit_trg AFTER INSERT OR UPDATE OR DELETE ON resources FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS resources_audit_trg ON resources</sql>
+            <dropTable tableName="resources_audit"/>
+            <dropTable tableName="resources" cascadeConstraints="true"/>
+            <dropSequence sequenceName="resources_audit_id_seq"/>
+            <dropSequence sequenceName="resources_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

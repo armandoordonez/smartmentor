@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/003-create-table-roles.xml">
+
+    <changeSet id="v1.0.0-003-create-table-roles" author="eduar.troyano">
+        <comment>Crea la tabla roles: catálogo de roles de la aplicación (admin, teacher, student). Incluye secuencia propia, tabla de auditoría roles_audit y el trigger roles_audit_trg.</comment>
+
+        <createSequence sequenceName="roles_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="roles_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="roles" remarks="Application roles catalog (admin, teacher, student)">
+                <column name="id" type="bigint" defaultValueSequenceNext="roles_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="roles_pkey" nullable="false"/>
+                </column>
+                <column name="code" type="varchar(30)" remarks="Unique role code used in code and authorization (admin, teacher, student)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="name" type="varchar(100)" remarks="Human-readable role name">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="description" type="text" remarks="Role description"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="roles" constraintName="roles_code_uq" columnNames="code"/>
+
+        <createTable tableName="roles_audit" remarks="Append-only change history of roles">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="roles_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="roles_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in roles">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE roles_audit ADD CONSTRAINT roles_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="roles_audit" indexName="roles_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER roles_audit_trg AFTER INSERT OR UPDATE OR DELETE ON roles FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS roles_audit_trg ON roles</sql>
+            <dropTable tableName="roles_audit"/>
+            <dropTable tableName="roles" cascadeConstraints="true"/>
+            <dropSequence sequenceName="roles_audit_id_seq"/>
+            <dropSequence sequenceName="roles_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

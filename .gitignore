@@ -53,3 +53,9 @@ Thumbs.db
 .docker/
 
 *.history
+
+# Base de datos local (database/)
+database/data/*
+!database/data/.gitkeep
+database/backups/*
+!database/backups/.gitkeep

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/001-extensions-and-timezone.xml">
+
+    <changeSet id="v1.0.0-001-extensions-and-timezone" author="eduar.troyano">
+        <comment>Habilita la extensión pgvector y fija la zona horaria America/Bogota como valor por defecto de la base de datos.</comment>
+        <sql>CREATE EXTENSION IF NOT EXISTS vector</sql>
+        <sql splitStatements="false">
+            DO $$
+            BEGIN
+                EXECUTE format('ALTER DATABASE %I SET timezone TO %L', current_database(), 'America/Bogota');
+            END
+            $$;
+        </sql>
+        <rollback>
+            <sql splitStatements="false">
+                DO $$
+                BEGIN
+                    EXECUTE format('ALTER DATABASE %I RESET timezone', current_database());
+                END
+                $$;
+            </sql>
+            <sql>DROP EXTENSION IF EXISTS vector</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

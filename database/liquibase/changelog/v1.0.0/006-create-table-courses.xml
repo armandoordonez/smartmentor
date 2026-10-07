@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/006-create-table-courses.xml">
+
+    <changeSet id="v1.0.0-006-create-table-courses" author="eduar.troyano">
+        <comment>Crea la tabla courses: cursos con su syllabus (brief: Curso). Incluye secuencia propia, tabla de auditoría courses_audit y el trigger courses_audit_trg.</comment>
+
+        <createSequence sequenceName="courses_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="courses_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="courses" remarks="Courses with their syllabus">
+                <column name="id" type="bigint" defaultValueSequenceNext="courses_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="courses_pkey" nullable="false"/>
+                </column>
+                <column name="owner_user_id" type="bigint" remarks="Teacher that owns the course">
+                    <constraints nullable="false" foreignKeyName="courses_owner_user_id_fk" references="users(id)"/>
+                </column>
+                <column name="name" type="varchar(200)" remarks="Course name">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="description" type="text" remarks="Course description"/>
+                <column name="raw_syllabus" type="text" remarks="Original syllabus text"/>
+                <column name="syllabus_file_path" type="varchar(500)" remarks="Path of the uploaded syllabus file (PDF or text)"/>
+                <column name="status" type="varchar(20)" remarks="Syllabus review status: draft, in_review, approved" defaultValueComputed="'draft'">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <createIndex tableName="courses" indexName="courses_owner_user_id_idx">
+            <column name="owner_user_id"/>
+        </createIndex>
+        <sql>ALTER TABLE courses ADD CONSTRAINT courses_status_ck CHECK (status IN ('draft', 'in_review', 'approved'))</sql>
+
+        <createTable tableName="courses_audit" remarks="Append-only change history of courses">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="courses_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="courses_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in courses">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE courses_audit ADD CONSTRAINT courses_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="courses_audit" indexName="courses_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER courses_audit_trg AFTER INSERT OR UPDATE OR DELETE ON courses FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS courses_audit_trg ON courses</sql>
+            <dropTable tableName="courses_audit"/>
+            <dropTable tableName="courses" cascadeConstraints="true"/>
+            <dropSequence sequenceName="courses_audit_id_seq"/>
+            <dropSequence sequenceName="courses_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

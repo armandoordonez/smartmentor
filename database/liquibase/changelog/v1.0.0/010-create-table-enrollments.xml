@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/010-create-table-enrollments.xml">
+
+    <changeSet id="v1.0.0-010-create-table-enrollments" author="eduar.troyano">
+        <comment>Crea la tabla enrollments: inscripción de un estudiante a una ruta, con su perfil y objetivo (brief: Inscripción). La columna profile_embedding es provisional (D-01). Incluye secuencia propia, tabla de auditoría enrollments_audit y el trigger enrollments_audit_trg.</comment>
+
+        <createSequence sequenceName="enrollments_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="enrollments_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="enrollments" remarks="Student enrollment in a learning path, with profile and personal objective">
+                <column name="id" type="bigint" defaultValueSequenceNext="enrollments_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="enrollments_pkey" nullable="false"/>
+                </column>
+                <column name="user_id" type="bigint" remarks="Enrolled student">
+                    <constraints nullable="false" foreignKeyName="enrollments_user_id_fk" references="users(id)"/>
+                </column>
+                <column name="learning_path_id" type="bigint" remarks="Learning path of the enrollment">
+                    <constraints nullable="false" foreignKeyName="enrollments_learning_path_id_fk" references="learning_paths(id)"/>
+                </column>
+                <column name="profile_description" type="text" remarks="Free-text description of the student current knowledge"/>
+                <column name="profile_embedding" type="vector(1024)" remarks="Embedding of the student profile. Dimension is provisional (pending decision D-01)"/>
+                <column name="personal_objective" type="text" remarks="Personal learning objective confirmed by the student"/>
+                <column name="status" type="varchar(20)" remarks="Enrollment status: enrolled, in_progress, completed, abandoned" defaultValueComputed="'enrolled'">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="enrollments" constraintName="enrollments_user_path_uq" columnNames="user_id,learning_path_id"/>
+        <createIndex tableName="enrollments" indexName="enrollments_learning_path_id_idx">
+            <column name="learning_path_id"/>
+        </createIndex>
+        <sql>ALTER TABLE enrollments ADD CONSTRAINT enrollments_status_ck CHECK (status IN ('enrolled', 'in_progress', 'completed', 'abandoned'))</sql>
+
+        <createTable tableName="enrollments_audit" remarks="Append-only change history of enrollments">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="enrollments_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="enrollments_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in enrollments">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE enrollments_audit ADD CONSTRAINT enrollments_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="enrollments_audit" indexName="enrollments_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER enrollments_audit_trg AFTER INSERT OR UPDATE OR DELETE ON enrollments FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS enrollments_audit_trg ON enrollments</sql>
+            <dropTable tableName="enrollments_audit"/>
+            <dropTable tableName="enrollments" cascadeConstraints="true"/>
+            <dropSequence sequenceName="enrollments_audit_id_seq"/>
+            <dropSequence sequenceName="enrollments_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

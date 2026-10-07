@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/016-create-table-llm_call_logs.xml">
+
+    <changeSet id="v1.0.0-016-create-table-llm_call_logs" author="eduar.troyano">
+        <comment>Crea la tabla llm_call_logs: registro de cada llamada al LLM para métricas de costo, latencia y calidad (brief: Log LLM). Incluye secuencia propia, tabla de auditoría llm_call_logs_audit y el trigger llm_call_logs_audit_trg.</comment>
+
+        <createSequence sequenceName="llm_call_logs_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="llm_call_logs_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="llm_call_logs" remarks="Log of every LLM call for cost, latency and quality metrics">
+                <column name="id" type="bigint" defaultValueSequenceNext="llm_call_logs_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="llm_call_logs_pkey" nullable="false"/>
+                </column>
+                <column name="enrollment_id" type="bigint" remarks="Enrollment related to the call, when applicable">
+                    <constraints nullable="true" foreignKeyName="llm_call_logs_enrollment_id_fk" references="enrollments(id)"/>
+                </column>
+                <column name="task" type="varchar(100)" remarks="Task performed (syllabus extraction, diagnostic, quiz, grading, ...)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="model" type="varchar(100)" remarks="Model used">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="prompt_version" type="varchar(50)" remarks="Prompt version"/>
+                <column name="input_tokens" type="integer" remarks="Input tokens"/>
+                <column name="output_tokens" type="integer" remarks="Output tokens"/>
+                <column name="cost_usd" type="numeric(12,6)" remarks="Estimated cost in USD"/>
+                <column name="latency_ms" type="integer" remarks="Latency in milliseconds"/>
+                <column name="status" type="varchar(10)" remarks="Call result: success or error" defaultValueComputed="'success'">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="error_message" type="text" remarks="Error message when the call failed"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <createIndex tableName="llm_call_logs" indexName="llm_call_logs_enrollment_id_idx">
+            <column name="enrollment_id"/>
+        </createIndex>
+        <sql>ALTER TABLE llm_call_logs ADD CONSTRAINT llm_call_logs_status_ck CHECK (status IN ('success', 'error'))</sql>
+
+        <createTable tableName="llm_call_logs_audit" remarks="Append-only change history of llm_call_logs">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="llm_call_logs_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="llm_call_logs_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in llm_call_logs">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE llm_call_logs_audit ADD CONSTRAINT llm_call_logs_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="llm_call_logs_audit" indexName="llm_call_logs_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER llm_call_logs_audit_trg AFTER INSERT OR UPDATE OR DELETE ON llm_call_logs FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS llm_call_logs_audit_trg ON llm_call_logs</sql>
+            <dropTable tableName="llm_call_logs_audit"/>
+            <dropTable tableName="llm_call_logs" cascadeConstraints="true"/>
+            <dropSequence sequenceName="llm_call_logs_audit_id_seq"/>
+            <dropSequence sequenceName="llm_call_logs_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

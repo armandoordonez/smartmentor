@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  v1.0.0: modelo de datos inicial (cohorte 1).
+  Autor: eduar.troyano. Fecha: 2026-10-07.
+  Recurso: proyecto/brief.md, sección "Modelo de datos principal".
+  Orden: 001 extensión y zona horaria, 002 función de auditoría, 003-016 tablas (cada una con su
+  tabla _audit y su trigger), 017 índices vectoriales, 018 roles iniciales, 019 etiqueta v1.0.0.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/db.changelog-v1.0.0.xml">
+
+    <include file="001-extensions-and-timezone.xml" relativeToChangelogFile="true"/>
+    <include file="002-audit-function.xml" relativeToChangelogFile="true"/>
+    <include file="003-create-table-roles.xml" relativeToChangelogFile="true"/>
+    <include file="004-create-table-users.xml" relativeToChangelogFile="true"/>
+    <include file="005-create-table-user_roles.xml" relativeToChangelogFile="true"/>
+    <include file="006-create-table-courses.xml" relativeToChangelogFile="true"/>
+    <include file="007-create-table-topics.xml" relativeToChangelogFile="true"/>
+    <include file="008-create-table-topic_prerequisites.xml" relativeToChangelogFile="true"/>
+    <include file="009-create-table-learning_paths.xml" relativeToChangelogFile="true"/>
+    <include file="010-create-table-enrollments.xml" relativeToChangelogFile="true"/>
+    <include file="011-create-table-diagnostics.xml" relativeToChangelogFile="true"/>
+    <include file="012-create-table-path_steps.xml" relativeToChangelogFile="true"/>
+    <include file="013-create-table-resources.xml" relativeToChangelogFile="true"/>
+    <include file="014-create-table-assessment_attempts.xml" relativeToChangelogFile="true"/>
+    <include file="015-create-table-badges.xml" relativeToChangelogFile="true"/>
+    <include file="016-create-table-llm_call_logs.xml" relativeToChangelogFile="true"/>
+    <include file="017-vector-indexes.xml" relativeToChangelogFile="true"/>
+    <include file="018-seed-roles.xml" relativeToChangelogFile="true"/>
+    <include file="019-tag-v1.0.0.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

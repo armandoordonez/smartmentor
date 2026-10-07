@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.0/004-create-table-users.xml">
+
+    <changeSet id="v1.0.0-004-create-table-users" author="eduar.troyano">
+        <comment>Crea la tabla users: usuarios de la plataforma. Sin contraseña: la identidad se delega a un proveedor externo (Keycloak, pendiente D-03). Incluye secuencia propia, tabla de auditoría users_audit y el trigger users_audit_trg.</comment>
+
+        <createSequence sequenceName="users_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="users_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="users" remarks="Platform users. No password is stored: authentication is delegated to an external identity provider">
+                <column name="id" type="bigint" defaultValueSequenceNext="users_id_seq" remarks="Primary key">
+                    <constraints primaryKey="true" primaryKeyName="users_pkey" nullable="false"/>
+                </column>
+                <column name="full_name" type="varchar(200)" remarks="User full name">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="email" type="varchar(320)" remarks="User email, unique ignoring case">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="identity_provider" type="varchar(50)" remarks="Identity provider that authenticates the user (for example keycloak)"/>
+                <column name="identity_subject" type="varchar(255)" remarks="Subject (sub claim) of the user in the identity provider"/>
+                <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                    <constraints nullable="false"/>
+                </column>
+        </createTable>
+
+        <sql>CREATE UNIQUE INDEX users_email_uq ON users (lower(email))</sql>
+        <sql>CREATE UNIQUE INDEX users_identity_uq ON users (identity_provider, identity_subject) WHERE identity_subject IS NOT NULL</sql>
+        <sql>ALTER TABLE users ADD CONSTRAINT users_identity_ck CHECK ((identity_provider IS NULL) = (identity_subject IS NULL))</sql>
+
+        <createTable tableName="users_audit" remarks="Append-only change history of users">
+                <column name="audit_id" type="bigint" defaultValueSequenceNext="users_audit_id_seq" remarks="Primary key of the audit row">
+                    <constraints primaryKey="true" primaryKeyName="users_audit_pkey" nullable="false"/>
+                </column>
+                <column name="record_id" type="bigint" remarks="Id of the audited row in users">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="old_data" type="jsonb" remarks="Row before the change"/>
+                <column name="new_data" type="jsonb" remarks="Row after the change"/>
+                <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                    <constraints nullable="false"/>
+                </column>
+                <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+                <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE users_audit ADD CONSTRAINT users_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="users_audit" indexName="users_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER users_audit_trg AFTER INSERT OR UPDATE OR DELETE ON users FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS users_audit_trg ON users</sql>
+            <dropTable tableName="users_audit"/>
+            <dropTable tableName="users" cascadeConstraints="true"/>
+            <dropSequence sequenceName="users_audit_id_seq"/>
+            <dropSequence sequenceName="users_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
