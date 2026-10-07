@@ -10,8 +10,10 @@ venv/
 venv312/
 env/
 
-# IDE
-.vscode/
+# IDE (.vscode/ se versiona: extensions.json y settings.json son compartidos)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
@@ -59,3 +61,4 @@ database/data/*
 !database/data/.gitkeep
 database/backups/*
 !database/backups/.gitkeep
+

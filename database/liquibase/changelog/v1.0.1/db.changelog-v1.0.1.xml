@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  v1.0.1: usuario administrador inicial.
+  Autor: eduar.troyano. Fecha: 2026-10-07.
+  Recurso: proyecto/brief.md, módulo 1 "Gestión de usuarios" (roles admin, docente y estudiante).
+  Orden: 001 usuario Administrador con rol admin, 002 etiqueta v1.0.1.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.1/db.changelog-v1.0.1.xml">
+
+    <include file="001-seed-admin-user.xml" relativeToChangelogFile="true"/>
+    <include file="002-tag-v1.0.1.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

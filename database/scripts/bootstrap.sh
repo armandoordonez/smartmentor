@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Crea la base de datos de SmartMentor si no existe (idempotente).
+# Crea las bases de datos de SmartMentor (aplicación y Keycloak) si no existen (idempotente).
 #
 # Uso:
 #   ./database/scripts/bootstrap.sh
@@ -31,7 +31,8 @@ if [[ -n "${ADMIN_DATABASE_URL:-}" ]]; then
 else
   : "${POSTGRES_USER:?Define POSTGRES_USER (en .env o en el entorno)}"
   echo "Bootstrap de '$POSTGRES_DB' en el contenedor smartmentor-postgres..."
-  docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T -e POSTGRES_DB="$POSTGRES_DB" postgres \
+  docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T -e POSTGRES_DB="$POSTGRES_DB" \
+      -e KEYCLOAK_DB_NAME -e KEYCLOAK_DB_USER -e KEYCLOAK_DB_PASSWORD postgres \
     psql -U "$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1 -f - < "$SQL_FILE"
 fi
 echo "Listo."

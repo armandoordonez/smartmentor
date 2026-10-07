@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.1/001-seed-admin-user.xml">
+
+    <changeSet id="v1.0.1-001-seed-admin-user" author="eduar.troyano">
+        <comment>Crea el usuario administrador inicial (Administrador, admin.smartmentor@yopmail.com) con el rol admin. No tiene identity_subject: se vincula con Keycloak en el primer acceso, por el correo verificado (pendiente D-03).</comment>
+
+        <insert tableName="users">
+            <column name="full_name" value="Administrador"/>
+            <column name="email" value="admin.smartmentor@yopmail.com"/>
+        </insert>
+
+        <sql>
+            INSERT INTO user_roles (user_id, role_id)
+            SELECT u.id, r.id
+            FROM users u, roles r
+            WHERE lower(u.email) = 'admin.smartmentor@yopmail.com' AND r.code = 'admin'
+        </sql>
+
+        <rollback>
+            <sql>DELETE FROM user_roles WHERE user_id IN (SELECT id FROM users WHERE lower(email) = 'admin.smartmentor@yopmail.com')</sql>
+            <sql>DELETE FROM users WHERE lower(email) = 'admin.smartmentor@yopmail.com'</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,6 +1,6 @@
 # database/
 
-Gestión de la base de datos de SmartMentor: **PostgreSQL 17 + pgvector 0.8.7**, base `smartmentor`, zona horaria `America/Bogota`. El esquema se versiona con **Liquibase 5.0.4**.
+Gestión de la base de datos de SmartMentor: **PostgreSQL 17 + pgvector 0.8.7**, base `smartmentor`, zona horaria `America/Bogota`. El esquema se versiona con **Liquibase 5.0.4**. Versión actual del esquema: **v1.0.1**.
 
 - Decisiones: [ADR 0001 (PostgreSQL + pgvector)](../docs/adr/0001-postgres-pgvector.md) y [ADR 0002 (Liquibase)](../docs/adr/0002-liquibase-schema-versioning.md).
 - Operación de Liquibase (escenarios y comandos): [`liquibase/README.md`](liquibase/README.md).
@@ -17,16 +17,18 @@ database/
 ├── backups/
 │   └── .gitkeep                  # copias *.dump (ignoradas por git)
 ├── bootstrap/
-│   └── 01-create-database.sql    # crea la base smartmentor si no existe (idempotente)
+│   └── 01-create-database.sql    # crea las bases smartmentor y keycloak (y el rol de Keycloak) si no existen
 ├── scripts/
-│   ├── backup.sh                 # copia de seguridad versionada por fecha
+│   ├── backup.sh                 # copia de seguridad (aplicación y Keycloak), versionada por fecha
+│   ├── restore.sh                # restaura una copia de backup.sh
 │   └── bootstrap.sh              # ejecuta bootstrap/ en otros ambientes
 └── liquibase/
     ├── README.md                 # cómo funciona Liquibase, escenarios y comandos
     ├── Dockerfile                # liquibase/liquibase:5.0.4 + driver PostgreSQL (lpm)
     └── changelog/
         ├── db.changelog-master.xml
-        └── v1.0.0/               # un archivo por changeset
+        ├── v1.0.0/               # modelo de datos inicial: un archivo por changeset
+        └── v1.0.1/               # usuario administrador inicial
 ```
 
 `database/data/` usa la subcarpeta `postgres/` porque `initdb` exige un directorio vacío y la carpeta raíz contiene un `.gitkeep`.
@@ -38,7 +40,7 @@ Liquibase **no crea la base de datos**: se conecta a una que ya existe. Por eso 
 | Nivel | Qué hace | Cuándo | Cómo |
 | --- | --- | --- | --- |
 | 0. Servidor | Instancia PostgreSQL 17 + pgvector | Una vez por ambiente | Local: contenedor `smartmentor-postgres`. Nube: el proveedor (pendiente D-06). |
-| 1. Bootstrap | Crear la base `smartmentor` si no existe | Una vez por ambiente; es idempotente | `bootstrap/01-create-database.sql` |
+| 1. Bootstrap | Crear las bases `smartmentor` y `keycloak` (con su rol) si no existen | Una vez por ambiente; es idempotente | `bootstrap/01-create-database.sql` |
 | 2. Esquema | Extensión `vector`, zona horaria, tablas, auditoría, datos semilla | En cada despliegue | Liquibase `update` |
 
 ### Local
@@ -73,22 +75,51 @@ En servicios gestionados, `CREATE EXTENSION vector` y `ALTER DATABASE ... SET ti
 
 **Usuario:** por ahora Liquibase y la API usan el mismo usuario dueño (`POSTGRES_USER`). La separación en usuarios de mínimo privilegio es el pendiente D-05.
 
-## Copias de seguridad
+## Datos iniciales
+
+| Versión | Dato | Detalle |
+| --- | --- | --- |
+| v1.0.0 | Roles | `admin`, `teacher`, `student` |
+| v1.0.1 | Usuario administrador | Nombre `Administrador`, correo `admin.smartmentor@yopmail.com`, rol `admin`. Sin contraseña y sin `identity_subject`: la API lo enlaza con Keycloak en el primer acceso, por el correo verificado ([ADR 0004](../docs/adr/0004-authentication-keycloak-bearer.md); pasos en [`keycloak/README.md`](../keycloak/README.md)). |
+
+## Base de datos de pruebas
+
+La API prueba contra `smartmentor_test`, una base aparte que se vacía entre pruebas. Se crea y migra con `api/scripts/dev.sh prepare-test-db` (usa `bootstrap.sh` y Liquibase). No toca `smartmentor`.
+
+## Dos bases en el mismo servidor
+
+| Base | Dueño | Para qué | Quién crea sus tablas |
+| --- | --- | --- | --- |
+| `smartmentor` | `smartmentor` (`POSTGRES_USER`) | Datos de la aplicación | Liquibase |
+| `keycloak` | `keycloak` (`KEYCLOAK_DB_USER`) | Realm, usuarios y credenciales de Keycloak ([ADR 0005](../docs/adr/0005-keycloak-postgres-realm-versioned.md)) | Keycloak, por su cuenta |
+| `smartmentor_test` | `smartmentor` | Pruebas de la API (se crea con `api/scripts/dev.sh prepare-test-db`) | Liquibase |
+
+Cada base tiene su rol: Keycloak no puede leer los datos de la aplicación ni al revés. El bootstrap crea la base y el rol de Keycloak con `KEYCLOAK_DB_NAME`, `KEYCLOAK_DB_USER` y `KEYCLOAK_DB_PASSWORD`.
+
+## Copias de seguridad y restauración
 
 ```bash
 ./database/scripts/backup.sh
 # → database/backups/smartmentor_YYYYMMDD_HHMMSS.dump   (fecha y hora de Bogotá)
+# → database/backups/keycloak_YYYYMMDD_HHMMSS.dump
 ```
 
-- Formato `pg_dump` personalizado (`-Fc`). El script valida el archivo con `pg_restore --list`.
+- Respalda **las dos bases** (la de Keycloak incluye sus usuarios). Formato `pg_dump` personalizado (`-Fc`), validado con `pg_restore --list`.
 - Retención opcional: `BACKUP_RETENTION_DAYS=30 ./database/scripts/backup.sh` borra copias más antiguas.
+- Los respaldos de Keycloak contienen hashes de contraseñas y llaves de firma: `database/backups/` está ignorado por git y se trata como secreto.
 
-Restaurar en la base local (**reemplaza los datos actuales**):
+Restaurar (**reemplaza los datos de la base de destino**). Detén antes lo que la usa:
 
 ```bash
-docker compose exec -T postgres pg_restore -U "$POSTGRES_USER" -d smartmentor --clean --if-exists --no-owner \
-  < database/backups/smartmentor_YYYYMMDD_HHMMSS.dump
+docker compose stop api keycloak
+./database/scripts/restore.sh database/backups/smartmentor_YYYYMMDD_HHMMSS.dump
+./database/scripts/restore.sh database/backups/keycloak_YYYYMMDD_HHMMSS.dump
+docker compose up -d
 ```
+
+- La base de destino se deduce del nombre del archivo; `restore.sh <archivo> <otra_base>` restaura en una base distinta (se crea si falta), útil para revisar una copia sin tocar la real.
+- Pide confirmación; sin terminal exige `--yes`.
+- La base de Keycloak se restaura a nombre de su rol, para que Keycloak pueda seguir usando las tablas.
 
 ---
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v1.0.1/002-tag-v1.0.1.xml">
+
+    <!-- Comentario del changeset: etiqueta la base de datos como v1.0.1 (usuario administrador inicial).
+         tagDatabase debe ser el único elemento del changeset, por eso el comentario va aquí. -->
+    <changeSet id="v1.0.1-002-tag" author="eduar.troyano">
+        <tagDatabase tag="v1.0.1"/>
+    </changeSet>
+
+</databaseChangeLog>

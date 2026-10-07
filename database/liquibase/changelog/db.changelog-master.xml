@@ -22,4 +22,7 @@
     <!-- v1.0.0: modelo de datos inicial de la cohorte 1 (14 tablas, auditoría, índices vectoriales, roles) -->
     <include file="v1.0.0/db.changelog-v1.0.0.xml" relativeToChangelogFile="true"/>
 
+    <!-- v1.0.1: usuario administrador inicial (Administrador, admin.smartmentor@yopmail.com) -->
+    <include file="v1.0.1/db.changelog-v1.0.1.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

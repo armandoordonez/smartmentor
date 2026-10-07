@@ -41,13 +41,17 @@ La API solo arranca si Liquibase terminó bien (`service_completed_successfully`
 ```text
 changelog/
 ├── db.changelog-master.xml          # punto de entrada: incluye cada versión en orden
-└── v1.0.0/
-    ├── db.changelog-v1.0.0.xml      # incluye los changesets de la versión en orden
-    ├── 001-extensions-and-timezone.xml
-    ├── 002-audit-function.xml
-    ├── 003-create-table-roles.xml
-    ├── ...
-    └── 019-tag-v1.0.0.xml
+├── v1.0.0/                          # modelo de datos inicial
+│   ├── db.changelog-v1.0.0.xml      # incluye los changesets de la versión en orden
+│   ├── 001-extensions-and-timezone.xml
+│   ├── 002-audit-function.xml
+│   ├── 003-create-table-roles.xml
+│   ├── ...
+│   └── 019-tag-v1.0.0.xml
+└── v1.0.1/                          # usuario administrador inicial
+    ├── db.changelog-v1.0.1.xml
+    ├── 001-seed-admin-user.xml
+    └── 002-tag-v1.0.1.xml
 ```
 
 | Elemento | Convención |
