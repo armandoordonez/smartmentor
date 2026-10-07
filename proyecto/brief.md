@@ -264,6 +264,7 @@ smartmentor/
 ├── design/              # prototipo, wireframes, enlace a Figma
 ├── app/                 # interfaz (Streamlit o Next.js)
 ├── api/                 # FastAPI: usuarios, cursos, rutas, evaluaciones
+├── database/            # PostgreSQL + pgvector: Liquibase, bootstrap, backups, volumen local
 ├── ai/                  # generación, RAG, motor de ruta, calificador
 ├── prompts/             # prompts versionados + esquemas JSON
 ├── data/                # syllabus de ejemplo y anotaciones (sin datos personales)

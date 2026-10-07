@@ -1,3 +1,16 @@
 # CHANGELOG
 
 Cambios por versión y cohorte.
+
+## Sin publicar (cohorte 1)
+
+### Base de datos
+
+- Contenedor `smartmentor-postgres` (PostgreSQL 17 + pgvector 0.8.7) con volumen en `database/data/postgres`, reinicio automático y zona horaria `America/Bogota`.
+- Liquibase 5.0.4 en contenedor. Versión de esquema `v1.0.0`: 14 tablas de negocio con su tabla `_audit` y trigger, secuencias propias, `active` y `created_at`, índices HNSW provisionales (D-01) y roles iniciales (`admin`, `teacher`, `student`). Todos los changesets tienen rollback.
+- `users` sin contraseña; enlace opcional con un proveedor de identidad (`identity_provider`, `identity_subject`) para Keycloak (D-03).
+- Scripts `backup.sh` (copias con fecha) y `bootstrap.sh` (crea la base si falta).
+
+### Documentación
+
+- ADR 0001 a 0003, `proyecto/decisiones-pendientes.md` y estándar de microservicios FastAPI (rev. 2).
