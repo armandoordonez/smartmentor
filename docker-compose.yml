@@ -1,7 +1,7 @@
 # Entorno reproducible de SmartMentor.
 # Uso: cp .env.example .env && docker compose up -d
-# Servicios: postgres (PostgreSQL 17 + pgvector) -> liquibase (aplica el esquema y termina).
-# El servicio de la API se agrega en la fase del microservicio.
+# Servicios: postgres (PostgreSQL 17 + pgvector) -> liquibase (aplica el esquema y termina) -> api.
+# keycloak (proveedor de identidad, sobre el mismo PostgreSQL): la API valida sus tokens y descarga sus llaves públicas por la red interna.
 
 name: smartmentor
 
@@ -16,6 +16,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TZ: ${TZ:-America/Bogota}
       PGTZ: ${TZ:-America/Bogota}
+      # Los lee 01-create-database.sql para crear la base y el rol de Keycloak
+      KEYCLOAK_DB_NAME: ${KEYCLOAK_DB_NAME:-keycloak}
+      KEYCLOAK_DB_USER: ${KEYCLOAK_DB_USER:-keycloak}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Define KEYCLOAK_DB_PASSWORD en .env (ver .env.example)}
     command: ["postgres", "-c", "timezone=America/Bogota", "-c", "log_timezone=America/Bogota"]
     ports:
       - "${POSTGRES_PORT:-5442}:5432"
@@ -49,3 +53,69 @@ services:
     volumes:
       - ./database/liquibase/changelog:/liquibase/changelog:ro
     command: ["update"]
+
+  api:
+    build:
+      context: ./api
+    image: smartmentor-api:0.1.0
+    container_name: smartmentor-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Bogota}
+      DATABASE_HOST: ${DATABASE_HOST:-postgres}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_NAME: ${DATABASE_NAME:-smartmentor}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-1024}
+      # Keycloak: el emisor es la URL que ve el cliente; las llaves se descargan por la red interna.
+      OIDC_ISSUER_URL: ${OIDC_ISSUER_URL:?Define OIDC_ISSUER_URL en .env (ver .env.example)}
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://keycloak:8080/realms/smartmentor/protocol/openid-connect/certs}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-smartmentor-api}
+    ports:
+      - "${API_PORT:-8020}:8000"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.0
+    container_name: smartmentor-keycloak
+    restart: unless-stopped
+    # start-dev: modo de desarrollo (HTTP). Sus datos están en el PostgreSQL del proyecto.
+    # --import-realm: importa keycloak/realm/*.json solo si el realm todavía no existe.
+    # Para producción se usa start con HTTPS (ver keycloak/README.md).
+    command: ["start-dev", "--import-realm"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${KEYCLOAK_DB_NAME:-keycloak}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Define KEYCLOAK_DB_PASSWORD en .env (ver .env.example)}
+      KC_HEALTH_ENABLED: "true"
+      TZ: ${TZ:-America/Bogota}
+    ports:
+      - "${KEYCLOAK_PORT:-8180}:8080"
+    volumes:
+      # Configuración del realm versionada en git (roles, clientes, mappers y usuarios de prueba).
+      - ./keycloak/realm:/opt/keycloak/data/import
+    healthcheck:
+      # La imagen no trae curl: se consulta el puerto de gestión (9000) con bash.
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/localhost/9000;
+          echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3;
+          grep -q '"status": "UP"' <&3
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
