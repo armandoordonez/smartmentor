@@ -31,6 +31,7 @@ Cambios por versión y cohorte.
 ### Interfaz
 
 - Decisión: interfaz en **Streamlit** ([ADR 0006](docs/adr/0006-frontend-streamlit.md)). Arquitectura en `app/README.md`: capas, autenticación con Keycloak (cliente confidencial `smartmentor-ui`), caché solo para datos públicos, datos de ejemplo para la Fase 0 y análisis de la guía de referencia. Sin código todavía.
+- Prototipo de la Fase 0 en Streamlit, a partir del [diseño de Figma](https://www.figma.com/design/wIzBv0tOtRaoVmldEXPyff/SmartMentor-%C2%B7-Prototipo-Fase-0-v2--Estudiante--Docente--Admin-?node-id=0-1): 23 pantallas del estudiante, el docente y el admin (sin las de login), con datos de ejemplo que simulan la API y sus reglas (`APP_DATA_SOURCE=sample`). Se entra eligiendo un rol. Tema con los tokens del diseño en `.streamlit/config.toml`, sin CSS; reglas de Figma a Streamlit en `app/CLAUDE.md`. Dockerfile, herramientas en contenedores (`app/scripts/dev.sh`), Ruff, mypy estricto y 36 pruebas (unitarias y de páginas con `AppTest`). Servicio `app` en el compose (`http://localhost:8501`, `APP_PORT` en `.env`).
 
 ### Documentación
 

@@ -1,0 +1,64 @@
+# Configuración de Streamlit. Los colores, la tipografía y los radios son los tokens del diseño
+# de Figma (ver app/CLAUDE.md, sección 2). No se usa CSS: todo el aspecto sale de este archivo.
+
+[server]
+# Sirve src/static/ (la fuente Inter) en app/static/.
+enableStaticServing = true
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "viewer"
+
+[theme]
+base = "light"
+primaryColor = "#0073E5"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F5F7"
+textColor = "#1A1A1F"
+borderColor = "#E0E3EB"
+linkColor = "#0073E5"
+linkUnderline = false
+showWidgetBorder = true
+
+font = "Inter, sans-serif"
+headingFont = "Inter, sans-serif"
+baseFontSize = 14
+headingFontSizes = ["1.75rem", "1.5rem", "1.125rem", "1rem", "0.875rem", "0.75rem"]
+headingFontWeights = [700, 700, 600, 600, 600, 600]
+metricValueFontSize = "1.5rem"
+metricValueFontWeight = 700
+
+baseRadius = "10px"
+buttonRadius = "full"
+
+# Paleta de badges y avisos (componente Badge de Figma: Verde, Azul, Ámbar, Gris, Violeta).
+greenColor = "#1A8C4D"
+greenBackgroundColor = "#E0F5E5"
+greenTextColor = "#1A8C4D"
+blueColor = "#0073E5"
+blueBackgroundColor = "#E8F0FC"
+blueTextColor = "#0073E5"
+orangeColor = "#CC730D"
+orangeBackgroundColor = "#FFF2DB"
+orangeTextColor = "#CC730D"
+yellowColor = "#CC730D"
+yellowBackgroundColor = "#FFF2DB"
+yellowTextColor = "#CC730D"
+grayColor = "#6B7080"
+grayBackgroundColor = "#EDEDF2"
+grayTextColor = "#6B7080"
+violetColor = "#734DD9"
+violetBackgroundColor = "#F0E8FC"
+violetTextColor = "#734DD9"
+redColor = "#CC3333"
+
+chartCategoricalColors = ["#0073E5", "#1A8C4D", "#734DD9", "#CC730D", "#6B7080"]
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/InterVariable.woff2"
+weight = "100 900"
+style = "normal"

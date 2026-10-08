@@ -1,0 +1,47 @@
+[project]
+name = "smartmentor-app"
+version = "0.1.0"
+description = "Interfaz de SmartMentor en Streamlit: estudiante, docente y administración"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "streamlit>=1.50",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+]
+
+# La interfaz no es un paquete instalable: solo se resuelven sus dependencias.
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src"]
+# Los .md son documentación: sus bloques de código no se formatean.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+files = ["src"]
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

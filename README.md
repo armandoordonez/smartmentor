@@ -25,16 +25,17 @@ Seguimiento de tareas con responsables y porcentaje de avance: [`proyecto/checkl
 
 ```bash
 cp .env.example .env           # reemplaza POSTGRES_PASSWORD y DATABASE_PASSWORD (iguales) y KEYCLOAK_ADMIN_PASSWORD
-docker compose up -d --build   # postgres → liquibase update → api, y keycloak
+docker compose up -d --build   # postgres → liquibase update → api, keycloak y app
 ```
 
 | Servicio | URL | Para qué |
 | --- | --- | --- |
+| Interfaz | <http://localhost:8501> | Prototipo en Streamlit con datos de ejemplo; se entra eligiendo un rol ([guía](app/README.md)) |
 | API | <http://localhost:8020/docs> | Documentación interactiva y pruebas manuales |
 | Keycloak | <http://localhost:8180> | Consola de identidad ([guía](keycloak/README.md)) |
 | PostgreSQL | `localhost:5442` | `psql -h localhost -p 5442 -U smartmentor -d smartmentor` |
 
-Los puertos (5442, 8020, 8180) se cambian en `.env`; se eligieron porque 5432, 8000 y 8080 suelen estar ocupados.
+Los puertos (5442, 8020, 8180, 8501) se cambian en `.env`; se eligieron porque 5432, 8000 y 8080 suelen estar ocupados.
 
 **Antes de usar la API con un frontend**, configura Keycloak (realm, roles, mapper de audiencia, tu usuario administrador con correo verificado): [`keycloak/README.md`](keycloak/README.md). Todas las rutas de `/api/v1` exigen un bearer token. Cómo obtenerlo y probar con Swagger, la terminal o Postman: [`api/README.md`](api/README.md#obtener-un-token-y-probar-la-api).
 
@@ -62,7 +63,7 @@ api/scripts/dev.sh all               # Ruff + mypy estricto + pytest
 | [`keycloak/`](keycloak/README.md) | Proveedor de identidad: realm versionado y guía de configuración |
 | [`docs/adr/`](docs/adr/README.md) | Decisiones de arquitectura |
 | [`proyecto/`](proyecto/README.md) | Brief y decisiones pendientes |
-| [`app/`](app/README.md) | Interfaz en Streamlit: arquitectura y plan |
+| [`app/`](app/README.md) | Interfaz en Streamlit: prototipo de la Fase 0, arquitectura y reglas de Figma |
 | `ai/`, `prompts/`, `data/`, `notebooks/`, `design/`, `tests/` | Por construir en las siguientes fases |
 
 ## Trabajar en varios PC y trasladar datos

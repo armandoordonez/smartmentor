@@ -2,7 +2,19 @@
 
 Interfaz de usuario de SmartMentor en **Streamlit**: portal del estudiante, panel del docente y administración. Decisión registrada en el [ADR 0006](../docs/adr/0006-frontend-streamlit.md).
 
-> **Estado:** arquitectura definida; **sin código todavía**. El primer paso es la [prueba técnica del login](#1-prueba-técnica-del-login-1-día), que confirma los puntos marcados como «a verificar».
+> **Estado:** el **prototipo de la Fase 0** está construido: las pantallas del [diseño de Figma](https://www.figma.com/design/wIzBv0tOtRaoVmldEXPyff/SmartMentor-%C2%B7-Prototipo-Fase-0-v2--Estudiante--Docente--Admin-?node-id=0-1) (estudiante, docente y admin, sin las de login) corren con **datos de ejemplo** (`APP_DATA_SOURCE=sample`). Todavía no hay login ni conexión con la API: se entra eligiendo un rol. El siguiente paso es la [prueba técnica del login](#1-prueba-técnica-del-login-1-día). Las reglas para pasar diseños de Figma a código están en [`CLAUDE.md`](CLAUDE.md).
+
+## Cómo ejecutarla
+
+```bash
+docker compose up -d --build app   # despliegue: servicio app del compose, http://localhost:8501
+app/scripts/dev.sh run             # desarrollo: el código montado desde la carpeta, mismo puerto
+app/scripts/dev.sh all             # Ruff, mypy estricto y pytest
+```
+
+El servicio `app` del compose usa la imagen de `app/Dockerfile` (usuario sin privilegios, healthcheck en `/_stcore/health`). Por ahora no depende de `api` ni de `keycloak`: corre con `APP_DATA_SOURCE=sample`. El puerto se cambia con `APP_PORT` en `.env`; para no chocar, `dev.sh run` y el servicio no se levantan a la vez.
+
+Todo corre en contenedores (no hace falta instalar Python ni uv). La primera pantalla es el selector de rol (A1): cada rol entra con un usuario de ejemplo (Laura Martínez, Elena Ramírez o el admin). Los cambios de una sesión del navegador no afectan a otra, pero sí se ven al cambiar de rol en la misma: lo que hace el estudiante lo ve el docente.
 
 ## Por qué Streamlit
 
@@ -76,64 +88,71 @@ Se adopta el modelo por capas de la [guía de referencia](streamlit_frontend_arc
 
 ```text
 app/
-├── README.md                       # este documento
+├── README.md, CLAUDE.md            # arquitectura y reglas de Figma → Streamlit
 ├── streamlit_frontend_architecture_guide.md   # guía de referencia (analizada abajo)
-├── Dockerfile                      # imagen de la interfaz (multi-etapa, usuario sin privilegios)
-├── docker-entrypoint.sh            # genera .streamlit/secrets.toml desde variables de entorno
+├── Dockerfile, .dockerignore       # imagen de la interfaz (multi-etapa, usuario sin privilegios)
 ├── pyproject.toml, uv.lock         # dependencias (uv), Ruff, mypy, pytest (igual que la API)
-├── .streamlit/
-│   ├── config.toml                 # tema y opciones del servidor (en git)
-│   └── secrets.toml                # se genera al arrancar; nunca en git
+├── scripts/dev.sh                  # lock, format, lint, typecheck, test, run (en contenedores)
+├── .streamlit/config.toml          # tema: los tokens del diseño de Figma (sin CSS)
 ├── src/
-│   ├── main.py                     # punto de entrada: página, login, menú por rol, st.navigation
+│   ├── main.py                     # punto de entrada: página, rol, barra superior, navegación, errores
+│   ├── static/fonts/               # Inter (licencia OFL), servida por Streamlit
 │   ├── core/
 │   │   ├── config.py               # variables de entorno tipadas (pydantic-settings)
-│   │   ├── auth.py                 # st.login / st.logout, token vigente, usuario y roles (/me)
-│   │   ├── session.py              # acceso tipado a st.session_state (claves en un solo lugar)
-│   │   ├── navigation.py           # páginas visibles según el rol
-│   │   └── errors.py               # errores de la API → mensajes en español para el usuario
+│   │   ├── session.py              # acceso tipado a st.session_state (AppSession)
+│   │   ├── container.py            # arma los servicios sobre la fuente de datos de la sesión
+│   │   ├── navigation.py           # páginas registradas y enlaces de cada rol
+│   │   └── errors.py               # errores de la API → mensajes en español
 │   ├── clients/
-│   │   ├── base.py                 # Protocol del cliente (para cambiar API real ↔ datos de ejemplo)
-│   │   ├── models.py               # modelos Pydantic de las respuestas de la API
-│   │   ├── smartmentor_api.py      # cliente HTTP real (httpx), con el token del usuario
-│   │   └── sample_data.py          # datos de ejemplo: prototipo de la Fase 0 y pruebas
-│   ├── services/
-│   │   ├── catalog.py              # cursos, rutas y temas para el catálogo
-│   │   ├── enrollment.py           # inscribirse, perfil, objetivo, abandonar
-│   │   ├── learning_path.py        # «mi ruta»: pasos con su tema y su estado
-│   │   ├── assessment.py           # diagnóstico y quizzes: preguntas, entrega, resultado
-│   │   └── teacher_dashboard.py    # indicadores de avance para el docente
-│   ├── components/
-│   │   ├── course_card.py, path_timeline.py, quiz_form.py, video_player.py,
-│   │   ├── badge_card.py, kpi_cards.py, charts.py
-│   │   └── layout.py               # encabezado, pie y mensajes comunes
+│   │   ├── base.py                 # Protocol del cliente y ApiError
+│   │   ├── models.py               # modelos Pydantic de las respuestas
+│   │   ├── sample_data.py          # cliente de ejemplo: simula la API y sus reglas
+│   │   └── sample_seed.py          # datos de ejemplo (la historia del diseño de Figma)
+│   ├── services/                   # catalog, enrollment, learning_path, assessment,
+│   │                               # teacher_dashboard, admin
+│   ├── components/                 # layout, table, course_card, path_timeline, quiz_form,
+│   │                               # video_player, levels, kpi_cards, badge_card, role_card,
+│   │                               # theme (textos y colores de cada estado), formatting
 │   └── pages/
-│       ├── common/   home.py, profile.py
-│       ├── student/  catalog.py, diagnostic.py, my_path.py, topic.py, badge.py
-│       ├── teacher/  dashboard.py, courses.py, syllabus_review.py
-│       └── admin/    users.py
-├── assets/
-│   └── images/                     # logo e imágenes
+│       ├── common/   role_selector.py
+│       ├── student/  catalog, diagnostic, my_path, topic, final_assessment, review, badge,
+│       │             progress, achievements (+ context.py, apoyo compartido)
+│       ├── teacher/  courses, syllabus_review, dashboard, student_detail, content_review
+│       └── admin/    users, llm_logs, metrics
 └── tests/
-    ├── unit/                       # services y clients (con httpx.MockTransport)
-    └── ui/                         # páginas con streamlit.testing.v1.AppTest y datos de ejemplo
+    ├── unit/                       # datos de ejemplo, servicios y formato
+    └── ui/                         # páginas con streamlit.testing.v1.AppTest
 ```
+
+El cliente HTTP real (`clients/smartmentor_api.py`, con `httpx`) y `core/auth.py` (login con `st.login`) llegan con la prueba técnica del login; las páginas y los servicios no cambian, porque solo dependen del Protocol de `clients/base.py`.
 
 ### Pantallas, roles y endpoints
 
-Las 7 pantallas del brief más el panel del docente y la administración. Todas usan endpoints que ya existen; lo que falta es lo que genera la capa de IA (diagnósticos, pasos de la ruta, quizzes, recursos).
+Cada frame del diseño de Figma tiene su página (o es un paso de una). Las de login (A2 a A5) no se construyen: son de Keycloak. Los endpoints son los que usará el cliente real; hoy responde `sample_data.py`.
 
-| Página | Rol | Endpoints de la API | Depende de la IA |
-| --- | --- | --- | --- |
-| Inicio y perfil (`common/`) | Todos | `GET /me`, `GET /me/enrollments` | No |
-| Catálogo de rutas | Todos | `GET /courses`, `GET /learning-paths`, `GET /topics?course_id=`, `POST /me/enrollments` | No |
-| Diagnóstico | Estudiante | `GET /me/enrollments/{id}/diagnostic`, `PATCH .../diagnostic/answers` | Sí: generar las preguntas y el nivel por tema |
-| Mi ruta | Estudiante | `GET /me/enrollments/{id}/steps`, `GET /topics/{id}` | Sí: secuenciar los pasos |
-| Tema: video, texto y quiz | Estudiante | `GET /resources?topic_id=`, `GET /me/enrollments/{id}/attempts`, `PATCH .../attempts/{id}/submit` | Sí: recursos y quizzes |
-| Badge | Estudiante | `GET /me/enrollments/{id}/badge` | No |
-| Panel del docente | Docente, admin | `GET /enrollments`, `GET /path-steps`, `GET /assessment-attempts`, `GET /courses?owner_user_id=` | No |
-| Cursos y revisión del syllabus | Docente, admin | `GET/POST/PATCH /courses`, `/topics`, `/topic-prerequisites` | Sí: extraer los temas del syllabus |
-| Usuarios y roles | Admin | `GET/POST/PATCH /users`, `/user-roles`, `GET /roles` | No |
+| Frame de Figma | Página | Rol | Endpoints de la API | Depende de la IA |
+| --- | --- | --- | --- | --- |
+| A1 · Selector de rol | `common/role_selector.py` | Sin sesión | — (solo en el prototipo; con login, el rol sale de `GET /me`) | No |
+| A6 · 403, A7 · Sesión expirada | `main.py` (con `core/errors.py`) | Todos | Respuestas 403 y 401 de cualquier endpoint | No |
+| E1 · Catálogo de rutas | `student/catalog.py` | Estudiante | `GET /learning-paths`, `GET /me/enrollments` | No |
+| E2 · Perfil, E3 · Diagnóstico, E4 · Resultado | `student/diagnostic.py` (tres pasos) | Estudiante | `POST /me/enrollments`, `GET /me/enrollments/{id}/diagnostic`, `PATCH .../diagnostic/answers`, `PATCH /me/enrollments/{id}` | Sí: preguntas, nivel por tema y objetivo |
+| E5 · Vista de ruta | `student/my_path.py` | Estudiante | `GET /me/enrollments/{id}/steps`, `GET /topics?course_id=` | Sí: secuenciar los pasos |
+| E6 · Tema, E7 · Resultado del quiz | `student/topic.py` | Estudiante | `GET /resources?topic_id=`, `GET /me/enrollments/{id}/attempts`, `PATCH .../attempts/{id}/submit` | Sí: recursos y quizzes |
+| E8 · Evaluación final | `student/final_assessment.py` | Estudiante | Intentos de tipo final | Sí: preguntas |
+| E9 · Repaso dirigido | `student/review.py` | Estudiante | Último intento final y su detalle por tema | No |
+| E10 · Badge | `student/badge.py` | Estudiante | `GET /me/enrollments/{id}/badge` | No |
+| E11 · Mi progreso | `student/progress.py` | Estudiante | `GET /me/enrollments`, `.../steps` | No |
+| E12 · Logros | `student/achievements.py` | Estudiante | Badges del estudiante | No |
+| D1 · Mis cursos | `teacher/courses.py` | Docente, admin | `GET /courses?owner_user_id=`, `POST /courses` | No |
+| D2 · Curso y syllabus | `teacher/syllabus_review.py` | Docente, admin | `GET /courses/{id}`, `GET /topics?course_id=`, `/topic-prerequisites`, `PATCH /courses/{id}` | Sí: extraer los temas del syllabus |
+| D3 · Ruta y avance | `teacher/dashboard.py` | Docente, admin | `GET /enrollments`, `GET /path-steps`, `GET /assessment-attempts`, `PATCH /learning-paths/{id}` | No |
+| D4 · Detalle de estudiante | `teacher/student_detail.py` | Docente, admin | `GET /enrollments/{id}`, `GET /assessment-attempts?enrollment_id=` | No |
+| D5 · Revisión de recursos y preguntas | `teacher/content_review.py` | Docente, admin | `GET/PATCH /resources`, preguntas del tema | Sí: recursos y preguntas |
+| AD1 · Usuarios y roles | `admin/users.py` | Admin | `GET/POST/PATCH /users`, `/user-roles`, `GET /roles` | No |
+| AD2 · Log LLM y costos | `admin/llm_logs.py` | Admin | `GET /llm-call-logs` | No |
+| AD3 · Métricas globales | `admin/metrics.py` | Admin | Métricas del notebook de evaluación | No |
+
+Todas las páginas se registran para todos los roles, pero la barra superior solo muestra las del rol. Si alguien abre otra por URL, la API (o los datos de ejemplo) responde 403 y se ve la pantalla A6: la interfaz oculta, la API protege.
 
 ### Autenticación
 
@@ -182,7 +201,7 @@ Las 7 pantallas del brief más el panel del docente y la administración. Todas 
 
 | Variable | Ejemplo local | Para qué |
 | --- | --- | --- |
-| `APP_DATA_SOURCE` | `api` | `api` (real) o `sample` (datos de ejemplo, sin login) |
+| `APP_DATA_SOURCE` | `sample` | `sample` (datos de ejemplo, sin login; el único disponible hoy) o `api` (real, con la prueba técnica del login) |
 | `API_BASE_URL` | `http://api:8000` | La API por la red interna de Docker |
 | `APP_PUBLIC_URL` | `http://localhost:8501` | URL de la app en el navegador (arma el `redirect_uri`) |
 | `APP_PORT` | `8501` | Puerto publicado en tu máquina |
@@ -195,7 +214,7 @@ Las 7 pantallas del brief más el panel del docente y la administración. Todas 
 
 - Igual que la API: Python 3.12, `uv`, Ruff, mypy y pytest, ejecutados en contenedores.
 - **Pruebas:** unitarias para `services/` y `clients/`, y de páginas con `streamlit.testing.v1.AppTest` sobre los datos de ejemplo.
-- **Contenedor `app`** en el `docker-compose.yml`, que depende de `api` y `keycloak`, en el puerto 8501 (libre en esta máquina).
+- **Contenedor `app`** en el `docker-compose.yml`, en el puerto 8501. Hoy corre con datos de ejemplo; con el login pasará a depender de `api` y `keycloak`.
 - **Despliegue:** el brief menciona Render, Railway o Hugging Face Spaces (pendiente D-06). La imagen es la misma; solo cambian las variables.
 
 ## Análisis de la guía de referencia
@@ -237,9 +256,9 @@ Si algo de esto falla, las alternativas siguen siendo Streamlit: alargar la vida
 
 `Dockerfile`, servicio en el compose, `core/`, cliente de la API y de datos de ejemplo, navegación por rol, manejo de errores y pruebas.
 
-### 3. Prototipo de la Fase 0
+### 3. Prototipo de la Fase 0 (hecho)
 
-Las 7 pantallas con datos de ejemplo (`APP_DATA_SOURCE=sample`), para la prueba de usabilidad con 3 a 5 usuarios.
+Las pantallas del diseño de Figma con datos de ejemplo (`APP_DATA_SOURCE=sample`), listas para la prueba de usabilidad con 3 a 5 usuarios. Incluye `core/`, el cliente de ejemplo, la navegación por rol, el manejo de errores, el Dockerfile y las pruebas (unitarias y de páginas); y el servicio `app` en el compose.
 
 ### 4. Conexión a la API
 

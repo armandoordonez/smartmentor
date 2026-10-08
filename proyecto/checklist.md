@@ -40,13 +40,13 @@ En grupos de 2 personas los roles se combinan.
 | --- | ---: | ---: | ---: |
 | A. Gestión del proyecto y repositorio | 6 | 15 | 40 % |
 | B. Infraestructura, datos e identidad | 7 | 15 | 47 % |
-| C. Fase 0: prototipado y validación del flujo | 0 | 6 | 0 % |
+| C. Fase 0: prototipado y validación del flujo | 1 | 6 | 17 % |
 | D. Módulos del brief (backend) | 12 | 26 | 46 % |
 | E. Componente de IA y ciencia de datos | 1 | 9 | 11 % |
 | F. Interfaz de usuario (frontend) | 2 | 11 | 18 % |
 | G. Evaluación, piloto y entregables | 0 | 11 | 0 % |
 | H. Decisiones técnicas pendientes | 1 | 6 | 17 % |
-| **Total** | **29** | **99** | **29 %** |
+| **Total** | **30** | **99** | **30 %** |
 
 _Calculado el 2026-10-07 con `proyecto/scripts/avance.sh --actualizar`._
 
@@ -56,7 +56,7 @@ _Calculado el 2026-10-07 con `proyecto/scripts/avance.sh --actualizar`._
 
 | Fase del brief | Estado | Detalle |
 | --- | --- | --- |
-| **Fase 0: prototipado** | No iniciada | Sin wireframes, prototipo navegable, prueba de prompts ni prueba de usabilidad. El brief la pide antes de construir pantallas |
+| **Fase 0: prototipado** | En curso | Hecho: prototipo navegable en Figma y en Streamlit con datos de ejemplo. Falta: aprobación del flujo, prueba de prompts, esquemas JSON de la IA y prueba de usabilidad |
 | **Fundamentos** | Parcial | Hecho: modelo de datos, repositorio y documentación. Falta: CI, estado del arte, syllabus real y docente validador |
 | **Flujo completo** | En curso, solo el backend | Hecho: usuarios y roles, cursos, rutas, evaluaciones, seguridad y endpoints del estudiante. Falta: IA, recursos, interfaz |
 | **Piloto** | No iniciada | Requiere el flujo completo, el consentimiento informado y los instrumentos |
@@ -122,7 +122,7 @@ Criterio de salida del brief: flujo y pantallas aprobados, y esquemas JSON de ca
 
 - [ ] Mapa del flujo y casos de uso aprobado por el director (el brief ya trae el diagrama del flujo del estudiante) — **Resp.:** _por asignar_ (Director o tutor)
 - [ ] Wireframes de baja fidelidad de las 7 pantallas: login, catálogo de rutas, perfil, diagnóstico, vista de ruta, tema (video, texto y quiz) y badge — **Resp.:** _por asignar_ (Responsable de producto)
-- [ ] Prototipo navegable de alta fidelidad (Figma, o Streamlit con datos de ejemplo) — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Prototipo navegable de alta fidelidad (Figma, o Streamlit con datos de ejemplo) — **Resp.:** eduar.troyano — [diseño en Figma](https://www.figma.com/design/wIzBv0tOtRaoVmldEXPyff/SmartMentor-%C2%B7-Prototipo-Fase-0-v2--Estudiante--Docente--Admin-?node-id=0-1) y su versión en Streamlit con datos de ejemplo ([`app/`](../app/README.md)): estudiante, docente y admin, sin login
 - [ ] Prueba de prompts «Mago de Oz»: syllabus estructurado, diagnóstico y un tema generados a mano con el LLM — **Resp.:** _por asignar_ (Responsable de IA y datos)
 - [ ] Esquemas JSON de cada salida de IA, definidos y versionados en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos)
 - [ ] Prueba de usabilidad con 3 a 5 usuarios (pensar en voz alta) y cuestionario SUS — **Resp.:** _por asignar_ (Responsable de evaluación)
@@ -221,6 +221,8 @@ El brief propone dos caminos: **Streamlit** (recomendado para el MVP) o **Next.j
 **Recomendación:** Streamlit para el prototipo de la Fase 0, el MVP y el piloto, porque libera tiempo para lo que el brief evalúa y reutiliza el stack de Python. Elegir Next.js si el equipo ya domina React y hay quien lo mantenga, o si se prevé pasar a producción con más usuarios. Como la API y el login no dependen del frontend, cambiar de uno a otro más adelante no obliga a rehacer el backend.
 
 ### Pantallas
+
+El prototipo de la Fase 0 ya tiene todas estas pantallas con datos de ejemplo ([`app/README.md`](../app/README.md#pantallas-roles-y-endpoints)). Cada casilla se marca cuando la pantalla funciona con la API real y el login.
 
 - [ ] Login y perfil — **Resp.:** _por asignar_ (Responsable de producto)
 - [ ] Catálogo de rutas e inscripción — **Resp.:** _por asignar_ (Responsable de producto)

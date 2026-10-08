@@ -2,6 +2,7 @@
 # Uso: cp .env.example .env && docker compose up -d
 # Servicios: postgres (PostgreSQL 17 + pgvector) -> liquibase (aplica el esquema y termina) -> api.
 # keycloak (proveedor de identidad, sobre el mismo PostgreSQL): la API valida sus tokens y descarga sus llaves públicas por la red interna.
+# app (interfaz en Streamlit): por ahora corre con datos de ejemplo, sin login ni API (ver app/README.md).
 
 name: smartmentor
 
@@ -121,3 +122,18 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+
+  app:
+    build:
+      context: ./app
+    image: smartmentor-app:0.1.0
+    container_name: smartmentor-app
+    restart: unless-stopped
+    # Prototipo de la Fase 0: datos de ejemplo, sin login. Con la prueba técnica del login pasará a
+    # depender de api y keycloak y a usar APP_DATA_SOURCE=api.
+    environment:
+      APP_DATA_SOURCE: ${APP_DATA_SOURCE:-sample}
+      APP_TIMEZONE: ${APP_TIMEZONE:-America/Bogota}
+      TZ: ${TZ:-America/Bogota}
+    ports:
+      - "${APP_PORT:-8501}:8501"
