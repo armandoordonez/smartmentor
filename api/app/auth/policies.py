@@ -18,6 +18,8 @@ ANY_ROLE = (RoleCode.ADMIN, RoleCode.TEACHER, RoleCode.STUDENT)
 #   enrollments, path-steps, diagnostics, assessment-attempts, badges
 #                                admin, teacher / admin, teacher
 #   llm-call-logs                admin / admin
-# Los estudiantes solo consultan el catálogo y su propio perfil (/me). Lo que hace un estudiante
-# sobre sus datos (inscribirse, responder un quiz) pasará por endpoints propios con verificación de
-# pertenencia, en la fase de la interfaz; por eso el CRUD genérico no se abre a su rol.
+#   /me/**                       cualquier rol, solo sobre lo propio (dominio student)
+# Los estudiantes consultan el catálogo y gestionan lo suyo con /me/enrollments y lo que cuelga de
+# ellas (inscribirse, ver su ruta, entregar respuestas, ver su badge); cada operación verifica que
+# la inscripción sea del usuario autenticado. El CRUD genérico de enrollments, path-steps,
+# diagnostics, assessment-attempts y badges sigue reservado al personal (admin y teacher).

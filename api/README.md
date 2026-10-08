@@ -145,6 +145,7 @@ Cada recurso expone las mismas operaciones. **No existe `DELETE`**: el borrado e
 | `content` | `resources` | Un recurso es `video` o `text` y necesita `url` o `content`. |
 | `assessments` | `diagnostics`, `assessment-attempts`, `badges` | Un diagnóstico por inscripción. El número de intento y `passed` los calcula la API con los umbrales de la ruta; se rechaza pasar de `max_attempts`. El badge exige una evaluación final aprobada. |
 | `observability` | `llm-call-logs` | Registro de cada llamada al LLM; solo se corrigen `status` y `error_message`. |
+| `student` | `/me/enrollments...` (no tiene tablas propias) | Casos de uso del estudiante sobre lo suyo, con verificación de pertenencia. Ver [endpoints del estudiante](#endpoints-del-estudiante). |
 
 ### Errores
 
@@ -163,7 +164,7 @@ Formato RFC 9457 (`application/problem+json`): `type`, `title`, `status`, `detai
 
 Cada petición a `/api/v1` lleva `Authorization: Bearer <access_token>`. La API valida la firma (RS256, llaves de Keycloak), `iss`, `aud` y `exp`; ve [`keycloak/README.md`](../keycloak/README.md) para el mapper de audiencia.
 
-- `GET /api/v1/me` devuelve el usuario autenticado y sus roles. Cómo obtener un token: [Obtener un token y probar la API](#obtener-un-token-y-probar-la-api).
+- `GET /api/v1/me` devuelve el usuario autenticado y sus roles. Lo propio del estudiante cuelga de `/api/v1/me/...` ([endpoints del estudiante](#endpoints-del-estudiante)). Cómo obtener un token: [Obtener un token y probar la API](#obtener-un-token-y-probar-la-api).
 - El primer acceso de alguien que no existe en la base lo crea como `student`. Un usuario precreado por un administrador (por ejemplo el Administrador sembrado) se enlaza por su correo, que Keycloak debe tener verificado.
 - Se autoriza con `user_roles`, no con los roles del token.
 
@@ -175,7 +176,27 @@ Cada petición a `/api/v1` lleva `Authorization: Bearer <access_token>`. La API 
 | `courses`, `topics`, `topic-prerequisites`, `learning-paths`, `resources` | admin, teacher, student | admin, teacher |
 | `enrollments`, `path-steps`, `diagnostics`, `assessment-attempts`, `badges` | admin, teacher | admin, teacher |
 
-Sin token: 401. Con token pero sin el rol: 403. `/health`, `/ready` y `/docs` son públicos. Los estudiantes consultan el catálogo; sus flujos propios (inscribirse, responder quizzes) llegarán con endpoints que verifican la pertenencia.
+Sin token: 401. Con token pero sin el rol: 403. `/health`, `/ready` y `/docs` son públicos. El CRUD genérico de inscripciones, pasos, diagnósticos, intentos y badges es del personal; los estudiantes gestionan lo suyo con los [endpoints del estudiante](#endpoints-del-estudiante).
+
+### Endpoints del estudiante
+
+Rutas bajo `/api/v1/me/...` para que cada usuario gestione **solo lo suyo**. Las puede usar cualquier rol autenticado (un docente también puede inscribirse). El usuario sale siempre del token: no se envía en la petición. Si un dato no es del usuario, la API responde **404** como si no existiera, para no revelar que existe.
+
+| Método y ruta | Qué hace |
+| --- | --- |
+| `GET /me/enrollments` | Mis inscripciones activas (paginado) |
+| `POST /me/enrollments` | Me inscribo en una ruta: `{"learning_path_id", "profile_description"?, "personal_objective"?}`. Una sola vez por ruta (409 `ALREADY_ENROLLED`); la ruta debe existir y estar activa |
+| `GET /me/enrollments/{id}` | El detalle de mi inscripción |
+| `PATCH /me/enrollments/{id}` | Actualizo `profile_description` y `personal_objective`. No se puede cambiar el estado ni otros campos. Una inscripción completada o abandonada se rechaza (422 `ENROLLMENT_CLOSED`) |
+| `PATCH /me/enrollments/{id}/abandon` | Dejo la ruta. Una completada no se puede abandonar |
+| `GET /me/enrollments/{id}/steps` | Mi ruta personalizada, en orden |
+| `GET /me/enrollments/{id}/diagnostic` | Mi prueba diagnóstica |
+| `PATCH /me/enrollments/{id}/diagnostic/answers` | Entrego las respuestas del diagnóstico: `{"answers"}`. Solo una vez (409 `ALREADY_SUBMITTED`) |
+| `GET /me/enrollments/{id}/attempts` | Mis intentos de evaluación |
+| `PATCH /me/enrollments/{id}/attempts/{attempt_id}/submit` | Entrego las respuestas de un intento: `{"answers"}`. Solo una vez |
+| `GET /me/enrollments/{id}/badge` | Mi badge, si aprobé la evaluación final |
+
+El estudiante **nunca fija puntajes ni resultados**: al entregar un intento solo se guardan sus respuestas y la fecha; el puntaje y la aprobación los calcula el sistema (o el personal) con el umbral de la ruta. Los diagnósticos, los pasos de la ruta y los intentos los genera el sistema (la capa de IA, pendiente) o el personal.
 
 ### Auditoría
 

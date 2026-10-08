@@ -53,6 +53,7 @@ Derivados de los módulos del brief:
 | `content` | resources | 5. Motor de ruta y contenido |
 | `assessments` | diagnostics, assessment_attempts, badges | 4. Diagnóstico y 6. Evaluación y certificación |
 | `observability` | llm_call_logs | Componente de IA (log LLM) |
+| `student` | (ninguna propia) | Casos de uso del estudiante sobre sus datos: reutiliza los repositorios de los demás dominios y verifica la pertenencia (ADR 0004) |
 
 ## 4. Reglas de dependencia (mapeo al estándar)
 

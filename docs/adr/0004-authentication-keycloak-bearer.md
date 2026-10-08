@@ -38,7 +38,7 @@ La interfaz (Streamlit o Next.js) aún no está decidida, así que la API debe p
    | `enrollments`, `path-steps`, `diagnostics`, `assessment-attempts`, `badges` | admin, teacher | admin, teacher |
    | `/me` | cualquier usuario autenticado | — |
 
-   Los estudiantes consultan el catálogo y su propio perfil. Lo que un estudiante hace sobre sus datos (inscribirse, responder un quiz) pasará por endpoints propios con verificación de pertenencia en la fase de la interfaz; por eso el CRUD genérico no se abre a su rol.
+   Los estudiantes consultan el catálogo y su propio perfil, y gestionan lo suyo con los endpoints de `/api/v1/me/...` (dominio `student`): inscribirse, ver su ruta, entregar respuestas y ver su badge. Cada operación verifica que la inscripción sea del usuario autenticado y, si no lo es, responde 404 para no revelar que existe. El estudiante nunca fija puntajes ni resultados. Por eso el CRUD genérico no se abre a su rol.
 6. **Auditoría:** `app_user_id` es el id del usuario autenticado. Se elimina la cabecera temporal `X-User-Id`. Mientras se resuelve o se crea un usuario, la auditoría registra `identity:<sub>`.
 7. **Configuración obligatoria:** `OIDC_ISSUER_URL`, `OIDC_JWKS_URL` y `OIDC_AUDIENCE`. La API no arranca si faltan o están vacías. `OIDC_ISSUER_URL` es el emisor tal como lo ve el cliente (`http://localhost:8180/realms/smartmentor`); `OIDC_JWKS_URL` puede ser una URL interna de la red de Docker (`http://keycloak:8080/...`).
 8. **Rutas públicas:** `/health`, `/ready` y la documentación OpenAPI (`/docs`, `/openapi.json`).
@@ -64,7 +64,7 @@ Por defecto, el access token de Keycloak trae `aud: account`. Para que la API lo
 - **Positivas:** la API no maneja credenciales; el cambio de proveedor de identidad solo toca la configuración; los permisos se administran dentro de la aplicación y quedan auditados.
 - **Negativas y pendientes:**
   - El registro abierto en Keycloak permite que cualquiera con correo verificado se vuelva estudiante. Si el piloto debe ser cerrado, hay que restringir el registro en Keycloak o cambiar la regla 4.3 a "rechazar".
-  - Los endpoints propios de estudiante con verificación de pertenencia quedan para la fase de la interfaz.
+  - Los endpoints de estudiante cubren lo base (inscribirse, ver y entregar); faltan los que dependen de la capa de IA, como pedir el siguiente quiz o el recurso de un tema.
   - No hay limitación de peticiones ni revocación inmediata de tokens (un token válido sirve hasta que expira, por eso conviene mantener corta su vida en Keycloak).
   - La descarga de llaves la hace `PyJWKClient` (síncrono) en un hilo aparte con caché; si Keycloak rota llaves, se renuevan al ver un `kid` desconocido.
 

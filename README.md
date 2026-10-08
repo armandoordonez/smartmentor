@@ -9,10 +9,11 @@ Plataforma de cursos adaptativos generados con IA: a partir de un syllabus gener
 | Base de datos (PostgreSQL 17 + pgvector, Liquibase v1.0.1) | Listo |
 | API de negocio (FastAPI): 6 dominios, 14 recursos, CRUD con borrado lógico | Listo |
 | Keycloak (sobre el mismo PostgreSQL, realm versionado en git) | Listo |
+| Endpoints del estudiante (inscribirse, ver su ruta, entregar respuestas, ver su badge) | Listo |
 | Autenticación con Keycloak y bearer tokens, roles de la aplicación | Listo ([ADR 0004](docs/adr/0004-authentication-keycloak-bearer.md)); falta configurar el mapper de audiencia en tu Keycloak |
 | Capa de IA (`ai/`), prompts, interfaz (`app/`), endpoints de estudiante | Pendiente |
 
-Más detalle, deuda técnica y próximos pasos: [`HANDOFF.md`](HANDOFF.md).
+Seguimiento de tareas con responsables y porcentaje de avance: [`proyecto/checklist.md`](proyecto/checklist.md). Deuda técnica y próximos pasos: [`HANDOFF.md`](HANDOFF.md).
 
 ## Requisitos
 

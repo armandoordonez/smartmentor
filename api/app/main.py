@@ -18,6 +18,7 @@ from app.domains.courses.controller import routers as courses_routers
 from app.domains.identity.controller import routers as identity_routers
 from app.domains.learning_paths.controller import routers as learning_paths_routers
 from app.domains.observability.controller import routers as observability_routers
+from app.domains.student.controller import routers as student_routers
 from app.health.controller import router as health_router
 
 API_PREFIX = "/api/v1"
@@ -68,6 +69,7 @@ def create_app() -> FastAPI:
         content_routers,
         assessments_routers,
         observability_routers,
+        student_routers,
     ):
         for router in routers:
             app.include_router(router, prefix=API_PREFIX)

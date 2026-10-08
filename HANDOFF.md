@@ -1,12 +1,15 @@
 # HANDOFF
 
+El seguimiento de las tareas, con responsables y porcentaje de avance, está en [`proyecto/checklist.md`](proyecto/checklist.md). Este documento recoge el estado técnico, la deuda y los próximos pasos.
+
 Estado del proyecto, deuda técnica y próximos pasos para la siguiente cohorte. Última actualización: 2026-10-07 (cohorte 1).
 
 ## Qué funciona
 
 - **Entorno:** `docker compose up -d --build` levanta PostgreSQL 17 + pgvector, aplica el esquema con Liquibase y arranca la API y Keycloak. Ver [`README.md`](README.md).
 - **Base de datos:** esquema `v1.0.1` con 14 tablas de negocio, cada una con su `_audit` y trigger, secuencias propias, borrado lógico (`active`) y fechas `timestamptz` en `America/Bogota`. Rollback probado. Respaldos con `database/scripts/backup.sh`. Ver [`database/README.md`](database/README.md).
-- **API:** 6 dominios y 14 recursos con crear, consultar, listar, actualizar, activar e inactivar (sin `DELETE`). Reglas de negocio del brief: umbrales y máximo de intentos de la ruta, aprobación automática, prerrequisitos sin ciclos, badge solo con la final aprobada. Errores RFC 9457, logs JSON con `request_id`. 122 pruebas, Ruff y mypy estricto en verde (`api/scripts/dev.sh all`). Ver [`api/README.md`](api/README.md).
+- **API:** 6 dominios y 14 recursos con crear, consultar, listar, actualizar, activar e inactivar (sin `DELETE`). Reglas de negocio del brief: umbrales y máximo de intentos de la ruta, aprobación automática, prerrequisitos sin ciclos, badge solo con la final aprobada. Errores RFC 9457, logs JSON con `request_id`. 148 pruebas, Ruff y mypy estricto en verde (`api/scripts/dev.sh all`). Ver [`api/README.md`](api/README.md).
+- **Endpoints del estudiante** (`/api/v1/me/enrollments...`): inscribirse, ver y actualizar su inscripción, abandonarla, ver su ruta, entregar el diagnóstico y los intentos y ver su badge. Verifican la pertenencia (404 si el dato es de otro) y el estudiante nunca fija puntajes. Ver [`api/README.md`](api/README.md#endpoints-del-estudiante).
 - **Autenticación (D-03, [ADR 0004](docs/adr/0004-authentication-keycloak-bearer.md)):** la API valida bearer tokens de Keycloak (RS256 por JWKS, `iss`, `aud`, `exp`), enlaza al usuario por `sub` o por correo verificado, crea como `student` a quien no existe, y autoriza con los roles de `user_roles` (matriz en `api/app/auth/policies.py`). Probado de punta a punta con tokens reales de este Keycloak.
 - **Keycloak ([ADR 0005](docs/adr/0005-keycloak-postgres-realm-versioned.md)):** guarda sus datos en la base `keycloak` del PostgreSQL del proyecto, con su propio rol. El realm `smartmentor` (roles, clientes y usuarios de prueba) está versionado en `keycloak/realm/smartmentor-realm.json` y se importa solo en un PC nuevo. Respaldo y restauración de ambas bases con `database/scripts/backup.sh` y `restore.sh`; el realm se actualiza con `keycloak/scripts/export-realm.sh`.
 - **Usuario inicial:** `Administrador` (`admin.smartmentor@yopmail.com`, rol `admin`) sembrado por Liquibase; se enlaza con Keycloak en su primer acceso si el correo está verificado.
@@ -16,7 +19,7 @@ Estado del proyecto, deuda técnica y próximos pasos para la siguiente cohorte.
 | Pendiente | Detalle |
 | --- | --- |
 | Configuración de Keycloak | Al migrar, el realm tenía: el usuario administrador **sin contraseña**, el cliente `smartmentor-frontend` sin el mapper de audiencia y una URI de redirección mal escrita (`http:localhost:8081`, aún sin borrar). El mapper de audiencia, la URI de retorno de Postman y el cliente `smartmentor-dev-tools` ya se agregaron y se probó el inicio de sesión completo; falta **definir la contraseña** del usuario administrador en la consola y ejecutar `keycloak/scripts/export-realm.sh` (ver `keycloak/README.md`). |
-| Endpoints de estudiante | El rol `student` solo consulta el catálogo y su perfil (`/me`). Inscribirse, ver su ruta y responder quizzes requieren endpoints propios con verificación de pertenencia. |
+| Endpoints de estudiante que dependen de la IA | Pedir el siguiente quiz o el recurso de un tema requiere la capa de IA. Lo base (inscribirse, ver y entregar) ya existe. |
 | Endurecimiento | Limitación de peticiones, CORS restringido al frontend, HTTPS en Keycloak, vida corta de los tokens y decidir si el registro es abierto (hoy cualquiera con correo verificado se vuelve estudiante). |
 | Capa de IA | `ai/`: generación, RAG, motor de ruta y calificador. La API ya tiene dónde guardar sus resultados (`topics`, `resources`, `diagnostics`, `assessment_attempts`, `llm_call_logs`). |
 | Interfaz | `app/` (Streamlit o Next.js, decisión abierta). |
