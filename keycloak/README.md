@@ -103,7 +103,8 @@ Los roles de Keycloak son informativos para otros sistemas: **la API autoriza co
 
 | Cliente | Tipo | Para qué |
 | --- | --- | --- |
-| `smartmentor-frontend` | Público, *Standard flow* con PKCE | La interfaz (Streamlit o Next.js) inicia sesión de los usuarios |
+| `smartmentor-frontend` | Público, *Standard flow* con PKCE | Inicio de sesión desde el navegador: Postman y, si existiera, un frontend que corra en el navegador |
+| `smartmentor-ui` (**por crear** en la prueba técnica) | Confidencial, *Standard flow*, URI de retorno `http://localhost:8501/oauth2callback`, mapper de audiencia `smartmentor-api` | La interfaz en Streamlit ([ADR 0006](../docs/adr/0006-frontend-streamlit.md)): corre en el servidor y puede guardar el secreto |
 | `smartmentor-api` | Define la audiencia (`aud`) de los tokens | La API comprueba que el token sea para ella. **No necesita `client secret`**: solo valida tokens y no hace introspección |
 | `smartmentor-dev-tools` | Público, solo *Direct access grants* (usuario y contraseña, sin navegador), token de 30 minutos, *Web origin* `http://localhost:8020` | **Solo desarrollo.** Permite que Swagger, el script `token.sh` y Postman pidan un token sin hacer login en el navegador. **No debe existir en producción** (ver abajo) |
 

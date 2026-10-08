@@ -22,7 +22,7 @@ Estado del proyecto, deuda técnica y próximos pasos para la siguiente cohorte.
 | Endpoints de estudiante que dependen de la IA | Pedir el siguiente quiz o el recurso de un tema requiere la capa de IA. Lo base (inscribirse, ver y entregar) ya existe. |
 | Endurecimiento | Limitación de peticiones, CORS restringido al frontend, HTTPS en Keycloak, vida corta de los tokens y decidir si el registro es abierto (hoy cualquiera con correo verificado se vuelve estudiante). |
 | Capa de IA | `ai/`: generación, RAG, motor de ruta y calificador. La API ya tiene dónde guardar sus resultados (`topics`, `resources`, `diagnostics`, `assessment_attempts`, `llm_call_logs`). |
-| Interfaz | `app/` (Streamlit o Next.js, decisión abierta). |
+| Interfaz | Decidida: **Streamlit** ([ADR 0006](docs/adr/0006-frontend-streamlit.md)). Arquitectura y plan en [`app/README.md`](app/README.md); falta la prueba técnica del login y el código. |
 | Embeddings | La dimensión `vector(1024)` y los índices HNSW son provisionales (D-01). |
 | Syllabus y RAG | Extracción del syllabus, fragmentos RAG (D-04) y videos. |
 | CI | No hay GitHub Actions todavía (Ruff, mypy, pytest y validación de changelogs). |

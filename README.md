@@ -11,7 +11,8 @@ Plataforma de cursos adaptativos generados con IA: a partir de un syllabus gener
 | Keycloak (sobre el mismo PostgreSQL, realm versionado en git) | Listo |
 | Endpoints del estudiante (inscribirse, ver su ruta, entregar respuestas, ver su badge) | Listo |
 | Autenticación con Keycloak y bearer tokens, roles de la aplicación | Listo ([ADR 0004](docs/adr/0004-authentication-keycloak-bearer.md)); falta configurar el mapper de audiencia en tu Keycloak |
-| Capa de IA (`ai/`), prompts, interfaz (`app/`), endpoints de estudiante | Pendiente |
+| Interfaz con Streamlit (`app/`) | Arquitectura definida ([ADR 0006](docs/adr/0006-frontend-streamlit.md)); sin código |
+| Capa de IA (`ai/`) y prompts | Pendiente |
 
 Seguimiento de tareas con responsables y porcentaje de avance: [`proyecto/checklist.md`](proyecto/checklist.md). Deuda técnica y próximos pasos: [`HANDOFF.md`](HANDOFF.md).
 
@@ -61,7 +62,8 @@ api/scripts/dev.sh all               # Ruff + mypy estricto + pytest
 | [`keycloak/`](keycloak/README.md) | Proveedor de identidad: realm versionado y guía de configuración |
 | [`docs/adr/`](docs/adr/README.md) | Decisiones de arquitectura |
 | [`proyecto/`](proyecto/README.md) | Brief y decisiones pendientes |
-| `app/`, `ai/`, `prompts/`, `data/`, `notebooks/`, `design/`, `tests/` | Por construir en las siguientes fases |
+| [`app/`](app/README.md) | Interfaz en Streamlit: arquitectura y plan |
+| `ai/`, `prompts/`, `data/`, `notebooks/`, `design/`, `tests/` | Por construir en las siguientes fases |
 
 ## Trabajar en varios PC y trasladar datos
 

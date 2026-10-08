@@ -262,7 +262,7 @@ smartmentor/
 ├── proyecto/            # este brief y documentos de gestión
 ├── docs/adr/            # decisiones de arquitectura (una por archivo)
 ├── design/              # prototipo, wireframes, enlace a Figma
-├── app/                 # interfaz (Streamlit o Next.js)
+├── app/                 # interfaz (Streamlit)
 ├── api/                 # FastAPI: usuarios, cursos, rutas, evaluaciones
 ├── database/            # PostgreSQL + pgvector: Liquibase, bootstrap, backups, volumen local
 ├── keycloak/            # proveedor de identidad (Keycloak): volumen local y guía de configuración

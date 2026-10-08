@@ -102,7 +102,7 @@ La API no depende del frontend: solo valida el token. El frontend inicia sesión
 | Streamlit | Inicio de sesión nativo `st.login()`. Con `expose_tokens` el *access token* queda disponible en el servidor (`st.user.tokens`) para llamar a la API | Las llamadas salen del servidor de Streamlit, así que el token no pasa por el navegador. Antes tenía el límite de no exponer el access token. Hay que verificar en la versión que se instale la renovación del token y el cierre de sesión en Keycloak. |
 | Next.js | Auth.js (proveedor Keycloak) o `keycloak-js` | Integración más madura: tokens en el servidor, renovación y protección de rutas. Cuesta más tiempo de desarrollo, que el brief prefiere dedicar a la evaluación. |
 
-Recomendación: Streamlit para el MVP del brief. Si se elige Next.js, nada de lo diseñado cambia. La decisión de frontend sigue abierta.
+Recomendación: Streamlit para el MVP del brief. Si se elige Next.js, nada de lo diseñado cambia. **Decidida: Streamlit** ([ADR 0006](../docs/adr/0006-frontend-streamlit.md)); arquitectura en [`app/README.md`](../app/README.md).
 
 ### Lo que queda
 

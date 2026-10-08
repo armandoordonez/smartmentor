@@ -28,6 +28,10 @@ Cambios por versión y cohorte.
 
 - Endpoints `/api/v1/me/enrollments...` para que el estudiante gestione lo suyo: inscribirse, ver y actualizar su inscripción, abandonarla, ver su ruta, entregar el diagnóstico y los intentos, y ver su badge. Verifican la pertenencia y el estudiante nunca fija puntajes. Dominio nuevo `student`; 148 pruebas en total.
 
+### Interfaz
+
+- Decisión: interfaz en **Streamlit** ([ADR 0006](docs/adr/0006-frontend-streamlit.md)). Arquitectura en `app/README.md`: capas, autenticación con Keycloak (cliente confidencial `smartmentor-ui`), caché solo para datos públicos, datos de ejemplo para la Fase 0 y análisis de la guía de referencia. Sin código todavía.
+
 ### Documentación
 
 - `proyecto/checklist.md`: lista de verificación del brief con responsables, avance de la fase y comparación de frontends (Streamlit y Next.js); `proyecto/scripts/avance.sh` calcula el avance.

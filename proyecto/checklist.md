@@ -43,10 +43,10 @@ En grupos de 2 personas los roles se combinan.
 | C. Fase 0: prototipado y validación del flujo | 0 | 6 | 0 % |
 | D. Módulos del brief (backend) | 12 | 26 | 46 % |
 | E. Componente de IA y ciencia de datos | 1 | 9 | 11 % |
-| F. Interfaz de usuario (frontend) | 0 | 8 | 0 % |
+| F. Interfaz de usuario (frontend) | 2 | 11 | 18 % |
 | G. Evaluación, piloto y entregables | 0 | 11 | 0 % |
 | H. Decisiones técnicas pendientes | 1 | 6 | 17 % |
-| **Total** | **27** | **96** | **28 %** |
+| **Total** | **29** | **99** | **29 %** |
 
 _Calculado el 2026-10-07 con `proyecto/scripts/avance.sh --actualizar`._
 
@@ -192,11 +192,14 @@ El corazón académico del proyecto: cada paso es un problema de IA con entrada,
 
 ## F. Interfaz de usuario (frontend)
 
-El brief propone dos caminos: **Streamlit** (recomendado para el MVP) o **Next.js** («válido si el equipo domina React, pero consume tiempo que conviene dedicar a la evaluación»). Ambos usan la misma API y el mismo inicio de sesión con Keycloak.
+El brief propone dos caminos: **Streamlit** (recomendado para el MVP) o **Next.js** («válido si el equipo domina React, pero consume tiempo que conviene dedicar a la evaluación»). Ambos usan la misma API y el mismo inicio de sesión con Keycloak. **Decidido: Streamlit** ([ADR 0006](../docs/adr/0006-frontend-streamlit.md)); arquitectura en [`app/README.md`](../app/README.md).
 
 ### Decisión
 
-- [ ] Decidir el frontend: Streamlit o Next.js — **Resp.:** _por asignar_ (Director o tutor, con el Responsable de producto) — comparación a continuación
+- [x] Decidir el frontend: **Streamlit** — **Resp.:** eduar.troyano — [ADR 0006](../docs/adr/0006-frontend-streamlit.md); comparación a continuación
+- [x] Arquitectura de la interfaz definida (capas, autenticación, caché, datos de ejemplo) y guía de referencia analizada — **Resp.:** eduar.troyano — [`app/README.md`](../app/README.md)
+- [ ] Prueba técnica del login de Streamlit con Keycloak (1 día) — **Resp.:** _por asignar_ (Responsable de producto) — [plan](../app/README.md#1-prueba-técnica-del-login-1-día)
+- [ ] Base de la interfaz: contenedor, cliente de la API y de datos de ejemplo, navegación por rol, errores y pruebas — **Resp.:** _por asignar_ (Responsable de producto)
 
 ### Comparación
 

@@ -9,5 +9,6 @@ Decisiones de arquitectura (ADR), una por archivo. Se numeran en orden (`NNNN-ti
 | [0003](0003-api-domain-first-layout.md) | Organización del microservicio por dominio | Aceptado |
 | [0004](0004-authentication-keycloak-bearer.md) | Autenticación con Keycloak y bearer tokens | Aceptado |
 | [0005](0005-keycloak-postgres-realm-versioned.md) | Keycloak sobre PostgreSQL y realm versionado | Aceptado |
+| [0006](0006-frontend-streamlit.md) | Interfaz de usuario con Streamlit | Aceptado |
 
 Las decisiones aún abiertas están en [`proyecto/decisiones-pendientes.md`](../../proyecto/decisiones-pendientes.md).
