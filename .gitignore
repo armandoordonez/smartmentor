@@ -62,3 +62,5 @@ database/data/*
 database/backups/*
 !database/backups/.gitkeep
 
+.vscode/extensions.json
+.vscode/settings.json
