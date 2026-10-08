@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -60 1000 760" width="1000" height="760" font-family="'Comic Sans MS', 'Comic Neue', 'Segoe Print', cursive">
+<rect x="-20" y="-60" width="1000" height="760" fill="#ffffff"/>
+<text x="0" y="-26" font-size="20" fill="#1e1e1e">5 · Vista de ruta (Figma E5)</text>
+<rect x="0" y="0" width="960" height="680" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="0" y="0" width="960" height="56" rx="0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="24" y="34.2" font-size="18" fill="#1e1e1e" text-anchor="start">SmartMentor</text>
+<text x="300" y="32.6" font-size="14" fill="#1e1e1e" text-anchor="start">Rutas</text>
+<line x1="300" y1="42" x2="340" y2="42" stroke="#1e1e1e" stroke-width="3.0"/>
+<text x="380" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Mi progreso</text>
+<text x="508" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Logros</text>
+<ellipse cx="920.0" cy="28.0" rx="16.0" ry="16.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="32" y="97.6" font-size="24" fill="#1e1e1e" text-anchor="start">Fundamentos de ML</text>
+<text x="32" y="123.7" font-size="13" fill="#868e96" text-anchor="start">Docente: Elena Ramírez · inscrita el 28 sep</text>
+<rect x="32" y="140" width="600" height="80" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="48" y="163.7" font-size="13" fill="#868e96" text-anchor="start">Tu objetivo</text>
+<text x="600" y="163.7" font-size="13" fill="#868e96" text-anchor="end">Editar</text>
+<line x1="48" y1="184" x2="608" y2="184" stroke="#868e96" stroke-width="3.0"/>
+<line x1="48" y1="200" x2="384.0" y2="200" stroke="#868e96" stroke-width="3.0"/>
+<text x="32" y="250.6" font-size="14" fill="#1e1e1e" text-anchor="start">Avance: 2 de 5 temas</text>
+<rect x="32" y="262" width="600" height="12" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="32" y="262" width="240.0" height="12" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<line x1="48" y1="326" x2="48" y2="362" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="48.0" cy="312.0" rx="12.0" ry="12.0" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="313.5" font-size="15" fill="#1e1e1e" text-anchor="start">1 · Introducción y tipos</text>
+<text x="76" y="332.8" font-size="12" fill="#868e96" text-anchor="start">Dominado en el diagnóstico (85 %)</text>
+<rect x="500" y="302" width="66.19999999999999" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="533.1" y="317.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Omitido</text>
+<line x1="48" y1="388" x2="48" y2="424" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="48.0" cy="374.0" rx="12.0" ry="12.0" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="375.5" font-size="15" fill="#1e1e1e" text-anchor="start">2 · Regresión lineal</text>
+<text x="76" y="394.8" font-size="12" fill="#868e96" text-anchor="start">Intento 1 · 90 %</text>
+<rect x="500" y="364" width="72.8" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="536.4" y="379.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Aprobado</text>
+<line x1="48" y1="450" x2="48" y2="486" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="48.0" cy="436.0" rx="12.0" ry="12.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="437.5" font-size="15" fill="#1e1e1e" text-anchor="start">3 · Regresión logística</text>
+<text x="76" y="456.8" font-size="12" fill="#868e96" text-anchor="start">Intento 2 de 3 · último 60 %</text>
+<rect x="500" y="426" width="72.8" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="536.4" y="441.8" font-size="12" fill="#1e1e1e" text-anchor="middle">En curso</text>
+<line x1="48" y1="512" x2="48" y2="548" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="48.0" cy="498.0" rx="12.0" ry="12.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="499.5" font-size="15" fill="#1e1e1e" text-anchor="start">4 · Árboles de decisión</text>
+<text x="76" y="518.8" font-size="12" fill="#868e96" text-anchor="start">Requiere el tema 3</text>
+<rect x="500" y="488" width="79.4" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="539.7" y="503.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Pendiente</text>
+<line x1="48" y1="574" x2="48" y2="610" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="48.0" cy="560.0" rx="12.0" ry="12.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="561.5" font-size="15" fill="#1e1e1e" text-anchor="start">5 · Evaluación de modelos</text>
+<text x="76" y="580.8" font-size="12" fill="#868e96" text-anchor="start">Requiere el tema 4</text>
+<rect x="500" y="550" width="79.4" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="539.7" y="565.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Pendiente</text>
+<ellipse cx="48.0" cy="622.0" rx="12.0" ry="12.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="76" y="600" width="556" height="52" rx="6" fill="none" stroke="#868e96" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="92" y="620.6" font-size="14" fill="#1e1e1e" text-anchor="start">Evaluación final · se habilita al completar los 5 temas</text>
+<text x="92" y="638.8" font-size="12" fill="#868e96" text-anchor="start">Aprobación ≥ 80 % · otorga el badge</text>
+<rect x="664" y="140" width="264" height="170" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="680" y="165.7" font-size="13" fill="#868e96" text-anchor="start">Siguiente paso</text>
+<text x="680" y="193.5" font-size="15" fill="#1e1e1e" text-anchor="start">Tema 3 · Regresión logística</text>
+<text x="680" y="217.7" font-size="13" fill="#868e96" text-anchor="start">Intento 2 de 3</text>
+<rect x="680" y="250" width="232" height="40" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="796.0" y="274.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Continuar tema</text>
+<rect x="664" y="330" width="264" height="140" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="680" y="355.7" font-size="13" fill="#868e96" text-anchor="start">Reglas de la ruta</text>
+<text x="680" y="385.7" font-size="13" fill="#1e1e1e" text-anchor="start">Aprobar un tema: ≥ 70 %</text>
+<text x="680" y="411.7" font-size="13" fill="#1e1e1e" text-anchor="start">Máximo 3 intentos por tema</text>
+<text x="680" y="437.7" font-size="13" fill="#1e1e1e" text-anchor="start">Evaluación final: ≥ 80 %</text>
+</svg>
