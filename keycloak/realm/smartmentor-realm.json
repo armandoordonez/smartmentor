@@ -388,7 +388,8 @@
         "clientRole" : true,
         "containerId" : "58beab24-197a-465c-8ab2-cf73b9b1a13c",
         "attributes" : { }
-      } ]
+      } ],
+      "smartmentor-dev-tools" : [ ]
     }
   },
   "groups" : [ ],
@@ -443,7 +444,14 @@
     "enabled" : true,
     "createdTimestamp" : 1791394390454,
     "totp" : false,
-    "credentials" : [ ],
+    "credentials" : [ {
+      "id" : "aab2271f-1622-47f2-b602-8765e83912a9",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1791415770670,
+      "secretData" : "{\"value\":\"LyM8Emned4hZAsGkJldNgiOyzzzrO+i4M6B2IRq/O+k=\",\"salt\":\"0WHW3Uq/xFtJIkurPSMq9Q==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    } ],
     "disableableCredentialTypes" : [ ],
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-smartmentor", "admin" ],
@@ -715,6 +723,52 @@
     "defaultClientScopes" : [ "web-origins", "acr", "profile", "roles", "basic", "email" ],
     "optionalClientScopes" : [ "address", "phone", "organization", "offline_access", "microprofile-jwt" ]
   }, {
+    "id" : "fa197d4f-09d6-4b94-ab8d-ec7eafcc0d87",
+    "clientId" : "smartmentor-dev-tools",
+    "name" : "SmartMentor - herramientas de desarrollo (Swagger, curl, Postman)",
+    "description" : "Solo desarrollo: permite pedir un token con usuario y contraseña, sin navegador. Debe eliminarse o deshabilitarse en producción.",
+    "surrogateAuthRequired" : false,
+    "enabled" : true,
+    "alwaysDisplayInConsole" : false,
+    "clientAuthenticatorType" : "client-secret",
+    "redirectUris" : [ ],
+    "webOrigins" : [ "http://localhost:8020" ],
+    "notBefore" : 0,
+    "bearerOnly" : false,
+    "consentRequired" : false,
+    "standardFlowEnabled" : false,
+    "implicitFlowEnabled" : false,
+    "directAccessGrantsEnabled" : true,
+    "serviceAccountsEnabled" : false,
+    "publicClient" : true,
+    "frontchannelLogout" : false,
+    "protocol" : "openid-connect",
+    "attributes" : {
+      "realm_client" : "false",
+      "access.token.lifespan" : "1800",
+      "backchannel.logout.session.required" : "true",
+      "backchannel.logout.revoke.offline.tokens" : "false"
+    },
+    "authenticationFlowBindingOverrides" : { },
+    "fullScopeAllowed" : true,
+    "nodeReRegistrationTimeout" : -1,
+    "protocolMappers" : [ {
+      "id" : "05e2253a-02a5-4d35-a008-26b6a4907629",
+      "name" : "audience-smartmentor-api",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-audience-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "included.client.audience" : "smartmentor-api",
+        "id.token.claim" : "false",
+        "access.token.claim" : "true",
+        "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "false"
+      }
+    } ],
+    "defaultClientScopes" : [ "web-origins", "acr", "profile", "roles", "basic", "email" ],
+    "optionalClientScopes" : [ "address", "phone", "organization", "offline_access", "microprofile-jwt" ]
+  }, {
     "id" : "67704353-faf5-4742-a52d-96d48a8136e9",
     "clientId" : "smartmentor-frontend",
     "name" : "smartmentor-frontend",
@@ -726,7 +780,7 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://localhost:8081/*", "http:localhost:8081" ],
+    "redirectUris" : [ "http://localhost:8081/*", "http:localhost:8081", "https://oauth.pstmn.io/v1/callback" ],
     "webOrigins" : [ "http:localhost:8081" ],
     "notBefore" : 0,
     "bearerOnly" : false,
@@ -755,6 +809,19 @@
     "authenticationFlowBindingOverrides" : { },
     "fullScopeAllowed" : true,
     "nodeReRegistrationTimeout" : -1,
+    "protocolMappers" : [ {
+      "id" : "1eec4f2f-c514-46e1-9a69-ab90abb650c6",
+      "name" : "audience-smartmentor-api",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-audience-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "included.client.audience" : "smartmentor-api",
+        "id.token.claim" : "false",
+        "access.token.claim" : "true",
+        "introspection.token.claim" : "true"
+      }
+    } ],
     "defaultClientScopes" : [ "web-origins", "acr", "profile", "roles", "basic", "email" ],
     "optionalClientScopes" : [ "address", "phone", "organization", "offline_access", "microprofile-jwt" ]
   } ],

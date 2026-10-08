@@ -105,6 +105,7 @@ Los roles de Keycloak son informativos para otros sistemas: **la API autoriza co
 | --- | --- | --- |
 | `smartmentor-frontend` | Público, *Standard flow* con PKCE | La interfaz (Streamlit o Next.js) inicia sesión de los usuarios |
 | `smartmentor-api` | Define la audiencia (`aud`) de los tokens | La API comprueba que el token sea para ella. **No necesita `client secret`**: solo valida tokens y no hace introspección |
+| `smartmentor-dev-tools` | Público, solo *Direct access grants* (usuario y contraseña, sin navegador), token de 30 minutos, *Web origin* `http://localhost:8020` | **Solo desarrollo.** Permite que Swagger, el script `token.sh` y Postman pidan un token sin hacer login en el navegador. **No debe existir en producción** (ver abajo) |
 
 **URIs del frontend** (*Valid redirect URIs* y *Web origins*): deben ser URLs completas, con `//`. Ejemplos válidos:
 
@@ -115,6 +116,8 @@ Los roles de Keycloak son informativos para otros sistemas: **la API autoriza co
 | Otro puerto (p. ej. 8081) | `http://localhost:8081/*` | `http://localhost:8081` |
 
 ### 3. Mapper de audiencia (obligatorio)
+
+> **Ya está configurado** en el realm versionado (`audience-smartmentor-api` en `smartmentor-frontend`). Estos pasos son para crearlo en otro cliente o en un Keycloak nuevo.
 
 Por defecto el access token de Keycloak trae `aud: account`, y la API lo rechaza (401, y en sus logs `InvalidAudienceError`). Cada cliente con el que se inicie sesión necesita agregar `smartmentor-api` a la audiencia:
 
@@ -148,7 +151,13 @@ Cómo se enlaza: en el primer acceso, la API busca al usuario por el `sub` del t
 
 Cualquier persona con correo verificado que inicie sesión y no exista en la base se crea automáticamente como **estudiante**. Los docentes y administradores los crea un administrador desde la API (`POST /api/v1/users` y `POST /api/v1/user-roles`), con el mismo correo con el que se registrarán en Keycloak: al verificarlo, la API los enlaza y conservan su rol.
 
-El registro abierto en Keycloak implica que cualquiera con correo verificado se vuelve estudiante. Si el piloto debe ser cerrado, desactiva el autorregistro del realm (*Realm settings → Login → User registration*).
+El autorregistro del realm está **desactivado** (*Realm settings → Login → User registration*): hoy solo entran quienes un administrador crea en Keycloak, y la API los da de alta como estudiantes en su primer acceso. Si activas el autorregistro, cualquiera con correo verificado podrá entrar como estudiante.
+
+## Probar la API con un token
+
+Cómo obtener un token y llamar a la API (Swagger, terminal y Postman) está en [`api/README.md`](../api/README.md#obtener-un-token-y-probar-la-api). De Keycloak solo necesitas tener un usuario con contraseña en el realm `smartmentor`:
+
+**Users → Create new user** (correo y *Email verified* activado) → pestaña **Credentials → Set password**. En su primer acceso la API lo da de alta como estudiante. Para probar como administrador, define la contraseña de `admin.smartmentor@yopmail.com`.
 
 ## Cómo comprobar que todo está bien
 
@@ -191,6 +200,7 @@ Con Streamlit se usa `st.login()` con `expose_tokens` para obtener el access tok
 | `KEYCLOAK_DB_NAME`, `KEYCLOAK_DB_USER`, `KEYCLOAK_DB_PASSWORD` | `keycloak`, `keycloak`, (definida en `.env`) | Base y rol de Keycloak en PostgreSQL |
 | `OIDC_ISSUER_URL` | `http://localhost:8180/realms/smartmentor` | `iss` esperado por la API: la URL con la que los clientes piden el token |
 | `OIDC_AUDIENCE` | `smartmentor-api` | `aud` esperado por la API |
+| `OIDC_DOCS_CLIENT_ID` | `smartmentor-dev-tools` | Cliente con el que Swagger (`/docs`) pide el token con usuario y contraseña. Vacío lo desactiva |
 | `OIDC_JWKS_URL` | `http://keycloak:8080/realms/smartmentor/protocol/openid-connect/certs` | Llaves públicas, por la red interna de Docker |
 
 La API no arranca si faltan o están vacías las variables `OIDC_*`.
@@ -198,3 +208,5 @@ La API no arranca si faltan o están vacías las variables `OIDC_*`.
 ## Producción (no incluido)
 
 `start-dev` usa HTTP y no es para producción. Habría que: ejecutar `start` con HTTPS y un nombre de host fijo (`KC_HOSTNAME`), un rol de base de datos con mínimos privilegios, regenerar llaves y secretos, y dejar de versionar el realm con usuarios.
+
+**Elimina el cliente `smartmentor-dev-tools`** antes de producción y deja `OIDC_DOCS_CLIENT_ID` vacío en la API. Entregar el usuario y la contraseña al cliente (flujo *password*) está desaconsejado por OAuth 2.1: sirve para probar, pero en producción las contraseñas solo deben escribirse en la pantalla de Keycloak.

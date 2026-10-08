@@ -41,7 +41,12 @@ La interfaz (Streamlit o Next.js) aún no está decidida, así que la API debe p
    Los estudiantes consultan el catálogo y su propio perfil. Lo que un estudiante hace sobre sus datos (inscribirse, responder un quiz) pasará por endpoints propios con verificación de pertenencia en la fase de la interfaz; por eso el CRUD genérico no se abre a su rol.
 6. **Auditoría:** `app_user_id` es el id del usuario autenticado. Se elimina la cabecera temporal `X-User-Id`. Mientras se resuelve o se crea un usuario, la auditoría registra `identity:<sub>`.
 7. **Configuración obligatoria:** `OIDC_ISSUER_URL`, `OIDC_JWKS_URL` y `OIDC_AUDIENCE`. La API no arranca si faltan o están vacías. `OIDC_ISSUER_URL` es el emisor tal como lo ve el cliente (`http://localhost:8180/realms/smartmentor`); `OIDC_JWKS_URL` puede ser una URL interna de la red de Docker (`http://keycloak:8080/...`).
-8. **Rutas públicas:** `/health`, `/ready` y la documentación OpenAPI (`/docs`, `/openapi.json`). El esquema `bearer` aparece en OpenAPI y Swagger UI ofrece "Authorize".
+8. **Rutas públicas:** `/health`, `/ready` y la documentación OpenAPI (`/docs`, `/openapi.json`).
+9. **Cómo se obtiene un token en desarrollo.** OpenAPI declara dos esquemas equivalentes y Swagger UI los ofrece en *Authorize*:
+   - *Token (pegar)*: un access token ya emitido.
+   - *Login (usuario y contraseña)*: Swagger lo pide a Keycloak con el cliente `smartmentor-dev-tools` (`OIDC_DOCS_CLIENT_ID`). Se definen los scopes `openid profile email` y se preseleccionan, porque Keycloak rechaza un `scope` vacío (`invalid_scope`).
+
+   `smartmentor-dev-tools` es un cliente público con *Direct access grants* (flujo *password*), `Web origin` `http://localhost:8020` y token de 30 minutos. También lo usan `api/scripts/token.sh` y la colección de Postman de `api/postman/`, que piden un token antes de cada llamada. **Es solo para desarrollo:** el flujo *password* está desaconsejado por OAuth 2.1. En producción se elimina el cliente y `OIDC_DOCS_CLIENT_ID` queda vacío, de modo que `/docs` ofrece solo *Token (pegar)*. El frontend usa `smartmentor-frontend` con el código de autorización y PKCE.
 
 ## 3. Requisito en Keycloak: audiencia del token
 
@@ -51,7 +56,8 @@ Por defecto, el access token de Keycloak trae `aud: account`. Para que la API lo
 
 - **Roles del token como fuente de autorización:** exigiría que el admin gestione roles en Keycloak y depende de que el token esté al día.
 - **Validar el token llamando a Keycloak en cada petición (introspección):** añade una dependencia de red por petición. La validación local con JWKS es suficiente y no necesita el `client secret`.
-- **Rechazar usuarios desconocidos:** descartado por el producto: el registro es abierto y los estudiantes se crean solos.
+- **Rechazar usuarios desconocidos:** descartado por el producto: los estudiantes se crean solos en su primer acceso.
+- **Pedir siempre el token con el navegador (código + PKCE) también en Swagger y Postman:** es el flujo correcto, pero obliga a iniciar sesión cada vez; se mantiene para el frontend y como opción en Postman, y se agrega el cliente de desarrollo para el resto.
 
 ## 5. Consecuencias
 

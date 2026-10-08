@@ -17,10 +17,111 @@ docker compose up -d --build  # postgres → liquibase update → api (y keycloa
 
 | Qué | Dónde |
 | --- | --- |
-| Documentación interactiva (OpenAPI) | <http://localhost:8020/docs> (puerto `API_PORT`); el botón *Authorize* recibe el access token |
+| Documentación interactiva (Swagger UI) | <http://localhost:8020/docs> (puerto `API_PORT`); el botón *Authorize* hace el login por ti ([cómo](#obtener-un-token-y-probar-la-api)) |
+| Esquema OpenAPI (para importar en Postman) | <http://localhost:8020/openapi.json> |
 | Liveness / readiness | `GET /health`, `GET /ready` |
 | API de negocio | `http://localhost:8020/api/v1/...` |
 | Logs | JSON en la salida del contenedor: `docker logs -f smartmentor-api` |
+
+## Obtener un token y probar la API
+
+Todas las rutas de `/api/v1` exigen `Authorization: Bearer <access_token>`. El token lo emite Keycloak; la API solo lo valida. Necesitas un **usuario con contraseña** en el realm `smartmentor` (en Keycloak: *Users → Create new user*, correo con *Email verified* activado, y *Credentials → Set password*). En su primer acceso la API lo da de alta como estudiante; para probar como administrador usa `admin.smartmentor@yopmail.com` (defínele la contraseña).
+
+| Forma | Pide el token | Útil para |
+| --- | --- | --- |
+| [Swagger UI](#1-swagger-ui-login-desde-la-página) | Swagger, al escribir usuario y contraseña | Probar rápido desde el navegador |
+| [Terminal](#2-terminal-apiscriptstokensh) | `api/scripts/token.sh` en cada llamada | `curl`, scripts y pruebas automáticas |
+| [Postman, token automático](#3-postman-token-automático-antes-de-cada-petición) | Un script, antes de cada petición | Probar la API sin iniciar sesión cada vez |
+| [Postman, login con navegador](#4-postman-con-login-en-el-navegador) | Postman, con la pantalla de Keycloak | Probar el flujo que usará el frontend |
+| [Pegar un token](#5-pegar-un-token-ya-emitido) | Ya lo tienes | Cualquier cliente |
+
+Las formas 1 a 3 usan el cliente de Keycloak **`smartmentor-dev-tools`**, que entrega el token a cambio del usuario y la contraseña, sin navegador. Es **solo para desarrollo** (ver [Seguridad](#seguridad-de-estas-herramientas)). El token dura 30 minutos con ese cliente y 5 con `smartmentor-frontend`.
+
+### 1. Swagger UI: login desde la página
+
+1. Abre <http://localhost:8020/docs> y pulsa **Authorize**.
+2. En **Login (usuario y contraseña)** escribe el correo y la contraseña del usuario de Keycloak. `client_id` aparece ya completo (`smartmentor-dev-tools`) y los scopes `openid profile email` ya vienen marcados. Deja `client_secret` vacío.
+3. Pulsa **Authorize** y luego **Close**. Swagger pide el token a Keycloak y lo envía en cada petición que pruebes con *Try it out*. La autorización se conserva al recargar la página.
+4. Empieza por `GET /api/v1/me`: debe devolver tu usuario y tus roles.
+
+Al vencer el token (30 minutos) las llamadas responden 401: pulsa **Authorize** y vuelve a iniciar sesión.
+
+En el mismo cuadro, **Token (pegar)** permite pegar un token que ya tengas (forma 5).
+
+### 2. Terminal: `api/scripts/token.sh`
+
+Imprime solo el token, así que se usa dentro de cada llamada, y cada llamada lleva un token recién pedido:
+
+```bash
+export TOKEN_PASSWORD='la-contraseña'     # evita escribirla en la línea de comandos (queda en el historial)
+
+curl -H "Authorization: Bearer $(api/scripts/token.sh usuario@correo.com)" \
+     http://localhost:8020/api/v1/me
+
+curl -X POST http://localhost:8020/api/v1/courses \
+     -H "Authorization: Bearer $(api/scripts/token.sh admin.smartmentor@yopmail.com)" \
+     -H "Content-Type: application/json" \
+     -d '{"owner_user_id": 1, "name": "Ciencia de datos"}'
+```
+
+Si no defines `TOKEN_PASSWORD` ni pasas la contraseña como segundo argumento, el script la pide sin mostrarla. Para ver qué trae un token (`iss`, `aud`, `exp`...): `api/scripts/token.sh --claims usuario@correo.com`.
+
+Sin el script, es una sola llamada a Keycloak:
+
+```bash
+curl -s -d "grant_type=password" -d "client_id=smartmentor-dev-tools" \
+     -d "username=usuario@correo.com" -d "password=la-contraseña" -d "scope=openid profile email" \
+     http://localhost:8180/realms/smartmentor/protocol/openid-connect/token
+# → {"access_token":"eyJ...","expires_in":1800,...}
+```
+
+### 3. Postman: token automático antes de cada petición
+
+Importa los dos archivos de [`api/postman/`](postman/):
+
+1. **Import** → `SmartMentor.postman_collection.json` y `SmartMentor-local.postman_environment.json`.
+2. Elige el entorno **SmartMentor local** (arriba a la derecha) y completa `username` y `password` en *Environments*.
+3. Ejecuta cualquier petición de la colección, por ejemplo **Sesión → Quién soy (/me)**.
+
+La colección tiene un script de pre-request que pide el token a Keycloak, lo guarda en `access_token` y lo envía como Bearer; lo reutiliza hasta que está por vencer. Para que pida **uno nuevo en cada petición**, pon `always_new_token` en `true` en el entorno. Las carpetas *Sin autenticación* (`/health`, `/ready`) no envían token. Para tus propias peticiones, basta con crearlas dentro de la colección: heredan el script y la autorización.
+
+### 4. Postman con login en el navegador
+
+Para probar el flujo que usará el frontend (código de autorización con PKCE, cliente `smartmentor-frontend`). Pestaña **Authorization** → **OAuth 2.0**:
+
+| Campo | Valor |
+| --- | --- |
+| Grant Type | Authorization Code (With PKCE) |
+| Callback URL | `https://oauth.pstmn.io/v1/callback` (marca *Authorize using browser*) |
+| Auth URL | `http://localhost:8180/realms/smartmentor/protocol/openid-connect/auth` |
+| Access Token URL | `http://localhost:8180/realms/smartmentor/protocol/openid-connect/token` |
+| Client ID | `smartmentor-frontend` |
+| Client Secret | (vacío: cliente público) |
+| Code Challenge Method | SHA-256 |
+| Scope | `openid profile email` |
+
+**Get New Access Token** abre el navegador con el login de Keycloak; después **Use Token**. Este token dura 5 minutos.
+
+### 5. Pegar un token ya emitido
+
+En Swagger: **Authorize → Token (pegar)** y pega el access token **sin** la palabra `Bearer`. En Postman: *Authorization → Bearer Token*. En `curl`: `-H "Authorization: Bearer <token>"`.
+
+### Si algo falla
+
+| Síntoma | Causa probable |
+| --- | --- |
+| `invalid_grant` / `Invalid user credentials` | Usuario o contraseña incorrectos, o el usuario no tiene contraseña definida |
+| `invalid_scope` | Se envió el scope vacío: en Swagger deja marcados `openid profile email` |
+| Swagger: error de red o *CORS* al autorizar | El cliente `smartmentor-dev-tools` no permite el origen de la página (*Web origins* debe incluir `http://localhost:8020`) |
+| 401 `INVALID_TOKEN` | Token vencido, `iss` distinto de `OIDC_ISSUER_URL` o falta la audiencia `smartmentor-api`. El motivo exacto está en `docker logs smartmentor-api` (busca `token rejected`) |
+| 403 `EMAIL_NOT_VERIFIED` | El usuario no tiene *Email verified* en Keycloak |
+| 403 `INSUFFICIENT_ROLE` | El rol del usuario (tabla `user_roles`) no permite esa operación; ver la matriz de roles más abajo |
+
+### Seguridad de estas herramientas
+
+- El flujo con usuario y contraseña entregados al cliente (*password grant*) está desaconsejado por OAuth 2.1; se usa aquí solo para desarrollo y pruebas.
+- **En producción:** elimina el cliente `smartmentor-dev-tools` de Keycloak y deja `OIDC_DOCS_CLIENT_ID` vacío. Entonces `/docs` solo ofrece *Token (pegar)* y los usuarios inician sesión en la pantalla de Keycloak, a través del frontend.
+- No guardes contraseñas reales en el entorno de Postman ni lo compartas: contiene `username` y `password`.
 
 ## Dominios y recursos
 
@@ -62,7 +163,7 @@ Formato RFC 9457 (`application/problem+json`): `type`, `title`, `status`, `detai
 
 Cada petición a `/api/v1` lleva `Authorization: Bearer <access_token>`. La API valida la firma (RS256, llaves de Keycloak), `iss`, `aud` y `exp`; ve [`keycloak/README.md`](../keycloak/README.md) para el mapper de audiencia.
 
-- `GET /api/v1/me` devuelve el usuario autenticado y sus roles.
+- `GET /api/v1/me` devuelve el usuario autenticado y sus roles. Cómo obtener un token: [Obtener un token y probar la API](#obtener-un-token-y-probar-la-api).
 - El primer acceso de alguien que no existe en la base lo crea como `student`. Un usuario precreado por un administrador (por ejemplo el Administrador sembrado) se enlaza por su correo, que Keycloak debe tener verificado.
 - Se autoriza con `user_roles`, no con los roles del token.
 

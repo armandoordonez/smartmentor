@@ -34,14 +34,14 @@ docker compose up -d --build   # postgres → liquibase update → api, y keyclo
 
 Los puertos (5442, 8020, 8180) se cambian en `.env`; se eligieron porque 5432, 8000 y 8080 suelen estar ocupados.
 
-**Antes de usar la API con un frontend**, configura Keycloak (realm, roles, mapper de audiencia, tu usuario administrador con correo verificado): [`keycloak/README.md`](keycloak/README.md). Todas las rutas de `/api/v1` exigen un bearer token.
+**Antes de usar la API con un frontend**, configura Keycloak (realm, roles, mapper de audiencia, tu usuario administrador con correo verificado): [`keycloak/README.md`](keycloak/README.md). Todas las rutas de `/api/v1` exigen un bearer token. Cómo obtenerlo y probar con Swagger, la terminal o Postman: [`api/README.md`](api/README.md#obtener-un-token-y-probar-la-api).
 
 Comprobar que todo responde:
 
 ```bash
 curl localhost:8020/health      # {"status":"ok"}
 curl localhost:8020/ready       # base de datos y extensión vector disponibles
-curl -H "Authorization: Bearer $TOKEN" localhost:8020/api/v1/me   # tu usuario y roles
+curl -H "Authorization: Bearer $(api/scripts/token.sh tu@correo.com)" localhost:8020/api/v1/me   # tu usuario y roles
 ```
 
 ## Calidad y pruebas

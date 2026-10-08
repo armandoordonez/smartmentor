@@ -79,6 +79,8 @@ services:
       OIDC_ISSUER_URL: ${OIDC_ISSUER_URL:?Define OIDC_ISSUER_URL en .env (ver .env.example)}
       OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://keycloak:8080/realms/smartmentor/protocol/openid-connect/certs}
       OIDC_AUDIENCE: ${OIDC_AUDIENCE:-smartmentor-api}
+      # Cliente con el que Swagger UI (/docs) hace el login con usuario y contraseña. Vacío = desactivado.
+      OIDC_DOCS_CLIENT_ID: ${OIDC_DOCS_CLIENT_ID-smartmentor-dev-tools}
     ports:
       - "${API_PORT:-8020}:8000"
 

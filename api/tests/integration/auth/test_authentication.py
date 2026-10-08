@@ -265,11 +265,26 @@ async def test_changes_are_audited_with_the_authenticated_user_id(
     assert actor == str(teacher_id)
 
 
-async def test_openapi_documents_the_bearer_scheme(bare_client: httpx.AsyncClient) -> None:
+async def test_openapi_offers_both_ways_to_authenticate(bare_client: httpx.AsyncClient) -> None:
     spec = (await bare_client.get("/openapi.json")).json()
     schemes = spec["components"]["securitySchemes"]
-    assert any(s.get("scheme") == "bearer" for s in schemes.values())
+    assert any(s.get("scheme") == "bearer" for s in schemes.values())  # pegar un token
+    password_flows = [s["flows"]["password"] for s in schemes.values() if s.get("type") == "oauth2"]
+    assert password_flows, "Swagger debe ofrecer el login con usuario y contraseña"
+    assert password_flows[0]["tokenUrl"] == (
+        "http://keycloak.test/realms/smartmentor/protocol/openid-connect/token"
+    )
+    assert set(password_flows[0]["scopes"]) == {"openid", "profile", "email"}
     assert "/api/v1/me" in spec["paths"]
+
+
+async def test_swagger_ui_is_prefilled_with_the_dev_tools_client(
+    bare_client: httpx.AsyncClient,
+) -> None:
+    page = (await bare_client.get("/docs")).text
+    assert "smartmentor-dev-tools" in page
+    assert "persistAuthorization" in page
+    assert "openid profile email" in page  # Keycloak rechaza un scope vacío
 
 
 Token = Callable[..., str]

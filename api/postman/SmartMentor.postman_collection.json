@@ -1,0 +1,331 @@
+{
+  "info": {
+    "name": "SmartMentor API (local)",
+    "description": "Colección de la API de SmartMentor. Antes de cada petición un script pide a Keycloak el token con usuario y contraseña (cliente smartmentor-dev-tools, solo desarrollo) y lo envía como Bearer. Configura username y password en el entorno «SmartMentor local».",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pide a Keycloak un token con usuario y contraseña (cliente de desarrollo) y lo reutiliza",
+          "// hasta que está por vencer. Para pedir uno nuevo en CADA petición, pon always_new_token=true.",
+          "const env = (name) => pm.environment.get(name);",
+          "const tokenUrl = env(\"keycloak_url\") + \"/realms/\" + env(\"realm\") + \"/protocol/openid-connect/token\";",
+          "const alwaysNew = env(\"always_new_token\") === \"true\";",
+          "const expiresAt = Number(env(\"token_expires_at\") || 0);",
+          "const stillValid = env(\"access_token\") && Date.now() < expiresAt - 10000;",
+          "",
+          "if (alwaysNew || !stillValid) {",
+          "    pm.sendRequest({",
+          "        url: tokenUrl,",
+          "        method: \"POST\",",
+          "        header: { \"Content-Type\": \"application/x-www-form-urlencoded\" },",
+          "        body: {",
+          "            mode: \"urlencoded\",",
+          "            urlencoded: [",
+          "                { key: \"grant_type\", value: \"password\" },",
+          "                { key: \"client_id\", value: env(\"client_id\") },",
+          "                { key: \"username\", value: env(\"username\") },",
+          "                { key: \"password\", value: env(\"password\") },",
+          "                { key: \"scope\", value: \"openid profile email\" }",
+          "            ]",
+          "        }",
+          "    }, function (err, res) {",
+          "        if (err || res.code !== 200) {",
+          "            throw new Error(\"No se pudo obtener el token de Keycloak: \" + (err || res.code + \" \" + res.text()));",
+          "        }",
+          "        const body = res.json();",
+          "        pm.environment.set(\"access_token\", body.access_token);",
+          "        pm.environment.set(\"token_expires_at\", String(Date.now() + body.expires_in * 1000));",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Sesión",
+      "item": [
+        {
+          "name": "Quién soy (/me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me"
+              ]
+            },
+            "description": "Devuelve el usuario autenticado y sus roles de la base de datos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sin autenticación",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ready",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ready"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Identidad",
+      "item": [
+        {
+          "name": "Listar roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users?limit=20&offset=0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Roles admin y teacher."
+          }
+        },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            },
+            "description": "Solo admin. Para que sea docente, asígnale el rol con POST /api/v1/user-roles.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Docente Ejemplo\",\n  \"email\": \"docente.ejemplo@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Asignar rol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/user-roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user-roles"
+              ]
+            },
+            "description": "Solo admin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"role_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cursos",
+      "item": [
+        {
+          "name": "Listar cursos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Crear curso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses"
+              ]
+            },
+            "description": "Roles admin y teacher.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"owner_user_id\": 1,\n  \"name\": \"Ciencia de datos\",\n  \"description\": \"Curso de ejemplo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listar temas de un curso",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics?course_id=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics"
+              ],
+              "query": [
+                {
+                  "key": "course_id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}

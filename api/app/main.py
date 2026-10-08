@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.auth.dependencies import DOCS_LOGIN_SCOPES
 from app.core.config import get_settings
 from app.core.database import create_engine, create_session_factory
 from app.core.exceptions import register_exception_handlers
@@ -37,14 +38,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(settings)
+    docs_client = settings.oidc_docs_client_id
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
         description=(
             "API de negocio de SmartMentor. Autenticación con bearer tokens de Keycloak "
-            "(realm smartmentor); la autorización usa los roles de user_roles."
+            "(realm smartmentor); la autorización usa los roles de user_roles.\n\n"
+            "**Cómo probar desde esta página:** pulsa *Authorize* y usa *Login (usuario y "
+            "contraseña)*, o pega un access token en *Token (pegar)*."
         ),
         lifespan=lifespan,
+        # Swagger UI: el login con usuario y contraseña usa este cliente (solo desarrollo).
+        swagger_ui_init_oauth=(
+            {"clientId": docs_client, "scopes": " ".join(DOCS_LOGIN_SCOPES)}
+            if docs_client
+            else None
+        ),
+        swagger_ui_parameters={"persistAuthorization": True},
     )
     app.add_middleware(RequestContextMiddleware)
     register_exception_handlers(app)

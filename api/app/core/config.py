@@ -39,6 +39,14 @@ class Settings(BaseSettings):
     oidc_jwks_url: str = Field(min_length=1)
     oidc_audience: str = Field(default="smartmentor-api", min_length=1)
     oidc_identity_provider: str = Field(default="keycloak", min_length=1)
+    # Cliente de Keycloak con el que Swagger UI (/docs) pide el token con usuario y contraseña.
+    # Solo desarrollo: vacío lo desactiva (en producción queda solo "pegar un token").
+    oidc_docs_client_id: str | None = "smartmentor-dev-tools"
+
+    @property
+    def oidc_token_url(self) -> str:
+        """Endpoint de tokens de Keycloak, tal como lo ve el navegador (lo usa Swagger UI)."""
+        return f"{self.oidc_issuer_url.rstrip('/')}/protocol/openid-connect/token"
 
     @property
     def database_url(self) -> str:
