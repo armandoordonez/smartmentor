@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  v2.0.0: re-base del esquema para el prototipo v3 y la capa de IA (ADR 0007).
+  Autor: eduar.troyano. Fecha: 2026-11-07.
+  Recurso: PLAN_IMPLEMENTACION_V3.md, secciones 5.2.1 a 5.2.5; ADR 0007, 0009, 0012, 0019 y 0021.
+  Orden: 001 extensión y zona horaria, 002 función de auditoría, 003 función updated_at,
+  004-042 tablas (cada una con su secuencia, y su tabla _audit y trigger salvo las de solo inserción),
+  043 índice vectorial, 044 vistas, 045 permisos de los usuarios de base de datos, 046-047 semillas,
+  048 etiqueta v2.0.0.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/db.changelog-v2.0.0.xml">
+
+    <include file="001-extensions-and-timezone.xml" relativeToChangelogFile="true"/>
+    <include file="002-audit-function.xml" relativeToChangelogFile="true"/>
+    <include file="003-updated-at-function.xml" relativeToChangelogFile="true"/>
+
+    <!-- Grupo A: identidad y cursos -->
+    <include file="004-create-table-roles.xml" relativeToChangelogFile="true"/>
+    <include file="005-create-table-users.xml" relativeToChangelogFile="true"/>
+    <include file="006-create-table-user_roles.xml" relativeToChangelogFile="true"/>
+    <include file="007-create-table-user_profiles.xml" relativeToChangelogFile="true"/>
+    <include file="008-create-table-consents.xml" relativeToChangelogFile="true"/>
+    <include file="009-create-table-data_subject_requests.xml" relativeToChangelogFile="true"/>
+    <include file="010-create-table-courses.xml" relativeToChangelogFile="true"/>
+    <include file="011-create-table-syllabus_documents.xml" relativeToChangelogFile="true"/>
+    <include file="012-create-table-topics.xml" relativeToChangelogFile="true"/>
+    <include file="013-create-table-learning_outcomes.xml" relativeToChangelogFile="true"/>
+    <include file="014-create-table-topic_prerequisites.xml" relativeToChangelogFile="true"/>
+    <include file="015-create-table-course_evaluators.xml" relativeToChangelogFile="true"/>
+    <include file="016-create-table-ai_jobs.xml" relativeToChangelogFile="true"/>
+    <include file="017-create-table-syllabus_extractions.xml" relativeToChangelogFile="true"/>
+
+    <!-- Semillas (se declaran aquí mientras el resto de los grupos no existe) -->
+    <include file="046-seed-roles.xml" relativeToChangelogFile="true"/>
+    <include file="047-seed-admin-user.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

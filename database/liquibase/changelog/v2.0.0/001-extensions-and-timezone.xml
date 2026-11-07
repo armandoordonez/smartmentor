@@ -4,9 +4,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
-        logicalFilePath="v1.0.0/001-extensions-and-timezone.xml">
+        logicalFilePath="v2.0.0/001-extensions-and-timezone.xml">
 
-    <changeSet id="v1.0.0-001-extensions-and-timezone" author="eduar.troyano">
+    <changeSet id="v2.0.0-001-extensions-and-timezone" author="eduar.troyano">
         <comment>Habilita la extensión pgvector y fija la zona horaria America/Bogota como valor por defecto de la base de datos.</comment>
         <sql>CREATE EXTENSION IF NOT EXISTS vector</sql>
         <sql splitStatements="false">

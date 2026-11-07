@@ -3,10 +3,10 @@
   SmartMentor: changelog maestro del esquema de la base de datos `smartmentor`.
 
   Autor:      eduar.troyano
-  Fecha:      2026-10-07
+  Fecha:      2026-10-07 (re-base v2.0.0: 2026-11-07)
   Recurso:    proyecto/brief.md, secciones "Modelo de datos principal" y
               "Arquitectura técnica y stack sugerido" (PostgreSQL con pgvector como única base).
-  Decisiones: docs/adr/0001-postgres-pgvector.md y docs/adr/0002-liquibase-schema-versioning.md
+  Decisiones: docs/adr/0001-postgres-pgvector.md, docs/adr/0002-liquibase-schema-versioning.md y docs/adr/0007-schema-rebase-v2.md
   Motor:      PostgreSQL 17 + pgvector 0.8.7, Liquibase 5.0.4
   Operación:  database/liquibase/README.md
 
@@ -19,10 +19,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <!-- v1.0.0: modelo de datos inicial de la cohorte 1 (14 tablas, auditoría, índices vectoriales, roles) -->
-    <include file="v1.0.0/db.changelog-v1.0.0.xml" relativeToChangelogFile="true"/>
-
-    <!-- v1.0.1: usuario administrador inicial (Administrador, admin.smartmentor@yopmail.com) -->
-    <include file="v1.0.1/db.changelog-v1.0.1.xml" relativeToChangelogFile="true"/>
+    <!-- v2.0.0: re-base del esquema para el prototipo v3 y la capa de IA (ADR 0007). Reemplaza a v1.0.0 y v1.0.1,
+         que se retiraron de este maestro; su último estado está en git con la etiqueta schema-v1-final. -->
+    <include file="v2.0.0/db.changelog-v2.0.0.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

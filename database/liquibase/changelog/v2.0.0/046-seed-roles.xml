@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/046-seed-roles.xml">
+
+    <changeSet id="v2.0.0-046-seed-roles" author="eduar.troyano">
+        <comment>Carga los tres roles de la plataforma con códigos neutros (ADR 0021): learner, instructor y admin. No hay rol evaluator (DEF-24).</comment>
+        <insert tableName="roles">
+            <column name="code" value="learner"/>
+            <column name="name" value="Learner"/>
+            <column name="description" value="Follows learning paths and takes assessments"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="instructor"/>
+            <column name="name" value="Instructor"/>
+            <column name="description" value="Creates courses, reviews content and follows learner progress"/>
+        </insert>
+        <insert tableName="roles">
+            <column name="code" value="admin"/>
+            <column name="name" value="Administrator"/>
+            <column name="description" value="Manages users, roles, courses and platform configuration"/>
+        </insert>
+        <rollback>
+            <delete tableName="roles">
+                <where>code IN ('learner', 'instructor', 'admin')</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
