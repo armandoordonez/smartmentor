@@ -69,6 +69,13 @@ Commits: `fc1b43d` (realm), el del compose y scripts, y los posteriores de la ra
 - Desviación: `API_BASE_URL` por defecto `http://api:8000`, no `:8020` (8020 es el puerto publicado en el anfitrión; dentro de la red la API escucha en 8000). `app/README.md` de esa rama dice 8020 y debe corregirse.
 - `APP_CONTEXT_PROFILE` y `ORGANIZATION_NAME` salieron de la lista de variables futuras; `.env.example` deja `ORGANIZATION_NAME` y `APP_CONTEXT_PROFILE` donde estaban.
 
+## Adenda: API v2 (pedido de api-core, commit 9cb4877)
+
+- Servicio `api`: `APP_CONTEXT_PROFILE`, `REQUIRE_SECOND_FACTOR` (false por defecto), `AI_SERVICE_MODE` (fake), `AI_SERVICE_URL`, `AI_SERVICE_CLIENT_ID`, `AI_SERVICE_CLIENT_SECRET`, `AI_SERVICE_TOKEN_URL` (por defecto interna de Keycloak), `AI_SERVICE_TIMEOUT_SECONDS`, `AI_SWEEP_INTERVAL_SECONDS`; se quitó `EMBEDDING_DIMENSION` de ese servicio (sigue en `ai`).
+- Decisión: en `.env` se conservan los nombres del Anexo D (`AI_BASE_URL`, `AI_CLIENT_ID`, `AI_CLIENT_SECRET`, que también usa el realm) y el compose los entrega a la API como `AI_SERVICE_*`. `.env.example` agrega `AI_SERVICE_MODE`, `AI_SERVICE_TOKEN_URL`, `AI_SERVICE_TIMEOUT_SECONDS`, `AI_SWEEP_INTERVAL_SECONDS` y `REQUIRE_SECOND_FACTOR`.
+- `REQUIRE_SECOND_FACTOR` queda en false: activarlo exige comprobar que el token de Keycloak trae `amr`/`acr` con OTP (no verificado aquí; el flujo `browser-role-otp` no configura ese claim).
+- CI, trabajo `api`: usa `ci_user` (superusuario del servicio efímero) para Liquibase y pytest; los roles `smartmentor_*` no existen allí y el changeset de permisos los omite con aviso. Se agregó `SEED_ADMIN_EMAIL` de prueba al paso de Liquibase. `api/scripts/dev.sh` (de `api`) carga `.env` con nombres antiguos (`DATABASE_*` desde `POSTGRES_*`); la CI no lo usa.
+
 ## Impacto en el brief
 
 - **Seguridad / identidad**: el brief debe decir que el autorregistro exige correo verificado, que hay OTP obligatorio para instructor y administrador y protección de fuerza bruta.

@@ -92,6 +92,7 @@ jobs:
             -e LIQUIBASE_COMMAND_USERNAME=ci_user \
             -e LIQUIBASE_COMMAND_PASSWORD=ci-only-not-a-secret \
             -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
+            -e SEED_ADMIN_EMAIL=seed-admin@example.test \
             -v "$GITHUB_WORKSPACE/database/liquibase/changelog:/liquibase/changelog:ro" \
             smartmentor-liquibase:ci update
       - name: pytest
