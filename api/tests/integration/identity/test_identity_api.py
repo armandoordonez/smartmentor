@@ -79,7 +79,9 @@ async def test_the_admin_assigns_several_roles_and_the_change_is_audited(
 ) -> None:
     me = await admin_id(client)
     user_id = await insert_user(engine, email="multi@example.com", role="learner", sub=None)
-    response = await client.put(f"{USERS}/{user_id}/roles", json={"roles": ["instructor", "learner"]})
+    response = await client.put(
+        f"{USERS}/{user_id}/roles", json={"roles": ["instructor", "learner"]}
+    )
     assert response.status_code == 200
     assert response.json() == {"roles": ["instructor", "learner"]}
     assert (await client.get(f"{USERS}/{user_id}/roles")).json() == {
@@ -276,7 +278,9 @@ async def test_consent_lifecycle(client_for: ClientFactory) -> None:
 async def test_consent_validation_and_ownership(client_for: ClientFactory) -> None:
     http = client_for(sub="c-sub", email="c@example.com")
     assert (
-        await http.post(f"{API}/me/consents", json={"consent_type": "marketing", "document_version": "1"})
+        await http.post(
+            f"{API}/me/consents", json={"consent_type": "marketing", "document_version": "1"}
+        )
     ).status_code == 422
     assert (await http.patch(f"{API}/me/consents/pilot_research/revoke")).status_code == 404
     assert (await http.patch(f"{API}/me/consents/otra/revoke")).status_code == 422
@@ -298,7 +302,9 @@ async def test_a_data_subject_request_is_created_pending(
     assert created.json()["status"] == "pending"
     assert created.json()["request_type"] == "deletion"
     async with engine.connect() as conn:
-        details = (await conn.execute(text("SELECT details FROM data_subject_requests"))).scalar_one()
+        details = (
+            await conn.execute(text("SELECT details FROM data_subject_requests"))
+        ).scalar_one()
     assert details == "Me voy"
     bad = await http.post(f"{API}/me/data-subject-requests", json={"request_type": "borrar"})
     assert bad.status_code == 422

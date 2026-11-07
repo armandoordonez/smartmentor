@@ -4,9 +4,9 @@ import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Request
-from fastapi.datastructures import UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
+from starlette.datastructures import UploadFile
 
 from app.auth.dependencies import require_roles
 from app.auth.policies import ADMIN, STAFF

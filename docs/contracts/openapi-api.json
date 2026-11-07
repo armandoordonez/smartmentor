@@ -1,0 +1,4365 @@
+{
+  "components": {
+    "schemas": {
+      "BloomLevel": {
+        "enum": [
+          "remember",
+          "understand",
+          "apply",
+          "analyze",
+          "evaluate",
+          "create"
+        ],
+        "title": "BloomLevel",
+        "type": "string"
+      },
+      "ConsentCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "consent_type": {
+            "$ref": "#/components/schemas/ConsentType"
+          },
+          "document_version": {
+            "maxLength": 30,
+            "minLength": 1,
+            "title": "Document Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "consent_type",
+          "document_version"
+        ],
+        "title": "ConsentCreate",
+        "type": "object"
+      },
+      "ConsentResponse": {
+        "properties": {
+          "consent_type": {
+            "title": "Consent Type",
+            "type": "string"
+          },
+          "document_version": {
+            "title": "Document Version",
+            "type": "string"
+          },
+          "granted": {
+            "title": "Granted",
+            "type": "boolean"
+          },
+          "granted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          }
+        },
+        "required": [
+          "id",
+          "consent_type",
+          "document_version",
+          "granted_at",
+          "revoked_at",
+          "granted"
+        ],
+        "title": "ConsentResponse",
+        "type": "object"
+      },
+      "ConsentState": {
+        "properties": {
+          "document_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Version"
+          },
+          "granted": {
+            "title": "Granted",
+            "type": "boolean"
+          },
+          "granted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Granted At"
+          }
+        },
+        "required": [
+          "granted",
+          "document_version",
+          "granted_at"
+        ],
+        "title": "ConsentState",
+        "type": "object"
+      },
+      "ConsentType": {
+        "enum": [
+          "data_processing",
+          "pilot_research"
+        ],
+        "title": "ConsentType",
+        "type": "string"
+      },
+      "CourseCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "learning_path": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LearningPathInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "CourseCreate",
+        "type": "object"
+      },
+      "CourseOwnerUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "owner_user_id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner User Id"
+          }
+        },
+        "title": "CourseOwnerUpdate",
+        "type": "object"
+      },
+      "CourseResponse": {
+        "properties": {
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "extraction_error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Error Code"
+          },
+          "extraction_job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Job Id"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "learning_path": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LearningPathSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner User Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "status",
+          "owner_user_id",
+          "extraction_error_code",
+          "extraction_job_id",
+          "learning_path",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CourseResponse",
+        "type": "object"
+      },
+      "CourseUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "CourseUpdate",
+        "type": "object"
+      },
+      "DataSubjectRequestCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "request_type": {
+            "$ref": "#/components/schemas/DataSubjectRequestType"
+          }
+        },
+        "required": [
+          "request_type"
+        ],
+        "title": "DataSubjectRequestCreate",
+        "type": "object"
+      },
+      "DataSubjectRequestResponse": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "request_type": {
+            "title": "Request Type",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "request_type",
+          "status"
+        ],
+        "title": "DataSubjectRequestResponse",
+        "type": "object"
+      },
+      "DataSubjectRequestType": {
+        "enum": [
+          "deletion",
+          "access",
+          "rectification"
+        ],
+        "title": "DataSubjectRequestType",
+        "type": "string"
+      },
+      "EducationLevel": {
+        "enum": [
+          "secondary",
+          "technical",
+          "undergraduate",
+          "postgraduate",
+          "other",
+          "none"
+        ],
+        "title": "EducationLevel",
+        "type": "string"
+      },
+      "ExperienceBand": {
+        "enum": [
+          "none",
+          "less_than_1_year",
+          "1_3_years",
+          "3_5_years",
+          "more_than_5_years"
+        ],
+        "title": "ExperienceBand",
+        "type": "string"
+      },
+      "ExtractionMetricsResponse": {
+        "properties": {
+          "corrections": {
+            "title": "Corrections",
+            "type": "integer"
+          },
+          "prerequisites": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "topics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "topics",
+          "prerequisites",
+          "corrections"
+        ],
+        "title": "ExtractionMetricsResponse",
+        "type": "object"
+      },
+      "ExtractionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm_discard_review": {
+            "default": false,
+            "title": "Confirm Discard Review",
+            "type": "boolean"
+          }
+        },
+        "title": "ExtractionRequest",
+        "type": "object"
+      },
+      "GraphEdge": {
+        "description": "`from` es el prerrequisito y `to` el tema que lo requiere.",
+        "properties": {
+          "from": {
+            "title": "From",
+            "type": "integer"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "to": {
+            "title": "To",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "origin"
+        ],
+        "title": "GraphEdge",
+        "type": "object"
+      },
+      "GraphNode": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "position"
+        ],
+        "title": "GraphNode",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "JobAccepted": {
+        "description": "Respuesta `202` de toda operación asíncrona; la app consulta `poll_url` cada 2 s.",
+        "properties": {
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "poll_url": {
+            "title": "Poll Url",
+            "type": "string"
+          },
+          "status": {
+            "default": "queued",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "poll_url"
+        ],
+        "title": "JobAccepted",
+        "type": "object"
+      },
+      "JobResponse": {
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "ingested": {
+            "title": "Ingested",
+            "type": "boolean"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "job_type": {
+            "title": "Job Type",
+            "type": "string"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "progress_label": {
+            "title": "Progress Label",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "job_type",
+          "status",
+          "progress_label",
+          "ingested"
+        ],
+        "title": "JobResponse",
+        "type": "object"
+      },
+      "LanguageSkill": {
+        "additionalProperties": false,
+        "properties": {
+          "cefr_level": {
+            "pattern": "^(A1|A2|B1|B2|C1|C2)$",
+            "title": "Cefr Level",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 10,
+            "minLength": 2,
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "cefr_level"
+        ],
+        "title": "LanguageSkill",
+        "type": "object"
+      },
+      "LearningPathInput": {
+        "additionalProperties": false,
+        "properties": {
+          "group_label": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "LearningPathInput",
+        "type": "object"
+      },
+      "LearningPathSummary": {
+        "properties": {
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "group_label",
+          "status"
+        ],
+        "title": "LearningPathSummary",
+        "type": "object"
+      },
+      "MeResponse": {
+        "description": "El usuario autenticado y sus roles (CU-34, CU-35).",
+        "properties": {
+          "consent_status": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ConsentState"
+            },
+            "title": "Consent Status",
+            "type": "object"
+          },
+          "default_role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Role"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_new_user": {
+            "title": "Is New User",
+            "type": "boolean"
+          },
+          "profile_completeness": {
+            "$ref": "#/components/schemas/ProfileCompletenessResponse"
+          },
+          "requires_consent": {
+            "title": "Requires Consent",
+            "type": "boolean"
+          },
+          "role_labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Role Labels",
+            "type": "object"
+          },
+          "role_short_labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Role Short Labels",
+            "type": "object"
+          },
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "second_factor": {
+            "title": "Second Factor",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "roles",
+          "role_labels",
+          "role_short_labels",
+          "default_role",
+          "is_new_user",
+          "consent_status",
+          "requires_consent",
+          "profile_completeness",
+          "second_factor"
+        ],
+        "title": "MeResponse",
+        "type": "object"
+      },
+      "OutcomeResponse": {
+        "properties": {
+          "bloom_level": {
+            "title": "Bloom Level",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "statement": {
+            "title": "Statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "statement",
+          "bloom_level"
+        ],
+        "title": "OutcomeResponse",
+        "type": "object"
+      },
+      "OutcomeWrite": {
+        "additionalProperties": false,
+        "properties": {
+          "bloom_level": {
+            "$ref": "#/components/schemas/BloomLevel"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "statement": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "statement",
+          "bloom_level"
+        ],
+        "title": "OutcomeWrite",
+        "type": "object"
+      },
+      "Page_CourseResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CourseResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[CourseResponse]",
+        "type": "object"
+      },
+      "Page_RoleResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RoleResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[RoleResponse]",
+        "type": "object"
+      },
+      "Page_UserResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[UserResponse]",
+        "type": "object"
+      },
+      "Page_UserRoleResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserRoleResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[UserRoleResponse]",
+        "type": "object"
+      },
+      "ProfileCompletenessResponse": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "boolean"
+          },
+          "percent": {
+            "title": "Percent",
+            "type": "integer"
+          },
+          "resume": {
+            "title": "Resume",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "description",
+          "resume",
+          "percent"
+        ],
+        "title": "ProfileCompletenessResponse",
+        "type": "object"
+      },
+      "ProfileResponse": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "education_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Education Level"
+          },
+          "experience_band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience Band"
+          },
+          "job_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          },
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/LanguageSkill"
+            },
+            "title": "Languages",
+            "type": "array"
+          },
+          "qualification_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualification Title"
+          },
+          "recalculated_enrollment_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recalculated Enrollment Ids"
+          },
+          "resume_completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resume Completed At"
+          },
+          "tools": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "required": [
+          "description",
+          "education_level",
+          "qualification_title",
+          "job_title",
+          "experience_band",
+          "tools",
+          "languages",
+          "resume_completed_at"
+        ],
+        "title": "ProfileResponse",
+        "type": "object"
+      },
+      "ProfileUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "education_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EducationLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "experience_band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExperienceBand"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "job_title": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Title"
+          },
+          "languages": {
+            "items": {
+              "$ref": "#/components/schemas/LanguageSkill"
+            },
+            "maxItems": 20,
+            "title": "Languages",
+            "type": "array"
+          },
+          "qualification_title": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualification Title"
+          },
+          "tools": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Tools",
+            "type": "array"
+          }
+        },
+        "title": "ProfileUpdate",
+        "type": "object"
+      },
+      "ReviewCounts": {
+        "properties": {
+          "added": {
+            "title": "Added",
+            "type": "integer"
+          },
+          "corrected": {
+            "title": "Corrected",
+            "type": "integer"
+          },
+          "deleted": {
+            "title": "Deleted",
+            "type": "integer"
+          },
+          "unchanged": {
+            "title": "Unchanged",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "unchanged",
+          "corrected",
+          "added",
+          "deleted"
+        ],
+        "title": "ReviewCounts",
+        "type": "object"
+      },
+      "RoleCode": {
+        "description": "Roles de la plataforma (sección 13 del plan). Sin rol `evaluator`: se asigna por curso.",
+        "enum": [
+          "admin",
+          "instructor",
+          "learner"
+        ],
+        "title": "RoleCode",
+        "type": "string"
+      },
+      "RoleCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "maxLength": 30,
+            "minLength": 2,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Code",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "RoleCreate",
+        "type": "object"
+      },
+      "RoleResponse": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "active",
+          "created_at",
+          "code",
+          "name",
+          "description"
+        ],
+        "title": "RoleResponse",
+        "type": "object"
+      },
+      "RoleUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "RoleUpdate",
+        "type": "object"
+      },
+      "ScoreResponse": {
+        "properties": {
+          "f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F1"
+          },
+          "precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precision"
+          },
+          "recall": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recall"
+          }
+        },
+        "required": [
+          "precision",
+          "recall",
+          "f1"
+        ],
+        "title": "ScoreResponse",
+        "type": "object"
+      },
+      "TopicGraphResponse": {
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "nodes",
+          "edges"
+        ],
+        "title": "TopicGraphResponse",
+        "type": "object"
+      },
+      "TopicListResponse": {
+        "properties": {
+          "review_counts": {
+            "$ref": "#/components/schemas/ReviewCounts"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicResponse"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "topics",
+          "review_counts"
+        ],
+        "title": "TopicListResponse",
+        "type": "object"
+      },
+      "TopicResponse": {
+        "properties": {
+          "bloom_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Level"
+          },
+          "course_id": {
+            "title": "Course Id",
+            "type": "integer"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "extraction_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Key"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_mandatory": {
+            "title": "Is Mandatory",
+            "type": "boolean"
+          },
+          "learning_outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/OutcomeResponse"
+            },
+            "title": "Learning Outcomes",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "prerequisite_topic_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Prerequisite Topic Ids",
+            "type": "array"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "subtopics": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Subtopics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "course_id",
+          "name",
+          "description",
+          "subtopics",
+          "position",
+          "estimated_minutes",
+          "is_mandatory",
+          "bloom_level",
+          "origin",
+          "review_status",
+          "extraction_key",
+          "learning_outcomes",
+          "prerequisite_topic_ids"
+        ],
+        "title": "TopicResponse",
+        "type": "object"
+      },
+      "TopicWrite": {
+        "additionalProperties": false,
+        "properties": {
+          "bloom_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BloomLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "maximum": 100000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "is_mandatory": {
+            "default": false,
+            "title": "Is Mandatory",
+            "type": "boolean"
+          },
+          "learning_outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/OutcomeWrite"
+            },
+            "maxItems": 30,
+            "title": "Learning Outcomes",
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "prerequisite_topic_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 50,
+            "title": "Prerequisite Topic Ids",
+            "type": "array"
+          },
+          "subtopics": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Subtopics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "TopicWrite",
+        "type": "object"
+      },
+      "UserCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "format": "email",
+            "maxLength": 320,
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Full Name",
+            "type": "string"
+          },
+          "identity_provider": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Provider"
+          },
+          "identity_subject": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Subject"
+          }
+        },
+        "required": [
+          "full_name",
+          "email"
+        ],
+        "title": "UserCreate",
+        "type": "object"
+      },
+      "UserResponse": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "identity_provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Provider"
+          },
+          "identity_subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Subject"
+          }
+        },
+        "required": [
+          "id",
+          "active",
+          "created_at",
+          "full_name",
+          "email",
+          "identity_provider",
+          "identity_subject"
+        ],
+        "title": "UserResponse",
+        "type": "object"
+      },
+      "UserRoleCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "role_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Role Id",
+            "type": "integer"
+          },
+          "user_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id",
+          "role_id"
+        ],
+        "title": "UserRoleCreate",
+        "type": "object"
+      },
+      "UserRoleResponse": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "role_id": {
+            "title": "Role Id",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "active",
+          "created_at",
+          "user_id",
+          "role_id"
+        ],
+        "title": "UserRoleResponse",
+        "type": "object"
+      },
+      "UserRoleUpdate": {
+        "additionalProperties": false,
+        "description": "Una asignación de rol no tiene campos editables: se activa o se inactiva.",
+        "properties": {},
+        "title": "UserRoleUpdate",
+        "type": "object"
+      },
+      "UserRolesResponse": {
+        "properties": {
+          "roles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "roles"
+        ],
+        "title": "UserRolesResponse",
+        "type": "object"
+      },
+      "UserRolesUpdate": {
+        "additionalProperties": false,
+        "description": "`PUT /users/{id}/roles`: el conjunto completo de roles del usuario (al menos uno).",
+        "properties": {
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleCode"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "roles"
+        ],
+        "title": "UserRolesUpdate",
+        "type": "object"
+      },
+      "UserUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "format": "email",
+                "maxLength": 320,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "identity_provider": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Provider"
+          },
+          "identity_subject": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identity Subject"
+          }
+        },
+        "title": "UserUpdate",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "Login (usuario y contraseña)": {
+        "description": "Swagger pide el token a Keycloak con el cliente `smartmentor-dev-tools` (solo desarrollo). Escribe el correo y la contraseña de tu usuario del realm.",
+        "flows": {
+          "password": {
+            "scopes": {
+              "email": "Correo del usuario",
+              "openid": "Identidad OpenID Connect",
+              "profile": "Nombre del usuario"
+            },
+            "tokenUrl": "{OIDC_ISSUER_URL}/protocol/openid-connect/token"
+          }
+        },
+        "type": "oauth2"
+      },
+      "Token (pegar)": {
+        "description": "Access token de Keycloak (realm smartmentor), sin la palabra Bearer.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "API de negocio de SmartMentor. Autenticación con bearer tokens de Keycloak (realm smartmentor); la autorización usa los roles de user_roles.\n\n**Cómo probar desde esta página:** pulsa *Authorize* y usa *Login (usuario y contraseña)*, o pega un access token en *Token (pegar)*.",
+    "title": "SmartMentor API",
+    "version": "0.2.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/courses": {
+      "get": {
+        "operationId": "list_courses_api_v1_courses_get",
+        "parameters": [
+          {
+            "description": "Solo los míos (forzado para un instructor)",
+            "in": "query",
+            "name": "mine",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Solo los míos (forzado para un instructor)",
+              "title": "Mine",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_CourseResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Courses",
+        "tags": [
+          "courses"
+        ]
+      },
+      "post": {
+        "operationId": "create_course_api_v1_courses_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create Course",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}": {
+      "get": {
+        "operationId": "get_course_api_v1_courses__course_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Course",
+        "tags": [
+          "courses"
+        ]
+      },
+      "patch": {
+        "operationId": "update_course_api_v1_courses__course_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Course",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/extraction-metrics": {
+      "get": {
+        "operationId": "extraction_metrics_api_v1_courses__course_id__extraction_metrics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractionMetricsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Extraction Metrics",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/extractions": {
+      "post": {
+        "description": "Vuelve a extraer los temas del último syllabus; la revisión se reemplaza (D2c).",
+        "operationId": "re_extract_api_v1_courses__course_id__extractions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Re Extract",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/owner": {
+      "patch": {
+        "description": "Asigna el instructor dueño del curso, o lo deja «Sin asignar» con `null` (AD5).",
+        "operationId": "assign_owner_api_v1_courses__course_id__owner_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseOwnerUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Assign Owner",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/publish": {
+      "post": {
+        "description": "Valida el DAG y la revisión y dispara la generación del contenido (D2).",
+        "operationId": "publish_course_api_v1_courses__course_id__publish_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Publish Course",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/syllabus": {
+      "post": {
+        "description": "Sube el syllabus (PDF ≤ 10 MB o texto), extrae su texto y encola `syllabus.structure`.",
+        "operationId": "upload_syllabus_api_v1_courses__course_id__syllabus_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "minLength": 1,
+                    "title": "Text",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "title": "SyllabusTextBody",
+                "type": "object"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Upload Syllabus",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/topic-graph": {
+      "get": {
+        "operationId": "topic_graph_api_v1_courses__course_id__topic_graph_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicGraphResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Topic Graph",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/topics": {
+      "get": {
+        "operationId": "list_topics_api_v1_courses__course_id__topics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Topics",
+        "tags": [
+          "courses"
+        ]
+      },
+      "post": {
+        "operationId": "create_topic_api_v1_courses__course_id__topics_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create Topic",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "description": "Consulta el trabajo (la app lo hace cada 2 s, U1x).\n\nSi `ai/` terminó, la API valida el resultado y lo escribe en una transacción idempotente en\nesta misma petición. Un trabajo fallido responde `502 AI_TASK_FAILED` (con `retryable`) o\n`503 AI_BUDGET_EXCEEDED`. Un trabajo ajeno responde `404 JOB_NOT_FOUND`.",
+        "operationId": "get_job_api_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Job",
+        "tags": [
+          "jobs"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "description": "El usuario autenticado. El primer ingreso lo crea con el rol `learner` (CU-34).",
+        "operationId": "read_me_api_v1_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Read Me",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/me/consents": {
+      "get": {
+        "operationId": "list_consents_api_v1_me_consents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConsentResponse"
+                  },
+                  "title": "Response List Consents Api V1 Me Consents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Consents",
+        "tags": [
+          "me"
+        ]
+      },
+      "post": {
+        "operationId": "grant_consent_api_v1_me_consents_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentResponse"
+                }
+              }
+            },
+            "description": "Ya estaba vigente"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grant Consent",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/me/consents/{consent_type}/revoke": {
+      "patch": {
+        "operationId": "revoke_consent_api_v1_me_consents__consent_type__revoke_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "consent_type",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ConsentType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Revoke Consent",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/me/data-subject-requests": {
+      "post": {
+        "description": "Solicitud de acceso, rectificación o supresión (E11b). El administrador la ejecuta.",
+        "operationId": "create_data_subject_request_api_v1_me_data_subject_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataSubjectRequestCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSubjectRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create Data Subject Request",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/me/profile": {
+      "get": {
+        "operationId": "read_profile_api_v1_me_profile_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Read Profile",
+        "tags": [
+          "me"
+        ]
+      },
+      "put": {
+        "description": "Reemplaza la descripción y la hoja de vida (E2, E2b, E15).",
+        "operationId": "update_profile_api_v1_me_profile_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Profile",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "operationId": "list_items_api_v1_roles_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filtra por estado; por defecto solo activos",
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Filtra por estado; por defecto solo activos",
+              "title": "Active",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_RoleResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Items",
+        "tags": [
+          "roles"
+        ]
+      },
+      "post": {
+        "operationId": "create_api_v1_roles_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/api/v1/roles/{item_id}": {
+      "get": {
+        "operationId": "get_item_api_v1_roles__item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Item",
+        "tags": [
+          "roles"
+        ]
+      },
+      "patch": {
+        "operationId": "update_item_api_v1_roles__item_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Item",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/api/v1/roles/{item_id}/activate": {
+      "patch": {
+        "operationId": "activate_item_api_v1_roles__item_id__activate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Activate Item",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/api/v1/roles/{item_id}/deactivate": {
+      "patch": {
+        "operationId": "deactivate_item_api_v1_roles__item_id__deactivate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Deactivate Item",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}": {
+      "put": {
+        "description": "Actualiza el tema con sus resultados y prerrequisitos en una sola operación (D2b).",
+        "operationId": "update_topic_api_v1_topics__topic_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Topic",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/deactivate": {
+      "patch": {
+        "operationId": "deactivate_topic_api_v1_topics__topic_id__deactivate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Deactivate Topic",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
+    "/api/v1/user-roles": {
+      "get": {
+        "operationId": "list_items_api_v1_user_roles_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filtra por estado; por defecto solo activos",
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Filtra por estado; por defecto solo activos",
+              "title": "Active",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "role_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_UserRoleResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Items",
+        "tags": [
+          "user-roles"
+        ]
+      },
+      "post": {
+        "operationId": "create_api_v1_user_roles_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRoleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "user-roles"
+        ]
+      }
+    },
+    "/api/v1/user-roles/{item_id}": {
+      "get": {
+        "operationId": "get_item_api_v1_user_roles__item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Item",
+        "tags": [
+          "user-roles"
+        ]
+      },
+      "patch": {
+        "operationId": "update_item_api_v1_user_roles__item_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRoleUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Item",
+        "tags": [
+          "user-roles"
+        ]
+      }
+    },
+    "/api/v1/user-roles/{item_id}/activate": {
+      "patch": {
+        "operationId": "activate_item_api_v1_user_roles__item_id__activate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Activate Item",
+        "tags": [
+          "user-roles"
+        ]
+      }
+    },
+    "/api/v1/user-roles/{item_id}/deactivate": {
+      "patch": {
+        "operationId": "deactivate_item_api_v1_user_roles__item_id__deactivate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Deactivate Item",
+        "tags": [
+          "user-roles"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "operationId": "list_items_api_v1_users_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filtra por estado; por defecto solo activos",
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "schema": {
+              "default": true,
+              "description": "Filtra por estado; por defecto solo activos",
+              "title": "Active",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_UserResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Items",
+        "tags": [
+          "users"
+        ]
+      },
+      "post": {
+        "operationId": "create_api_v1_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{item_id}": {
+      "get": {
+        "operationId": "get_item_api_v1_users__item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Item",
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "update_item_api_v1_users__item_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Item",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{item_id}/activate": {
+      "patch": {
+        "operationId": "activate_item_api_v1_users__item_id__activate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Activate Item",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{item_id}/deactivate": {
+      "patch": {
+        "operationId": "deactivate_item_api_v1_users__item_id__deactivate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Deactivate Item",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{user_id}/roles": {
+      "get": {
+        "operationId": "read_user_roles_api_v1_users__user_id__roles_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRolesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Read User Roles",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "description": "Asigna o quita roles (varios por usuario). Nunca deja la plataforma sin administrador.",
+        "operationId": "replace_user_roles_api_v1_users__user_id__roles_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRolesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRolesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Replace User Roles",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Liveness: el proceso responde. No consulta nada externo.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "description": "Readiness: hay conexión a la base y la extensión vector está instalada.",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  }
+}

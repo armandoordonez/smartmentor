@@ -1,6 +1,6 @@
 # api/
 
-API de negocio de SmartMentor en FastAPI: usuarios, cursos, rutas y evaluaciones. PostgreSQL con pgvector como única base; el esquema lo crea Liquibase (la API nunca crea ni migra tablas).
+API de negocio de SmartMentor en FastAPI: identidad, cursos y la integración con el servicio de IA (las rutas, evaluaciones, contenido y piloto llegan en las partes siguientes de la Fase 3). PostgreSQL con pgvector como única base; el esquema lo crea Liquibase (la API nunca crea ni migra tablas).
 
 - Estándar que sigue: [`microservice-development-standard.md`](microservice-development-standard.md) (rev. 2).
 - Decisiones: [ADR 0001 (PostgreSQL + pgvector)](../docs/adr/0001-postgres-pgvector.md), [ADR 0002 (Liquibase)](../docs/adr/0002-liquibase-schema-versioning.md), [ADR 0003 (organización por dominio)](../docs/adr/0003-api-domain-first-layout.md).
@@ -25,7 +25,7 @@ docker compose up -d --build  # postgres → liquibase update → api (y keycloa
 
 ## Obtener un token y probar la API
 
-Todas las rutas de `/api/v1` exigen `Authorization: Bearer <access_token>`. El token lo emite Keycloak; la API solo lo valida. Necesitas un **usuario con contraseña** en el realm `smartmentor` (en Keycloak: *Users → Create new user*, correo con *Email verified* activado, y *Credentials → Set password*). En su primer acceso la API lo da de alta como estudiante; para probar como administrador usa `admin.smartmentor@yopmail.com` (defínele la contraseña).
+Todas las rutas de `/api/v1` exigen `Authorization: Bearer <access_token>`. El token lo emite Keycloak; la API solo lo valida. Necesitas un **usuario con contraseña** en el realm `smartmentor` (en Keycloak: *Users → Create new user*, correo con *Email verified* activado, y *Credentials → Set password*). En su primer `GET /me` la API lo da de alta como aprendiz (`learner`); para probar como administrador, define `SEED_ADMIN_EMAIL` antes de crear la base y crea ese usuario en Keycloak con el mismo correo verificado.
 
 | Forma | Pide el token | Útil para |
 | --- | --- | --- |
@@ -123,88 +123,63 @@ En Swagger: **Authorize → Token (pegar)** y pega el access token **sin** la pa
 - **En producción:** elimina el cliente `smartmentor-dev-tools` de Keycloak y deja `OIDC_DOCS_CLIENT_ID` vacío. Entonces `/docs` solo ofrece *Token (pegar)* y los usuarios inician sesión en la pantalla de Keycloak, a través del frontend.
 - No guardes contraseñas reales en el entorno de Postman ni lo compartas: contiene `username` y `password`.
 
-## Dominios y recursos
+## Dominios y rutas
 
-Cada recurso expone las mismas operaciones. **No existe `DELETE`**: el borrado es lógico.
+Esta parte de la Fase 3 entrega `identity`, `courses` y `ai_gateway`. Las rutas de aprendizaje, evaluaciones, contenido, evaluación humana y piloto las agregan los agentes siguientes. El contrato completo está en [`docs/contracts/api-v2.md`](../docs/contracts/api-v2.md) y el OpenAPI generado en [`docs/contracts/openapi-api.json`](../docs/contracts/openapi-api.json) (una prueba falla si el código cambia sin actualizarlo: `api/scripts/dev.sh openapi`). Los ids de las rutas son enteros; los trabajos usan el `job_id` UUID de `ai/`.
 
-| Operación | Método y ruta | Respuesta |
+| Dominio | Rutas (prefijo `/api/v1`) | Reglas de negocio |
 | --- | --- | --- |
-| Crear | `POST /api/v1/<recurso>` | 201 |
-| Consultar | `GET /api/v1/<recurso>/{id}` | 200 (también si está inactivo) |
-| Listar | `GET /api/v1/<recurso>?limit=20&offset=0&active=true&<filtros>` | 200 `{items, total, limit, offset}` |
-| Actualizar | `PATCH /api/v1/<recurso>/{id}` | 200 (solo los campos enviados) |
-| Inactivar / activar | `PATCH /api/v1/<recurso>/{id}/deactivate` · `/activate` | 200 |
+| `identity` | `GET /me`; `GET`, `PUT /me/profile`; `GET`, `POST /me/consents`; `PATCH /me/consents/{type}/revoke`; `POST /me/data-subject-requests`; CRUD de `roles`, `users` y `user-roles`; `GET`, `PUT /users/{id}/roles` | El primer `GET /me` crea el usuario y el rol `learner` (CU-34). Correo único sin distinguir mayúsculas. El administrador reemplaza los roles de un usuario (varios por usuario) y **nunca puede dejar la plataforma sin administrador** (`409 LAST_ADMIN`). Cada cambio queda en la auditoría. |
+| `courses` | `POST`, `GET /courses`; `GET`, `PATCH /courses/{id}`; `PATCH /courses/{id}/owner`; `POST /courses/{id}/syllabus`; `POST /courses/{id}/extractions`; `GET /courses/{id}/topics`, `/topic-graph`, `/extraction-metrics`; `POST /courses/{id}/topics`; `PUT /topics/{id}`; `PATCH /topics/{id}/deactivate`; `POST /courses/{id}/publish` | El instructor solo ve sus cursos; el administrador, todos. El syllabus (PDF de hasta 10 MB o texto) se extrae con `pypdf`; sin texto, `422 SYLLABUS_NO_TEXT`. Los prerrequisitos forman un DAG: un ciclo responde `422 PREREQUISITE_CYCLE` con el camino en `cycle`. Publicar exige revisión completa. |
+| `ai_gateway` | `GET /jobs/{job_id}` | Estado de un trabajo de `ai/`; si terminó, la API lo ingiere en la misma petición. |
+| `learning_paths` | (solo el modelo y la entidad de `learning_paths`) | `POST /courses` crea la ruta del curso. El resto lo implementa el agente de rutas. |
 
-`limit` va de 1 a 100. Por defecto las listas devuelven solo registros activos; `active=false` lista los inactivos.
+### Estados del curso
 
-| Dominio | Recursos (ruta) | Reglas de negocio |
-| --- | --- | --- |
-| `identity` | `roles`, `users`, `user-roles` | Email único sin distinguir mayúsculas (409). `identity_provider` e `identity_subject` van juntos. Un usuario puede tener varios roles. |
-| `courses` | `courses`, `topics`, `topic-prerequisites` | Los prerrequisitos forman un grafo sin ciclos (422) y deben ser del mismo curso. El `embedding` se acepta pero no se devuelve (`has_embedding`). |
-| `learning-paths` | `learning-paths`, `enrollments`, `path-steps` | Umbrales 0-100 (por defecto 70/80/80 y 3 intentos, según el brief). Una inscripción por usuario y ruta (409). Un paso solo admite temas del curso de la ruta. |
-| `content` | `resources` | Un recurso es `video` o `text` y necesita `url` o `content`. |
-| `assessments` | `diagnostics`, `assessment-attempts`, `badges` | Un diagnóstico por inscripción. El número de intento y `passed` los calcula la API con los umbrales de la ruta; se rechaza pasar de `max_attempts`. El badge exige una evaluación final aprobada. |
-| `observability` | `llm-call-logs` | Registro de cada llamada al LLM; solo se corrigen `status` y `error_message`. |
-| `student` | `/me/enrollments...` (no tiene tablas propias) | Casos de uso del estudiante sobre lo suyo, con verificación de pertenencia. Ver [endpoints del estudiante](#endpoints-del-estudiante). |
+`draft` → `extracting` → `in_review` → `generating_content` → `published`; `extracting` → `extraction_failed` (se vuelve a subir un syllabus). La re-extracción (`POST /extractions`) reemplaza los temas **cuando el trabajo termina bien**: si falla, la revisión actual se conserva.
 
-### Errores
+### Integración con `ai/` (trabajos asíncronos)
 
-Formato RFC 9457 (`application/problem+json`): `type`, `title`, `status`, `detail`, `instance`, `code` y `request_id`.
+- La API habla con `ai/` solo a través del puerto `AiServicePort` (`app/domains/ai_gateway/repository.py`). Adaptadores: `HttpAiService` (`httpx`, token de servicio por *client credentials*) y `FakeAiService` (pruebas y desarrollo sin `ai/`). Se elige con `AI_SERVICE_MODE=fake|http` (por defecto `fake`).
+- Una operación asíncrona responde `202` con `{job_id, status, poll_url}` y la cabecera `Location`. La app consulta `GET /jobs/{id}` cada 2 s.
+- **Ingesta idempotente por consulta (modelo pull):** cada tipo de trabajo tiene un *ingestor* (`SyllabusIngestor`, `PublicationIngestor`) que valida el resultado contra su contrato (`app/domains/ai_gateway/contracts.py`, espejo de `prompts/schemas`) y lo escribe en una transacción. La fila del curso se bloquea y solo se ingiere si el curso sigue esperando ese trabajo (el más reciente): dos consultas simultáneas, o una consulta y el barrido, no duplican nada.
+- **Barrido:** una tarea del `lifespan` ingiere cada 60 s (`AI_SWEEP_INTERVAL_SECONDS`, 0 la desactiva) los trabajos terminados que nadie consultó.
+- Errores: `failed` produce `502 AI_TASK_FAILED` (con `retryable` y `job_id`); presupuesto, `503 AI_BUDGET_EXCEEDED`; `ai/` caído, `503 AI_SERVICE_UNAVAILABLE`; un resultado que rompe el contrato, `502 AI_RESULT_INVALID`.
+- La API solo **lee** `ai_jobs` (para guardar `syllabus_extractions.ai_job_id`); nunca la escribe.
 
-| Situación | Estado | Ejemplo de `code` |
-| --- | --- | --- |
-| Cuerpo inválido | 422 | `VALIDATION_ERROR` (lista `errors` sin el valor recibido) |
-| No existe | 404 | `NOT_FOUND` |
-| Sin token o token inválido | 401 | `MISSING_TOKEN`, `INVALID_TOKEN` |
-| Rol insuficiente o cuenta no habilitada | 403 | `INSUFFICIENT_ROLE`, `EMAIL_NOT_VERIFIED`, `ACCOUNT_DEACTIVATED` |
-| Duplicado | 409 | `EMAIL_ALREADY_REGISTERED`, `ALREADY_ENROLLED`, `BADGE_ALREADY_ISSUED` |
-| Regla de negocio o referencia inexistente | 422 | `PREREQUISITE_CYCLE`, `MAX_ATTEMPTS_EXCEEDED`, `TOPIC_NOT_FOUND` |
+### Convenciones HTTP
+
+| Tema | Regla |
+| --- | --- |
+| Errores | RFC 9457 (`application/problem+json`) con `type`, `title`, `status`, `detail`, `instance`, `code` y `request_id`. Los `code` salen de [`docs/contracts/error-codes.md`](../docs/contracts/error-codes.md); una prueba falla si el código usa uno que no está allí. |
+| Objetos ajenos | `404` del recurso, nunca `403` (matriz de pruebas de propiedad en `tests/integration/ownership/`). |
+| `X-Request-ID` | Se acepta (solo `[A-Za-z0-9._-]`, hasta 128), se genera si falta, se devuelve, va en los logs y en cada error, y se reenvía a `ai/`. |
+| `Idempotency-Key` | UUID obligatorio en `syllabus`, `extractions` y `publish` (y en las que agreguen los agentes siguientes). Misma clave y mismo cuerpo, misma respuesta durante 24 h; otro cuerpo, `422 IDEMPOTENCY_KEY_REUSED`; sin clave, `428`. La tienda es en memoria (un proceso); ver la bitácora. |
+| Fechas | `timestamptz` en la base; la API devuelve ISO 8601 en UTC con sufijo `Z`. La app muestra en `America/Bogota`. |
+| Paginación | `?limit=20&offset=0` (máximo 100); respuesta `{items, total, limit, offset}`. |
 
 ### Autenticación y roles
 
 Cada petición a `/api/v1` lleva `Authorization: Bearer <access_token>`. La API valida la firma (RS256, llaves de Keycloak), `iss`, `aud` y `exp`; ve [`keycloak/README.md`](../keycloak/README.md) para el mapper de audiencia.
 
-- `GET /api/v1/me` devuelve el usuario autenticado y sus roles. Lo propio del estudiante cuelga de `/api/v1/me/...` ([endpoints del estudiante](#endpoints-del-estudiante)). Cómo obtener un token: [Obtener un token y probar la API](#obtener-un-token-y-probar-la-api).
-- El primer acceso de alguien que no existe en la base lo crea como `student`. Un usuario precreado por un administrador (por ejemplo el Administrador sembrado) se enlaza por su correo, que Keycloak debe tener verificado.
-- Se autoriza con `user_roles`, no con los roles del token.
+- Se autoriza por la **unión** de los roles de `user_roles` (no los del token). El «rol activo» de la app es solo de presentación (CU-35): `GET /me` devuelve `roles`, `role_labels`, `role_short_labels` y `default_role` (el de mayor privilegio).
+- Con `REQUIRE_SECOND_FACTOR=true` (Fase 8), las rutas solo de instructor o admin exigen que el token indique segundo factor (`amr`/`acr`): `403 SECOND_FACTOR_REQUIRED`.
+- Un correo sin verificar nunca crea ni enlaza usuarios (`403 EMAIL_NOT_VERIFIED`): con el registro abierto sería una forma de quedarse con el perfil del administrador.
+- Etiquetas de los roles: glosario en `app/domains/identity/labels.py`, perfil con `APP_CONTEXT_PROFILE` (`generic` por defecto).
 
-| Recurso | Lectura | Escritura |
-| --- | --- | --- |
-| `roles` | admin, teacher, student | admin |
-| `users` | admin, teacher | admin |
-| `user-roles`, `llm-call-logs` | admin | admin |
-| `courses`, `topics`, `topic-prerequisites`, `learning-paths`, `resources` | admin, teacher, student | admin, teacher |
-| `enrollments`, `path-steps`, `diagnostics`, `assessment-attempts`, `badges` | admin, teacher | admin, teacher |
-
-Sin token: 401. Con token pero sin el rol: 403. `/health`, `/ready` y `/docs` son públicos. El CRUD genérico de inscripciones, pasos, diagnósticos, intentos y badges es del personal; los estudiantes gestionan lo suyo con los [endpoints del estudiante](#endpoints-del-estudiante).
-
-### Endpoints del estudiante
-
-Rutas bajo `/api/v1/me/...` para que cada usuario gestione **solo lo suyo**. Las puede usar cualquier rol autenticado (un docente también puede inscribirse). El usuario sale siempre del token: no se envía en la petición. Si un dato no es del usuario, la API responde **404** como si no existiera, para no revelar que existe.
-
-| Método y ruta | Qué hace |
+| Ruta | Quién |
 | --- | --- |
-| `GET /me/enrollments` | Mis inscripciones activas (paginado) |
-| `POST /me/enrollments` | Me inscribo en una ruta: `{"learning_path_id", "profile_description"?, "personal_objective"?}`. Una sola vez por ruta (409 `ALREADY_ENROLLED`); la ruta debe existir y estar activa |
-| `GET /me/enrollments/{id}` | El detalle de mi inscripción |
-| `PATCH /me/enrollments/{id}` | Actualizo `profile_description` y `personal_objective`. No se puede cambiar el estado ni otros campos. Una inscripción completada o abandonada se rechaza (422 `ENROLLMENT_CLOSED`) |
-| `PATCH /me/enrollments/{id}/abandon` | Dejo la ruta. Una completada no se puede abandonar |
-| `GET /me/enrollments/{id}/steps` | Mi ruta personalizada, en orden |
-| `GET /me/enrollments/{id}/diagnostic` | Mi prueba diagnóstica |
-| `PATCH /me/enrollments/{id}/diagnostic/answers` | Entrego las respuestas del diagnóstico: `{"answers"}`. Solo una vez (409 `ALREADY_SUBMITTED`) |
-| `GET /me/enrollments/{id}/attempts` | Mis intentos de evaluación |
-| `PATCH /me/enrollments/{id}/attempts/{attempt_id}/submit` | Entrego las respuestas de un intento: `{"answers"}`. Solo una vez |
-| `GET /me/enrollments/{id}/badge` | Mi badge, si aprobé la evaluación final |
+| `/me`, `/me/profile`, `/me/consents`, `/me/data-subject-requests` | Cualquier usuario autenticado, solo lo propio |
+| `GET /roles` | Cualquier rol |
+| `POST`, `PATCH /roles`; `users`, `user-roles`, `users/{id}/roles`; `PATCH /courses/{id}/owner` | `admin` |
+| `courses`, `topics`, `syllabus`, `publish` | `instructor` (los suyos) y `admin` (todos) |
+| `GET /jobs/{id}` | Dueño del trabajo y `admin` |
 
-El estudiante **nunca fija puntajes ni resultados**: al entregar un intento solo se guardan sus respuestas y la fecha; el puntaje y la aprobación los calcula el sistema (o el personal) con el umbral de la ruta. Los diagnósticos, los pasos de la ruta y los intentos los genera el sistema (la capa de IA, pendiente) o el personal.
+`/health`, `/ready` y `/docs` son públicos.
 
 ### Auditoría
 
-Cada cambio queda en la tabla `<tabla>_audit`, con `app_user_id` igual al id del usuario autenticado. Mientras se resuelve o crea al usuario, se registra `identity:<sub>`.
-
-### Fechas
-
-`timestamptz` en la base y zona `America/Bogota`. La API devuelve ISO-8601 con desfase (`2026-10-07T09:30:00-05:00`) y exige fechas con zona horaria en las peticiones.
+Cada cambio queda en la tabla `<tabla>_audit`, con `app_user_id` igual al id del usuario autenticado. Mientras se resuelve o crea al usuario se registra `identity:<sub>`; el barrido registra `system:ai-sweeper`. El usuario de base `smartmentor_api` no puede leer ni escribir las tablas `_audit` (solo el trigger).
 
 ## Estructura
 
@@ -212,16 +187,21 @@ Cada cambio queda en la tabla `<tabla>_audit`, con `app_user_id` igual al id del
 api/
 ├── Dockerfile, pyproject.toml, uv.lock
 ├── app/
-│   ├── main.py            # lifespan, middleware, errores, routers
-│   ├── core/              # config, database, logging, middleware, errores HTTP, security (validación de tokens)
-│   ├── auth/              # get_current_user, require_roles y la matriz de permisos (composición)
-│   ├── common/            # base genérica: entidad, modelo, repositorio, servicio, fábrica de routers
+│   ├── main.py            # lifespan (puerto de IA y barrido), middleware, errores, routers
+│   ├── core/              # config, database, logging, middleware, errores HTTP, security, idempotency, openapi
+│   ├── auth/              # get_current_user, require_roles y las políticas por rol (composición)
+│   ├── common/            # base genérica: entidad, modelo, repositorio, servicio, fábrica de routers CRUD
 │   ├── health/            # /health y /ready
 │   └── domains/<dominio>/ # controller, schemas, dependencies, service, entities, repository, models, repository_impl
+│       ├── identity/      # usuarios, roles, perfil, consentimientos, solicitudes de derechos
+│       ├── courses/       # cursos, syllabus, temas, prerrequisitos, publicación, ingestores
+│       ├── ai_gateway/    # puerto AiServicePort, FakeAiService, HttpAiService, trabajos, barrido
+│       └── learning_paths/# (solo modelo y entidad por ahora)
 ├── tests/
-│   ├── unit/              # reglas de negocio con repositorios en memoria (sin base de datos)
-│   └── integration/       # flujos HTTP contra la base smartmentor_test
-└── scripts/dev.sh         # herramientas de desarrollo en contenedores
+│   ├── unit/              # reglas con repositorios en memoria y FakeAiService; contrato contra prompts/schemas
+│   └── integration/       # flujos HTTP contra smartmentor_test; matriz de propiedad; alineación modelos-esquema
+├── postman/               # colección generada desde el OpenAPI (dev.sh postman)
+└── scripts/               # dev.sh, token.sh, export_openapi.py, export_postman.py
 ```
 
 ## Desarrollo y calidad
@@ -233,18 +213,22 @@ api/scripts/dev.sh prepare-test-db   # crea y migra smartmentor_test (una vez, y
 api/scripts/dev.sh format            # Ruff format
 api/scripts/dev.sh lint              # ruff check + ruff format --check
 api/scripts/dev.sh typecheck         # mypy en modo estricto
-api/scripts/dev.sh test              # pytest (pasa argumentos: test -k attempts -x)
+api/scripts/dev.sh test              # pytest (pasa argumentos: test -k courses -x)
+api/scripts/dev.sh openapi           # regenera docs/contracts/openapi-api.json
+api/scripts/dev.sh postman           # regenera la colección de Postman desde ese OpenAPI
 api/scripts/dev.sh all               # lint + typecheck + pytest
 api/scripts/dev.sh lock              # regenera uv.lock tras cambiar dependencias
 ```
 
 - Las pruebas de integración **solo corren sobre una base cuyo nombre termina en `_test`** y la vacían entre pruebas; nunca tocan `smartmentor`.
 - Una prueba compara los modelos SQLAlchemy con el esquema que dejó Liquibase y falla si se desalinean.
+- Pruebas de contrato: las salidas de `FakeAiService` se validan contra `prompts/schemas/*.json` y contra los modelos de ingesta; el OpenAPI publicado, el catálogo de códigos de error y la protección de cada ruta tienen su guardia en `tests/unit/test_contracts_guards.py`.
 - Tras agregar un changeset: `prepare-test-db` y luego `test`.
 
-## Cómo agregar un recurso nuevo
+## Cómo agregar un recurso o un tipo de trabajo
 
 1. Changeset de Liquibase con la tabla, su `_audit` y su trigger ([guía](../database/liquibase/README.md)).
-2. En el dominio: `entities.py`, `models.py`, `schemas.py`, `repository.py`, `repository_impl.py` (con `constraint_messages`), `service.py`, `dependencies.py` y `controller.py` con `build_crud_router(...)`.
+2. En el dominio: `entities.py`, `models.py`, `schemas.py`, `repository.py`, `repository_impl.py` (con `constraint_messages`), `service.py`, `dependencies.py` y `controller.py`.
 3. Registrar el router en `app/main.py` si es un dominio nuevo.
-4. Pruebas unitarias de las reglas y de integración del flujo HTTP.
+4. Para un trabajo de `ai/`: modelo del resultado en `ai_gateway/contracts.py`, un ingestor idempotente y su registro en `ai_gateway/dependencies.py`.
+5. Pruebas unitarias de las reglas, de integración del flujo HTTP y de propiedad (objeto ajeno responde 404); `dev.sh openapi` y `dev.sh postman`.

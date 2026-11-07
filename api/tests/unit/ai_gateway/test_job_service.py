@@ -207,3 +207,21 @@ async def test_the_sweep_survives_a_failed_job(world: World) -> None:
     for pending in await world.job_service.pending():
         await world.job_service.sweep_one(pending)  # no lanza
     assert await status_of(world, course_id) == "extraction_failed"
+
+
+async def test_a_superseded_job_is_ignored_when_a_newer_one_is_running(world: World) -> None:
+    world.ai.auto_complete = False
+    course_id, old_job = await start(world, auto_complete=False)
+    world.ai.complete(old_job)
+    # Antes de que alguien consulte el viejo, el instructor sube otro programa.
+    await world.courses.update(course_id, {"status": "draft"})
+    newer = await world.syllabus_service.submit(
+        world.instructor, course_id, extract_from_text(TEXT + " versión nueva")
+    )
+    view = await world.job_service.get(old_job, world.instructor)
+    assert view.status == "succeeded"
+    assert await world.topics.list_for_course(course_id) == []  # el viejo no se ingirió
+    assert await status_of(world, course_id) == "extracting"
+    world.ai.complete(newer.job_id)
+    await world.job_service.get(newer.job_id, world.instructor)
+    assert await status_of(world, course_id) == "in_review"

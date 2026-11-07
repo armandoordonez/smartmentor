@@ -8,7 +8,9 @@
 #   api/scripts/dev.sh typecheck         mypy (modo estricto)
 #   api/scripts/dev.sh prepare-test-db   crea y migra la base smartmentor_test (Liquibase)
 #   api/scripts/dev.sh test [args]       pytest (usa smartmentor_test; ver prepare-test-db)
-#   api/scripts/dev.sh all               lint + typecheck + test
+#   api/scripts/dev.sh openapi           regenera docs/contracts/openapi-api.json
+#   api/scripts/dev.sh postman           regenera api/postman/ desde el OpenAPI publicado
+#   api/scripts/dev.sh all              lint + typecheck + test
 #
 # Requiere que el contenedor de PostgreSQL esté arriba (docker compose up -d postgres).
 set -euo pipefail
@@ -49,10 +51,12 @@ case "${1:-}" in
   lint)      uv_run sh -c "uv run ruff check . && uv run ruff format --check ." ;;
   typecheck) uv_run uv run mypy ;;
   prepare-test-db) prepare_test_db ;;
+  openapi)   uv_run uv run python -m scripts.export_openapi ;;
+  postman)   uv_run uv run python -m scripts.export_postman ;;
   test)      shift; uv_run uv run pytest "$@" ;;
   all)
     uv_run sh -c "uv run ruff check . && uv run ruff format --check . && uv run mypy"
     uv_run uv run pytest
     ;;
-  *) sed -n '2,13p' "${BASH_SOURCE[0]}"; exit 1 ;;
+  *) sed -n '2,15p' "${BASH_SOURCE[0]}"; exit 1 ;;
 esac
