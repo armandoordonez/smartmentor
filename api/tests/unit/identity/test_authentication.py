@@ -20,16 +20,25 @@ def make_service(
             Role(id=3, code="learner", name="L"),
         ]
     )
-    assignments = InMemoryUserRoles(user_roles if user_roles is not None else [UserRole(user_id=10, role_id=2)])
+    assignments = InMemoryUserRoles(
+        user_roles if user_roles is not None else [UserRole(user_id=10, role_id=2)]
+    )
     repo = InMemoryUsers(users, assignments, roles)
     uow = FakeUnitOfWork()
-    return AuthenticationService(repo, roles, assignments, uow, provider="keycloak"), repo, assignments, uow
+    return (
+        AuthenticationService(repo, roles, assignments, uow, provider="keycloak"),
+        repo,
+        assignments,
+        uow,
+    )
 
 
 def identity(
     sub: str = "sub-1", email: str | None = "ana@example.com", verified: bool = True
 ) -> ExternalIdentity:
-    return ExternalIdentity(subject=sub, email=email, email_verified=verified, full_name="Ana Pérez")
+    return ExternalIdentity(
+        subject=sub, email=email, email_verified=verified, full_name="Ana Pérez"
+    )
 
 
 async def test_unknown_verified_user_is_created_with_the_learner_role() -> None:
@@ -147,12 +156,19 @@ async def test_deactivated_user_cannot_log_in() -> None:
 
 async def test_default_role_is_the_highest_privilege_and_roles_are_ordered() -> None:
     user = User(
-        id=10, full_name="Doc", email="d@example.com",
-        identity_provider="keycloak", identity_subject="s",
+        id=10,
+        full_name="Doc",
+        email="d@example.com",
+        identity_provider="keycloak",
+        identity_subject="s",
     )
     service, _, _, _ = make_service(
         [user],
-        [UserRole(user_id=10, role_id=3), UserRole(user_id=10, role_id=2), UserRole(user_id=10, role_id=1)],
+        [
+            UserRole(user_id=10, role_id=3),
+            UserRole(user_id=10, role_id=2),
+            UserRole(user_id=10, role_id=1),
+        ],
     )
     current = await service.resolve(identity(sub="s"))
     assert current.ordered_roles == ["admin", "instructor", "learner"]

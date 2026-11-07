@@ -54,7 +54,11 @@ COMPLETE_RESUME = {
 async def test_an_empty_profile_is_0_percent() -> None:
     profiles, _, _, _ = services()
     completeness = await profiles.completeness(1)
-    assert (completeness.description, completeness.resume, completeness.percent) == (False, False, 0)
+    assert (completeness.description, completeness.resume, completeness.percent) == (
+        False,
+        False,
+        0,
+    )
 
 
 async def test_the_description_alone_is_half_the_profile() -> None:

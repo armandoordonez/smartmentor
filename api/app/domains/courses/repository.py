@@ -38,23 +38,13 @@ class SyllabusRepository(Protocol):
     async def latest_document(self, course_id: int) -> SyllabusDocument | None: ...
 
     async def add_extraction(self, extraction: SyllabusExtraction) -> SyllabusExtraction:
-        """Registra la extracción y marca como no vigentes las anteriores del curso."""
+        """Registra la extracción ingerida y marca como no vigentes las anteriores del curso."""
         ...
 
     async def current_extraction(self, course_id: int) -> SyllabusExtraction | None: ...
 
-    async def count_extractions(self, document_id: int) -> int: ...
-
-    async def get_extraction_by_job(
-        self, job_id: str, *, for_update: bool = False
-    ) -> SyllabusExtraction | None: ...
-
-    async def save_result(
-        self, extraction_id: int, raw_output: dict[str, Any], prompt_version: str
-    ) -> SyllabusExtraction | None: ...
-
-    async def pending_extractions(self) -> list[SyllabusExtraction]:
-        """Extracciones vigentes con trabajo y sin resultado ingerido."""
+    async def resolve_ai_job_id(self, public_id: str) -> int | None:
+        """`id` interno de `ai_jobs` para el `job_id` del contrato (solo lectura)."""
         ...
 
 
@@ -79,6 +69,10 @@ class OutcomeRepository(Protocol):
 
     async def list_for_topics(self, topic_ids: list[int]) -> dict[int, list[LearningOutcome]]:
         """Resultados activos agrupados por tema, en orden de creación."""
+        ...
+
+    async def next_code_number(self, topic_id: int) -> int:
+        """Siguiente número libre para `lo_t<tema>_<n>`, contando también los inactivos."""
         ...
 
     async def update(self, outcome_id: int, changes: dict[str, Any]) -> LearningOutcome | None: ...

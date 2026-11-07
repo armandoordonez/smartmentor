@@ -54,7 +54,7 @@ async def test_ingestion_is_idempotent_when_the_job_is_polled_again(world: World
     topics_after_first = {t.id for t in await world.topics.list_for_course(course_id)}
     second = await world.job_service.get(job_id, world.instructor)
     third = await world.job_service.get(job_id, world.admin)
-    assert first.ingested and second.ingested and third.ingested
+    assert [first.ingested, second.ingested, third.ingested] == [True, True, True]
     assert {t.id for t in await world.topics.list_for_course(course_id)} == topics_after_first
     assert len(world.outcomes.items) == 3  # un resultado por tema, sin duplicados
     assert len(world.prerequisites.items) == 3  # (lineal→fund), (log→fund), (log→lineal)

@@ -347,7 +347,7 @@ class DataSubjectRequestService:
         self, user_id: int, request_type: DataSubjectRequestType, comment: str | None
     ) -> DataSubjectRequest:
         created = await self._requests.add(
-            DataSubjectRequest(user_id=user_id, request_type=request_type, comment=comment)
+            DataSubjectRequest(user_id=user_id, request_type=request_type, details=comment)
         )
         await self._uow.commit()
         return created

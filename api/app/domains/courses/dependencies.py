@@ -20,12 +20,12 @@ from app.domains.courses.service import (
 from app.domains.identity.repository_impl import SqlAlchemyUserRepository
 
 
-def get_course_service(session: SessionDep) -> CourseService:
+def get_course_service(session: SessionDep, ai: AiServiceDep) -> CourseService:
     return CourseService(
         SqlAlchemyCourseRepository(session),
         SqlAlchemyLearningPathRepository(session),
-        SqlAlchemySyllabusRepository(session),
         SqlAlchemyUserRepository(session),
+        ai,
         SqlAlchemyUnitOfWork(session),
     )
 

@@ -142,14 +142,18 @@ async def test_list_jobs_filters_and_caps_the_limit() -> None:
         return httpx.Response(
             200,
             json={
-                "items": [{"job_id": JOB_ID, "job_type": "course.generate_content", "status": "running"}],
+                "items": [
+                    {"job_id": JOB_ID, "job_type": "course.generate_content", "status": "running"}
+                ],
                 "total": 1,
                 "limit": 100,
                 "offset": 0,
             },
         )
 
-    jobs = await service(handler).list_jobs(job_type="course.generate_content", course_id=3, limit=500)
+    jobs = await service(handler).list_jobs(
+        job_type="course.generate_content", course_id=3, limit=500
+    )
     assert [j.job_id for j in jobs] == [JOB_ID]
     assert seen == {"job_type": "course.generate_content", "course_id": "3", "limit": "100"}
 

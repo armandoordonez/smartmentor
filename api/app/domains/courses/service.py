@@ -22,18 +22,18 @@ from app.common.entities import require_id
 from app.common.exceptions import (
     BusinessRuleError,
     ConflictError,
+    DomainError,
     InvalidStateTransitionError,
     NotFoundError,
 )
 from app.common.unit_of_work import UnitOfWork
 from app.domains.ai_gateway.entities import JobRef, JobRefs
-from app.domains.ai_gateway.repository import AiServicePort
+from app.domains.ai_gateway.repository import AiServicePort, latest_job
 from app.domains.courses import graph
 from app.domains.courses.entities import (
     Course,
     LearningOutcome,
     SyllabusDocument,
-    SyllabusExtraction,
     Topic,
     TopicPrerequisite,
 )
@@ -96,14 +96,14 @@ class CourseService:
         self,
         courses: CourseRepository,
         paths: LearningPathRepository,
-        syllabus: SyllabusRepository,
         users: UserRepository,
+        ai: AiServicePort,
         uow: UnitOfWork,
     ) -> None:
         self._courses = courses
         self._paths = paths
-        self._syllabus = syllabus
         self._users = users
+        self._ai = ai
         self._uow = uow
 
     async def create(
@@ -135,8 +135,22 @@ class CourseService:
     async def get(self, user: CurrentUser, course_id: int) -> CourseView:
         course = await load_course(self._courses, user, course_id)
         path = await self._paths.get_by_course(course_id)
-        current = await self._syllabus.current_extraction(course_id)
-        return CourseView(course, path, current.ai_job_id if current else None)
+        return CourseView(course, path, await self._running_job_id(course))
+
+    async def _running_job_id(self, course: Course) -> str | None:
+        """El trabajo en curso, para que la pantalla de carga lo consulte (mejor esfuerzo)."""
+        if course.status not in (CourseStatus.EXTRACTING, CourseStatus.GENERATING_CONTENT):
+            return None
+        job_type = (
+            JobType.SYLLABUS_STRUCTURE
+            if course.status == CourseStatus.EXTRACTING
+            else JobType.COURSE_GENERATE_CONTENT
+        )
+        try:
+            job = await latest_job(self._ai, job_type, require_id(course))
+        except DomainError:
+            return None  # sin `ai/` la pantalla igual funciona; solo no sabe qué trabajo mirar
+        return job.job_id if job else None
 
     async def list_courses(
         self,
@@ -223,7 +237,7 @@ class SyllabusService:
                 extracted_text=extracted.text,
             )
         )
-        return await self._start_extraction(course, require_id(document), version=1)
+        return await self._start_extraction(course, require_id(document))
 
     async def re_extract(
         self, user: CurrentUser, course_id: int, *, confirm_discard_review: bool
@@ -244,21 +258,21 @@ class SyllabusService:
                 "The review would be discarded; send confirm_discard_review=true to continue.",
                 code="BUSINESS_RULE_VIOLATION",
             )
-        previous = await self._syllabus.count_extractions(require_id(document))
-        return await self._start_extraction(course, require_id(document), version=previous + 1)
+        return await self._start_extraction(course, require_id(document))
 
-    async def _start_extraction(self, course: Course, document_id: int, *, version: int) -> JobRef:
+    async def _start_extraction(self, course: Course, document_id: int) -> JobRef:
         course_id = require_id(course)
+        # Cada extracción nueva usa otra versión en la clave; reintentar un trabajo fallido no es
+        # pedir uno nuevo. Los intentos previos se cuentan en `ai/`, no en la base de la API.
+        previous = await self._ai.list_jobs(
+            job_type=JobType.SYLLABUS_STRUCTURE, course_id=course_id, limit=100
+        )
+        version = len(previous) + 1
         job = await self._ai.submit_job(
             JobType.SYLLABUS_STRUCTURE,
             {"syllabus_document_id": document_id},
             f"{JobType.SYLLABUS_STRUCTURE}:syllabus_document:{document_id}:v{version}",
             JobRefs(course_id=course_id),
-        )
-        await self._syllabus.add_extraction(
-            SyllabusExtraction(
-                course_id=course_id, syllabus_document_id=document_id, ai_job_id=job.job_id
-            )
         )
         await self._courses.update(
             course_id, {"status": CourseStatus.EXTRACTING, "extraction_error_code": None}
@@ -270,7 +284,7 @@ class SyllabusService:
         """Insumos del F1 (D2, AD3): lo que dio el LLM frente a lo que dejó el instructor."""
         await load_course(self._courses, user, course_id)
         extraction = await self._syllabus.current_extraction(course_id)
-        if extraction is None or extraction.raw_output is None:
+        if extraction is None:
             return ExtractionMetrics(topics=None, prerequisites=None, corrections=0)
         topics = await self._topics.list_for_course(course_id, include_inactive=True)
         edges = await self._prerequisites.list_for_course(course_id)
@@ -554,18 +568,16 @@ class TopicService:
         by_id = {require_id(o): o for o in current}
         changed = False
         kept: set[int] = set()
-        added: list[LearningOutcome] = []
         for outcome in draft.learning_outcomes:
             if outcome.id is None:
                 created = await self._outcomes.add(
                     LearningOutcome(
                         topic_id=topic_id,
-                        code=_next_outcome_code(topic_id, [*by_id.values(), *added]),
+                        code=f"lo_t{topic_id}_{await self._outcomes.next_code_number(topic_id)}",
                         statement=outcome.statement,
                         bloom_level=outcome.bloom_level,
                     )
                 )
-                added.append(created)
                 kept.add(require_id(created))
                 changed = True
                 continue
@@ -603,12 +615,6 @@ class TopicService:
                 if edge.topic_id == topic_id and edge.prerequisite_topic_id in current - wanted:
                     await self._prerequisites.set_active(require_id(edge), False)
         return wanted != current
-
-
-def _next_outcome_code(topic_id: int, existing: Sequence[LearningOutcome]) -> str:
-    """`lo_t<tema>_<n>` con `n` mayor que cualquiera ya usado (cumple `^lo_[a-z0-9_]+_\\d+$`)."""
-    used = [int(o.code.rsplit("_", 1)[1]) for o in existing if o.code.rsplit("_", 1)[-1].isdigit()]
-    return f"lo_t{topic_id}_{max(used, default=0) + 1}"
 
 
 def _missing(topic_id: int) -> Topic:

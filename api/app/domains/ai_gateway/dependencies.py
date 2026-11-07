@@ -37,6 +37,7 @@ def build_job_service(session: AsyncSession, ai: AiServicePort) -> JobService:
                 SqlAlchemyTopicRepository(session),
                 SqlAlchemyOutcomeRepository(session),
                 SqlAlchemyPrerequisiteRepository(session),
+                ai,
                 uow,
             ),
             PublicationIngestor(courses, SqlAlchemyLearningPathRepository(session), ai, uow),

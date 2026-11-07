@@ -33,14 +33,10 @@ class SyllabusDocument(BaseEntity):
 class SyllabusExtraction(BaseEntity):
     course_id: int
     syllabus_document_id: int
-    ai_job_id: str | None = None
-    raw_output: dict[str, Any] | None = None
+    raw_output: dict[str, Any]
+    ai_job_id: int | None = None  # id interno de `ai_jobs` (nulo si no se pudo resolver)
     prompt_version: str | None = None
     is_current: bool = True
-
-    @property
-    def is_ingested(self) -> bool:
-        return self.raw_output is not None
 
 
 @dataclass(kw_only=True)

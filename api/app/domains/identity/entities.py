@@ -69,6 +69,7 @@ class DataSubjectRequest(BaseEntity):
     user_id: int
     request_type: str
     status: str = "pending"
-    comment: str | None = None
+    details: str | None = None
     resolved_at: datetime | None = None
+    resolved_by_user_id: int | None = None
     updated_at: datetime | None = None

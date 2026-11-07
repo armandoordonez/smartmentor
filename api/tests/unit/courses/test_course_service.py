@@ -135,7 +135,9 @@ async def test_uploading_a_syllabus_queues_a_job_and_marks_the_course_extracting
     assert submitted.refs.course_id == course_id
     assert submitted.input == {"syllabus_document_id": 1}
     assert submitted.idempotency_key == "syllabus.structure:syllabus_document:1:v1"
-    assert (await world.course_service.get(world.instructor, course_id)).extraction_job_id == job.job_id
+    assert (
+        await world.course_service.get(world.instructor, course_id)
+    ).extraction_job_id == job.job_id
 
 
 async def test_a_second_syllabus_while_extracting_is_a_conflict(world: World) -> None:
@@ -160,7 +162,6 @@ async def test_nothing_is_queued_when_the_ai_service_is_down(world: World) -> No
         )
     assert getattr(error.value, "code", "") == "AI_SERVICE_UNAVAILABLE"
     assert world.ai.submitted == []
-    assert world.syllabus.extractions == {}
     assert (await world.course_service.get(world.instructor, course_id)).course.status == "draft"
 
 
@@ -315,10 +316,13 @@ async def test_an_outcome_of_another_topic_cannot_be_edited(world: World) -> Non
 
 async def test_a_prerequisite_cycle_is_rejected_with_the_cycle_in_the_detail(world: World) -> None:
     course_id = await course_in_review(world)
-    topics = {t.topic.name: t for t in (await world.topic_service.list_topics(world.instructor, course_id)).topics}
+    topics = {
+        t.topic.name: t
+        for t in (await world.topic_service.list_topics(world.instructor, course_id)).topics
+    }
     fundamentals = topics["Fundamentos"]
     linear = topics["Regresión lineal"]
-    # Regresión lineal ya requiere Fundamentos; hacer que Fundamentos requiera Regresión lineal cierra el ciclo.
+    # Lineal ya requiere Fundamentos: que Fundamentos requiera Lineal cierra el ciclo.
     with pytest.raises(BusinessRuleError) as error:
         await world.topic_service.update(
             world.instructor,
@@ -354,7 +358,10 @@ async def test_a_topic_cannot_require_itself_or_a_topic_of_another_course(world:
 
 async def test_removing_a_prerequisite_edge_works_and_frees_the_cycle(world: World) -> None:
     course_id = await course_in_review(world)
-    topics = {t.topic.name: t for t in (await world.topic_service.list_topics(world.instructor, course_id)).topics}
+    topics = {
+        t.topic.name: t
+        for t in (await world.topic_service.list_topics(world.instructor, course_id)).topics
+    }
     linear = topics["Regresión lineal"]
     updated = await world.topic_service.update(
         world.instructor, linear.topic.id or 0, draft("Regresión lineal", prerequisite_topic_ids=[])
@@ -370,7 +377,10 @@ async def test_removing_a_prerequisite_edge_works_and_frees_the_cycle(world: Wor
 
 async def test_deactivating_a_topic_marks_it_deleted_and_drops_its_edges(world: World) -> None:
     course_id = await course_in_review(world)
-    topics = {t.topic.name: t for t in (await world.topic_service.list_topics(world.instructor, course_id)).topics}
+    topics = {
+        t.topic.name: t
+        for t in (await world.topic_service.list_topics(world.instructor, course_id)).topics
+    }
     await world.topic_service.deactivate(world.instructor, topics["Fundamentos"].topic.id or 0)
     listing = await world.topic_service.list_topics(world.instructor, course_id)
     assert listing.review_counts["deleted"] == 1
@@ -412,7 +422,9 @@ async def test_topics_cannot_be_edited_while_the_course_is_published_or_generati
 # --- métricas de extracción -------------------------------------------------------------------
 
 
-async def test_extraction_metrics_compare_the_llm_output_with_the_final_review(world: World) -> None:
+async def test_extraction_metrics_compare_the_llm_output_with_the_final_review(
+    world: World,
+) -> None:
     course_id = await course_in_review(world)
     perfect = await world.syllabus_service.metrics(world.instructor, course_id)
     assert perfect.topics is not None
@@ -443,8 +455,8 @@ async def test_metrics_before_the_first_ingestion_are_empty(world: World) -> Non
 
 
 async def test_publishing_validates_the_review_then_queues_the_generation(world: World) -> None:
-    world.ai.auto_complete = False
     course_id = await course_in_review(world)
+    world.ai.auto_complete = False
     job = await world.publication_service.publish(world.instructor, course_id)
     assert (await world.course_service.get(world.instructor, course_id)).course.status == (
         "generating_content"

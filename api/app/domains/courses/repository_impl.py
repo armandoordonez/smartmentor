@@ -1,12 +1,14 @@
 """Repositorios SQLAlchemy de cursos."""
 
 import uuid
-from typing import Any, ClassVar
+from typing import ClassVar
 
-from sqlalchemy import func, select, update
+from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.repository_impl import SqlAlchemyCrudRepository
+from app.domains.ai_gateway.models import AiJobModel
 from app.domains.courses.entities import (
     Course,
     LearningOutcome,
@@ -101,8 +103,18 @@ class SqlAlchemyLearningPathRepository(SqlAlchemyCrudRepository[LearningPathMode
         return {row.course_id: self._to_entity(row) for row in rows}
 
 
+class _DocumentRepository(SqlAlchemyCrudRepository[SyllabusDocumentModel, SyllabusDocument]):
+    model = SyllabusDocumentModel
+    entity = SyllabusDocument
+
+
+class _ExtractionRepository(SqlAlchemyCrudRepository[SyllabusExtractionModel, SyllabusExtraction]):
+    model = SyllabusExtractionModel
+    entity = SyllabusExtraction
+
+
 class SqlAlchemySyllabusRepository:
-    def __init__(self, session: Any) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
         self._documents = _DocumentRepository(session)
         self._extractions = _ExtractionRepository(session)
@@ -123,9 +135,10 @@ class SqlAlchemySyllabusRepository:
             .scalars()
             .first()
         )
-        return None if row is None else self._documents._to_entity(row)
+        return None if row is None else self._documents.to_entity(row)
 
     async def add_extraction(self, extraction: SyllabusExtraction) -> SyllabusExtraction:
+        # Un solo vigente por curso (índice único parcial): se retira el anterior primero.
         await self._session.execute(
             update(SyllabusExtractionModel)
             .where(
@@ -145,97 +158,25 @@ class SqlAlchemySyllabusRepository:
                         SyllabusExtractionModel.course_id == course_id,
                         SyllabusExtractionModel.is_current.is_(True),
                     )
-                    .order_by(SyllabusExtractionModel.id.desc())
                     .limit(1)
                 )
             )
             .scalars()
             .first()
         )
-        return None if row is None else self._extractions.convert(row)
+        return None if row is None else self._extractions.to_entity(row)
 
-    async def count_extractions(self, document_id: int) -> int:
-        return int(
-            (
-                await self._session.execute(
-                    select(func.count())
-                    .select_from(SyllabusExtractionModel)
-                    .where(SyllabusExtractionModel.syllabus_document_id == document_id)
-                )
-            ).scalar_one()
-        )
-
-    async def get_extraction_by_job(
-        self, job_id: str, *, for_update: bool = False
-    ) -> SyllabusExtraction | None:
+    async def resolve_ai_job_id(self, public_id: str) -> int | None:
         try:
-            job_uuid = uuid.UUID(job_id)
+            job_uuid = uuid.UUID(public_id)
         except ValueError:
             return None
-        query = select(SyllabusExtractionModel).where(SyllabusExtractionModel.ai_job_id == job_uuid)
-        if for_update:
-            query = query.with_for_update().execution_options(populate_existing=True)
-        row = (await self._session.execute(query)).scalars().first()
-        return None if row is None else self._extractions.convert(row)
-
-    async def save_result(
-        self, extraction_id: int, raw_output: dict[str, Any], prompt_version: str
-    ) -> SyllabusExtraction | None:
-        row = await self._session.get(SyllabusExtractionModel, extraction_id)
-        if row is None:
-            return None
-        row.raw_output = raw_output
-        row.prompt_version = prompt_version
-        await self._session.flush()
-        return self._extractions.convert(row)
-
-    async def pending_extractions(self) -> list[SyllabusExtraction]:
-        rows = (
-            (
-                await self._session.execute(
-                    select(SyllabusExtractionModel)
-                    .where(
-                        SyllabusExtractionModel.is_current.is_(True),
-                        SyllabusExtractionModel.ai_job_id.is_not(None),
-                        SyllabusExtractionModel.raw_output.is_(None),
-                    )
-                    .order_by(SyllabusExtractionModel.id)
-                )
+        found = (
+            await self._session.execute(
+                select(AiJobModel.id).where(AiJobModel.public_id == job_uuid)
             )
-            .scalars()
-            .all()
-        )
-        return [self._extractions.convert(row) for row in rows]
-
-
-class _DocumentRepository(SqlAlchemyCrudRepository[SyllabusDocumentModel, SyllabusDocument]):
-    model = SyllabusDocumentModel
-    entity = SyllabusDocument
-
-
-class _ExtractionRepository(SqlAlchemyCrudRepository[SyllabusExtractionModel, SyllabusExtraction]):
-    model = SyllabusExtractionModel
-    entity = SyllabusExtraction
-
-    def convert(self, row: SyllabusExtractionModel) -> SyllabusExtraction:
-        return self._to_entity(row)
-
-    def _to_entity(self, row: SyllabusExtractionModel) -> SyllabusExtraction:
-        entity = super()._to_entity(row)
-        if entity.ai_job_id is not None:
-            entity.ai_job_id = str(entity.ai_job_id)
-        return entity
-
-    async def add(self, entity: SyllabusExtraction) -> SyllabusExtraction:
-        row = SyllabusExtractionModel(
-            course_id=entity.course_id,
-            syllabus_document_id=entity.syllabus_document_id,
-            ai_job_id=uuid.UUID(entity.ai_job_id) if entity.ai_job_id else None,
-            is_current=entity.is_current,
-        )
-        self._session.add(row)
-        await self._flush()
-        return self._to_entity(row)
+        ).scalar_one_or_none()
+        return None if found is None else int(found)
 
 
 class SqlAlchemyTopicRepository(SqlAlchemyCrudRepository[TopicModel, Topic]):
@@ -263,6 +204,21 @@ class SqlAlchemyTopicRepository(SqlAlchemyCrudRepository[TopicModel, Topic]):
 class SqlAlchemyOutcomeRepository(SqlAlchemyCrudRepository[LearningOutcomeModel, LearningOutcome]):
     model = LearningOutcomeModel
     entity = LearningOutcome
+
+    async def next_code_number(self, topic_id: int) -> int:
+        codes = (
+            (
+                await self._session.execute(
+                    select(LearningOutcomeModel.code).where(
+                        LearningOutcomeModel.topic_id == topic_id
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        used = [int(c.rsplit("_", 1)[1]) for c in codes if c.rsplit("_", 1)[-1].isdigit()]
+        return max(used, default=0) + 1
 
     async def list_for_topics(self, topic_ids: list[int]) -> dict[int, list[LearningOutcome]]:
         if not topic_ids:

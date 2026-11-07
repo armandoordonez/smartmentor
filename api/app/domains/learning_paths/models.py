@@ -11,10 +11,10 @@ from sqlalchemy import BigInteger, ForeignKey, Numeric, SmallInteger, String, Te
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.common.models import UpdatableTableModel
+from app.common.models import PublicTableModel
 
 
-class LearningPathModel(UpdatableTableModel):
+class LearningPathModel(PublicTableModel):
     __tablename__ = "learning_paths"
 
     course_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("courses.id"))

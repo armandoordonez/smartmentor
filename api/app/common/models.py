@@ -1,8 +1,9 @@
 """Base de los modelos SQLAlchemy. Reflejan el esquema que crea Liquibase; no lo definen."""
 
 from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import BigInteger, Boolean, DateTime, func, text
+from sqlalchemy import BigInteger, Boolean, DateTime, Uuid, func, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -33,3 +34,11 @@ class UpdatableTableModel(TableModel):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+
+class PublicTableModel(UpdatableTableModel):
+    """Tabla que la API puede exponer: además del `id`, lleva un `public_id` uuid (sección 18.2)."""
+
+    __abstract__ = True
+
+    public_id: Mapped[UUID] = mapped_column(Uuid, server_default=text("gen_random_uuid()"))

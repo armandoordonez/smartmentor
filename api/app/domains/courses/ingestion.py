@@ -19,9 +19,9 @@ from app.common.unit_of_work import UnitOfWork
 from app.domains.ai_gateway.contracts import CourseGenerateContentResult, SyllabusV1
 from app.domains.ai_gateway.entities import JobRefs, JobStatus, PendingJob
 from app.domains.ai_gateway.exceptions import AiResultInvalidError
-from app.domains.ai_gateway.repository import AiServicePort
+from app.domains.ai_gateway.repository import AiServicePort, latest_job
 from app.domains.courses import graph
-from app.domains.courses.entities import LearningOutcome, Topic
+from app.domains.courses.entities import Course, LearningOutcome, SyllabusExtraction, Topic
 from app.domains.courses.repository import (
     CourseRepository,
     LearningPathRepository,
@@ -41,7 +41,13 @@ async def _owns_course(courses: CourseRepository, refs: JobRefs, user: CurrentUs
 
 
 class SyllabusIngestor:
-    """`syllabus.structure` → temas, resultados de aprendizaje y prerrequisitos (D1c, D2)."""
+    """`syllabus.structure` → temas, resultados de aprendizaje y prerrequisitos (D1c, D2).
+
+    Idempotencia: se bloquea la fila del curso y solo se ingiere si sigue `extracting` y el trabajo
+    es el más reciente del curso. Al ingerir, el curso pasa a `in_review`: una segunda consulta
+    (o el barrido) del mismo trabajo ya no encuentra nada que hacer. Un trabajo superado por otra
+    subida o re-extracción se ignora.
+    """
 
     job_type = JobType.SYLLABUS_STRUCTURE.value
     result_model: type[BaseModel] = SyllabusV1
@@ -54,6 +60,7 @@ class SyllabusIngestor:
         topics: TopicRepository,
         outcomes: OutcomeRepository,
         prerequisites: PrerequisiteRepository,
+        ai: AiServicePort,
         uow: UnitOfWork,
     ) -> None:
         self._courses = courses
@@ -61,25 +68,42 @@ class SyllabusIngestor:
         self._topics = topics
         self._outcomes = outcomes
         self._prerequisites = prerequisites
+        self._ai = ai
         self._uow = uow
 
     async def is_owner(self, refs: JobRefs, user: CurrentUser) -> bool:
         return await _owns_course(self._courses, refs, user)
 
+    async def _current_course(self, job: JobStatus) -> Course | None:
+        """El curso bloqueado, solo si este trabajo es el que está esperando."""
+        if job.refs.course_id is None:
+            return None
+        course = await self._courses.get_for_update(job.refs.course_id)
+        if course is None or course.status != CourseStatus.EXTRACTING:
+            return None
+        latest = await latest_job(self._ai, self.job_type, job.refs.course_id)
+        if latest is not None and latest.job_id != job.job_id:
+            return None
+        return course
+
     async def ingest(self, job: JobStatus, result: BaseModel) -> bool:
         if not isinstance(result, SyllabusV1):
             raise TypeError("SyllabusIngestor expects a SyllabusV1 result.")
         syllabus = result
-        extraction = await self._syllabus.get_extraction_by_job(job.job_id, for_update=True)
-        if extraction is None or extraction.is_ingested or not extraction.is_current:
+        course = await self._current_course(job)
+        document = (
+            await self._syllabus.latest_document(require_id(course)) if course is not None else None
+        )
+        if course is None or document is None:
             await self._uow.commit()  # libera el bloqueo de fila
             return False
         _check_syllabus_graph(job.job_id, syllabus)
-        course_id = extraction.course_id
+        course_id = require_id(course)
 
-        # El resultado nuevo reemplaza a los temas anteriores del curso (re-extracción, D2c).
+        # El resultado nuevo reemplaza a los temas anteriores del curso (re-extracción, D2c). La
+        # clave de extracción es única por curso (incluso inactivos): se libera al retirar el tema.
         for old in await self._topics.list_for_course(course_id):
-            await self._topics.set_active(require_id(old), False)
+            await self._topics.update(require_id(old), {"active": False, "extraction_key": None})
             await self._prerequisites.deactivate_touching(require_id(old))
 
         created: dict[str, Topic] = {}
@@ -117,40 +141,37 @@ class SyllabusIngestor:
                     TopicOrigin.LLM,
                 )
 
-        await self._syllabus.save_result(
-            require_id(extraction),
-            syllabus.model_dump(mode="json"),
-            f"{syllabus.meta.prompt_id} {syllabus.meta.prompt_version}",
-        )
-        course = await self._courses.get(course_id)
-        if course is not None and course.status == CourseStatus.EXTRACTING:
-            await self._courses.update(
-                course_id,
-                {"status": CourseStatus.IN_REVIEW, "extraction_error_code": None},
+        await self._syllabus.add_extraction(
+            SyllabusExtraction(
+                course_id=course_id,
+                syllabus_document_id=require_id(document),
+                raw_output=syllabus.model_dump(mode="json"),
+                ai_job_id=await self._syllabus.resolve_ai_job_id(job.job_id),
+                prompt_version=f"{syllabus.meta.prompt_id} {syllabus.meta.prompt_version}",
             )
+        )
+        await self._courses.update(
+            course_id, {"status": CourseStatus.IN_REVIEW, "extraction_error_code": None}
+        )
         await self._uow.commit()
         return True
 
     async def on_failed(self, job: JobStatus, error_code: str) -> None:
-        extraction = await self._syllabus.get_extraction_by_job(job.job_id, for_update=True)
-        if extraction is not None and extraction.is_current and not extraction.is_ingested:
-            course = await self._courses.get(extraction.course_id)
-            if course is not None and course.status == CourseStatus.EXTRACTING:
-                await self._courses.update(
-                    extraction.course_id,
-                    {
-                        "status": CourseStatus.EXTRACTION_FAILED,
-                        "extraction_error_code": error_code,
-                    },
-                )
+        course = await self._current_course(job)
+        if course is not None:
+            await self._courses.update(
+                require_id(course),
+                {"status": CourseStatus.EXTRACTION_FAILED, "extraction_error_code": error_code},
+            )
         await self._uow.commit()
 
     async def pending_jobs(self) -> list[PendingJob]:
-        return [
-            PendingJob(job_id=e.ai_job_id, job_type=self.job_type)
-            for e in await self._syllabus.pending_extractions()
-            if e.ai_job_id is not None
-        ]
+        pending: list[PendingJob] = []
+        for course in await self._courses.list_by_status(CourseStatus.EXTRACTING):
+            job = await latest_job(self._ai, self.job_type, require_id(course), only_finished=True)
+            if job is not None:
+                pending.append(PendingJob(job_id=job.job_id, job_type=self.job_type))
+        return pending
 
 
 def _check_syllabus_graph(job_id: str, syllabus: SyllabusV1) -> None:
@@ -199,7 +220,12 @@ class PublicationIngestor:
         if job.refs.course_id is None:
             return False
         course = await self._courses.get_for_update(job.refs.course_id)
-        if course is None or course.status != CourseStatus.GENERATING_CONTENT:
+        latest = await latest_job(self._ai, self.job_type, job.refs.course_id)
+        if (
+            course is None
+            or course.status != CourseStatus.GENERATING_CONTENT
+            or (latest is not None and latest.job_id != job.job_id)
+        ):
             await self._uow.commit()
             return False
         await self._courses.update(
@@ -214,7 +240,13 @@ class PublicationIngestor:
     async def on_failed(self, job: JobStatus, error_code: str) -> None:
         if job.refs.course_id is not None:
             course = await self._courses.get_for_update(job.refs.course_id)
-            if course is not None and course.status == CourseStatus.GENERATING_CONTENT:
+            latest = await latest_job(self._ai, self.job_type, job.refs.course_id)
+            is_current = latest is None or latest.job_id == job.job_id
+            if (
+                is_current
+                and course is not None
+                and course.status == CourseStatus.GENERATING_CONTENT
+            ):
                 await self._courses.update(
                     require_id(course),
                     {"status": CourseStatus.IN_REVIEW, "extraction_error_code": error_code},
@@ -224,8 +256,7 @@ class PublicationIngestor:
     async def pending_jobs(self) -> list[PendingJob]:
         pending: list[PendingJob] = []
         for course in await self._courses.list_by_status(CourseStatus.GENERATING_CONTENT):
-            jobs = await self._ai.list_jobs(
-                job_type=self.job_type, course_id=require_id(course), limit=20
-            )
-            pending.extend(PendingJob(job_id=j.job_id, job_type=self.job_type) for j in jobs)
+            job = await latest_job(self._ai, self.job_type, require_id(course), only_finished=True)
+            if job is not None:
+                pending.append(PendingJob(job_id=job.job_id, job_type=self.job_type))
         return pending

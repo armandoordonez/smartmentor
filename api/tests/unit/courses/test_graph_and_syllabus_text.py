@@ -89,7 +89,9 @@ def test_plain_text_is_accepted_and_hashed() -> None:
     assert extracted.source_type == "text"
     assert extracted.text.startswith("Tema 1")
     assert extracted.page_count is None
-    assert extracted.sha256 == extract_from_text("Tema 1: regresión lineal\n\nTema 2: árboles").sha256
+    assert (
+        extracted.sha256 == extract_from_text("Tema 1: regresión lineal\n\nTema 2: árboles").sha256
+    )
 
 
 @pytest.mark.parametrize("text", ["", "   \n\t  ", "\x00\x00"])

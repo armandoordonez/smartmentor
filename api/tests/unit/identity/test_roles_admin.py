@@ -43,8 +43,20 @@ def build(
     )
     users = InMemoryUsers(
         [
-            User(id=1, full_name="Admin", email="a@example.org", identity_provider="keycloak", identity_subject="s1"),
-            User(id=2, full_name="Learner", email="l@example.org", identity_provider="keycloak", identity_subject="s2"),
+            User(
+                id=1,
+                full_name="Admin",
+                email="a@example.org",
+                identity_provider="keycloak",
+                identity_subject="s1",
+            ),
+            User(
+                id=2,
+                full_name="Learner",
+                email="l@example.org",
+                identity_provider="keycloak",
+                identity_subject="s2",
+            ),
             User(id=3, full_name="Segundo", email="s@example.org"),
         ],
         user_roles,
@@ -71,7 +83,9 @@ async def test_removed_roles_are_deactivated_not_deleted() -> None:
     admin_service, _, _, users, user_roles = build()
     await admin_service.set_roles(2, ["instructor"])
     assert await users.get_role_codes(2) == frozenset({"instructor"})
-    learner_row = next(ur for ur in user_roles.items.values() if ur.user_id == 2 and ur.role_id == 3)
+    learner_row = next(
+        ur for ur in user_roles.items.values() if ur.user_id == 2 and ur.role_id == 3
+    )
     assert learner_row.active is False  # el cambio queda en la auditoría de la fila
 
 

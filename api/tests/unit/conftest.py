@@ -104,7 +104,7 @@ def world() -> World:
     prerequisites = InMemoryPrerequisites(topics)
     registry = IngestorRegistry(
         [
-            SyllabusIngestor(courses, syllabus, topics, outcomes, prerequisites, uow),
+            SyllabusIngestor(courses, syllabus, topics, outcomes, prerequisites, ai, uow),
             PublicationIngestor(courses, paths, ai, uow),
         ]
     )
@@ -118,7 +118,7 @@ def world() -> World:
         outcomes=outcomes,
         prerequisites=prerequisites,
         users=users,
-        course_service=CourseService(courses, paths, syllabus, users, uow),
+        course_service=CourseService(courses, paths, users, ai, uow),
         syllabus_service=SyllabusService(courses, syllabus, topics, prerequisites, ai, uow),
         topic_service=TopicService(courses, topics, outcomes, prerequisites, uow),
         publication_service=PublicationService(

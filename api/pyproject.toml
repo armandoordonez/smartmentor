@@ -40,12 +40,9 @@ extend = "../ruff.toml"
 [tool.ruff.lint.per-file-ignores]
 # Pruebas: `assert` es la forma de afirmar en pytest (S101); las fixtures se piden por su efecto
 # (base limpia, cliente, tablas) o para sobrescribir una firma, sin usar el valor (ARG001/ARG002).
-"tests/**" = ["S101", "ARG001", "ARG002"]
-# `assert` para acotar tipos (valores que mypy ve como opcionales pero el flujo garantiza).
-# Pendiente: reemplazarlos por excepciones de dominio cuando se reescriban estos módulos (Fase 3).
+"tests/**" = ["S101", "S105", "S106", "ARG001", "ARG002"]
+# `assert` para acotar el tipo de la excepción que recibe cada manejador de Starlette.
 "app/core/exceptions.py" = ["S101"]
-"app/domains/identity/authentication.py" = ["S101"]
-"app/domains/student/service.py" = ["S101"]
 
 [tool.mypy]
 python_version = "3.12"

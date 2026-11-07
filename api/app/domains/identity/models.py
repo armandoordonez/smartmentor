@@ -7,10 +7,10 @@ from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text, func, tex
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.common.models import TableModel, UpdatableTableModel
+from app.common.models import PublicTableModel, UpdatableTableModel
 
 
-class RoleModel(TableModel):
+class RoleModel(UpdatableTableModel):
     __tablename__ = "roles"
 
     code: Mapped[str] = mapped_column(String(30))
@@ -18,7 +18,7 @@ class RoleModel(TableModel):
     description: Mapped[str | None] = mapped_column(Text)
 
 
-class UserModel(UpdatableTableModel):
+class UserModel(PublicTableModel):
     __tablename__ = "users"
 
     full_name: Mapped[str] = mapped_column(String(200))
@@ -27,7 +27,7 @@ class UserModel(UpdatableTableModel):
     identity_subject: Mapped[str | None] = mapped_column(String(255))
 
 
-class UserRoleModel(TableModel):
+class UserRoleModel(UpdatableTableModel):
     __tablename__ = "user_roles"
 
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
@@ -50,7 +50,7 @@ class UserProfileModel(UpdatableTableModel):
     resume_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
-class ConsentModel(TableModel):
+class ConsentModel(PublicTableModel):
     __tablename__ = "consents"
 
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
@@ -60,11 +60,12 @@ class ConsentModel(TableModel):
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
-class DataSubjectRequestModel(UpdatableTableModel):
+class DataSubjectRequestModel(PublicTableModel):
     __tablename__ = "data_subject_requests"
 
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
     request_type: Mapped[str] = mapped_column(String(20))
     status: Mapped[str] = mapped_column(String(20), server_default="pending")
-    comment: Mapped[str | None] = mapped_column(Text)
+    details: Mapped[str | None] = mapped_column(Text)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    resolved_by_user_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("users.id"))

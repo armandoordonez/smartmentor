@@ -61,6 +61,10 @@ class SqlAlchemyCrudRepository[M: TableModel, E: BaseEntity]:
         values = {f.name: _plain(getattr(row, f.name)) for f in fields(self.entity)}
         return self.entity(**values)
 
+    def to_entity(self, row: M) -> E:
+        """Conversión pública de fila a entidad, para repositorios compuestos."""
+        return self._to_entity(row)
+
     def _translate(self, exc: IntegrityError) -> DomainError:
         origin = exc.orig
         cause = getattr(origin, "__cause__", None)

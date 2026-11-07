@@ -6,7 +6,7 @@ Por defecto `client` está autenticado como un administrador. Para otros roles o
 `client_for(...)` y `bare_client`.
 """
 
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import httpx
@@ -16,23 +16,25 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.core.config import get_settings
 from app.core.database import create_engine, create_session_factory
+from app.core.idempotency import InMemoryIdempotencyStore
 from app.core.security import TokenValidator
+from app.domains.ai_gateway.fake import FakeAiService
 from app.main import app
 from tests.auth_helpers import AUDIENCE, ISSUER, KeyPair, StaticKeyResolver, make_token
 
-# Tablas de negocio que las pruebas vacían. roles es un catálogo sembrado por Liquibase.
+# Tablas de negocio que las pruebas vacían (con su `_audit`). `roles` es un catálogo sembrado.
 _BUSINESS_TABLES = [
-    "llm_call_logs",
-    "badges",
-    "assessment_attempts",
-    "resources",
-    "path_steps",
-    "diagnostics",
-    "enrollments",
-    "learning_paths",
+    "syllabus_extractions",
+    "syllabus_documents",
+    "learning_outcomes",
     "topic_prerequisites",
     "topics",
+    "learning_paths",
     "courses",
+    "ai_jobs",
+    "consents",
+    "data_subject_requests",
+    "user_profiles",
     "user_roles",
     "users",
 ]
@@ -55,6 +57,7 @@ async def engine(keys: KeyPair) -> AsyncIterator[AsyncEngine]:
     app.state.token_validator = TokenValidator(
         issuer=ISSUER, audience=AUDIENCE, key_resolver=StaticKeyResolver(keys)
     )
+    app.state.ai_service = FakeAiService()
     yield eng
     await eng.dispose()
 
@@ -86,6 +89,8 @@ async def insert_user(
 
 @pytest.fixture(autouse=True)
 async def clean_database(engine: AsyncEngine) -> None:
+    app.state.ai_service = FakeAiService()
+    app.state.idempotency_store = InMemoryIdempotencyStore()
     tables = ", ".join(f"{t}, {t}_audit" for t in _BUSINESS_TABLES)
     async with engine.begin() as conn:
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
@@ -142,39 +147,9 @@ async def client(client_for: ClientFactory) -> httpx.AsyncClient:
     return client_for(sub=ADMIN_SUB, email=ADMIN_EMAIL)
 
 
-Factory = Callable[..., Awaitable[dict[str, Any]]]
-MakeFn = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
-
-
 @pytest.fixture
-def make(client: httpx.AsyncClient) -> MakeFn:
-    """POST a /api/v1/<path> como administrador y devuelve el JSON; falla si no responde 201."""
-
-    async def _make(path: str, payload: dict[str, Any]) -> dict[str, Any]:
-        response = await client.post(f"/api/v1/{path}", json=payload)
-        assert response.status_code == 201, response.text
-        body: dict[str, Any] = response.json()
-        return body
-
-    return _make
-
-
-@pytest.fixture
-async def world(make: MakeFn) -> dict[str, int]:
-    """Cadena mínima de datos: usuario → curso → tema → ruta → inscripción."""
-    user = await make("users", {"full_name": "Docente", "email": "docente@example.com"})
-    student = await make("users", {"full_name": "Estudiante", "email": "estudiante@example.com"})
-    course = await make("courses", {"owner_user_id": user["id"], "name": "Ciencia de datos"})
-    topic = await make("topics", {"course_id": course["id"], "name": "Regresión"})
-    path = await make("learning-paths", {"course_id": course["id"], "name": "Ruta base"})
-    enrollment = await make(
-        "enrollments", {"user_id": student["id"], "learning_path_id": path["id"]}
-    )
-    return {
-        "teacher": user["id"],
-        "student": student["id"],
-        "course": course["id"],
-        "topic": topic["id"],
-        "path": path["id"],
-        "enrollment": enrollment["id"],
-    }
+def ai() -> FakeAiService:
+    """El `FakeAiService` que usa la aplicación en esta prueba."""
+    service = app.state.ai_service
+    assert isinstance(service, FakeAiService)
+    return service

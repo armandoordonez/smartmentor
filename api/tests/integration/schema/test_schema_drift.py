@@ -2,17 +2,15 @@
 
 import warnings
 
-import app.domains.assessments.models
-import app.domains.content.models
-import app.domains.observability.models  # noqa: F401  (registra los modelos en Base.metadata)
 import pytest
 from sqlalchemy import inspect
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+import app.domains.ai_gateway.models
 import app.domains.courses.models
 import app.domains.identity.models
-import app.domains.learning_paths.models
+import app.domains.learning_paths.models  # noqa: F401  (registra los modelos en Base.metadata)
 from app.common.models import Base
 
 pytestmark = pytest.mark.integration

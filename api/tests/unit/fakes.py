@@ -129,7 +129,9 @@ class InMemoryUsers(InMemoryRepository[User]):
             for ur in self._user_roles.items.values()
             if ur.user_id == user_id and ur.active
         }
-        return frozenset(r.code for r in self._roles.items.values() if r.id in role_ids and r.active)
+        return frozenset(
+            r.code for r in self._roles.items.values() if r.id in role_ids and r.active
+        )
 
     async def link_identity_by_email(self, email: str, provider: str, subject: str) -> User | None:
         user = await self.get_by_email(email)
@@ -255,38 +257,14 @@ class InMemorySyllabus:
         found = [e for e in self.extractions.values() if e.course_id == course_id and e.is_current]
         return found[-1] if found else None
 
-    async def count_extractions(self, document_id: int) -> int:
-        return sum(1 for e in self.extractions.values() if e.syllabus_document_id == document_id)
-
-    async def get_extraction_by_job(
-        self,
-        job_id: str,
-        *,
-        for_update: bool = False,  # noqa: ARG002
-    ) -> SyllabusExtraction | None:
-        return next((e for e in self.extractions.values() if e.ai_job_id == job_id), None)
-
-    async def save_result(
-        self, extraction_id: int, raw_output: dict[str, Any], prompt_version: str
-    ) -> SyllabusExtraction | None:
-        current = self.extractions.get(extraction_id)
-        if current is None:
-            return None
-        self.extractions[extraction_id] = replace(
-            current, raw_output=raw_output, prompt_version=prompt_version
-        )
-        return self.extractions[extraction_id]
-
-    async def pending_extractions(self) -> list[SyllabusExtraction]:
-        return [
-            e
-            for e in self.extractions.values()
-            if e.is_current and e.ai_job_id and e.raw_output is None
-        ]
+    async def resolve_ai_job_id(self, public_id: str) -> int | None:
+        return None
 
 
 class InMemoryTopics(InMemoryRepository[Topic]):
-    async def list_for_course(self, course_id: int, *, include_inactive: bool = False) -> list[Topic]:
+    async def list_for_course(
+        self, course_id: int, *, include_inactive: bool = False
+    ) -> list[Topic]:
         found = [
             t
             for t in self.items.values()
@@ -296,6 +274,14 @@ class InMemoryTopics(InMemoryRepository[Topic]):
 
 
 class InMemoryOutcomes(InMemoryRepository[LearningOutcome]):
+    async def next_code_number(self, topic_id: int) -> int:
+        used = [
+            int(o.code.rsplit("_", 1)[1])
+            for o in self.items.values()
+            if o.topic_id == topic_id and o.code.rsplit("_", 1)[-1].isdigit()
+        ]
+        return max(used, default=0) + 1
+
     async def list_for_topics(self, topic_ids: list[int]) -> dict[int, list[LearningOutcome]]:
         grouped: dict[int, list[LearningOutcome]] = {}
         for outcome in self.items.values():
@@ -310,9 +296,7 @@ class InMemoryPrerequisites(InMemoryRepository[TopicPrerequisite]):
         self._topics = topics
 
     async def list_for_course(self, course_id: int) -> list[TopicPrerequisite]:
-        active = {
-            require_id(t) for t in await self._topics.list_for_course(course_id) if t.active
-        }
+        active = {require_id(t) for t in await self._topics.list_for_course(course_id) if t.active}
         return [
             e
             for e in self.items.values()
