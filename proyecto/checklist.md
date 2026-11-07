@@ -126,7 +126,7 @@ Criterio de salida del brief: flujo y pantallas aprobados, y esquemas JSON de ca
 
 - [ ] Mapa del flujo y casos de uso aprobado por el director (el brief ya trae el diagrama del flujo del estudiante) — **Resp.:** _por asignar_ (Director o tutor)
 - [ ] Wireframes de baja fidelidad de las 7 pantallas: login, catálogo de rutas, perfil, diagnóstico, vista de ruta, tema (video, texto y quiz) y badge — **Resp.:** _por asignar_ (Responsable de producto)
-- [x] Prototipo navegable de alta fidelidad (Figma, o Streamlit con datos de ejemplo) — **Resp.:** eduar.troyano — [diseño en Figma](https://www.figma.com/design/wIzBv0tOtRaoVmldEXPyff/SmartMentor-%C2%B7-Prototipo-Fase-0-v2--Estudiante--Docente--Admin-?node-id=0-1) y su versión en Streamlit con datos de ejemplo ([`app/`](../app/README.md)): estudiante, docente y admin, sin login
+- [x] Prototipo navegable de alta fidelidad (Figma, o Streamlit con datos de ejemplo) — **Resp.:** eduar.troyano — [diseño en Figma v3](https://www.figma.com/design/atp2fZdSolEoaww3n9jRLg/SmartMentor-%C2%B7-Prototipo-Fase-0-v3--4-?node-id=0-1) y su versión en Streamlit con datos de ejemplo ([`app/`](../app/README.md)): estudiante, docente y admin, sin login
 - [ ] Prueba de prompts «Mago de Oz»: syllabus estructurado, diagnóstico y un tema generados a mano con el LLM — **Resp.:** _por asignar_ (Responsable de IA y datos)
 - [ ] Esquemas JSON de cada salida de IA, definidos y versionados en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos)
 - [ ] Prueba de usabilidad con 3 a 5 usuarios (pensar en voz alta) y cuestionario SUS — **Resp.:** _por asignar_ (Responsable de evaluación)

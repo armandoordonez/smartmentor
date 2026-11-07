@@ -69,6 +69,7 @@ Decisiones tomadas al revisar la primera versión de este plan. Quedan incorpora
 | R-10 | Reglas permanentes: documentos en español e identificadores en inglés; **desde el 2026-11-07 Claude hace commits locales y `push` a ramas `feature/*`**; `stage` y `main` no se tocan nunca y `dev` solo recibe fusiones según la política de 16.3; ninguna ejecución sin la señal de inicio del dueño | Se mantienen en todas las fases | 7, 16.1 |
 | R-11 | Respuestas a las definiciones: DEF-01 Gemini; DEF-02 modelo y dimensión del notebook; DEF-13 con autorregistro, rol `learner` por defecto, varios roles por usuario y menú de perfil; DEF-14 secretos solo en `.env`; DEF-25 confirmada. **Lo no mencionado toma el valor por defecto** | Segunda revisión con huecos y mejoras | 9 y 18 |
 | R-12 | **Prohibido subir a `stage` y `main` sin autorización escrita del dueño** (decidido el 2026-11-07: se procede aunque GitHub no las proteja). La protección en GitHub sigue pedida al administrador del repositorio, pero **ya no bloquea el inicio**. Claude no hace `push`, fusión ni cambio alguno en esas ramas, y antes de cada `push` comprueba que el destino sea una rama `feature/*` o, bajo 16.3, `dev` | Las credenciales y secretos van solo en variables de entorno (`.env` sin valores en `.env.example`); lo ya publicado se da por rotado | 16.2, 16.3, 19.5 |
+| R-13 | **La versión 3 es la única fuente de verdad** (decidido el 2026-11-07): se olvida todo lo de la versión 2 y anteriores. Ningún agente adapta, conserva ni toma como referencia diseños, pantallas, vocabulario (`student`, `teacher`), claves de Figma ni código de v2; lo que viene de v2 se reemplaza (sección 20). Archivo maestro de Figma: `atp2fZdSolEoaww3n9jRLg` (v3 (4)); la clave `5oCXyjG1qaqc4XJNnDd8bN` es un borrador intermedio de v3 y se descarta | Hecho: `index.html` y el checklist apuntan a la maestra | 20 |
 
 ### 0.2 Tabla resumen de fases: orden, personas y paralelización
 
@@ -1761,6 +1762,22 @@ El autor es el configurado en git (`user.name` y `user.email`); como el correo c
 | Contratos congelados | Los agentes de la Ola 1 inventarían interfaces distintas | Aprobación del dueño de la salida de la Ola 0 |
 
 No bloquean: DEF-02 (rige Gemini a 768), los secretos (los agentes usan simulaciones), la versión de Python (hay 3.12 y `uv`), ni Docker, `gh` y la red (comprobados).
+
+## 20. La versión 3 es la única fuente: residuos de v2 y dónde se reemplazan
+
+Regla del dueño (2026-11-07, R-13): se olvida todo lo de v2 y anteriores; **todo se construye desde v3, que es mucho más grande** (97 frames frente a 28 pantallas). Lo de v2 no se adapta ni se conserva como base: se reemplaza.
+
+| Residuo de v2 | Dónde está | Qué pasa con él | Fase |
+| --- | --- | --- | --- |
+| Claves de Figma `wIzBv0tOtRaoVmldEXPyff` y `5oCXyjG1qaqc4XJNnDd8bN` | `design/03…/README.md`, `design/03…/index.html`, `app/README.md`, `proyecto/checklist.md`, `CHANGELOG.md` | Se reemplazan por `atp2fZdSolEoaww3n9jRLg`. `index.html` y el checklist ya están corregidos; el README de `design/03` lo reescribe la rama `feature/design-use-cases-v3`. Las entradas históricas del `CHANGELOG.md` no se reescriben | F1, F7 |
+| Prototipo de Streamlit de la Fase 0 (`app/src`: páginas `student`, `teacher`, `admin`, datos de ejemplo) | `app/src/pages/*`, `app/src/clients/sample_data.py` | Se rehace desde Figma v3; solo se conserva el andamiaje técnico (1.3) | F7 |
+| Dominios y CRUD de la API con `student` y `teacher` | `api/app/domains/*`, 35 archivos en total con esos términos | Se reemplazan por el modelo `v2.0.0` de la base y los casos de uso v3 | F3 |
+| Esquema `v1.0.x` de Liquibase y semillas `student`, `teacher` | `database/liquibase/changelog/v1.0.*` | Se retira con el re-base `v2.0.0` (etiqueta `schema-v1-final`) | F2 |
+| Roles `student` y `teacher` del realm | `keycloak/realm/smartmentor-realm.json` | Se renombran a `learner` e `instructor` | F8 |
+| Diagramas `.drawio` y SVG de v2 | `design/01-flujo-y-casos-de-uso/` | Se rehacen con los estados de v3 (los de Mermaid ya existen) | F1 (pendiente) |
+| `app/CLAUDE.md` basado en Figma v2 | `app/CLAUDE.md` | Reescrito (rama `feature/design-use-cases-v3`) | F1 |
+
+**Lo que no se borra:** `design/02-wireframes-baja-fidelidad/` y `design/04-prueba-mago-de-oz/` son entregables de la Fase 0 que pide el brief y quedan como evidencia histórica; no se usan como base para construir. Si el dueño quiere archivarlos o eliminarlos, lo indica.
 
 ---
 
