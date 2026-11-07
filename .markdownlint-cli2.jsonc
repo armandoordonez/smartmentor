@@ -28,6 +28,8 @@
     "**/node_modules/**",
     "**/.venv/**",
     ".claude/**",
+    // Textos de entrada de las pruebas (datos, no documentación).
+    "ai/eval/fixtures/**",
     // Histórico y material de insumo: no se corrige.
     "design/**",
     "proyecto/brief.md",
