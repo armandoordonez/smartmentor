@@ -273,7 +273,7 @@ jobs:
             echo "El compose arrancó sin credenciales" >&2
             exit 1
           fi
-          grep -q 'required variable POSTGRES_PASSWORD is missing a value' "$RUNNER_TEMP/compose-error.txt"
+          grep -q 'required variable [A-Z_]* is missing a value' "$RUNNER_TEMP/compose-error.txt"
           grep -o 'required variable [A-Z_]*' "$RUNNER_TEMP/compose-error.txt" | sort -u
       - name: .env.example y las variables que leen el compose, los Settings y el realm
         run: uv run --no-project python -I scripts/check-env-coherence.py

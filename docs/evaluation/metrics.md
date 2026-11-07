@@ -31,7 +31,7 @@ Instrucciones y comandos: `notebooks/README.md`.
 | Campo | Detalle |
 | --- | --- |
 | Función | `set_f1(predicted, gold)` |
-| Fórmula | `P = TP / |predichos|`, `R = TP / |finales|`, `F1 = 2PR / (P + R)`. Los temas se comparan por su `id`; un prerrequisito es el par `prerrequisito>tema` |
+| Fórmula | `P = TP / \|predichos\|`, `R = TP / \|finales\|`, `F1 = 2PR / (P + R)`. Los temas se comparan por su `id`; un prerrequisito es el par `prerrequisito>tema` |
 | Tabla | `syllabus_extractions.raw_output` (extracción vigente, `is_current`) frente a `topics` y `topic_prerequisites` (lo que dejó el instructor, sin los eliminados) |
 | Meta | F1 ≥ 0,85 |
 | Interpretación | Mide cuánto del trabajo del instructor evita la IA. La precisión baja indica temas inventados; el recall bajo, temas omitidos. Dos conjuntos vacíos dan 1,0; uno solo vacío da 0 |
