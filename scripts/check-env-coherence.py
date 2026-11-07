@@ -37,6 +37,9 @@ FUTURE_VARIABLES = {
 SETTINGS_INTERNAL = {
     "APP_NAME", "APP_VERSION", "OIDC_IDENTITY_PROVIDER",
     "SYLLABUS_MAX_BYTES", "IDEMPOTENCY_TTL_SECONDS", "APP_FIXTURES_DIR",
+    # Ajustes internos del servicio de IA (valores por defecto razonables; no son de despliegue)
+    "AI_JOB_LOCK_SECONDS", "AI_JOB_MAX_ATTEMPTS", "AI_JOB_RETRY_BACKOFF_SECONDS",
+    "AI_LLM_TIMEOUT_SECONDS", "AI_PRICES_FILE", "AI_PROMPTS_DIR", "AI_WORKER_POLL_SECONDS",
 }
 
 SETTINGS_DIRS = ["api/app", "app/src", "ai/app"]
