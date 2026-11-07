@@ -1,0 +1,136 @@
+{
+ "meta": {
+  "archivo": "SmartMentor · Prototipo Fase 0 v3 (4)",
+  "fileKey": "atp2fZdSolEoaww3n9jRLg",
+  "obtenido": "2026-11-07",
+  "origen": "MCP de Figma (get_variable_defs en 24:2, 124:1066 y 5:209) + valores del JSON exportado",
+  "nota": "La exportación por la API REST no incluye variables (error 403: falta el permiso file_variables:read). Los 24 nombres coinciden con los 24 identificadores enlazados en el JSON. 118:904 y 118:906 son ambos #FFFFFF y se asignan por orden de creación. 118:923 no se usa en ningún nodo; por la secuencia sería error/acento (sin confirmar)."
+ },
+ "variables": {
+  "VariableID:118:901": {
+   "name": "texto/principal",
+   "hex": "#15181E",
+   "estado": "usada"
+  },
+  "VariableID:118:902": {
+   "name": "texto/secundario",
+   "hex": "#4A5160",
+   "estado": "usada"
+  },
+  "VariableID:118:903": {
+   "name": "texto/terciario",
+   "hex": "#5F6776",
+   "estado": "usada"
+  },
+  "VariableID:118:904": {
+   "name": "texto/sobre-acento",
+   "hex": "#FFFFFF",
+   "estado": "usada"
+  },
+  "VariableID:118:905": {
+   "name": "fondo/pagina",
+   "hex": "#F5F6F8",
+   "estado": "usada"
+  },
+  "VariableID:118:906": {
+   "name": "fondo/superficie",
+   "hex": "#FFFFFF",
+   "estado": "usada"
+  },
+  "VariableID:118:907": {
+   "name": "fondo/sutil",
+   "hex": "#FAFBFC",
+   "estado": "usada"
+  },
+  "VariableID:118:908": {
+   "name": "fondo/neutro",
+   "hex": "#EEF0F3",
+   "estado": "usada"
+  },
+  "VariableID:118:909": {
+   "name": "borde/default",
+   "hex": "#E3E6EB",
+   "estado": "usada"
+  },
+  "VariableID:118:910": {
+   "name": "borde/fuerte",
+   "hex": "#C9CDD5",
+   "estado": "usada"
+  },
+  "VariableID:118:911": {
+   "name": "aprendiz/acento",
+   "hex": "#1D5FD1",
+   "estado": "usada"
+  },
+  "VariableID:118:912": {
+   "name": "aprendiz/suave",
+   "hex": "#E8F0FC",
+   "estado": "usada"
+  },
+  "VariableID:118:913": {
+   "name": "aprendiz/texto",
+   "hex": "#174EA6",
+   "estado": "usada"
+  },
+  "VariableID:118:914": {
+   "name": "instructor/acento",
+   "hex": "#11774A",
+   "estado": "usada"
+  },
+  "VariableID:118:915": {
+   "name": "instructor/suave",
+   "hex": "#E5F4EC",
+   "estado": "usada"
+  },
+  "VariableID:118:916": {
+   "name": "instructor/texto",
+   "hex": "#0D6640",
+   "estado": "usada"
+  },
+  "VariableID:118:917": {
+   "name": "admin/acento",
+   "hex": "#5B3CC4",
+   "estado": "usada"
+  },
+  "VariableID:118:918": {
+   "name": "admin/suave",
+   "hex": "#EEEAFB",
+   "estado": "usada"
+  },
+  "VariableID:118:919": {
+   "name": "admin/texto",
+   "hex": "#4B2FB0",
+   "estado": "usada"
+  },
+  "VariableID:118:920": {
+   "name": "aviso/acento",
+   "hex": "#D98A00",
+   "estado": "usada"
+  },
+  "VariableID:118:921": {
+   "name": "aviso/suave",
+   "hex": "#FFF4DE",
+   "estado": "usada"
+  },
+  "VariableID:118:922": {
+   "name": "aviso/texto",
+   "hex": "#8A5300",
+   "estado": "usada"
+  },
+  "VariableID:118:924": {
+   "name": "error/suave",
+   "hex": "#FDECEA",
+   "estado": "usada"
+  },
+  "VariableID:118:925": {
+   "name": "error/texto",
+   "hex": "#9B1C14",
+   "estado": "usada"
+  },
+  "VariableID:118:923": {
+   "name": "error/acento",
+   "hex": "",
+   "estado": "sin usar (nombre inferido)"
+  }
+ }
+}

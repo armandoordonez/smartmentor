@@ -2,7 +2,7 @@
 
 Lista de verificación del [brief](brief.md): qué está hecho, qué falta y quién responde de cada cosa. Se marca a mano (`[x]`) y el resumen de avance se recalcula con un script. Complementa a [`HANDOFF.md`](../HANDOFF.md) (estado técnico y deuda) y a [`decisiones-pendientes.md`](decisiones-pendientes.md).
 
-**Última actualización:** 2026-10-07 · **Cohorte:** 1
+**Última actualización:** 2026-11-07 · **Cohorte:** 1
 
 ## Cómo usar este checklist
 
@@ -46,9 +46,10 @@ En grupos de 2 personas los roles se combinan.
 | F. Interfaz de usuario (frontend) | 2 | 11 | 18 % |
 | G. Evaluación, piloto y entregables | 0 | 11 | 0 % |
 | H. Decisiones técnicas pendientes | 1 | 6 | 17 % |
-| **Total** | **30** | **99** | **30 %** |
+| I. Plan de implementación v3 | 3 | 18 | 17 % |
+| **Total** | **33** | **117** | **28 %** |
 
-_Calculado el 2026-10-07 con `proyecto/scripts/avance.sh --actualizar`._
+_Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
 
 <!-- AVANCE:FIN -->
 
@@ -256,3 +257,26 @@ Detalle, opciones y recomendación en [`decisiones-pendientes.md`](decisiones-pe
 - [ ] D-04: almacenamiento de los fragmentos RAG (`document_chunks` gestionado por Liquibase) — **Resp.:** _por asignar_ (Responsable de IA y datos)
 - [ ] D-05: usuario de base de datos con mínimos privilegios para la API — **Resp.:** _por asignar_ (Responsable de producto)
 - [ ] D-06: destino de despliegue (verificar PostgreSQL 17 + pgvector y cómo correr Liquibase) — **Resp.:** _por asignar_ (Responsable de producto)
+
+## I. Plan de implementación v3
+
+Fases y tareas de [`PLAN_IMPLEMENTACION_V3.md`](../PLAN_IMPLEMENTACION_V3.md) (sección 7). Se ejecutan solo con la autorización del dueño; las ramas y su tope (`dev`) están en la sección 16.1 del plan.
+
+- [x] Plan de implementación v3 redactado y ajustado con las decisiones del 2026-11-07 — **Resp.:** eduar.troyano — pendiente de revisión y autorización del dueño y el director
+- [x] Especificación de Figma v3 extraída en [`design/03-prototipo-alta-fidelidad/v3/`](../design/03-prototipo-alta-fidelidad/v3/README.md) (96 pantallas, 24 variables, tokens) — **Resp.:** eduar.troyano
+- [x] F0: responder las decisiones bloqueantes (DEF-01, 02, 13, 14 y 25; las demás por defecto) — **Resp.:** eduar.troyano — 2026-11-07
+- [ ] F0: confirmar la sección 18.4 del plan (DEF-02, DEF-27, DEF-28 y SMTP) y aprobar el plan con el director — **Resp.:** eduar.troyano
+- [ ] F0: integrar la línea base a `dev` por pull request (`feature/phase-0-prototypes` y luego `feature/plan-v3-decisiones`) — **Resp.:** eduar.troyano — los `push` son del dueño
+- [ ] F1: rama `feature/repo-standards` (CI mínima, `pre-commit`, Ruff común, `.dockerignore`, plantillas de PR y ADR) — **Resp.:** eduar.troyano
+- [ ] F1: casos de uso, estados, flujos y glosario sobre el vocabulario Aprendiz, Instructor y Administrador — **Resp.:** _por asignar_ (Responsable de producto)
+- [ ] F1: contratos Pydantic de `ai/`, prompts versionados y esquemas JSON en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [ ] F2: re-base de la base como `v2.0.0` con roles `learner`, `instructor`, `admin` — **Resp.:** eduar.troyano
+- [ ] F3: API v2 sin IA con `FakeAiService` — **Resp.:** eduar.troyano
+- [ ] F4: servicio `ai/` con trabajos, prompts, log y presupuesto — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [ ] F5: `ai/` con RAG, banco de ítems, calificación y videos — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [ ] F6: flujo completo de punta a punta con el LLM real (hito del brief) — **Resp.:** _por asignar_ (Director o tutor)
+- [ ] F7: interfaz Streamlit rehecha desde Figma v3 — **Resp.:** _por asignar_ (Responsable de producto)
+- [ ] F8: Keycloak (clientes y roles renombrados), compose, `.env.example` v3 y CI — **Resp.:** eduar.troyano
+- [ ] F9: evaluación y piloto (anotación, calificación humana, usabilidad, notebook) — **Resp.:** _por asignar_ (Responsable de evaluación)
+- [ ] F10: revisión final, pruebas de despliegue y funcionamiento, reajuste de la documentación y brief v2 — **Resp.:** _por asignar_ (Líder del grupo)
+- [ ] F11: cierre, traspaso y etiqueta `v1.0-cohorte1` — **Resp.:** _por asignar_ (Líder del grupo)

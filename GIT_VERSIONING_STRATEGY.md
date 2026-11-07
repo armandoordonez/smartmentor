@@ -27,7 +27,7 @@ main
 └── fix/*
 ```
 
-No se recomienda crear ramas permanentes adicionales como `develop`, `release` o `staging`, a menos que el proyecto crezca y posteriormente exista una necesidad explícita de ellas.
+**Actualización 2026-11-07:** el proyecto ya creció y tiene dos ramas permanentes de integración, `dev` y `stage` (sección 2.2). Lo demás de este documento aplica con ese ajuste.
 
 ## 2.1. Rama `main`
 
@@ -48,6 +48,20 @@ Ejemplo:
 ```text
 main
 ```
+
+---
+
+## 2.2. Ramas `dev` y `stage`
+
+| Rama | Uso | Reglas |
+| --- | --- | --- |
+| `dev` | Integración de las ramas `feature/*`. **Es el tope de toda feature.** | Se llega por Pull Request; no se hace `push` directo |
+| `stage` | Preproducción: validación antes de `main` | Solo recibe de `dev`. Las features **no** se fusionan aquí |
+| `main` | Entrega estable | Solo recibe de `stage`. Las features **no** se fusionan aquí |
+
+Flujo: `feature/*` → `dev` → `stage` → `main`. Las promociones de `dev` a `stage` y de `stage` a `main` las hace el dueño del repositorio, igual que todos los `push`. Un commit se hace solo cuando el dueño lo pide.
+
+**Estado al 2026-11-07:** en el remoto, `dev`, `stage` y `main` apuntan al primer commit (solo el brief). Todo lo construido vive en ramas `feature/*`. La primera tarea de la Fase 0 del [plan de implementación](PLAN_IMPLEMENTACION_V3.md) es integrar a `dev` la línea base. Hasta entonces, una rama nueva parte de la rama `feature/*` vigente. La lista de ramas por fase está en la sección 16.1 del plan.
 
 ---
 
