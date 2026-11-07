@@ -64,3 +64,9 @@ database/backups/*
 
 .vscode/extensions.json
 .vscode/settings.json
+
+# Exportaciones pesadas de Figma (se regeneran; DEF-17) y checkpoints de Jupyter
+design/03-prototipo-alta-fidelidad/archivo_completo.json
+design/03-prototipo-alta-fidelidad/smartmentor_prototipo_v3.json
+design/03-prototipo-alta-fidelidad/smartmentor_figma/
+.ipynb_checkpoints/
