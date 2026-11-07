@@ -1,6 +1,10 @@
-# Integración continua mínima de SmartMentor (PLAN_IMPLEMENTACION_V3.md, secciones 14.2 y 18.8).
+# Integración continua de SmartMentor (PLAN_IMPLEMENTACION_V3.md, secciones 5.6, 14.2 y 18.8).
 # Las credenciales de este archivo son valores desechables solo para la base efímera del trabajo:
 # no se usan secretos del repositorio ni claves de proveedores de IA.
+#
+# Trabajos: api, ai, app (Ruff, mypy, pytest) · liquibase · prompts (hashes y esquemas) · infra (compose, .env,
+# realm, scripts, workflows) · keycloak-realm (importación en un Keycloak desechable) · docs (markdownlint y
+# enlaces) · secrets (gitleaks) · audit e images (auditoría de dependencias y Trivy: solo informan).
 # La imagen de PostgreSQL es la misma de docker-compose.yml (pgvector 0.8.7 sobre PostgreSQL 17).
 name: CI
 
@@ -152,3 +156,227 @@ jobs:
             -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
             -v "$GITHUB_WORKSPACE/database/liquibase/changelog:/liquibase/changelog:ro" \
             smartmentor-liquibase:ci validate
+
+  ai:
+    name: ai (Ruff, mypy, pytest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ai
+    env:
+      # Valores desechables. Ningún trabajo usa claves de LLM: las pruebas corren con el proveedor simulado.
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: smartmentor_test
+      AI_DATABASE_USER: ci_user
+      AI_DATABASE_PASSWORD: ci-only-not-a-secret
+      APP_ENV: test
+      LOG_LEVEL: WARNING
+      OIDC_ISSUER_URL: http://keycloak.test/realms/smartmentor
+      OIDC_JWKS_URL: http://keycloak.test/realms/smartmentor/protocol/openid-connect/certs
+      AI_SERVICE_AUDIENCE: smartmentor-ai
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
+        env:
+          POSTGRES_DB: smartmentor_test
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+          TZ: America/Bogota
+          PGTZ: America/Bogota
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d smartmentor_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: ai/uv.lock
+      - name: Instalar dependencias
+        run: uv sync --frozen
+      - name: Ruff (lint)
+        run: uv run ruff check .
+      - name: Ruff (formato)
+        run: uv run ruff format --check .
+      - name: mypy (estricto)
+        run: uv run mypy
+      - name: Construir la imagen de Liquibase
+        working-directory: .
+        run: docker build -t smartmentor-liquibase:ci database/liquibase
+      - name: Migrar smartmentor_test con Liquibase
+        working-directory: .
+        run: |
+          docker run --rm --network host \
+            -e LIQUIBASE_COMMAND_URL=jdbc:postgresql://localhost:5432/smartmentor_test \
+            -e LIQUIBASE_COMMAND_USERNAME=ci_user \
+            -e LIQUIBASE_COMMAND_PASSWORD=ci-only-not-a-secret \
+            -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
+            -v "$GITHUB_WORKSPACE/database/liquibase/changelog:/liquibase/changelog:ro" \
+            smartmentor-liquibase:ci update
+      - name: pytest
+        # El repositorio completo está en el espacio de trabajo: las pruebas leen ../prompts.
+        run: uv run pytest
+
+  prompts:
+    name: prompts (hashes y esquemas exportados)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ai
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: ai/uv.lock
+      - name: Instalar dependencias
+        run: uv sync --frozen
+      - name: Los esquemas de prompts/schemas coinciden con los modelos de ai/
+        run: uv run python -m scripts.export_schemas --check
+      - name: Los hashes de prompts/catalog.yaml coinciden con los archivos de prompts
+        run: uv run pytest tests/contract -q
+
+  infra:
+    name: infra (compose, .env, realm, scripts, workflows)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Valores desechables para validar el compose
+        # Copia de .env.example con cada variable vacía rellenada con un valor de prueba obvio.
+        run: |
+          awk -F= '/^[A-Z][A-Z0-9_]*=$/ { print $1 "=ci-only-not-a-secret"; next } { print }' \
+            .env.example > "$RUNNER_TEMP/ci.env"
+      - name: docker compose config (sin perfiles)
+        run: docker compose --env-file "$RUNNER_TEMP/ci.env" config -q
+      - name: docker compose config (perfiles ai y mail)
+        run: docker compose --env-file "$RUNNER_TEMP/ci.env" --profile ai --profile mail config -q
+      - name: Con .env.example vacío el compose se niega a arrancar y dice qué falta
+        run: |
+          if docker compose --env-file .env.example config -q 2> "$RUNNER_TEMP/compose-error.txt"; then
+            echo "El compose arrancó sin credenciales" >&2
+            exit 1
+          fi
+          grep -q 'required variable POSTGRES_PASSWORD is missing a value' "$RUNNER_TEMP/compose-error.txt"
+          grep -o 'required variable [A-Z_]*' "$RUNNER_TEMP/compose-error.txt" | sort -u
+      - name: .env.example y las variables que leen el compose, los Settings y el realm
+        run: uv run --no-project python -I scripts/check-env-coherence.py
+      - name: El realm de Keycloak no trae usuarios, secretos ni llaves
+        run: |
+          python3 -I keycloak/scripts/sanitize-realm.py --check keycloak/realm/smartmentor-realm.json
+          python3 -m json.tool keycloak/realm/smartmentor-realm.json > /dev/null
+      - name: gen-secrets.sh rellena solo lo vacío, es idempotente y no imprime valores
+        run: scripts/test-gen-secrets.sh
+      - name: Sintaxis y ShellCheck de los scripts
+        run: |
+          shopt -s nullglob
+          for file in scripts/*.sh keycloak/scripts/*.sh api/scripts/*.sh database/scripts/*.sh; do bash -n "$file"; done
+          shellcheck -S warning scripts/*.sh keycloak/scripts/*.sh
+      - name: actionlint (workflows)
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/repo" -w /repo rhysd/actionlint:1.7.7 -color
+
+  keycloak-realm:
+    name: keycloak-realm (importación en un Keycloak desechable)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Importar el realm y comprobar registro, OTP por rol, clientes y audiencias
+        run: keycloak/scripts/check-realm-import.sh --functional
+
+  docs:
+    name: docs (markdownlint y enlaces)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: markdownlint (la configuración excluye el material histórico)
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$GITHUB_WORKSPACE:/workdir" \
+            davidanson/markdownlint-cli2:v0.18.1
+      - name: Enlaces y anclas locales de los .md
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$GITHUB_WORKSPACE:/input" -w /input \
+            lycheeverse/lychee:0.22.0 --config lychee.toml --root-dir /input '**/*.md'
+
+  secrets:
+    name: secrets (gitleaks)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Archivos actuales
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/repo:ro" zricethezav/gitleaks:v8.30.1 \
+            dir /repo --no-banner --redact
+      - name: Commits nuevos respecto a dev
+        # El historial anterior a la rotación de secretos (ADR 0005, sección 3) se da por comprometido y no se escanea.
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/repo:ro" --entrypoint sh zricethezav/gitleaks:v8.30.1 \
+            -c 'git config --global --add safe.directory /repo && gitleaks git /repo --no-banner --redact --log-opts "origin/dev..HEAD"'
+
+  audit:
+    name: audit (dependencias, informativo)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # Informa pero no bloquea: un aviso nuevo en una dependencia transitiva no debe tumbar un pull request ajeno.
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, app, ai]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: pip-audit sobre las versiones fijadas en uv.lock
+        working-directory: ${{ matrix.service }}
+        run: |
+          uv export --frozen --no-dev --no-emit-project --no-hashes -o "$RUNNER_TEMP/requirements.txt"
+          uvx --from pip-audit==2.9.0 pip-audit -r "$RUNNER_TEMP/requirements.txt" --no-deps --disable-pip
+
+  images:
+    name: images (Trivy, informativo)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api, app, ai]
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Construir la imagen
+        id: build
+        run: |
+          if [ "${{ matrix.service }}" = "ai" ]; then
+            if [ ! -f ai/Dockerfile ]; then echo "ai/Dockerfile todavía no existe"; echo "built=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+            docker build -f ai/Dockerfile -t "smartmentor-${{ matrix.service }}:scan" .
+          else
+            docker build -t "smartmentor-${{ matrix.service }}:scan" "${{ matrix.service }}"
+          fi
+          echo "built=true" >> "$GITHUB_OUTPUT"
+      - name: Trivy (vulnerabilidades altas y críticas con corrección disponible)
+        if: steps.build.outputs.built == 'true'
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.67.2 \
+            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 "smartmentor-${{ matrix.service }}:scan"

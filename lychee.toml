@@ -1,0 +1,21 @@
+# Verificador de enlaces de los .md (CI: trabajo «docs»). Solo enlaces locales y anclas: sin red, así el
+# resultado no depende de que un sitio externo esté disponible.
+offline = true
+include_fragments = true
+no_progress = true
+# Los .md de código y de documentación vigente; el material histórico y de insumo no se revisa.
+exclude_path = [
+  "design",
+  "proyecto/brief.md",
+  "proyecto/bitacora",
+  "notebooks",
+  "CHANGELOG.md",
+  ".claude",
+  "node_modules",
+]
+# Rutas que existen solo después de construir o ejecutar (no están en git).
+exclude = [
+  "^file://.*/database/data",
+  "^file://.*/database/backups",
+  "^file://.*/\\.env$",
+]

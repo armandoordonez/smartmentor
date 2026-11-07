@@ -34,7 +34,7 @@ x-ai-environment: &ai-environment
   AI_LLM_MODEL_SMALL: ${AI_LLM_MODEL_SMALL:-}
   AI_EMBEDDING_PROVIDER: ${AI_EMBEDDING_PROVIDER:-}
   AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-}
-  EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-1024}
+  EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-768}
   GEMINI_API_KEY: ${GEMINI_API_KEY:-}
   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
   YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
@@ -73,7 +73,10 @@ services:
       KEYCLOAK_DB_NAME: ${KEYCLOAK_DB_NAME:-keycloak}
       KEYCLOAK_DB_USER: ${KEYCLOAK_DB_USER:?Define KEYCLOAK_DB_USER en .env (ver .env.example)}
       KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Define KEYCLOAK_DB_PASSWORD en .env (ver .env.example)}
-      # Usuarios de mínimo privilegio (ADR 0019): los crea el bootstrap de la base y los usan api y ai.
+      # Usuarios de mínimo privilegio (ADR 0019): los crea el bootstrap de la base (solo con base vacía;
+      # con un volumen existente, database/scripts/bootstrap.sh) y los usan Liquibase, api y ai.
+      OWNER_DATABASE_USER: ${OWNER_DATABASE_USER:?Define OWNER_DATABASE_USER en .env (ver .env.example)}
+      OWNER_DATABASE_PASSWORD: ${OWNER_DATABASE_PASSWORD:?Define OWNER_DATABASE_PASSWORD en .env (ver .env.example)}
       API_DATABASE_USER: ${API_DATABASE_USER:?Define API_DATABASE_USER en .env (ver .env.example)}
       API_DATABASE_PASSWORD: ${API_DATABASE_PASSWORD:?Define API_DATABASE_PASSWORD en .env (ver .env.example)}
       AI_DATABASE_USER: ${AI_DATABASE_USER:?Define AI_DATABASE_USER en .env (ver .env.example)}
@@ -104,8 +107,11 @@ services:
         condition: service_healthy
     environment:
       LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-smartmentor}
-      LIQUIBASE_COMMAND_USERNAME: ${POSTGRES_USER:?Define POSTGRES_USER en .env (ver .env.example)}
-      LIQUIBASE_COMMAND_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD en .env (ver .env.example)}
+      # Liquibase corre como smartmentor_owner: las tablas quedan a su nombre (ADR 0019).
+      LIQUIBASE_COMMAND_USERNAME: ${OWNER_DATABASE_USER:?Define OWNER_DATABASE_USER en .env (ver .env.example)}
+      LIQUIBASE_COMMAND_PASSWORD: ${OWNER_DATABASE_PASSWORD:?Define OWNER_DATABASE_PASSWORD en .env (ver .env.example)}
+      # Correo del administrador sembrado; vacío = no se siembra ninguno.
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
       LIQUIBASE_COMMAND_CHANGELOG_FILE: db.changelog-master.xml
       LIQUIBASE_LOG_LEVEL: info
     volumes:
@@ -133,7 +139,7 @@ services:
       # La API se conecta con su usuario de mínimo privilegio (ADR 0019); su configuración lo lee como DATABASE_*.
       DATABASE_USER: ${API_DATABASE_USER:?Define API_DATABASE_USER en .env (ver .env.example)}
       DATABASE_PASSWORD: ${API_DATABASE_PASSWORD:?Define API_DATABASE_PASSWORD en .env (ver .env.example)}
-      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-1024}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-768}
       # Keycloak: el emisor es la URL que ve el cliente; las llaves se descargan por la red interna.
       OIDC_ISSUER_URL: ${OIDC_ISSUER_URL:?Define OIDC_ISSUER_URL en .env (ver .env.example)}
       OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://keycloak:8080/realms/smartmentor/protocol/openid-connect/certs}
