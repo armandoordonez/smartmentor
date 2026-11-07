@@ -1,0 +1,8 @@
+{
+  "criteria": [
+    {"criterion": "Propone bajar el umbral por debajo de 0,5", "met": true, "points_awarded": 0.4, "evidence": "Bajaría el umbral para que el modelo marque más pedidos como tardíos."},
+    {"criterion": "Explica que disminuyen los falsos negativos y aumentan los falsos positivos", "met": true, "points_awarded": 0.4, "evidence": "Así se escapan menos pedidos tarde, aunque habrá más alarmas falsas."},
+    {"criterion": "Justifica la decisión con la diferencia de costos", "met": false, "points_awarded": 0.0, "evidence": "No menciona que el falso negativo cuesta más."}
+  ],
+  "feedback": "Bien identificado el efecto del umbral sobre los dos errores. Te falta conectar la decisión con la diferencia de costos del caso: ¿por qué conviene aceptar más falsas alarmas aquí?"
+}

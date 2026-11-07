@@ -1,0 +1,28 @@
+{
+  "id": "q4",
+  "topic_id": "regresion_logistica",
+  "outcome_id": "lo_regresion_logistica_3",
+  "source": "topic_quiz",
+  "item_type": "short_answer",
+  "bloom_level": "analyze",
+  "difficulty": 3,
+  "stem": "Una empresa de logística quiere detectar pedidos que llegarán tarde. Un falso negativo cuesta cinco veces más que una falsa alarma. Explica cómo ajustarías el umbral de decisión y qué efecto tendría sobre los dos tipos de error.",
+  "options": [],
+  "correct_option": null,
+  "model_answer": "Bajaría el umbral por debajo de 0,5 para marcar como tardíos más pedidos: aumentan los verdaderos positivos y bajan los falsos negativos, a cambio de más falsas alarmas, lo que conviene porque los falsos negativos son más costosos.",
+  "rubric": [
+    {
+      "criterion": "Propone bajar el umbral por debajo de 0,5",
+      "points": 0.4
+    },
+    {
+      "criterion": "Explica que disminuyen los falsos negativos y aumentan los falsos positivos",
+      "points": 0.4
+    },
+    {
+      "criterion": "Justifica la decisión con la diferencia de costos",
+      "points": 0.2
+    }
+  ],
+  "equivalence_group": null
+}

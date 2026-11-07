@@ -1,0 +1,43 @@
+{
+  "item_id": "q4",
+  "item_type": "short_answer",
+  "grader": "llm_judge",
+  "approval_rule": "min_criteria_ratio",
+  "min_criteria_ratio": 0.6666666666666666,
+  "score": 80.0,
+  "is_correct": true,
+  "criteria_met": 2,
+  "criteria_total": 3,
+  "rubric_detail": [
+    {
+      "criterion": "Propone bajar el umbral por debajo de 0,5",
+      "met": true,
+      "points": 0.4,
+      "points_awarded": 0.4,
+      "evidence": "Bajaría el umbral para que el modelo marque más pedidos como tardíos."
+    },
+    {
+      "criterion": "Explica que disminuyen los falsos negativos y aumentan los falsos positivos",
+      "met": true,
+      "points": 0.4,
+      "points_awarded": 0.4,
+      "evidence": "Así se escapan menos pedidos tarde, aunque habrá más alarmas falsas."
+    },
+    {
+      "criterion": "Justifica la decisión con la diferencia de costos",
+      "met": false,
+      "points": 0.2,
+      "points_awarded": 0.0,
+      "evidence": "No menciona que el falso negativo cuesta más."
+    }
+  ],
+  "feedback": "Bien identificado el efecto del umbral sobre los dos errores. Te falta conectar la decisión con la diferencia de costos del caso: ¿por qué conviene aceptar más falsas alarmas aquí?",
+  "meta": {
+    "prompt_id": "short_answer_grading",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "7968245e83f15317ab8c04a5d3226b2fa08ad29a4aa4d9104317b940f6788fcb",
+    "from_cache": false
+  }
+}

@@ -16,6 +16,7 @@ from app.domain.contracts.assessment import (
     RUBRIC_MAX_CRITERIA,
     RUBRIC_MIN_CRITERIA,
     RUBRIC_POINTS_TOLERANCE,
+    AssessmentItemLLM,
     AssessmentItemsLLM,
     ItemReviewLLM,
     RubricCriterion,
@@ -185,23 +186,44 @@ def check_diagnostic_coverage(items: AssessmentItemsLLM, topic_ids: Sequence[str
 
 
 def check_final_coverage(
-    items: AssessmentItemsLLM, path_topic_ids: Sequence[str], short_answers: int
+    items: AssessmentItemsLLM,
+    path_topic_ids: Sequence[str],
+    *,
+    short_answers: int,
+    versions: int,
 ) -> list[str]:
-    """Final bank: 2 multiple-choice items per path topic, n short answers, groups set."""
+    """Final bank: per path topic at least 2 multiple-choice groups, ``short_answers``
+    short-answer groups, and each ``equivalence_group`` with exactly ``versions`` parallel
+    items (same topic, outcome, type, Bloom level and difficulty)."""
     issues: list[str] = []
     path = set(path_topic_ids)
+    groups: dict[str, list[AssessmentItemLLM]] = {}
     for item in items.items:
         if item.topic_id not in path:
             issues.append(f"{item.id}: topic '{item.topic_id}' is not in the learning path")
         if not item.equivalence_group.strip():
             issues.append(f"{item.id}: final items need equivalence_group")
+            continue
+        groups.setdefault(item.equivalence_group, []).append(item)
+    for group, members in groups.items():
+        if len(members) != versions:
+            issues.append(f"{group}: {len(members)} versions (expected {versions})")
+        signatures = {
+            (m.topic_id, m.outcome_id, m.item_type, m.bloom_level, m.difficulty) for m in members
+        }
+        if len(signatures) > 1:
+            issues.append(f"{group}: parallel versions differ in topic, outcome, type or level")
     for topic_id in path_topic_ids:
-        n = sum(
-            1 for i in items.items if i.topic_id == topic_id and i.item_type == "multiple_choice"
+        n = len(
+            {
+                g
+                for g, members in groups.items()
+                if members[0].topic_id == topic_id and members[0].item_type == "multiple_choice"
+            }
         )
         if n < FINAL_MC_PER_TOPIC:
             issues.append(f"{topic_id}: {n} multiple-choice items (expected at least 2)")
-    n_short = sum(1 for i in items.items if i.item_type == "short_answer")
+    n_short = len({g for g, m in groups.items() if m[0].item_type == "short_answer"})
     if n_short < short_answers:
         issues.append(f"{n_short} short-answer items (expected {short_answers})")
     return issues
