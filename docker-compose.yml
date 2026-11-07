@@ -254,14 +254,23 @@ services:
       keycloak:
         condition: service_healthy
     environment:
-      APP_DATA_SOURCE: ${APP_DATA_SOURCE:-sample}
+      # api = API real con login de Keycloak; fixtures = JSON fijos sin login (se rechaza con APP_ENV=production).
+      APP_DATA_SOURCE: ${APP_DATA_SOURCE:-api}
+      APP_ENV: ${APP_ENV:-local}
       APP_TIMEZONE: ${APP_TIMEZONE:-America/Bogota}
       TZ: ${TZ:-America/Bogota}
-      # Login OIDC con st.login (cliente confidencial smartmentor-ui; Fase 7).
-      APP_COOKIE_SECRET: ${APP_COOKIE_SECRET:?Define APP_COOKIE_SECRET en .env (ver .env.example)}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost:${APP_PORT:-8501}}
+      APP_CONTEXT_PROFILE: ${APP_CONTEXT_PROFILE:-generic}
+      ORGANIZATION_NAME: ${ORGANIZATION_NAME:-}
+      PILOT_WINDOW_TEXT: ${PILOT_WINDOW_TEXT:-}
+      # La API por la red interna (puerto del contenedor, no el publicado en el anfitrión).
+      API_BASE_URL: ${API_BASE_URL:-http://api:8000}
+      # Login OIDC con st.login (cliente confidencial smartmentor-ui). Solo se exigen con APP_DATA_SOURCE=api:
+      # el compose no puede condicionarlo, así que van con :- y la app falla nombrando la variable que falte.
+      OIDC_SERVER_METADATA_URL: ${OIDC_SERVER_METADATA_URL:-http://keycloak:8080/realms/smartmentor/.well-known/openid-configuration}
       OIDC_UI_CLIENT_ID: ${OIDC_UI_CLIENT_ID:-smartmentor-ui}
-      OIDC_UI_CLIENT_SECRET: ${OIDC_UI_CLIENT_SECRET:?Define OIDC_UI_CLIENT_SECRET en .env (ver .env.example)}
-      OIDC_ISSUER_URL: ${OIDC_ISSUER_URL:?Define OIDC_ISSUER_URL en .env (ver .env.example)}
+      OIDC_UI_CLIENT_SECRET: ${OIDC_UI_CLIENT_SECRET:-}
+      APP_COOKIE_SECRET: ${APP_COOKIE_SECRET:-}
     ports:
       - "${APP_PORT:-8501}:8501"
     healthcheck:

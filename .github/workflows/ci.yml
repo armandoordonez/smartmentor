@@ -105,7 +105,7 @@ jobs:
       run:
         working-directory: app
     env:
-      APP_DATA_SOURCE: sample
+      APP_DATA_SOURCE: fixtures
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: astral-sh/setup-uv@v10.3.3

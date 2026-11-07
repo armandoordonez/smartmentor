@@ -61,6 +61,14 @@ Commits: `fc1b43d` (realm), el del compose y scripts, y los posteriores de la ra
 - Compose: ambas variables pasan a `postgres` con `:-` (NO obligatorias: sin contraseña el bootstrap no crea el rol).
 - `gen-secrets.sh` genera `METRICS_DATABASE_PASSWORD` si está vacía (el dueño puede dejarla vacía borrando la línea tras ejecutarlo si no usa métricas, o no ejecutar el paso).
 
+## Adenda: interfaz v3 (pedido de app-core, commit 7468148)
+
+- CI, trabajo `app`: `APP_DATA_SOURCE: fixtures`.
+- Compose `app`: `APP_DATA_SOURCE` por defecto `api`, `APP_ENV`, `APP_PUBLIC_URL`, `APP_CONTEXT_PROFILE`, `ORGANIZATION_NAME`, `PILOT_WINDOW_TEXT`, `API_BASE_URL`, `OIDC_SERVER_METADATA_URL`, `OIDC_UI_CLIENT_ID/SECRET` y `APP_COOKIE_SECRET`, con los nombres de `app/src/core/config.py` de esa rama.
+- Los secretos de la app van con `:-` (Compose no permite condicionar `:?` a otra variable): la app falla nombrando la variable. `OIDC_UI_CLIENT_SECRET` sigue siendo obligatorio en el servicio `keycloak`.
+- Desviación: `API_BASE_URL` por defecto `http://api:8000`, no `:8020` (8020 es el puerto publicado en el anfitrión; dentro de la red la API escucha en 8000). `app/README.md` de esa rama dice 8020 y debe corregirse.
+- `APP_CONTEXT_PROFILE` y `ORGANIZATION_NAME` salieron de la lista de variables futuras; `.env.example` deja `ORGANIZATION_NAME` y `APP_CONTEXT_PROFILE` donde estaban.
+
 ## Impacto en el brief
 
 - **Seguridad / identidad**: el brief debe decir que el autorregistro exige correo verificado, que hay OTP obligatorio para instructor y administrador y protección de fuerza bruta.
