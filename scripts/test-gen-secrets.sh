@@ -20,7 +20,7 @@ grep -q '^API_DATABASE_PASSWORD=$' "$WORK/.env" || fail "--dry-run escribió un 
 
 "$ROOT_DIR/scripts/gen-secrets.sh" --env-file "$WORK/.env" > "$WORK/salida.txt"
 grep -q '^POSTGRES_PASSWORD=valor-existente-no-se-toca$' "$WORK/.env" || fail "pisó un valor existente"
-for pair in OWNER_DATABASE_PASSWORD:32 API_DATABASE_PASSWORD:32 AI_DATABASE_PASSWORD:32 KEYCLOAK_DB_PASSWORD:32 KEYCLOAK_ADMIN_PASSWORD:24 \
+for pair in OWNER_DATABASE_PASSWORD:32 API_DATABASE_PASSWORD:32 AI_DATABASE_PASSWORD:32 METRICS_DATABASE_PASSWORD:32 KEYCLOAK_DB_PASSWORD:32 KEYCLOAK_ADMIN_PASSWORD:24 \
             APP_COOKIE_SECRET:48 OIDC_UI_CLIENT_SECRET:40 AI_CLIENT_SECRET:40; do
   name="${pair%%:*}"; length="${pair##*:}"
   value="$(grep -E "^$name=" "$WORK/.env" | cut -d= -f2-)"

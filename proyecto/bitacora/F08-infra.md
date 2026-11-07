@@ -55,6 +55,12 @@ Commits: `fc1b43d` (realm), el del compose y scripts, y los posteriores de la ra
 - markdownlint: 44 archivos, 0 errores; lychee: 275 enlaces correctos, 0 errores; actionlint: sin hallazgos; ShellCheck (-S warning): sin hallazgos; gitleaks sobre archivos actuales: limpio.
 - Auditoría de dependencias (informativa, hoy): `api` — dnspython 2.8.0 (GHSA-45c3-73f7-pv4m, corrige 2.9.0); `app` — pillow 12.3.0 con 6 avisos o más (corrige 13.0.0); `ai` — ninguno.
 
+## Adenda: usuario de métricas (pedido de database, commit 0745800)
+
+- `.env.example`: `METRICS_DATABASE_USER=smartmentor_metrics` (fijo, lo usa el changeset), `METRICS_DATABASE_PASSWORD` vacía y `METRICS_DATABASE_URL` (la lee el notebook; va en la lista de variables futuras de `check-env-coherence.py`).
+- Compose: ambas variables pasan a `postgres` con `:-` (NO obligatorias: sin contraseña el bootstrap no crea el rol).
+- `gen-secrets.sh` genera `METRICS_DATABASE_PASSWORD` si está vacía (el dueño puede dejarla vacía borrando la línea tras ejecutarlo si no usa métricas, o no ejecutar el paso).
+
 ## Impacto en el brief
 
 - **Seguridad / identidad**: el brief debe decir que el autorregistro exige correo verificado, que hay OTP obligatorio para instructor y administrador y protección de fuerza bruta.

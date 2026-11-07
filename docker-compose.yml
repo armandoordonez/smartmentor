@@ -81,6 +81,9 @@ services:
       API_DATABASE_PASSWORD: ${API_DATABASE_PASSWORD:?Define API_DATABASE_PASSWORD en .env (ver .env.example)}
       AI_DATABASE_USER: ${AI_DATABASE_USER:?Define AI_DATABASE_USER en .env (ver .env.example)}
       AI_DATABASE_PASSWORD: ${AI_DATABASE_PASSWORD:?Define AI_DATABASE_PASSWORD en .env (ver .env.example)}
+      # Usuario de solo lectura del notebook de métricas: opcional; el bootstrap no crea el rol sin contraseña.
+      METRICS_DATABASE_USER: ${METRICS_DATABASE_USER:-smartmentor_metrics}
+      METRICS_DATABASE_PASSWORD: ${METRICS_DATABASE_PASSWORD:-}
     command: ["postgres", "-c", "timezone=America/Bogota", "-c", "log_timezone=America/Bogota"]
     ports:
       - "${POSTGRES_PORT:-5442}:5432"
