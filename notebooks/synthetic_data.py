@@ -104,7 +104,7 @@ def _cohort(
             if skipped:
                 row.update(inclusion_reason="skipped_mastered", status="skipped")
             elif abandoned_at is not None and position >= abandoned_at:
-                row.update(status="abandoned")
+                row.update(status="pending")
             else:
                 p_pass = 1.0 / (1.0 + np.exp(-(3.0 * (level - 0.5) + 0.6 * ability + 0.5)))
                 attempts = 0
@@ -123,7 +123,7 @@ def _cohort(
                     first_attempt_passed=first_passed,
                     passed=passed,
                     best_score=best,
-                    status="approved" if passed else "exhausted",
+                    status="passed" if passed else "attempts_exhausted",
                 )
                 completed_steps += int(passed)
             steps.append(row)
@@ -251,7 +251,7 @@ def _llm_calls(rng: np.random.Generator, n_calls: int, n_enrollments: int) -> pd
             "enrollment_id": rng.integers(1, n_enrollments + 1, n_calls),
             "json_valid": rng.random(n_calls) > 0.012,
             "from_cache": rng.random(n_calls) < 0.08,
-            "status": np.where(rng.random(n_calls) > 0.01, "succeeded", "invalid_output"),
+            "status": np.where(rng.random(n_calls) > 0.01, "success", "invalid_output"),
             "cost_usd": np.round(rng.gamma(2.0, 0.0009, n_calls), 6),
             "latency_ms": np.round(latency_ms, 1),
         }

@@ -28,8 +28,8 @@ Dos ejecuciones seguidas producen salidas idénticas (semilla fija).
 
 ## Cohorte real
 
-1. Pida al administrador de la base un usuario **de solo lectura** (por ejemplo, un rol con `SELECT`
-   sobre las tablas de `metrics_data.py`).
+1. Use el usuario **de solo lectura** `smartmentor_metrics` (ADR 0019; lo crea el bootstrap con
+   `METRICS_DATABASE_USER` y `METRICS_DATABASE_PASSWORD`, y su `SELECT` lo da el changeset `v2.0.0-049`).
 2. Exporte la URL en el entorno de su terminal, nunca en el cuaderno ni en un archivo versionado:
    `export METRICS_DATABASE_URL='postgresql+psycopg://<usuario>:<clave>@<host>:<puerto>/<base>'`.
 3. Ejecute el cuaderno como arriba, pasando `-e METRICS_DATABASE_URL` al contenedor (o

@@ -24,11 +24,14 @@ Rama `feature/evaluation-pilot`, creada desde `origin/dev` (commit `8bb1828`).
 
 ## Desviaciones frente al plan o al brief
 
-- El esquema `v2.0.0` aún no existe en `dev` (solo `v1.0.0` y `v1.0.1`). Los nombres de columna son los de
-  la sección 5.2.1 del plan. Las consultas de `metrics_data.py` **no se probaron contra una base**: se
-  marcan `SUPUESTO` donde el plan no fija el nombre (`assessment_attempts.assessment_type`,
-  `path_steps.first_attempt_passed`, `video_candidates.rank`, `ai_jobs.enrollment_id`, `topic_prerequisites.prerequisite_topic_id`,
-  claves de `likert`, forma de `level_by_topic`). Hay que validarlas cuando exista el changelog.
+- Primera entrega con nombres del plan 5.2.1 sin probar; **corregida tras la rama `feature/database-v2-rebase`**
+  (commit 0745800): `path_steps.first_attempt_passed` no existe (el primer intento sale de
+  `assessment_attempts`, `attempt_number = 1`), la columna es `step_order` y el estado aprobado `passed`; los
+  estados reales de un paso son `skipped`, `blocked`, `pending`, `in_progress`, `passed`,
+  `attempts_exhausted` y `on_hold` (no existe `abandoned`: el abandono se toma de
+  `enrollments.status = 'abandoned'`); `llm_call_logs.status` usa `success` (no `succeeded`).
+  `diagnostics.level_by_topic` y `survey_responses.likert` son `jsonb` libres: quedan `SUPUESTO`
+  con validación defensiva (`UnexpectedShapeError`).
 - **Tiempo en tarea** (`interaction_events`) no se calcula: el plan no define los tipos de evento que lo
   permiten. RAGAS completo queda apagado (`SHOW_RAGAS`) porque exige LLM y red.
 - Brief: «dificultad y discriminación con correlación punto-biserial»; se usa la versión **corregida**
@@ -72,6 +75,7 @@ Rama `feature/evaluation-pilot`, creada desde `origin/dev` (commit `8bb1828`).
 | `pytest ai/tests/unit/test_metrics.py` | 56 pasadas en 0,15 s |
 | `ruff check` sobre `notebooks/*.py` | Sin avisos |
 | Cuaderno con `nbconvert --execute` (python:3.12-slim, desechable, versiones de `requirements.txt`) | 0 errores; 14 gráficos; 29 métricas |
+| Consultas contra el esquema real (PostgreSQL pgvector 0.8.7-pg17 desechable, Liquibase del repo con los 51 changesets de `v2.0.0`, datos mínimos) | Las 11 consultas corren como `smartmentor_metrics` (solo lectura) y devuelven las filas esperadas (primer intento de `path_steps` verificado: paso aprobado con primer intento fallido); con `level_by_topic` como arreglo falla con `UnexpectedShapeError`; `SELECT users` y `UPDATE enrollments` son rechazados |
 | Reproducibilidad | Dos ejecuciones seguidas con salidas idénticas (mismo hash de todas las salidas, imágenes incluidas) |
 | Secretos en el cuaderno | 0 coincidencias de `postgres://`, `password`, `secret`, `api_key` |
 | Líneas | `metrics.py` 484, `test_metrics.py` 288, `synthetic_data.py` 287 |
@@ -91,9 +95,9 @@ g = 0,373, d = 0,06 con IC 95 % [-0,73, 1,18].
 
 ## Cambios pedidos a archivos compartidos
 
+- Hecho por `database`: rol `smartmentor_metrics` y changeset `v2.0.0-049`. Falta que `infra` agregue
+  `METRICS_DATABASE_USER` y `METRICS_DATABASE_PASSWORD` a `.env.example` y al servicio `postgres`.
 - `ai/pyproject.toml`: ninguno (solo biblioteca estándar). Para ejecutar el cuaderno en CI haría falta un
   trabajo aparte con `notebooks/requirements.txt` (modo sintético, sin base).
-- Rol de solo lectura para métricas: el changeset `0xx-db-roles-grants.xml` (D-05) debería crear un rol
-  `smartmentor_metrics` con `SELECT` sobre las tablas que lee `notebooks/metrics_data.py`.
 - Confirmar con el dueño de la API: `path_steps.first_attempt_passed` (o cómo derivarlo), el tipo de
   evento de `interaction_events` para tiempo en tarea y las claves de `survey_responses.likert`.

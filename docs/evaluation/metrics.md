@@ -6,15 +6,20 @@ ajustarlas con datos. El cálculo está en `ai/app/domain/metrics.py` (funciones
 biblioteca estándar, con pruebas contra valores a mano en `ai/tests/unit/test_metrics.py`) y se
 ejecuta de arriba abajo en `notebooks/metrics_cohort1.ipynb`.
 
-Los nombres de tabla y columna son los del esquema objetivo `v2.0.0` (plan V3, sección 5.2.1). Los
-puntos que el plan no fija del todo están marcados con `SUPUESTO` en `notebooks/metrics_data.py`
-y deben verificarse contra el changelog real antes de la corrida de la cohorte 1.
+Los nombres de tabla y columna son los del esquema `v2.0.0` y las consultas de
+`notebooks/metrics_data.py` se probaron contra ese esquema (PostgreSQL desechable con datos mínimos). Dos
+columnas son `jsonb` libre cuya forma fija la API, no el esquema: `diagnostics.level_by_topic` (objeto con el
+id del tema como clave y `test_score` de 0 a 1 por tema) y `survey_responses.likert` (objeto con
+`satisfaction`, `usefulness` y `self_efficacy`, de 1 a 5). Están marcadas `SUPUESTO` y el cuaderno falla con un
+mensaje claro (`UnexpectedShapeError`) si la forma real es otra. El primer intento de un tema sale de
+`assessment_attempts` (`assessment_type = 'topic'`, `attempt_number = 1`, `passed`), porque `path_steps` no
+guarda ese dato; el estado aprobado de un paso es `passed`.
 
 ## Cómo se ejecuta
 
 | Modo | Condición | Resultado |
 | --- | --- | --- |
-| Cohorte real | `METRICS_DATABASE_URL` en el entorno, con un usuario de **solo lectura** | Métricas con el n real; el cuaderno solo imprime agregados |
+| Cohorte real | `METRICS_DATABASE_URL` en el entorno, con el usuario de **solo lectura** `smartmentor_metrics` (`METRICS_DATABASE_USER` y `METRICS_DATABASE_PASSWORD` del `.env`) | Métricas con el n real; el cuaderno solo imprime agregados |
 | Demostración | Sin `METRICS_DATABASE_URL` | Datos sintéticos con semilla (`notebooks/synthetic_data.py`); **no son resultados del piloto** |
 
 Instrucciones y comandos: `notebooks/README.md`.
@@ -145,11 +150,11 @@ Instrucciones y comandos: `notebooks/README.md`.
 
 | Métrica | Cálculo | Tabla | Meta |
 | --- | --- | --- | --- |
-| Aprobación al primer intento | % de pasos con intentos cuyo primer intento aprobó | `path_steps`; vista `v_path_step_metrics` | Entre 60 % y 85 % |
+| Aprobación al primer intento | % de pasos con intentos cuyo primer intento aprobó | `assessment_attempts` (intento 1 del quiz del tema) unida a `path_steps`; vista `v_path_step_metrics` | Entre 60 % y 85 % |
 | Intentos por tema | Media de `attempts_used` en los pasos aprobados | `path_steps` | ≤ 1,8 |
 | Dominio por tema | % de pasos con mejor nota ≥ 70 | `path_steps.best_score` | Reportar por tema |
 | Finalización y certificación | % de inscripciones con `status = 'completed'` y % con insignia | `enrollments`, `badges` | Finalización ≥ 60 % |
-| Abandono | Pasos con estado `abandoned` por tema | `path_steps` | Identificar temas críticos |
+| Abandono | Primer tema sin terminar (`pending`, `in_progress`, `blocked`, `on_hold`) de cada inscripción con `status = 'abandoned'` | `path_steps` | Identificar temas críticos |
 | Percepción | Media de cada escala Likert (1 a 5) | `survey_responses.likert` | Media ≥ 4 |
 | Tiempo en tarea | Minutos por tema y por ruta | `interaction_events` | Reportar. **Pendiente en el cuaderno**: depende del contrato de eventos de la interfaz |
 | Retención (opcional) | Nota del post-test diferido (2 a 4 semanas) | `assessment_attempts` (`retention`) | Reportar. Solo si hay segunda medición |
