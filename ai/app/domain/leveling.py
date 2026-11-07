@@ -83,7 +83,7 @@ def normalized_priors(similarities: Sequence[float]) -> list[float]:
     spread = high - low
     if spread <= SPREAD_EPSILON:
         return [0.0 for _ in similarities]
-    return [100 * (s - low) / spread for s in similarities]
+    return [min(100.0, max(0.0, 100 * (s - low) / spread)) for s in similarities]
 
 
 def applied_weights(
