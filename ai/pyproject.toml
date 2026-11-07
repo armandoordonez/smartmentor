@@ -5,6 +5,14 @@ description = "Servicio de IA de SmartMentor: contratos, prompts, generación y 
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "pyjwt[crypto]>=2.9",
+    "pyyaml>=6.0",
+    "google-genai>=1.0",
 ]
 
 [dependency-groups]
@@ -12,8 +20,10 @@ dev = [
     "ruff>=0.8",
     "mypy>=1.13",
     "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "hypothesis>=6.100",
+    "httpx>=0.28",
     "jsonschema>=4.23",
-    "pyyaml>=6.0",
     "types-jsonschema>=4.23",
     "types-pyyaml>=6.0",
 ]
@@ -22,22 +32,20 @@ dev = [
 [tool.uv]
 package = false
 
-# Ruff local con las reglas de la sección 14.2 del plan. Cuando exista el ruff.toml común de la
-# raíz (rama feature/repo-standards), esta sección se reemplaza por: extend = "../ruff.toml".
 [tool.ruff]
-line-length = 100
-target-version = "py312"
+extend = "../ruff.toml"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC", "S", "DTZ", "C4", "PT", "RUF", "ARG", "T20"]
+# Las reglas comunes están en ../ruff.toml; aquí solo van las excepciones justificadas.
 
 [tool.ruff.lint.per-file-ignores]
-# assert es la forma idiomática de pytest.
-"tests/**" = ["S101"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+# Pruebas: `assert` es la forma de afirmar en pytest (S101); las fixtures se piden por su efecto
+# o para sobrescribir una firma sin usar el valor (ARG001/ARG002); los valores de prueba son
+# desechables y obvios, no secretos (S105/S106).
+"tests/**" = ["S101", "ARG001", "ARG002", "S105", "S106"]
+# Adaptadores PostgreSQL: las consultas interpolan solo constantes del módulo (lista de columnas y
+# condiciones fijas); todo valor externo va como parámetro enlazado de SQLAlchemy.
+"app/adapters/postgres/**" = ["S608"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -53,3 +61,9 @@ warn_required_dynamic_aliases = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore::SyntaxWarning"]  # docstrings del SDK google-genai
+markers = [
+    "integration: pruebas contra PostgreSQL (requieren AI_TEST_DATABASE_URL; se omiten sin ella)",
+]
