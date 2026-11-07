@@ -42,7 +42,7 @@ extend = "../ruff.toml"
 # Pruebas: `assert` es la forma de afirmar en pytest (S101); las fixtures se piden por su efecto
 # o para sobrescribir una firma sin usar el valor (ARG001/ARG002); los valores de prueba son
 # desechables y obvios, no secretos (S105/S106).
-"tests/**" = ["S101", "ARG001", "ARG002", "S105", "S106"]
+"tests/**" = ["S101", "ARG001", "ARG002", "S105", "S106", "PT018", "RUF001", "E501"]
 # Adaptadores PostgreSQL: las consultas interpolan solo constantes del módulo (lista de columnas y
 # condiciones fijas); todo valor externo va como parámetro enlazado de SQLAlchemy.
 "app/adapters/postgres/**" = ["S608"]
@@ -51,7 +51,7 @@ extend = "../ruff.toml"
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["app", "scripts", "tests"]
+files = ["app", "scripts", "tests", "eval"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true

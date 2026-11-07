@@ -1,0 +1,14 @@
+# Fuentes de ejemplo del arnés de evaluación (texto propio del proyecto, sin derechos de terceros).
+# Las fuentes reales y su licencia las entrega el validador del curso (DEF-08).
+- file: datos.md
+  title: Apuntes de ejemplo — preparación de datos
+  url: https://example.org/apuntes/datos
+  license: CC0 (texto de ejemplo del proyecto)
+- file: regresion_lineal.md
+  title: Apuntes de ejemplo — regresión lineal
+  url: https://example.org/apuntes/regresion-lineal
+  license: CC0 (texto de ejemplo del proyecto)
+- file: regresion_logistica.md
+  title: Apuntes de ejemplo — regresión logística
+  url: https://example.org/apuntes/regresion-logistica
+  license: CC0 (texto de ejemplo del proyecto)

@@ -339,7 +339,7 @@ async def test_path_sequence_errors(client: httpx.AsyncClient) -> None:
     )
     assert cycle.json()["code"] == "VALIDATION_ERROR"
     assert cycle.json()["cycle"]
-    unknown = await client.post("/v1/tasks/video.rank", json={})
+    unknown = await client.post("/v1/tasks/no.such.task", json={})
     assert (unknown.status_code, unknown.json()["code"]) == (404, "UNKNOWN_TASK")
 
 
