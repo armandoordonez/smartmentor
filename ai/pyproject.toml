@@ -63,6 +63,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+filterwarnings = ["ignore::SyntaxWarning"]  # docstrings del SDK google-genai
 markers = [
     "integration: pruebas contra PostgreSQL (requieren AI_TEST_DATABASE_URL; se omiten sin ella)",
 ]
