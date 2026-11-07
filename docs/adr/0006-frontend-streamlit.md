@@ -1,6 +1,6 @@
 # ADR 0006: Interfaz de usuario con Streamlit
 
-* **Estado:** Aceptado
+* **Estado:** Aceptado; complementado por [ADR 0017](0017-frontend-rebuilt-from-figma-v3.md) el 2026-11-07 (interfaz rehecha desde Figma v3 y directorio de estilos)
 * **Fecha:** 2026-10-07
 * **Autor:** eduar.troyano
 * **Fuente:** [`proyecto/brief.md`](../../proyecto/brief.md), secciones "Arquitectura técnica y stack sugerido" («Streamlit para la interfaz (se construye en días)») y "Fase 0: prototipado"
