@@ -202,7 +202,7 @@ El brief propone dos caminos: **Streamlit** (recomendado para el MVP) o **Next.j
 
 - [x] Decidir el frontend: **Streamlit** — **Resp.:** eduar.troyano — [ADR 0006](../docs/adr/0006-frontend-streamlit.md); comparación a continuación
 - [x] Arquitectura de la interfaz definida (capas, autenticación, caché, datos de ejemplo) y guía de referencia analizada — **Resp.:** eduar.troyano — [`app/README.md`](../app/README.md)
-- [ ] Prueba técnica del login de Streamlit con Keycloak (1 día) — **Resp.:** _por asignar_ (Responsable de producto) — [plan](../app/README.md#1-prueba-técnica-del-login-1-día)
+- [ ] Prueba técnica del login de Streamlit con Keycloak (1 día) — **Resp.:** _por asignar_ (Responsable de producto) — [plan](../app/README.md#autenticación)
 - [ ] Base de la interfaz: contenedor, cliente de la API y de datos de ejemplo, navegación por rol, errores y pruebas — **Resp.:** _por asignar_ (Responsable de producto)
 
 ### Comparación
