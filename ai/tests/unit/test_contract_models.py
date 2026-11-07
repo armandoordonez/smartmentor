@@ -53,7 +53,7 @@ def test_syllabus_rejects_cycles_unknown_prerequisites_and_bad_bloom() -> None:
 
 def test_syllabus_is_strict_about_unknown_fields() -> None:
     data = _example("syllabus")
-    data["approved_by_teacher"] = True
+    data["approved_by_instructor"] = True
     _rejects("syllabus", data, "Extra inputs are not permitted")
 
 

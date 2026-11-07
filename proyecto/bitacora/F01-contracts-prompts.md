@@ -11,6 +11,14 @@ Fuentes: `PLAN_IMPLEMENTACION_V3.md` (secciones 3, 5.3, 5.4, 13, 15, 18.2, Anexo
 | 2 | 13 prompts `prompts/<id>/v1.md`, `prompts/catalog.yaml` con `sha256` por versión, `prompts/README.md`, 16 ejemplos por contrato y 13 por prompt (`prompts/examples/`), pruebas de contrato (`ai/tests/contract/`) y unitarias (`ai/tests/unit/`), `ai/README.md` | `50ac51c` |
 | 3 | `docs/contracts/ai-service-v1.md`, `docs/contracts/api-v2.md`, `docs/contracts/error-codes.md` y esta bitácora | `98701e4` |
 
+### Ajuste por el aviso del dueño (2026-11-07): Figma v3 es la única fuente de verdad
+
+Revisión de rastros de v2 en todo lo entregado (`ai/`, `prompts/`, `docs/contracts/`):
+
+- Vocabulario: búsqueda de `student`, `teacher`, «estudiante», «docente». Solo quedaban dos rastros y se corrigieron: el `source` del front matter de `prompts/simulated_learner/v1.md` (nombraba el id antiguo `simulated_student`; nuevo `sha256` registrado en `catalog.yaml`, sigue siendo la versión 1 porque no se ha integrado a `dev`) y un campo de prueba `approved_by_teacher` en `ai/tests/unit/test_contract_models.py` (ahora `approved_by_instructor`). Las únicas apariciones restantes son la regla que los prohíbe (README y la prueba de vocabulario).
+- Pantallas: todos los códigos usados (`catalog.yaml`, `docs/contracts/*.md`, `prompts/README.md`) se cotejaron con `design/03-prototipo-alta-fidelidad/v3/pantallas.md`: todos existen en v3 (U1x es el grupo U1a a U1d). No se usó ninguna pantalla de v2 ni de `app/src/pages`.
+- El notebook v2 del Mago de Oz se mantiene solo como origen de prompts y esquemas (campo `source` y `$comment`), como autoriza el aviso. `openbadges/v2` es la versión del estándar Open Badges, no del prototipo.
+
 ## Desviaciones frente al plan o al brief
 
 | # | Plan o brief | Lo que se hizo | Motivo |

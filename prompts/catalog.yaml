@@ -70,7 +70,7 @@ prompts:
     contract: simulated_answers.v1.json
     screens: []
     versions:
-      1: 01c538081420bd29281997374f14e5ec2e5afb27bc548932872529338dd80876
+      1: 8fc4471c629d1bbcc9994dfde3625f0f2a35a608077ceb7566270148add1358c
 
   - id: learning_objective
     current_version: 1
