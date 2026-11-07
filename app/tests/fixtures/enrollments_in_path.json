@@ -1,0 +1,38 @@
+{
+  "items": [
+    {
+      "id": 7,
+      "learning_path": {
+        "id": 1,
+        "name": "Fundamentos de Machine Learning",
+        "group_label": "Piloto 2026-2"
+      },
+      "status": "in_path",
+      "objective": {
+        "statement": "Construir y evaluar un modelo de regresión logística con al menos 80 % en la evaluación final",
+        "bloom_verb": "Construir y evaluar",
+        "content": "un modelo de regresión logística",
+        "criterion": "con al menos 80 % en la evaluación final",
+        "origin": "llm_proposed"
+      },
+      "progress": {
+        "steps_total": 3,
+        "steps_done": 1,
+        "percent": 33
+      },
+      "pilot_arm": "personalized",
+      "next_action": {
+        "type": "study_topic",
+        "step_id": 812,
+        "attempt_id": null,
+        "job_id": null,
+        "screen": "E6"
+      },
+      "created_at": "2026-11-07T14:05:00Z",
+      "completed_at": null
+    }
+  ],
+  "total": 1,
+  "limit": 20,
+  "offset": 0
+}

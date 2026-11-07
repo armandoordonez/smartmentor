@@ -1,0 +1,7 @@
+/* Tarjetas de indicadores (E11, D3, AD2, AD3). */
+[class*="st-key-kpi-"] {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-14);
+}

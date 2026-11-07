@@ -1,0 +1,25 @@
+{
+  "id": 8,
+  "learning_path": {
+    "id": 1,
+    "name": "Fundamentos de Machine Learning",
+    "group_label": "Piloto 2026-2"
+  },
+  "status": "profiling",
+  "objective": null,
+  "progress": {
+    "steps_total": 0,
+    "steps_done": 0,
+    "percent": 0
+  },
+  "pilot_arm": "personalized",
+  "next_action": {
+    "type": "complete_profile",
+    "step_id": null,
+    "attempt_id": null,
+    "job_id": null,
+    "screen": "E2"
+  },
+  "created_at": "2026-11-07T14:05:00Z",
+  "completed_at": null
+}

@@ -1,5 +1,6 @@
-# Configuración de Streamlit. Los colores, la tipografía y los radios son los tokens del diseño
-# de Figma (ver app/CLAUDE.md, sección 2). No se usa CSS: todo el aspecto sale de este archivo.
+# Configuración de Streamlit. Los colores son los de src/static/styles/tokens.css (único lugar con
+# hexadecimales de la interfaz); tests/unit/test_styles.py verifica que coinciden. Para cambiar un
+# color: editar tokens.css y, si aparece aquí, este archivo (ver app/CLAUDE.md, sección 7).
 
 [server]
 # Sirve src/static/ (la fuente Inter) en app/static/.
@@ -14,12 +15,16 @@ toolbarMode = "viewer"
 
 [theme]
 base = "light"
-primaryColor = "#0073E5"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F5F5F7"
-textColor = "#1A1A1F"
-borderColor = "#E0E3EB"
-linkColor = "#0073E5"
+# Un solo primaryColor para toda la app (azul del Aprendiz); roles.css pinta el botón principal
+# del Instructor (verde) y del Administrador (violeta).
+primaryColor = "#1D5FD1"           # --learner-accent
+# Fondo gris de la página y superficie blanca para campos y tarjetas (fondo/pagina y fondo/superficie).
+backgroundColor = "#F5F6F8"        # --bg-page
+secondaryBackgroundColor = "#FFFFFF" # --bg-surface
+textColor = "#15181E"              # --text-primary
+# PROPUESTA: borde/default (1,25:1) y borde/fuerte (1,59:1) no llegan a 3:1 (WCAG 1.4.11).
+borderColor = "#838B9B"            # --border-field
+linkColor = "#174EA6"              # --learner-text
 linkUnderline = false
 showWidgetBorder = true
 
@@ -35,27 +40,30 @@ baseRadius = "10px"
 buttonRadius = "full"
 
 # Paleta de badges y avisos (componente Badge de Figma: Verde, Azul, Ámbar, Gris, Violeta).
-greenColor = "#1A8C4D"
-greenBackgroundColor = "#E0F5E5"
-greenTextColor = "#1A8C4D"
-blueColor = "#0073E5"
-blueBackgroundColor = "#E8F0FC"
-blueTextColor = "#0073E5"
-orangeColor = "#CC730D"
-orangeBackgroundColor = "#FFF2DB"
-orangeTextColor = "#CC730D"
-yellowColor = "#CC730D"
-yellowBackgroundColor = "#FFF2DB"
-yellowTextColor = "#CC730D"
-grayColor = "#6B7080"
-grayBackgroundColor = "#EDEDF2"
-grayTextColor = "#6B7080"
-violetColor = "#734DD9"
-violetBackgroundColor = "#F0E8FC"
-violetTextColor = "#734DD9"
-redColor = "#CC3333"
+# El texto usa la variable «texto» de cada grupo, que cumple 4,5:1 sobre su fondo suave.
+greenColor = "#11774A"             # --instructor-accent
+greenBackgroundColor = "#E5F4EC"   # --instructor-soft
+greenTextColor = "#0D6640"         # --instructor-text
+blueColor = "#1D5FD1"              # --learner-accent
+blueBackgroundColor = "#E8F0FC"    # --learner-soft
+blueTextColor = "#174EA6"          # --learner-text
+orangeColor = "#8A5300"            # --warning-text (aviso/acento solo es decorativo)
+orangeBackgroundColor = "#FFF4DE"  # --warning-soft
+orangeTextColor = "#8A5300"        # --warning-text
+yellowColor = "#8A5300"            # --warning-text
+yellowBackgroundColor = "#FFF4DE"  # --warning-soft
+yellowTextColor = "#8A5300"        # --warning-text
+grayColor = "#4A5160"              # --text-secondary
+grayBackgroundColor = "#EEF0F3"    # --bg-neutral
+grayTextColor = "#4A5160"          # --text-secondary
+violetColor = "#5B3CC4"            # --admin-accent
+violetBackgroundColor = "#EEEAFB"  # --admin-soft
+violetTextColor = "#4B2FB0"        # --admin-text
+redColor = "#9B1C14"               # --error-text
+redBackgroundColor = "#FDECEA"     # --error-soft
+redTextColor = "#9B1C14"           # --error-text
 
-chartCategoricalColors = ["#0073E5", "#1A8C4D", "#734DD9", "#CC730D", "#6B7080"]
+chartCategoricalColors = ["#1D5FD1", "#11774A", "#5B3CC4", "#8A5300", "#4A5160"]
 
 [[theme.fontFaces]]
 family = "Inter"

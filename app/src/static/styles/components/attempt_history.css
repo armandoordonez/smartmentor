@@ -1,0 +1,7 @@
+/* Historial de intentos (E7c, E9c, D4b): el intento agotado va en tono de aviso, con texto. */
+[class*="st-key-attempt-exhausted-"] {
+  background: var(--warning-soft);
+  border-left: 4px solid var(--warning-accent);
+  border-radius: var(--radius-chip);
+  padding: var(--space-8) var(--space-12);
+}

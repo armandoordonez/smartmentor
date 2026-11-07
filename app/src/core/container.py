@@ -1,71 +1,37 @@
-"""Arma los servicios de la sesión sobre la fuente de datos configurada.
+"""Arma el cliente de datos según `APP_DATA_SOURCE` y lo entrega a servicios y páginas.
 
-Con `APP_DATA_SOURCE=sample`, cada sesión del navegador tiene su propia copia de los datos de
-ejemplo: lo que hace un usuario de prueba no se ve en otra sesión, pero sí al cambiar de rol en la
-misma (p. ej., el docente ve el avance que el estudiante acaba de hacer).
+- `fixtures`: un `FixturesClient` por sesión del navegador (vive en `AppSession`), sin login.
+- `api`: un `ApiClient` que lee el token en cada llamada (`core.auth.access_token`); la conexión
+  HTTP (`httpx.Client`) se comparte entre sesiones con `st.cache_resource` porque no guarda
+  ningún dato personal ni el token.
 """
 
-from dataclasses import dataclass
-
+import httpx
 import streamlit as st
 
+from clients.api import DEFAULT_TIMEOUT, ApiClient
 from clients.base import SmartMentorClient
-from clients.models import User
-from clients.sample_data import SampleDataClient
-from clients.sample_seed import SampleStore, build_seed
+from clients.fixtures import FixturesClient
+from core import auth
 from core.config import get_settings
 from core.session import get_session
-from services.admin import AdminService
-from services.assessment import AssessmentService
-from services.catalog import CatalogService
-from services.enrollment import EnrollmentService
-from services.learning_path import LearningPathService
-from services.teacher_dashboard import TeacherService
-
-_STORE_KEY = "sample_store"
 
 
-@dataclass(frozen=True)
-class Services:
-    catalog: CatalogService
-    enrollment: EnrollmentService
-    learning_path: LearningPathService
-    assessment: AssessmentService
-    teacher: TeacherService
-    admin: AdminService
+@st.cache_resource
+def _http_pool(base_url: str) -> httpx.Client:
+    return httpx.Client(base_url=base_url, timeout=DEFAULT_TIMEOUT)
 
 
-def _sample_store() -> SampleStore:
-    if _STORE_KEY not in st.session_state:
-        st.session_state[_STORE_KEY] = build_seed()
-    store: SampleStore = st.session_state[_STORE_KEY]
-    return store
-
-
-def reset_sample_data() -> None:
-    st.session_state.pop(_STORE_KEY, None)
-
-
-def _client() -> SmartMentorClient:
-    session = get_session()
-    if session.user_id is None:
-        raise RuntimeError("No hay usuario en la sesión")
-    match get_settings().app_data_source:
-        case "sample":
-            return SampleDataClient(_sample_store(), session.user_id)
-
-
-def get_services() -> Services:
-    client = _client()
-    return Services(
-        catalog=CatalogService(client),
-        enrollment=EnrollmentService(client),
-        learning_path=LearningPathService(client),
-        assessment=AssessmentService(client),
-        teacher=TeacherService(client),
-        admin=AdminService(client),
+def get_client() -> SmartMentorClient:
+    """Cliente de datos de la sesión actual."""
+    settings = get_settings()
+    if settings.app_data_source == "fixtures":
+        session = get_session()
+        if session.fixtures_client is None:
+            session.fixtures_client = FixturesClient(
+                session.scenario_key or "learner", directory=settings.app_fixtures_dir
+            )
+        return session.fixtures_client
+    return ApiClient(
+        settings.api_base_url, auth.access_token, http=_http_pool(settings.api_base_url)
     )
-
-
-def current_user() -> User:
-    return _client().me()

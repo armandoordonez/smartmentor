@@ -1,0 +1,8 @@
+{
+  "public_id": "0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12",
+  "enrollment_id": 7,
+  "learning_path_name": "Fundamentos de Machine Learning",
+  "issued_at": "2026-11-07T18:00:00Z",
+  "assertion_url": "/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/assertion.json",
+  "image_url": "/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/image.png"
+}

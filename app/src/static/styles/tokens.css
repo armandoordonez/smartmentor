@@ -1,0 +1,83 @@
+/*
+ * Tokens de diseño de SmartMentor. ÚNICO archivo con valores de color (hexadecimales).
+ *
+ * Origen: las 24 variables de Figma v3 (design/03-prototipo-alta-fidelidad/v3/variables.json),
+ * con el nombre de Figma en el comentario. No hay transformación automática: un valor nuevo se
+ * copia a mano aquí y, si Streamlit lo usa, a .streamlit/config.toml (una prueba verifica que
+ * coinciden). Fuera de este archivo solo se usa var(--nombre).
+ */
+:root {
+  /* Texto */
+  --text-primary: #15181e; /* texto/principal */
+  --text-secondary: #4a5160; /* texto/secundario */
+  --text-tertiary: #5f6776; /* texto/terciario */
+  --text-on-accent: #ffffff; /* texto/sobre-acento */
+
+  /* Fondos */
+  --bg-page: #f5f6f8; /* fondo/pagina */
+  --bg-surface: #ffffff; /* fondo/superficie */
+  --bg-subtle: #fafbfc; /* fondo/sutil */
+  --bg-neutral: #eef0f3; /* fondo/neutro */
+
+  /* Bordes */
+  --border-default: #e3e6eb; /* borde/default: tarjetas y barra (decorativo, 1,25:1) */
+  --border-strong: #c9cdd5; /* borde/fuerte (1,59:1, no llega a 3:1) */
+  /*
+   * PROPUESTA (no existe en Figma): borde de campos y de controles. Ni borde/default ni
+   * borde/fuerte llegan a 3:1 (WCAG 1.4.11); este valor sí, sobre la superficie y sobre la página.
+   * Es el que Streamlit toma como borderColor en .streamlit/config.toml.
+   */
+  --border-field: #838b9b;
+
+  /* Aprendiz */
+  --learner-accent: #1d5fd1; /* aprendiz/acento */
+  --learner-soft: #e8f0fc; /* aprendiz/suave */
+  --learner-text: #174ea6; /* aprendiz/texto */
+
+  /* Instructor */
+  --instructor-accent: #11774a; /* instructor/acento */
+  --instructor-soft: #e5f4ec; /* instructor/suave */
+  --instructor-text: #0d6640; /* instructor/texto */
+
+  /* Administrador */
+  --admin-accent: #5b3cc4; /* admin/acento */
+  --admin-soft: #eeeafb; /* admin/suave */
+  --admin-text: #4b2fb0; /* admin/texto */
+
+  /* Aviso. warning-accent solo es decorativo (2,77:1 sobre blanco): nunca como color de texto. */
+  --warning-accent: #d98a00; /* aviso/acento */
+  --warning-soft: #fff4de; /* aviso/suave */
+  --warning-text: #8a5300; /* aviso/texto */
+
+  /* Error */
+  --error-accent: #9b1c14; /* error/acento: sin valor en Figma; se define igual que error-text */
+  --error-soft: #fdecea; /* error/suave */
+  --error-text: #9b1c14; /* error/texto */
+
+  /* Tipografía (Inter): tamaños de v3/tokens.json */
+  --font-family: "Inter", sans-serif;
+  --font-size-page-title: 1.75rem; /* 28 px, Bold */
+  --font-size-card-title: 1.125rem; /* 18 px, Semibold */
+  --font-size-body: 0.8125rem; /* 13 px, Regular */
+  --font-size-label: 0.75rem; /* 12 px, Semibold */
+  --font-size-badge: 0.6875rem; /* 11 px, Semibold */
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Radios */
+  --radius-pill: 99px; /* botones y badges */
+  --radius-card: 14px; /* tarjetas (también 16 px) */
+  --radius-field: 10px; /* campos */
+  --radius-row: 12px; /* filas */
+  --radius-chip: 6px; /* chips */
+
+  /* Espaciado (múltiplos de 2, de v3/tokens.json) */
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+}

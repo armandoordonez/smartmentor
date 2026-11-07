@@ -1,10 +1,11 @@
 [project]
 name = "smartmentor-app"
 version = "0.1.0"
-description = "Interfaz de SmartMentor en Streamlit: estudiante, docente y administración"
+description = "Interfaz de SmartMentor en Streamlit: aprendiz, instructor y administración"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "streamlit>=1.50",
+    "streamlit>=1.65,<1.66",
+    "httpx>=0.28",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
 ]
@@ -14,6 +15,7 @@ dev = [
     "ruff>=0.8",
     "mypy>=1.13",
     "pytest>=8.3",
+    "respx>=0.22",
 ]
 
 # La interfaz no es un paquete instalable: solo se resuelven sus dependencias.
@@ -35,10 +37,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 # Pruebas: `assert` es la forma de afirmar en pytest (S101); las afirmaciones compuestas sobre
-# datos de ejemplo se leen mejor en una línea (PT018).
-"tests/**" = ["S101", "PT018"]
-# Datos de ejemplo de la interfaz: «hoy» es la fecha local del usuario, no un instante en UTC.
-"src/clients/sample_data.py" = ["DTZ011"]
+# datos de ejemplo se leen mejor en una línea (PT018); los JWT de prueba llevan valores obvios.
+"tests/**" = ["S101", "PT018", "S105", "S106"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -50,4 +50,4 @@ explicit_package_bases = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "tests"]

@@ -20,8 +20,13 @@ WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY .streamlit ./.streamlit
 COPY src ./src
+# Fixtures del modo APP_DATA_SOURCE=fixtures (demostración y pruebas de humo).
+COPY tests/fixtures ./tests/fixtures
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod 0755 /app/docker-entrypoint.sh
 USER app
 EXPOSE 8501
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=3)"
-CMD ["streamlit", "run", "src/main.py", "--server.port", "8501", "--server.address", "0.0.0.0"]
+# El entrypoint genera ~/.streamlit/secrets.toml desde variables de entorno y lanza Streamlit.
+CMD ["/app/docker-entrypoint.sh"]

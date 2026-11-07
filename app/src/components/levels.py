@@ -1,22 +1,30 @@
-"""Nivel por tema según el diagnóstico (E4 y D4)."""
+"""Nivel por tema del diagnóstico (E4, D4): nombre, porcentaje y estado escrito además del color."""
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import streamlit as st
 
-from clients.models import TopicLevel
-from components.formatting import percent
+from clients.models import TopicClassification
+from components.formatting import percent_points
 from components.theme import LEVEL_BADGE
 
 
-def render_levels(levels: Sequence[TopicLevel], *, title: str | None = None) -> None:
-    with st.container(border=True):
-        if title:
-            st.caption(f"**{title}**")
-        for level in levels:
-            label, color = LEVEL_BADGE[level.status]
-            name, score, badge = st.columns([8, 1, 1.6], vertical_alignment="center")
-            name.markdown(level.topic_title)
-            score.markdown(f":gray[{percent(level.score)}]")
-            with badge.container(horizontal=True, horizontal_alignment="right"):
+@dataclass(frozen=True)
+class LevelRow:
+    topic_id: int
+    name: str
+    level: float
+    """De 0 a 100."""
+    classification: TopicClassification
+
+
+def render_levels(rows: Sequence[LevelRow], *, key: str = "levels") -> None:
+    with st.container(border=True, key=f"panel-{key}"):
+        for row in rows:
+            label, color = LEVEL_BADGE[row.classification]
+            name_col, value_col, badge_col = st.columns([5, 1, 2], vertical_alignment="center")
+            name_col.markdown(row.name)
+            value_col.markdown(f"**{percent_points(row.level)}**")
+            with badge_col:
                 st.badge(label, color=color)

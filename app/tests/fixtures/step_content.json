@@ -1,0 +1,42 @@
+{
+  "step_id": 812,
+  "topic": {
+    "id": 11,
+    "name": "Regresión lineal",
+    "learning_outcomes": [
+      {
+        "id": 31,
+        "statement": "Explica cómo se ajusta una recta a los datos.",
+        "bloom_level": "understand"
+      }
+    ]
+  },
+  "explanation": {
+    "resource_id": 120,
+    "version": "1.0",
+    "prompt_version": "topic_explanation v1",
+    "content": {
+      "title": "Regresión lineal",
+      "summary": "Ajusta una recta que minimiza el error cuadrático."
+    }
+  },
+  "personal_example": null,
+  "video": {
+    "video_candidate_id": 9,
+    "youtube_video_id": "EXAMPLE0001",
+    "title": "Regresión lineal explicada",
+    "duration_seconds": 754,
+    "is_backup": false
+  },
+  "quiz_rules": {
+    "pass_threshold": 70,
+    "items_per_attempt": 5,
+    "short_answer_min_criteria_ratio": 0.6667
+  },
+  "attempts": {
+    "used": 0,
+    "max": 3,
+    "extra_granted": 0,
+    "remaining": 3
+  }
+}

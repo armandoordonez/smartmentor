@@ -1,0 +1,36 @@
+/*
+ * Acento por rol. main.py envuelve la aplicación en un contenedor con key `role-<rol>`
+ * (st.container(key="role-learner")), así que el selector es .st-key-role-<rol>.
+ * Cada rol define --accent, --accent-soft y --accent-text; lo demás solo usa esas tres.
+ *
+ * P1: el color del botón principal por rol depende del atributo data-testid de los botones de
+ * Streamlit, que puede cambiar entre versiones (la versión queda fija en pyproject.toml).
+ * Si cambia, el botón vuelve al primaryColor del tema (azul) y nada más se rompe.
+ */
+.st-key-role-learner {
+  --accent: var(--learner-accent);
+  --accent-soft: var(--learner-soft);
+  --accent-text: var(--learner-text);
+}
+
+.st-key-role-instructor {
+  --accent: var(--instructor-accent);
+  --accent-soft: var(--instructor-soft);
+  --accent-text: var(--instructor-text);
+}
+
+.st-key-role-admin {
+  --accent: var(--admin-accent);
+  --accent-soft: var(--admin-soft);
+  --accent-text: var(--admin-text);
+}
+
+[class*="st-key-role-"] [data-testid="stBaseButton-primary"] {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+[class*="st-key-role-"] [data-testid="stBaseButton-primary"]:hover {
+  filter: brightness(0.92);
+}
