@@ -59,8 +59,21 @@
     <include file="036-create-table-interaction_events.xml" relativeToChangelogFile="true"/>
     <include file="037-create-table-study_goals.xml" relativeToChangelogFile="true"/>
 
-    <!-- Semillas (el resto de los grupos aún no existe) -->
+    <!-- Grupo D: tablas de la capa de IA (las escribe ai/) -->
+    <include file="038-create-table-ai_generation_cache.xml" relativeToChangelogFile="true"/>
+    <include file="039-create-table-ai_embeddings.xml" relativeToChangelogFile="true"/>
+    <include file="040-create-table-source_documents.xml" relativeToChangelogFile="true"/>
+    <include file="041-create-table-document_chunks.xml" relativeToChangelogFile="true"/>
+    <include file="042-create-table-llm_call_logs.xml" relativeToChangelogFile="true"/>
+
+    <!-- Índices vectoriales, vistas y permisos de los usuarios de base de datos -->
+    <include file="043-vector-indexes.xml" relativeToChangelogFile="true"/>
+    <include file="044-views.xml" relativeToChangelogFile="true"/>
+    <include file="045-db-roles-grants.xml" relativeToChangelogFile="true"/>
+
+    <!-- Semillas y etiqueta -->
     <include file="046-seed-roles.xml" relativeToChangelogFile="true"/>
     <include file="047-seed-admin-user.xml" relativeToChangelogFile="true"/>
+    <include file="048-tag-v2.0.0.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

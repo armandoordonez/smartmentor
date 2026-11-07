@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/045-db-roles-grants.xml">
+
+    <!--
+      Permisos de los usuarios de base de datos con mínimo privilegio (ADR 0019, ADR 0009).
+      Los roles de base de datos (smartmentor_owner, smartmentor_api, smartmentor_ai) se crean en el
+      bootstrap (database/bootstrap/), porque son objetos del clúster y llevan contraseña. Este changeset
+      solo otorga permisos; si un rol no existe (por ejemplo, un entorno sin ese usuario), lo omite con un aviso.
+      Las tablas _audit no se otorgan a nadie: las escribe audit_row_change() (SECURITY DEFINER).
+    -->
+    <changeSet id="v2.0.0-045-db-roles-grants" author="eduar.troyano">
+        <comment>Otorga permisos de mínimo privilegio. smartmentor_api: lectura y escritura en las tablas de negocio y solo lectura en ai_jobs, llm_call_logs y las vistas. smartmentor_ai: escritura en las tablas ai_*, source_documents, document_chunks y llm_call_logs, y lectura de topics, learning_outcomes, courses y syllabus_documents. Ninguno puede alterar el esquema ni tocar las tablas _audit.</comment>
+        <sql splitStatements="false">
+            DO $grants$
+            DECLARE
+                t text;
+                api_tables text[] := ARRAY[
+                    'roles', 'users', 'user_roles', 'user_profiles', 'consents', 'data_subject_requests',
+                    'courses', 'syllabus_documents', 'syllabus_extractions', 'topics', 'learning_outcomes',
+                    'topic_prerequisites', 'course_evaluators', 'learning_paths', 'enrollments', 'diagnostics',
+                    'path_steps', 'attempt_grants', 'assessment_items', 'assessment_attempts', 'attempt_answers',
+                    'item_annotations', 'human_gradings', 'video_candidates', 'resources',
+                    'video_relevance_judgments', 'video_feedback', 'badges', 'pilots', 'survey_responses',
+                    'alerts', 'interaction_events', 'study_goals'];
+                api_read_tables text[] := ARRAY['ai_jobs', 'llm_call_logs'];
+                views text[] := ARRAY['v_path_step_metrics', 'v_llm_cost_summary', 'v_item_validity'];
+                ai_read_tables text[] := ARRAY['topics', 'learning_outcomes', 'courses', 'syllabus_documents'];
+                ai_write_tables text[] := ARRAY[
+                    'ai_jobs', 'ai_generation_cache', 'ai_embeddings', 'source_documents', 'document_chunks'];
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_api') THEN
+                    GRANT USAGE ON SCHEMA public TO smartmentor_api;
+                    FOREACH t IN ARRAY api_tables LOOP
+                        EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %I TO smartmentor_api', t);
+                        EXECUTE format('GRANT USAGE, SELECT ON SEQUENCE %I TO smartmentor_api', t || '_id_seq');
+                    END LOOP;
+                    FOREACH t IN ARRAY api_read_tables || views LOOP
+                        EXECUTE format('GRANT SELECT ON %I TO smartmentor_api', t);
+                    END LOOP;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_api does not exist: grants skipped';
+                END IF;
+
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_ai') THEN
+                    GRANT USAGE ON SCHEMA public TO smartmentor_ai;
+                    FOREACH t IN ARRAY ai_read_tables LOOP
+                        EXECUTE format('GRANT SELECT ON %I TO smartmentor_ai', t);
+                    END LOOP;
+                    FOREACH t IN ARRAY ai_write_tables LOOP
+                        EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %I TO smartmentor_ai', t);
+                        EXECUTE format('GRANT USAGE, SELECT ON SEQUENCE %I TO smartmentor_ai', t || '_id_seq');
+                    END LOOP;
+                    GRANT SELECT, INSERT ON llm_call_logs TO smartmentor_ai;
+                    GRANT USAGE, SELECT ON SEQUENCE llm_call_logs_id_seq TO smartmentor_ai;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_ai does not exist: grants skipped';
+                END IF;
+            END
+            $grants$;
+        </sql>
+        <rollback>
+            <sql splitStatements="false">
+                DO $revoke$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_api') THEN
+                        REVOKE ALL ON ALL TABLES IN SCHEMA public FROM smartmentor_api;
+                        REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM smartmentor_api;
+                        REVOKE USAGE ON SCHEMA public FROM smartmentor_api;
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_ai') THEN
+                        REVOKE ALL ON ALL TABLES IN SCHEMA public FROM smartmentor_ai;
+                        REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM smartmentor_ai;
+                        REVOKE USAGE ON SCHEMA public FROM smartmentor_ai;
+                    END IF;
+                END
+                $revoke$;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
