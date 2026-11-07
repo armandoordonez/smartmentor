@@ -1,21 +1,53 @@
 #!/usr/bin/env python3
-"""Quita de un export del realm todo lo que no debe versionarse.
+"""Deja un export del realm listo para versionarse y comprueba que no lleve secretos.
 
-Elimina: los usuarios con sus hashes de contraseña, los client secrets (y su fecha de creación) y los
-proveedores de llaves de firma (llaves privadas, secretos HMAC y AES). Al importar el realm sin llaves,
-Keycloak genera unas nuevas; sin secretos de cliente, genera uno nuevo por cada cliente confidencial.
+Quita: los usuarios con sus hashes de contraseña, los proveedores de llaves de firma (llaves privadas,
+secretos HMAC y AES) y el secreto de todo cliente confidencial. Después pone marcadores ``${VARIABLE}``
+donde Keycloak debe tomar el valor del entorno al importar (comprobado con Keycloak 26.8.0):
+
+* el secreto de ``smartmentor-ui`` y de ``smartmentor-api-service`` (``CLIENT_SECRET_VARIABLES``);
+* la sección de correo ``smtpServer`` completa (``SMTP_*``).
+
+Los demás clientes confidenciales quedan sin secreto: Keycloak genera uno al importar.
 
 Uso:
-    python3 -I keycloak/scripts/sanitize-realm.py ENTRADA.json SALIDA.json
+    python3 -I keycloak/scripts/sanitize-realm.py ENTRADA.json SALIDA.json   # sanea un export
+    python3 -I keycloak/scripts/sanitize-realm.py --check ARCHIVO.json       # solo comprueba
 
-Lo ejecuta export-realm.sh. Solo usa la biblioteca estándar.
+Lo ejecuta export-realm.sh y la CI (modo ``--check``). Solo usa la biblioteca estándar.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
 KEY_PROVIDER = "org.keycloak.keys.KeyProvider"
+
+# Cliente -> variable de entorno de la que Keycloak toma su secreto al importar.
+CLIENT_SECRET_VARIABLES = {
+    "smartmentor-ui": "OIDC_UI_CLIENT_SECRET",
+    "smartmentor-api-service": "AI_CLIENT_SECRET",
+}
+
+# Sección de correo: campo de Keycloak -> variable de entorno (plan, sección 18.6).
+SMTP_VARIABLES = {
+    "host": "SMTP_HOST",
+    "port": "SMTP_PORT",
+    "from": "SMTP_FROM",
+    "fromDisplayName": "SMTP_FROM_DISPLAY_NAME",
+    "starttls": "SMTP_STARTTLS",
+    "user": "SMTP_USER",
+    "password": "SMTP_PASSWORD",
+}
+# Valores fijos de la sección de correo (no son secretos ni dependen del despliegue).
+SMTP_FIXED = {"ssl": "false", "auth": "true"}
+
+PLACEHOLDER = re.compile(r"^\$\{[A-Z][A-Z0-9_]*\}$")
+
+
+def placeholder(variable: str) -> str:
+    return "${" + variable + "}"
 
 
 def sanitize(realm: dict) -> dict:
@@ -24,19 +56,58 @@ def sanitize(realm: dict) -> dict:
     for client in realm.get("clients", []):
         client.pop("secret", None)
         client.get("attributes", {}).pop("client.secret.creation.time", None)
+        variable = CLIENT_SECRET_VARIABLES.get(client.get("clientId", ""))
+        if variable:
+            client["secret"] = placeholder(variable)
     realm.get("components", {}).pop(KEY_PROVIDER, None)
+    realm["smtpServer"] = {
+        **{field: placeholder(variable) for field, variable in SMTP_VARIABLES.items()},
+        **SMTP_FIXED,
+    }
     return realm
 
 
+def check(realm: dict) -> list[str]:
+    """Devuelve los problemas que impiden versionar el realm (lista vacía = correcto)."""
+    problems: list[str] = []
+    if realm.get("users") or realm.get("federatedUsers"):
+        problems.append("el realm trae usuarios")
+    if KEY_PROVIDER in realm.get("components", {}):
+        problems.append("el realm trae proveedores de llaves de firma")
+    for client in realm.get("clients", []):
+        secret = client.get("secret")
+        if secret is not None and not PLACEHOLDER.match(secret):
+            problems.append(f"el cliente {client.get('clientId')} trae un secreto literal")
+    for field in ("password", "user", "host", "from"):
+        value = realm.get("smtpServer", {}).get(field)
+        if value and not PLACEHOLDER.match(value):
+            problems.append(f"smtpServer.{field} es literal; debe ser un marcador ${{SMTP_...}}")
+    if realm.get("registrationAllowed") and not realm.get("verifyEmail"):
+        problems.append("autorregistro sin verifyEmail (G-01)")
+    if not realm.get("bruteForceProtected"):
+        problems.append("falta la protección de fuerza bruta (G-02)")
+    return problems
+
+
 def main(argv: list[str]) -> int:
+    if len(argv) == 3 and argv[1] == "--check":
+        problems = check(json.loads(Path(argv[2]).read_text(encoding="utf-8")))
+        for problem in problems:
+            print(f"ERROR: {problem}")
+        if not problems:
+            print(f"Realm sin secretos: {argv[2]}")
+        return 1 if problems else 0
     if len(argv) != 3:
         print(__doc__)
         return 2
     source, target = Path(argv[1]), Path(argv[2])
     realm = sanitize(json.loads(source.read_text(encoding="utf-8")))
     target.write_text(json.dumps(realm, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    problems = check(realm)
+    for problem in problems:
+        print(f"ERROR: {problem}")
     print(f"Realm sin secretos: {target}")
-    return 0
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":
