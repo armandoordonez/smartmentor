@@ -1,0 +1,12 @@
+# Configuración de gitleaks (pre-commit y CI). Parte de las reglas por defecto.
+title = "SmartMentor"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos positivos conocidos (identificadores, no secretos)"
+paths = [
+  # Exportación de variables de Figma: contiene identificadores de nodos que parecen claves.
+  '''design/03-prototipo-alta-fidelidad/.*variables\.json''',
+]

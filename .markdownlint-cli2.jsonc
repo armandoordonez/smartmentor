@@ -1,0 +1,49 @@
+// Configuración de markdownlint-cli2 (CI y editor). Reglas pensadas para documentos en español escritos a
+// mano: se desactivan las que chocan con el estilo del repositorio y se excluye el material histórico
+// (insumos de diseño, bitácoras de fase, dependencias) para que solo marque lo que se mantiene hoy.
+{
+  "config": {
+    "default": true,
+    // Líneas largas: párrafos y tablas se escriben en una línea.
+    "MD013": false,
+    // HTML en línea (<details>, <br>) y primera línea sin encabezado de nivel 1 en plantillas.
+    "MD033": false,
+    "MD041": false,
+    // Encabezados repetidos en documentos con la misma sección por fase o por ADR.
+    "MD024": { "siblings_only": true },
+    // Negritas como título en las fichas del plan.
+    "MD036": false,
+    // Listas ordenadas numeradas de forma explícita (1., 2., 3.) como en el plan.
+    "MD029": false,
+    // Estilo de tablas (pipes compactos o alineados): lo decide cada documento.
+    "MD060": false,
+    // Listas con guion o asterisco y sin línea en blanco previa: ambos estilos conviven en los documentos.
+    "MD004": false,
+    "MD032": false,
+    // Varios encabezados de nivel 1 (la estrategia de versionado está numerada por secciones).
+    "MD025": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": [
+    "**/node_modules/**",
+    "**/.venv/**",
+    ".claude/**",
+    // Histórico y material de insumo: no se corrige.
+    "design/**",
+    "proyecto/brief.md",
+    "proyecto/bitacora/**",
+    "notebooks/**",
+    "CHANGELOG.md",
+    // Los prompts se versionan con su sha256 (prompts/catalog.yaml): no se reformatean.
+    "prompts/*/v*.md",
+    // Guías anteriores a las reglas de CI: se conservan tal cual.
+    "api/microservice-development-standard.md",
+    "app/streamlit_frontend_architecture_guide.md",
+    "GIT_VERSIONING_STRATEGY.md",
+    // Excepciones TEMPORALES (el dueño de cada archivo debe corregirlas y quitar la línea):
+    // database/README.md línea 184 tiene una tabla con columnas de más (MD056);
+    // docs/adr/0001 le falta una línea en blanco bajo tres encabezados (MD022).
+    "database/README.md",
+    "docs/adr/0001-postgres-pgvector.md"
+  ]
+}

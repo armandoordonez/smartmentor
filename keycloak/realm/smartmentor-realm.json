@@ -27,15 +27,15 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": false,
-  "registrationEmailAsUsername": false,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
   "rememberMe": false,
-  "verifyEmail": false,
+  "verifyEmail": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
-  "resetPasswordAllowed": false,
+  "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
-  "bruteForceProtected": false,
+  "bruteForceProtected": true,
   "permanentLockout": false,
   "maxTemporaryLockouts": 0,
   "bruteForceStrategy": "MULTIPLE",
@@ -44,7 +44,7 @@
   "waitIncrementSeconds": 60,
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
-  "failureFactor": 30,
+  "failureFactor": 5,
   "maxSecondaryAuthFailures": 0,
   "roles": {
     "realm": [
@@ -55,6 +55,7 @@
         "composite": true,
         "composites": {
           "realm": [
+            "learner",
             "offline_access",
             "uma_authorization"
           ],
@@ -79,24 +80,6 @@
         "attributes": {}
       },
       {
-        "id": "40e2637e-e5f2-402e-9c49-c5199d24c8fb",
-        "name": "admin",
-        "description": "admin",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "d7fd4102-3ae4-49ce-b77d-216049454fdb",
-        "attributes": {}
-      },
-      {
-        "id": "cc1ce73e-f65a-47fd-b646-420b4ac79261",
-        "name": "student",
-        "description": "student",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "d7fd4102-3ae4-49ce-b77d-216049454fdb",
-        "attributes": {}
-      },
-      {
         "id": "ab5722ae-9c06-4b43-b3c2-4fa3b5a66c81",
         "name": "offline_access",
         "description": "${role_offline-access}",
@@ -106,9 +89,25 @@
         "attributes": {}
       },
       {
-        "id": "fc601c65-351b-4f89-8a10-d32ca09fb56b",
-        "name": "teacher",
-        "description": "teacher",
+        "name": "learner",
+        "description": "Aprendiz",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "d7fd4102-3ae4-49ce-b77d-216049454fdb",
+        "attributes": {}
+      },
+      {
+        "name": "instructor",
+        "description": "Instructor",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "d7fd4102-3ae4-49ce-b77d-216049454fdb",
+        "attributes": {}
+      },
+      {
+        "id": "40e2637e-e5f2-402e-9c49-c5199d24c8fb",
+        "name": "admin",
+        "description": "Administrador",
         "composite": false,
         "clientRole": false,
         "containerId": "d7fd4102-3ae4-49ce-b77d-216049454fdb",
@@ -855,7 +854,7 @@
       "id": "06a9bc5f-9742-4a76-a380-3d3d7f5b9f17",
       "clientId": "smartmentor-api",
       "name": "smartmentor-api",
-      "description": "smartmentor-api",
+      "description": "Define la audiencia de los tokens de la API; no inicia sesion ni tiene secreto",
       "rootUrl": "",
       "adminUrl": "",
       "baseUrl": "",
@@ -866,14 +865,14 @@
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
-      "bearerOnly": false,
+      "bearerOnly": true,
       "consentRequired": false,
-      "standardFlowEnabled": true,
+      "standardFlowEnabled": false,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
       "publicClient": false,
-      "frontchannelLogout": true,
+      "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
         "realm_client": "false",
@@ -973,7 +972,7 @@
       "id": "67704353-faf5-4742-a52d-96d48a8136e9",
       "clientId": "smartmentor-frontend",
       "name": "smartmentor-frontend",
-      "description": "smartmentor-frontend",
+      "description": "Cliente publico con PKCE para Postman (devolucion https://oauth.pstmn.io/v1/callback)",
       "rootUrl": "http://localhost:8081/",
       "adminUrl": "http://localhost:8081/",
       "baseUrl": "http://localhost:8081/",
@@ -982,13 +981,9 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:8081/*",
-        "http://localhost:8081/",
         "https://oauth.pstmn.io/v1/callback"
       ],
-      "webOrigins": [
-        "http://localhost:8081/"
-      ],
+      "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1046,6 +1041,192 @@
         "offline_access",
         "microprofile-jwt"
       ]
+    },
+    {
+      "clientId": "smartmentor-ui",
+      "name": "SmartMentor - interfaz (Streamlit)",
+      "description": "Cliente confidencial de la interfaz: login OIDC con st.login en el servidor",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "http://localhost:8501/oauth2callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8501"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "oauth2.jwt.authorization.grant.enabled": "false",
+        "standard.token.exchange.enabled": "false",
+        "post.logout.redirect.uris": "http://localhost:8501/*",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "dpop.bound.access.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audience-smartmentor-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "smartmentor-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ],
+      "secret": "${OIDC_UI_CLIENT_SECRET}"
+    },
+    {
+      "clientId": "smartmentor-ai",
+      "name": "SmartMentor - servicio de IA (audiencia)",
+      "description": "Solo define la audiencia (aud) de los tokens que acepta ai/; no inicia sesion ni tiene secreto",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": true,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "oauth2.jwt.authorization.grant.enabled": "false",
+        "standard.token.exchange.enabled": "false",
+        "post.logout.redirect.uris": "+",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "dpop.bound.access.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "smartmentor-api-service",
+      "name": "SmartMentor - cuenta de servicio de la API",
+      "description": "Client credentials: la API pide con este cliente el token para llamar a ai/",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "oauth2.jwt.authorization.grant.enabled": "false",
+        "standard.token.exchange.enabled": "false",
+        "post.logout.redirect.uris": "+",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "dpop.bound.access.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "acr",
+        "roles",
+        "basic"
+      ],
+      "optionalClientScopes": [],
+      "protocolMappers": [
+        {
+          "name": "audience-smartmentor-ai",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "smartmentor-ai",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ],
+      "secret": "${AI_CLIENT_SECRET}"
     }
   ],
   "clientScopes": [
@@ -1778,7 +1959,17 @@
     "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
     "strictTransportSecurity": "max-age=31536000; includeSubDomains"
   },
-  "smtpServer": {},
+  "smtpServer": {
+    "host": "${SMTP_HOST}",
+    "port": "${SMTP_PORT}",
+    "from": "${SMTP_FROM}",
+    "fromDisplayName": "${SMTP_FROM_DISPLAY_NAME}",
+    "starttls": "${SMTP_STARTTLS}",
+    "user": "${SMTP_USER}",
+    "password": "${SMTP_PASSWORD}",
+    "ssl": "false",
+    "auth": "true"
+  },
   "eventsEnabled": false,
   "eventsListeners": [
     "jboss-logging"
@@ -2576,6 +2767,125 @@
           "userSetupAllowed": false
         }
       ]
+    },
+    {
+      "alias": "browser-role-otp",
+      "description": "Login del navegador con OTP obligatorio para instructor y admin",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": false,
+          "requirement": "ALTERNATIVE",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "auth-cookie"
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "ALTERNATIVE",
+          "priority": 20,
+          "autheticatorFlow": true,
+          "userSetupAllowed": false,
+          "flowAlias": "browser-role-otp forms"
+        }
+      ]
+    },
+    {
+      "alias": "browser-role-otp forms",
+      "description": "Usuario y contrasena, y luego OTP segun el rol",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "auth-username-password-form"
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 20,
+          "autheticatorFlow": true,
+          "userSetupAllowed": false,
+          "flowAlias": "browser-role-otp instructor"
+        },
+        {
+          "authenticatorFlow": true,
+          "requirement": "CONDITIONAL",
+          "priority": 30,
+          "autheticatorFlow": true,
+          "userSetupAllowed": false,
+          "flowAlias": "browser-role-otp admin"
+        }
+      ]
+    },
+    {
+      "alias": "browser-role-otp instructor",
+      "description": "OTP si el usuario tiene el rol instructor",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "conditional-user-role",
+          "authenticatorConfig": "condition-role-instructor"
+        },
+        {
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "auth-otp-form"
+        }
+      ]
+    },
+    {
+      "alias": "browser-role-otp admin",
+      "description": "OTP si el usuario tiene el rol admin y no instructor (evita pedirlo dos veces)",
+      "providerId": "basic-flow",
+      "topLevel": false,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "conditional-user-role",
+          "authenticatorConfig": "condition-role-admin"
+        },
+        {
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "conditional-user-role",
+          "authenticatorConfig": "condition-role-not-instructor"
+        },
+        {
+          "authenticatorFlow": false,
+          "requirement": "REQUIRED",
+          "priority": 30,
+          "autheticatorFlow": false,
+          "userSetupAllowed": false,
+          "authenticator": "auth-otp-form"
+        }
+      ]
     }
   ],
   "authenticatorConfig": [
@@ -2605,6 +2915,27 @@
       "alias": "review profile config",
       "config": {
         "update.profile.on.first.login": "missing"
+      }
+    },
+    {
+      "alias": "condition-role-instructor",
+      "config": {
+        "condUserRole": "instructor",
+        "negate": "false"
+      }
+    },
+    {
+      "alias": "condition-role-admin",
+      "config": {
+        "condUserRole": "admin",
+        "negate": "false"
+      }
+    },
+    {
+      "alias": "condition-role-not-instructor",
+      "config": {
+        "condUserRole": "instructor",
+        "negate": "true"
       }
     }
   ],
@@ -2736,7 +3067,7 @@
       "config": {}
     }
   ],
-  "browserFlow": "browser",
+  "browserFlow": "browser-role-otp",
   "registrationFlow": "registration",
   "directGrantFlow": "direct grant",
   "resetCredentialsFlow": "reset credentials",
@@ -2769,5 +3100,6 @@
   },
   "clientPolicies": {
     "policies": []
-  }
+  },
+  "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and notUsername and notEmail and passwordHistory(3)"
 }

@@ -1,7 +1,7 @@
 # Ganchos locales (PLAN_IMPLEMENTACION_V3.md, sección 14.2). Instalación, una sola vez:
 #   uv tool install pre-commit && pre-commit install
 # `default_install_hook_types` instala también el gancho del mensaje de commit.
-# Ruff solo se aplica a api/ y app/ (que heredan ../ruff.toml); ai/ se agrega cuando exista.
+# Ruff se aplica a api/, app/ y ai/ (cada uno con su configuración; api y app heredan ../ruff.toml).
 default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
@@ -19,15 +19,37 @@ repos:
     rev: v0.16.10
     hooks:
       - id: ruff-check
-        files: ^(api|app)/
+        files: ^(api|app|ai)/
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
-        files: ^(api|app)/
+        files: ^(api|app|ai)/
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.1
     hooks:
       - id: gitleaks
+
+  # Markdown con la misma configuración de la CI (.markdownlint-cli2.jsonc).
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.18.1
+    hooks:
+      - id: markdownlint-cli2
+
+  # Comprobaciones propias del repositorio (las mismas del trabajo infra de la CI).
+  - repo: local
+    hooks:
+      - id: env-coherence
+        name: .env.example coherente con el compose, los Settings y el realm
+        entry: python3 -I scripts/check-env-coherence.py
+        language: system
+        pass_filenames: false
+        files: ^(\.env\.example|docker-compose\.yml|keycloak/realm/.*|(api|app|ai)/.*\.py)$
+      - id: realm-sin-secretos
+        name: el realm de Keycloak no trae usuarios, secretos ni llaves
+        entry: python3 -I keycloak/scripts/sanitize-realm.py --check keycloak/realm/smartmentor-realm.json
+        language: system
+        pass_filenames: false
+        files: ^keycloak/realm/
 
   # Conventional Commits en el mensaje (ramas feature/*; mensajes en español).
   - repo: https://github.com/compilerla/conventional-pre-commit
