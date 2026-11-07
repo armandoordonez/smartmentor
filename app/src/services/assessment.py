@@ -16,7 +16,7 @@ def rubric_view(grading: dict[str, Any]) -> RubricView | None:
         return None
     total = int(grading.get("criteria_total", 0))
     ratio = grading.get("min_criteria_ratio")
-    min_met = math.ceil(float(ratio) * total - 1e-9) if ratio is not None and total else None
+    min_met = math.ceil(round(float(ratio) * total, 2)) if ratio is not None and total else None
     criteria = tuple(
         CriterionView(
             name=str(item.get("criterion", "")),

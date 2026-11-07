@@ -37,6 +37,9 @@ La prueba `tests/unit/test_styles.py` calcula el contraste de los pares de `toke
 | --- | --- |
 | `--border-default` sobre blanco | 1,25:1 (no llega; solo decorativo en tarjetas) |
 | `--border-strong` sobre blanco | 1,59:1 (no llega) |
-| `--border-field` sobre blanco y sobre `--bg-page` | 3,5:1 y 3,2:1 (**propuesta de este directorio**, no está en Figma) |
+| `--border-field` sobre blanco | 3,42:1 (**propuesta de este directorio**, no está en Figma) |
+| `--border-field` sobre `--bg-page` | 3,17:1 |
+| Texto sobre fondo (29 pares: texto, texto de rol sobre su fondo suave, texto sobre acento, aviso y error) | de 4,99:1 (`--text-tertiary` sobre `--bg-neutral`) a 17,78:1 (`--text-primary` sobre `--bg-surface`); todos de nivel AA |
+| `--warning-accent` sobre blanco | 2,77:1 (solo decorativo) |
 
 Ni `borde/default` ni `borde/fuerte` de Figma alcanzan 3:1, así que los bordes de campos y de controles usan `--border-field`, que Streamlit toma como `borderColor`. Hay que validarlo con el dueño y con diseño: cambia levemente el aspecto de los campos frente a Figma.
