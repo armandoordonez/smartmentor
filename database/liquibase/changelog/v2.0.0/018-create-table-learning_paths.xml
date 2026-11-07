@@ -35,10 +35,10 @@
             <column name="topic_pass_threshold" type="numeric(5,2)" defaultValueComputed="70" remarks="Minimum percentage to pass a topic quiz">
                 <constraints nullable="false"/>
             </column>
-            <column name="final_pass_threshold" type="numeric(5,2)" defaultValueComputed="70" remarks="Minimum percentage to pass the final assessment and earn the badge">
+            <column name="final_pass_threshold" type="numeric(5,2)" defaultValueComputed="80" remarks="Minimum percentage to pass the final assessment and earn the badge">
                 <constraints nullable="false"/>
             </column>
-            <column name="mastery_skip_threshold" type="numeric(5,2)" defaultValueComputed="85" remarks="Diagnostic percentage from which a topic is skipped">
+            <column name="mastery_skip_threshold" type="numeric(5,2)" defaultValueComputed="80" remarks="Diagnostic percentage from which a topic is skipped">
                 <constraints nullable="false"/>
             </column>
             <column name="max_attempts" type="smallint" defaultValueComputed="3" remarks="Maximum attempts per assessment">
