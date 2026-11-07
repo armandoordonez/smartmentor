@@ -86,7 +86,7 @@ uv run python -m scripts.export_schemas --check  # falla si un esquema está des
 | `badge` | API (no `ai/`) | `GET /api/v1/badges/{public_id}/assertion.json` (Open Badges 2.0) |
 | `simulated_answers` | `eval.simulate_learner` | Solo el arnés de evaluación |
 
-En los contratos, `topic_id` y `outcome_id` son las **claves de extracción** del syllabus (`topics.extraction_key`, `learning_outcomes.code`), no los ids numéricos de la base: la API traduce al ingerir.
+**Identificadores en los contratos.** `ai/` trata `topic_id`, `outcome_id` e `item_id` como cadenas opacas y devuelve las mismas que recibió. En `syllabus` (antes de que existan filas) son las claves que propone el LLM (`topics.extraction_key`, `learning_outcomes.code`). En los demás trabajos la API envía el id de la base como texto (`"12"`). Los ejemplos usan claves legibles solo para que se entiendan.
 
 ## Ejemplos
 
