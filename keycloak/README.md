@@ -45,7 +45,7 @@ No se copian archivos de datos en bruto. Hay dos mecanismos:
 
 ```bash
 git clone <repositorio> && cd smartmentor
-cp .env.example .env       # reemplaza los change_me por contraseñas propias
+cp .env.example .env       # completa los usuarios y contraseñas (vienen vacíos)
 docker compose up -d --build
 ```
 
