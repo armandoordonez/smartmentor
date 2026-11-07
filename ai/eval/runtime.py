@@ -45,6 +45,7 @@ class EvalRuntime:
     live: bool
     default_model: str
     small_model: str
+    fake_llm: FakeLlmProvider | None = None  # scripted answers in tests
 
 
 def _video_id(seed: str) -> str:
@@ -100,6 +101,7 @@ def build_fake_runtime() -> EvalRuntime:
     provider = install_content_fakes(FakeLlmProvider(EXAMPLES_DIR / "llm"))
     return EvalRuntime(
         provider=provider,
+        fake_llm=provider,
         embedder=FakeEmbeddingProvider(FAKE_EMBEDDING_MODEL, FAKE_EMBEDDING_DIMENSION),
         video_search=FakeVideoSearch(),
         live=False,

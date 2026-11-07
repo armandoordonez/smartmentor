@@ -150,7 +150,7 @@ def log_metrics(rows: list[LlmCallLog]) -> dict[str, Any]:
     }
 
 
-class _Run:
+class EvalWorld:
     """State of one run: dependencies, handlers and the package being built."""
 
     def __init__(self, options: PipelineOptions, runtime: EvalRuntime) -> None:
@@ -397,7 +397,7 @@ async def run_pipeline(
 ) -> PipelineReport:
     """Run the pipeline and write the package to ``options.out_dir``."""
     say = on_progress or (lambda _msg: None)
-    run = _Run(options, runtime)
+    run = EvalWorld(options, runtime)
     out = options.out_dir
     out.mkdir(parents=True, exist_ok=True)
 
