@@ -1779,6 +1779,58 @@ Regla del dueño (2026-11-07, R-13): se olvida todo lo de v2 y anteriores; **tod
 
 **Lo que no se borra:** `design/02-wireframes-baja-fidelidad/` y `design/04-prueba-mago-de-oz/` son entregables de la Fase 0 que pide el brief y quedan como evidencia histórica; no se usan como base para construir. Si el dueño quiere archivarlos o eliminarlos, lo indica.
 
+## 21. Tablero de avance del plan
+
+Se actualiza cada vez que un agente termina o se consolida una rama. Estados: ✔ hecho y en `dev` · ◐ en curso · ⏳ terminado, falta consolidar · ☐ pendiente · ⛔ bloqueado. **Última actualización: 2026-11-07.**
+
+### Ola 0 · Fase 0 y Fase 1
+
+| ID | Tarea | Responsable | Rama | Estado | Evidencia |
+| --- | --- | --- | --- | --- | --- |
+| 0.1 | Línea base en `dev` | Sesión principal | `feature/baseline-dev` | ✔ | `dev` = `eb84c97`; API 148 y app 36 pruebas |
+| 0.2 | Estándares del repo y CI mínima | Agente repo-standards (Sonnet) | `feature/repo-standards` | ⏳ | `726fc16`; Ruff y mypy sin errores, 148 + 36 pruebas |
+| 1.1 | Casos de uso, estados, flujos, glosario, `app/CLAUDE.md` | Agente design-docs (Sonnet) | `feature/design-use-cases-v3` | ⏳ | `e709dd4`; 0 enlaces rotos, 16 bloques Mermaid válidos |
+| 1.2 | ADR 0007 a 0021 | Agente adrs (Opus) | `feature/adr-architecture-v3` | ⏳ | `3e23ac3`; 21 ADR, índice coherente |
+| 1.3 | Contratos de `ai/`, prompts y esquemas, contratos de API y de IA | Agente contracts (Opus) | `feature/prompts-and-contracts` | ⏳ | `f81d49d`; Ruff y mypy sin errores, 197 pruebas |
+| 1.4 | V3 como única fuente; clave maestra de Figma | Sesión principal | `feature/v3-only-sources` | ⏳ | `37f44e8` |
+| 1.5 | Integración de la Ola 0 en `dev` | Sesión principal | `feature/integration-ola0` | ◐ | Merge de las 5 ramas sin conflictos; validación local y CI en curso |
+
+### Ola 1 y Ola 2
+
+| ID | Fase | Tarea | Responsable | Rama | Estado |
+| --- | --- | --- | --- | --- | --- |
+| 2 | F2 | Re-base de la base `v2.0.0` (esquema, auditoría, roles de base, semillas, script de reinicio) | Agente database | `feature/database-v2-rebase` | ☐ |
+| 3a | F3 | API v2: identidad, cursos, `ai_gateway` con `FakeAiService` | Agente api-core | `feature/api-v2-identity-courses` | ☐ |
+| 4 | F4 | Servicio `ai/` base: puertos, trabajos, log, presupuesto, syllabus, diagnóstico | Agente ai-base | `feature/ai-service-base` | ☐ |
+| 7a | F7 | App v3: tema, estilos, autenticación, clientes, componentes | Agente app-core | `feature/app-v3-core` | ☐ |
+| 8 | F8 | Keycloak (clientes, roles, OTP, correo), compose, CI completa | Agente infra | `feature/keycloak-v3-clients` | ☐ |
+| 5 | F5 | `ai/` contenido, RAG, banco de ítems, calificación y videos | Agente ai-content | `feature/ai-content-evaluation` | ☐ (espera los puertos de F4) |
+| 9a | F9 | Herramientas de evaluación: métricas (κ, QWK, F1, P@k, nDCG, Hake, SUS) y notebook | Agente eval-tools | `feature/evaluation-pilot` | ☐ |
+
+### Después
+
+| ID | Fase | Tarea | Estado |
+| --- | --- | --- | --- |
+| 3b | F3 | API v2: rutas, evaluaciones e intentos | ☐ |
+| 3c | F3 | API v2: contenido, evaluación humana, piloto y observabilidad | ☐ |
+| 7b | F7 | App v3: páginas del aprendiz, del instructor y del administrador | ☐ |
+| 6 | F6 | Integración de punta a punta con el LLM real (hito) | ☐ |
+| 9b | F9 | Anotación de expertos, usabilidad, piloto y datos reales | ☐ (depende de personas y fechas) |
+| 10 | F10 | Revisión final, pruebas de despliegue y brief v2 | ☐ (fuera de este lanzamiento) |
+| 11 | F11 | Cierre y traspaso | ☐ (fuera de este lanzamiento) |
+
+### Pendientes del dueño
+
+| Pendiente | Estado |
+| --- | --- |
+| Valores reales en su `.env` (para correr con servicios reales) | ☐ |
+| Rotar lo publicado en el historial | ☐ |
+| Pedir la protección de `stage` y `main` al administrador del repositorio | ☐ |
+| Verificar modelos, tarifas y dimensión del embedding (P-05) | ☐ |
+| Syllabus real de Carlos Villada (antes de la Fase 6) | ☐ |
+| Revisar los ADR 0014, 0018, 0019 y 0020 antes de aceptarlos | ☐ |
+| Contraseña de aplicación de Google para el correo de Keycloak (Fase 8) | ☐ |
+
 ---
 
 ## Anexo A. Trazabilidad pantalla → caso de uso → endpoint → tabla

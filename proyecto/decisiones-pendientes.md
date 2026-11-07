@@ -4,12 +4,12 @@ Decisiones técnicas abiertas que afectan el diseño. Cuando una se toma, se reg
 
 | ID | Decisión | Estado | Valor provisional | Bloquea |
 | --- | --- | --- | --- | --- |
-| [D-01](#d-01-modelo-de-embeddings-y-dimensión-del-vector) | Modelo de embeddings y dimensión del vector | Abierta | `vector(1024)` | Índices HNSW definitivos y fase de RAG |
-| [D-02](#d-02-proveedor-de-llm) | Proveedor de LLM | Abierta | — | Capa `ai/` |
+| [D-01](#d-01-modelo-de-embeddings-y-dimensión-del-vector) | Modelo de embeddings y dimensión del vector | **Cerrada (ADR 0012)**, dimensión 768 provisional | `vector(1024)` | Índices HNSW definitivos y fase de RAG |
+| [D-02](#d-02-proveedor-de-llm) | Proveedor de LLM | **Cerrada (ADR 0011)**: Gemini por defecto | — | Capa `ai/` |
 | [D-03](#d-03-autenticación-contraseñas-y-seguridad-de-la-api) | Autenticación, contraseñas y seguridad de la API (Keycloak, bearer tokens) | **Cerrada (ADR 0004)**; quedan pendientes menores | Implementada | Interfaz de estudiante y exposición a internet |
-| [D-04](#d-04-almacenamiento-de-fragmentos-rag) | Almacenamiento de fragmentos RAG | Abierta | — | Fase de RAG |
-| [D-05](#d-05-usuario-de-base-de-datos-con-mínimo-privilegio) | Usuario de BD con mínimo privilegio para la API | Abierta | Un solo usuario dueño | Despliegue productivo |
-| [D-06](#d-06-destino-de-despliegue) | Destino de despliegue | Abierta | — | Paridad de versiones (ADR 0001) |
+| [D-04](#d-04-almacenamiento-de-fragmentos-rag) | Almacenamiento de fragmentos RAG | Propuesta (ADR 0013) | — | Fase de RAG |
+| [D-05](#d-05-usuario-de-base-de-datos-con-mínimo-privilegio) | Usuario de BD con mínimo privilegio para la API | Propuesta (ADR 0019) | Un solo usuario dueño | Despliegue productivo |
+| [D-06](#d-06-destino-de-despliegue) | Destino de despliegue | Propuesta (ADR 0020) | — | Paridad de versiones (ADR 0001) |
 
 ---
 
@@ -165,6 +165,6 @@ Lo que no se menciona toma el valor por defecto de la sección 9 del plan.
 | DEF-29 · Correo | SMTP de Google con contraseña de aplicación (plan 18.6) | **Cerrada** |
 | Presupuesto del LLM | Topes simulados: 0,50 USD por inscripción, 2 por curso, 5 al día, 30 al mes (plan 18.5) | Simulado, se reemplaza con el costo real |
 | `feature/repo-standards` y CI mínima | Aprobadas sin `CODEOWNERS` (plan 18.8); se ejecutan cuando el dueño confirme el inicio | **Cerrada** |
-| DEF-02 · modelo de embeddings | El dueño propone `text-embedding-3-large`; se recomienda Gemini a 768 por un solo proveedor (plan 18.9) | **Pendiente de confirmar** |
+| DEF-02 · modelo de embeddings | El dueño propone `text-embedding-3-large`; se recomienda Gemini a 768 por un solo proveedor (plan 18.9). ADR 0012 aceptado con Gemini a 768; se reemplaza si el dueño elige otro antes de indexar | Gemini 768 por defecto |
 
 Huecos y mejoras de estandarización: sección 18 del plan.
