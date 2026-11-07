@@ -18,7 +18,7 @@ class TableModel(Base):
     """
 
     __abstract__ = True
-    __mapper_args__ = {"eager_defaults": True}
+    __mapper_args__ = {"eager_defaults": True}  # noqa: RUF012  (patrón documentado de SQLAlchemy)
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))

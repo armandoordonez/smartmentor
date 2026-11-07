@@ -45,8 +45,8 @@ def build_crud_router(
     read = [Depends(read_guard)]
     write = [Depends(write_guard)]
     page_schema = Page[response_schema]
-    ServiceDep = Annotated[CrudService[Any], Depends(get_service)]  # noqa: N806
-    FiltersDep = Annotated[dict[str, Any], Depends(filters)]  # noqa: N806
+    ServiceDep = Annotated[CrudService[Any], Depends(get_service)]
+    FiltersDep = Annotated[dict[str, Any], Depends(filters)]
 
     @router.post("", response_model=response_schema, status_code=201, dependencies=write)
     async def create(payload: create_schema, service: ServiceDep) -> BaseModel:

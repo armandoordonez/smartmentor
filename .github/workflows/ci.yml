@@ -1,0 +1,154 @@
+# Integración continua mínima de SmartMentor (PLAN_IMPLEMENTACION_V3.md, secciones 14.2 y 18.8).
+# Las credenciales de este archivo son valores desechables solo para la base efímera del trabajo:
+# no se usan secretos del repositorio ni claves de proveedores de IA.
+# La imagen de PostgreSQL es la misma de docker-compose.yml (pgvector 0.8.7 sobre PostgreSQL 17).
+name: CI
+
+on:
+  push:
+    branches:
+      - "feature/**"
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_VERSION: "0.9.30"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  api:
+    name: api (Ruff, mypy, pytest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: api
+    env:
+      # Valores desechables de la base efímera de este trabajo.
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: smartmentor_test
+      DATABASE_USER: ci_user
+      DATABASE_PASSWORD: ci-only-not-a-secret
+      APP_ENV: test
+      LOG_LEVEL: WARNING
+      OIDC_ISSUER_URL: http://keycloak.test/realms/smartmentor
+      OIDC_JWKS_URL: http://keycloak.test/realms/smartmentor/protocol/openid-connect/certs
+      OIDC_AUDIENCE: smartmentor-api
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
+        env:
+          POSTGRES_DB: smartmentor_test
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+          TZ: America/Bogota
+          PGTZ: America/Bogota
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d smartmentor_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: api/uv.lock
+      - name: Instalar dependencias
+        run: uv sync --frozen
+      - name: Ruff (lint)
+        run: uv run ruff check .
+      - name: Ruff (formato)
+        run: uv run ruff format --check .
+      - name: mypy (estricto)
+        run: uv run mypy
+      - name: Construir la imagen de Liquibase
+        # Imagen oficial liquibase/liquibase con el driver de PostgreSQL (ver su Dockerfile).
+        working-directory: .
+        run: docker build -t smartmentor-liquibase:ci database/liquibase
+      - name: Migrar smartmentor_test con Liquibase
+        working-directory: .
+        run: |
+          docker run --rm --network host \
+            -e LIQUIBASE_COMMAND_URL=jdbc:postgresql://localhost:5432/smartmentor_test \
+            -e LIQUIBASE_COMMAND_USERNAME=ci_user \
+            -e LIQUIBASE_COMMAND_PASSWORD=ci-only-not-a-secret \
+            -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
+            -v "$GITHUB_WORKSPACE/database/liquibase/changelog:/liquibase/changelog:ro" \
+            smartmentor-liquibase:ci update
+      - name: pytest
+        run: uv run pytest
+
+  app:
+    name: app (Ruff, mypy, pytest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: app
+    env:
+      APP_DATA_SOURCE: sample
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+          cache-dependency-glob: app/uv.lock
+      - name: Instalar dependencias
+        run: uv sync --frozen
+      - name: Ruff (lint)
+        run: uv run ruff check .
+      - name: Ruff (formato)
+        run: uv run ruff format --check .
+      - name: mypy (estricto)
+        run: uv run mypy
+      - name: pytest
+        run: uv run pytest
+
+  liquibase:
+    name: liquibase (validate)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17-bookworm
+        env:
+          POSTGRES_DB: smartmentor_validate
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d smartmentor_validate"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Construir la imagen de Liquibase
+        run: docker build -t smartmentor-liquibase:ci database/liquibase
+      - name: liquibase validate
+        run: |
+          docker run --rm --network host \
+            -e LIQUIBASE_COMMAND_URL=jdbc:postgresql://localhost:5432/smartmentor_validate \
+            -e LIQUIBASE_COMMAND_USERNAME=ci_user \
+            -e LIQUIBASE_COMMAND_PASSWORD=ci-only-not-a-secret \
+            -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
+            -v "$GITHUB_WORKSPACE/database/liquibase/changelog:/liquibase/changelog:ro" \
+            smartmentor-liquibase:ci validate

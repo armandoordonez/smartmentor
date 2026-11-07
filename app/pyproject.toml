@@ -21,18 +21,24 @@ dev = [
 package = false
 
 [tool.ruff]
-line-length = 100
-target-version = "py312"
+extend = "../ruff.toml"
 src = ["src"]
 # Los .md son documentación: sus bloques de código no se formatean.
 extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM"]
+# Las reglas comunes están en ../ruff.toml; aquí solo van las excepciones justificadas.
+ignore = [
+    # La interfaz usa tipografía española (›, ‹, −, α) a propósito en los textos visibles.
+    "RUF001",
+]
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+[tool.ruff.lint.per-file-ignores]
+# Pruebas: `assert` es la forma de afirmar en pytest (S101); las afirmaciones compuestas sobre
+# datos de ejemplo se leen mejor en una línea (PT018).
+"tests/**" = ["S101", "PT018"]
+# Datos de ejemplo de la interfaz: «hoy» es la fecha local del usuario, no un instante en UTC.
+"src/clients/sample_data.py" = ["DTZ011"]
 
 [tool.mypy]
 python_version = "3.12"

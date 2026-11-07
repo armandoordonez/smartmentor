@@ -98,7 +98,10 @@ async def _http_error_handler(request: Request, exc: Exception) -> JSONResponse:
     )
 
 
-async def _unexpected_error_handler(request: Request, exc: Exception) -> JSONResponse:
+async def _unexpected_error_handler(
+    request: Request,
+    exc: Exception,  # noqa: ARG001  (firma fija del manejador de Starlette)
+) -> JSONResponse:
     logger.exception("unexpected error", extra={"path": request.url.path})
     return problem_response(
         request,

@@ -13,6 +13,7 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$APP_DIR/.." && pwd)"
 UV_IMAGE="ghcr.io/astral-sh/uv:0.9.30-python3.12-bookworm"
 APP_PORT="${APP_PORT:-8501}"
 
@@ -20,7 +21,7 @@ uv_run() {
   docker run --rm --user "$(id -u):$(id -g)" \
     -e HOME=/tmp -e UV_CACHE_DIR=/tmp/uv-cache -e UV_LINK_MODE=copy -e UV_PYTHON_DOWNLOADS=never \
     -e APP_DATA_SOURCE=sample \
-    -v "$APP_DIR:/app" -w /app "$@"
+    -v "$ROOT_DIR:/repo" -w /repo/app "$@"
 }
 
 case "${1:-}" in

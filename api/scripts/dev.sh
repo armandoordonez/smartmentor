@@ -33,7 +33,7 @@ uv_run() {
     -e OIDC_ISSUER_URL=http://keycloak.test/realms/smartmentor \
     -e OIDC_JWKS_URL=http://keycloak.test/realms/smartmentor/protocol/openid-connect/certs \
     -e OIDC_AUDIENCE=smartmentor-api \
-    -v "$API_DIR:/app" -w /app "$UV_IMAGE" "$@"
+    -v "$ROOT_DIR:/repo" -w /repo/api "$UV_IMAGE" "$@"
 }
 
 prepare_test_db() {

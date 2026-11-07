@@ -29,15 +29,20 @@ dev = [
 package = false
 
 [tool.ruff]
-line-length = 100
-target-version = "py312"
+extend = "../ruff.toml"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC"]
+# Las reglas comunes están en ../ruff.toml; aquí solo van las excepciones justificadas.
 
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+[tool.ruff.lint.per-file-ignores]
+# Pruebas: `assert` es la forma de afirmar en pytest (S101); las fixtures se piden por su efecto
+# (base limpia, cliente, tablas) o para sobrescribir una firma, sin usar el valor (ARG001/ARG002).
+"tests/**" = ["S101", "ARG001", "ARG002"]
+# `assert` para acotar tipos (valores que mypy ve como opcionales pero el flujo garantiza).
+# Pendiente: reemplazarlos por excepciones de dominio cuando se reescriban estos módulos (Fase 3).
+"app/core/exceptions.py" = ["S101"]
+"app/domains/identity/authentication.py" = ["S101"]
+"app/domains/student/service.py" = ["S101"]
 
 [tool.mypy]
 python_version = "3.12"

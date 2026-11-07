@@ -34,7 +34,9 @@ def create_session_factory(engine: AsyncEngine) -> async_sessionmaker[AsyncSessi
 
 @event.listens_for(Session, "after_begin")
 def _propagate_audit_user(
-    session: Session, transaction: SessionTransaction, connection: Connection
+    session: Session,
+    transaction: SessionTransaction,  # noqa: ARG001  (firma fija del evento de SQLAlchemy)
+    connection: Connection,
 ) -> None:
     """Pasa el usuario que actúa a la base en cada transacción (lo lee audit_row_change())."""
     user_id = session.info.get(AUDIT_USER_KEY)

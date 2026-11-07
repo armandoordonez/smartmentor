@@ -85,14 +85,13 @@ async def insert_user(
 
 
 @pytest.fixture(autouse=True)
-async def clean_database(engine: AsyncEngine) -> AsyncIterator[None]:
+async def clean_database(engine: AsyncEngine) -> None:
     tables = ", ".join(f"{t}, {t}_audit" for t in _BUSINESS_TABLES)
     async with engine.begin() as conn:
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     await insert_user(
         engine, email=ADMIN_EMAIL, role="admin", sub=ADMIN_SUB, name="Admin de prueba"
     )
-    yield
 
 
 @pytest.fixture
