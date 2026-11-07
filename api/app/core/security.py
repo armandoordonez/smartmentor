@@ -23,6 +23,9 @@ from app.core.config import Settings
 logger = logging.getLogger("app.security")
 
 ALLOWED_ALGORITHMS = ["RS256"]
+# Valores de `amr` y `acr` con los que Keycloak indica que el usuario pasó un segundo factor.
+SECOND_FACTOR_AMR = frozenset({"otp", "mfa", "hwk", "sms"})
+SECOND_FACTOR_ACR = frozenset({"2", "mfa"})
 CLOCK_LEEWAY_SECONDS = 10
 
 
@@ -34,6 +37,7 @@ class TokenClaims:
     email: str | None
     email_verified: bool
     full_name: str | None
+    second_factor: bool = False
 
 
 class SigningKeyResolver(Protocol):
@@ -86,4 +90,11 @@ class TokenValidator:
             email=payload.get("email"),
             email_verified=bool(payload.get("email_verified", False)),
             full_name=payload.get("name") or payload.get("preferred_username"),
+            second_factor=_has_second_factor(payload),
         )
+
+
+def _has_second_factor(payload: dict[str, Any]) -> bool:
+    amr = payload.get("amr")
+    methods = {str(m).lower() for m in amr} if isinstance(amr, list) else set()
+    return bool(methods & SECOND_FACTOR_AMR) or str(payload.get("acr", "")) in SECOND_FACTOR_ACR

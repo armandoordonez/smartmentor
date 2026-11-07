@@ -1,4 +1,10 @@
-"""Errores de negocio (sin dependencias de FastAPI). La capa API los traduce a HTTP."""
+"""Errores de negocio (sin dependencias de FastAPI). La capa API los traduce a HTTP.
+
+Cada clase fija su estado HTTP; el `code` estable sale del catálogo `docs/contracts/error-codes.md`
+(una prueba verifica que todo código usado exista allí).
+"""
+
+from typing import Any
 
 
 class DomainError(Exception):
@@ -6,20 +12,26 @@ class DomainError(Exception):
 
     code = "DOMAIN_ERROR"
     title = "Domain error"
+    status_code = 400
 
-    def __init__(self, detail: str, *, code: str | None = None) -> None:
+    def __init__(
+        self, detail: str, *, code: str | None = None, extra: dict[str, Any] | None = None
+    ) -> None:
         super().__init__(detail)
         self.detail = detail
         if code is not None:
             self.code = code
+        # Extensiones permitidas por el catálogo: cycle, missing, retryable, job_id, ...
+        self.extra: dict[str, Any] = extra or {}
 
 
 class NotFoundError(DomainError):
     code = "NOT_FOUND"
     title = "Resource not found"
+    status_code = 404
 
-    def __init__(self, resource: str, resource_id: int | str) -> None:
-        super().__init__(f"{resource} with id {resource_id} was not found.")
+    def __init__(self, resource: str, resource_id: int | str, *, code: str | None = None) -> None:
+        super().__init__(f"{resource} with id {resource_id} was not found.", code=code)
 
 
 class ConflictError(DomainError):
@@ -27,6 +39,12 @@ class ConflictError(DomainError):
 
     code = "CONFLICT"
     title = "Conflict"
+    status_code = 409
+
+
+class InvalidStateTransitionError(ConflictError):
+    code = "INVALID_STATE_TRANSITION"
+    title = "Invalid state transition"
 
 
 class BusinessRuleError(DomainError):
@@ -34,6 +52,7 @@ class BusinessRuleError(DomainError):
 
     code = "BUSINESS_RULE_VIOLATION"
     title = "Business rule violation"
+    status_code = 422
 
 
 class UnauthorizedError(DomainError):
@@ -41,6 +60,7 @@ class UnauthorizedError(DomainError):
 
     code = "UNAUTHORIZED"
     title = "Authentication required"
+    status_code = 401
 
 
 class ForbiddenError(DomainError):
@@ -48,6 +68,7 @@ class ForbiddenError(DomainError):
 
     code = "FORBIDDEN"
     title = "Forbidden"
+    status_code = 403
 
 
 class ServiceUnavailableError(DomainError):
@@ -55,6 +76,33 @@ class ServiceUnavailableError(DomainError):
 
     code = "SERVICE_UNAVAILABLE"
     title = "Service unavailable"
+    status_code = 503
+
+
+class BadGatewayError(DomainError):
+    """Un servicio del que depende la API respondió algo inválido o falló (HTTP 502)."""
+
+    code = "AI_TASK_FAILED"
+    title = "Upstream service error"
+    status_code = 502
+
+
+class PayloadTooLargeError(DomainError):
+    code = "PAYLOAD_TOO_LARGE"
+    title = "Payload too large"
+    status_code = 413
+
+
+class UnsupportedMediaTypeError(DomainError):
+    code = "UNSUPPORTED_MEDIA_TYPE"
+    title = "Unsupported media type"
+    status_code = 415
+
+
+class PreconditionRequiredError(DomainError):
+    code = "IDEMPOTENCY_KEY_REQUIRED"
+    title = "Idempotency key required"
+    status_code = 428
 
 
 class ReferenceNotFoundError(BusinessRuleError):

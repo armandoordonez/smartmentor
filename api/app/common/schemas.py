@@ -1,22 +1,18 @@
-"""Esquemas HTTP comunes: respuesta base, paginación y fechas en la zona de la aplicación."""
+"""Esquemas HTTP comunes: respuesta base, paginación y fechas en UTC."""
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated, Generic, TypeVar
-from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, PlainSerializer
 
-from app.core.config import get_settings
+
+def _to_utc_iso(value: datetime) -> str:
+    """ISO 8601 en UTC con sufijo Z (2026-11-07T14:02:11Z): la app muestra en America/Bogota."""
+    moment = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    return moment.astimezone(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def _to_local_iso(value: datetime) -> str:
-    """ISO-8601 con el desfase de la zona horaria de la aplicación (2026-10-07T09:30:00-05:00)."""
-    return value.astimezone(ZoneInfo(get_settings().app_timezone)).isoformat()
-
-
-LocalDatetime = Annotated[
-    datetime, PlainSerializer(_to_local_iso, return_type=str, when_used="json")
-]
+UtcDatetime = Annotated[datetime, PlainSerializer(_to_utc_iso, return_type=str, when_used="json")]
 
 
 class RequestSchema(BaseModel):
@@ -32,7 +28,7 @@ class ResponseSchema(BaseModel):
 
     id: int
     active: bool
-    created_at: LocalDatetime
+    created_at: UtcDatetime
 
 
 T = TypeVar("T")

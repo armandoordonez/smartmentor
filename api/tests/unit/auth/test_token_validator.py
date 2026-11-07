@@ -70,3 +70,21 @@ async def test_unreachable_identity_provider_is_a_503_not_a_401() -> None:
     broken = TokenValidator(issuer=ISSUER, audience=AUDIENCE, key_resolver=Unreachable())
     with pytest.raises(ServiceUnavailableError):
         await broken.validate(make_token(KEYS))
+
+
+@pytest.mark.parametrize(
+    ("extra", "expected"),
+    [
+        ({}, False),
+        ({"amr": ["pwd"]}, False),
+        ({"amr": ["pwd", "otp"]}, True),
+        ({"acr": "2"}, True),
+        ({"acr": "1"}, False),
+    ],
+    ids=["sin-claims", "solo-clave", "otp", "acr-2", "acr-1"],
+)
+async def test_second_factor_is_read_from_amr_or_acr(
+    extra: dict[str, object], expected: bool
+) -> None:
+    claims = await validator().validate(make_token(KEYS, extra=extra))
+    assert claims.second_factor is expected

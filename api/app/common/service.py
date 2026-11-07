@@ -27,6 +27,9 @@ class CrudService[E: BaseEntity]:
     async def _validate_update(self, current: E, changes: Mapping[str, Any]) -> None:
         """Reglas previas a actualizar. Lanza un DomainError si no se cumplen."""
 
+    async def _validate_deactivate(self, current: E) -> None:
+        """Reglas previas a inactivar (por ejemplo, no dejar la plataforma sin administrador)."""
+
     # --- casos de uso ----------------------------------------------------------------------
     async def create(self, entity: E) -> E:
         await self._validate_create(entity)
@@ -71,6 +74,8 @@ class CrudService[E: BaseEntity]:
         return await self._set_active(entity_id, True)
 
     async def _set_active(self, entity_id: int, active: bool) -> E:
+        if not active:
+            await self._validate_deactivate(await self.get(entity_id))
         entity = await self._repository.set_active(entity_id, active)
         if entity is None:
             raise NotFoundError(self.resource_name, entity_id)

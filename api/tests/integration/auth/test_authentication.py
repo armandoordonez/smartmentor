@@ -1,11 +1,13 @@
-from collections.abc import Callable
+"""Autenticación, primer ingreso (CU-34), `GET /me` (CU-35) y autorización por rol de la base."""
+
+import asyncio
 
 import httpx
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from tests.auth_helpers import KeyPair
+from tests.auth_helpers import KeyPair, make_token
 from tests.integration.conftest import ClientFactory, insert_user
 
 pytestmark = pytest.mark.integration
@@ -45,8 +47,6 @@ async def test_invalid_tokens_are_401(client_for: ClientFactory, claims: dict[st
 
 
 async def test_token_signed_with_another_key_is_401(bare_client: httpx.AsyncClient) -> None:
-    from tests.auth_helpers import make_token
-
     forged = make_token(KeyPair(), sub="admin-sub", email="admin@test.example")
     response = await bare_client.get(ME, headers={"Authorization": f"Bearer {forged}"})
     assert response.status_code == 401
@@ -64,40 +64,110 @@ async def test_the_old_x_user_id_header_does_not_authenticate(
     assert response.status_code == 401
 
 
-# --- quién es el usuario ----------------------------------------------------------------------
+# --- GET /me (CU-35) --------------------------------------------------------------------------
 
 
-async def test_me_returns_the_user_and_the_roles_from_the_database(
+async def test_me_returns_roles_labels_default_role_and_the_rest_of_the_contract(
     client: httpx.AsyncClient,
 ) -> None:
     body = (await client.get(ME)).json()
     assert body["email"] == "admin@test.example"
     assert body["roles"] == ["admin"]
-    assert body["identity_provider"] == "keycloak"
-    assert body["identity_subject"] == "admin-sub"
+    assert body["default_role"] == "admin"
+    assert body["role_labels"] == {
+        "learner": "Aprendiz",
+        "instructor": "Instructor",
+        "admin": "Administrador",
+    }
+    assert body["role_short_labels"]["admin"] == "Admin"
+    assert body["is_new_user"] is False
+    assert body["requires_consent"] is True
+    assert body["consent_status"]["data_processing"] == {
+        "granted": False,
+        "document_version": None,
+        "granted_at": None,
+    }
+    assert body["profile_completeness"] == {"description": False, "resume": False, "percent": 0}
+    assert body["second_factor"] is False
 
 
-async def test_first_login_creates_a_student_and_is_idempotent(
+async def test_a_user_with_several_roles_gets_them_ordered_with_the_highest_as_default(
     client_for: ClientFactory, client: httpx.AsyncClient, engine: AsyncEngine
+) -> None:
+    user_id = await insert_user(engine, email="multi@example.com", role="learner", sub="multi")
+    replaced = await client.put(
+        f"/api/v1/users/{user_id}/roles", json={"roles": ["learner", "instructor"]}
+    )
+    assert replaced.json() == {"roles": ["instructor", "learner"]}
+    body = (await client_for(sub="multi", email="multi@example.com").get(ME)).json()
+    assert body["roles"] == ["instructor", "learner"]
+    assert body["default_role"] == "instructor"
+
+
+async def test_second_factor_is_reported_from_the_token(client_for: ClientFactory) -> None:
+    http = client_for(sub="admin-sub", email="admin@test.example", extra={"amr": ["pwd", "otp"]})
+    assert (await http.get(ME)).json()["second_factor"] is True
+
+
+# --- primer ingreso (CU-34) -------------------------------------------------------------------
+
+
+async def test_first_login_creates_a_learner_and_is_idempotent(
+    client_for: ClientFactory, client: httpx.AsyncClient
 ) -> None:
     newcomer = client_for(sub="new-sub", email="nuevo@example.com", name="Nuevo Usuario")
     first = await newcomer.get(ME)
     assert first.status_code == 200
-    assert first.json()["roles"] == ["student"]
+    assert first.json()["roles"] == ["learner"]
+    assert first.json()["default_role"] == "learner"
+    assert first.json()["is_new_user"] is True
     assert first.json()["full_name"] == "Nuevo Usuario"
-    assert first.json()["identity_subject"] == "new-sub"
 
     second = await newcomer.get(ME)
     assert second.json()["id"] == first.json()["id"]
+    assert second.json()["is_new_user"] is False
     users = await client.get("/api/v1/users", params={"limit": 100})
-    assert users.json()["total"] == 2  # el admin y el estudiante, sin duplicados
+    assert users.json()["total"] == 2  # el admin y el aprendiz, sin duplicados
 
 
-async def test_first_login_is_audited_as_the_identity_then_as_the_user(
+async def test_simultaneous_first_logins_create_exactly_one_user_and_one_learner_role(
     client_for: ClientFactory, engine: AsyncEngine
 ) -> None:
-    newcomer = client_for(sub="audit-sub", email="audit@example.com")
-    user_id = (await newcomer.get(ME)).json()["id"]
+    newcomers = [client_for(sub="race-sub", email="race@example.com") for _ in range(8)]
+    responses = await asyncio.gather(*(http.get(ME) for http in newcomers))
+    assert {r.status_code for r in responses} == {200}
+    assert len({r.json()["id"] for r in responses}) == 1
+    assert sum(1 for r in responses if r.json()["is_new_user"]) == 1
+    async with engine.connect() as conn:
+        users = (
+            await conn.execute(text("SELECT count(*) FROM users WHERE email = 'race@example.com'"))
+        ).scalar_one()
+        roles = (
+            await conn.execute(
+                text(
+                    "SELECT count(*) FROM user_roles ur JOIN users u ON u.id = ur.user_id "
+                    "WHERE u.email = 'race@example.com'"
+                )
+            )
+        ).scalar_one()
+    assert (users, roles) == (1, 1)
+
+
+async def test_simultaneous_first_logins_link_a_precreated_user_once(
+    client_for: ClientFactory, engine: AsyncEngine
+) -> None:
+    await insert_user(engine, email="pre@example.com", role="instructor", sub=None)
+    calls = [client_for(sub="pre-sub", email="pre@example.com") for _ in range(6)]
+    responses = await asyncio.gather(*(http.get(ME) for http in calls))
+    assert {r.status_code for r in responses} == {200}
+    assert {tuple(r.json()["roles"]) for r in responses} == {("instructor",)}  # sin agregar learner
+    assert len({r.json()["id"] for r in responses}) == 1
+
+
+async def test_first_login_is_audited_as_the_identity(
+    client_for: ClientFactory, engine: AsyncEngine
+) -> None:
+    await client_for(sub="audit-sub", email="audit@example.com").get(ME)
     async with engine.connect() as conn:
         creation = (
             await conn.execute(
@@ -108,7 +178,6 @@ async def test_first_login_is_audited_as_the_identity_then_as_the_user(
             )
         ).scalar_one()
     assert creation == "identity:audit-sub"
-    assert user_id > 0
 
 
 async def test_unverified_email_is_not_provisioned(
@@ -121,26 +190,40 @@ async def test_unverified_email_is_not_provisioned(
     assert (await client.get("/api/v1/users")).json()["total"] == 1  # solo el admin
 
 
-async def test_a_precreated_teacher_is_linked_by_verified_email_and_keeps_its_role(
-    client_for: ClientFactory, client: httpx.AsyncClient, engine: AsyncEngine
+async def test_unverified_email_cannot_hijack_the_seeded_administrator(
+    client_for: ClientFactory, engine: AsyncEngine
 ) -> None:
-    await insert_user(engine, email="docente@example.com", role="teacher", sub=None)
-    teacher = client_for(sub="teacher-sub", email="Docente@Example.com")
-    body = (await teacher.get(ME)).json()
-    assert body["roles"] == ["teacher"]  # no se agregó student
-    assert body["identity_subject"] == "teacher-sub"
-    # después se reconoce por el sub, aunque el correo del token cambie
-    renamed = client_for(sub="teacher-sub", email="otro-correo@example.com")
+    await insert_user(engine, email="seed@example.com", role="admin", sub=None)
+    attacker = client_for(sub="attacker", email="seed@example.com", email_verified=False)
+    assert (await attacker.get(ME)).status_code == 403
+    async with engine.connect() as conn:
+        linked = (
+            await conn.execute(
+                text("SELECT identity_subject FROM users WHERE email = 'seed@example.com'")
+            )
+        ).scalar_one()
+    assert linked is None
+
+
+async def test_a_precreated_instructor_is_linked_by_verified_email_and_keeps_its_role(
+    client_for: ClientFactory, engine: AsyncEngine
+) -> None:
+    await insert_user(engine, email="docente@example.com", role="instructor", sub=None)
+    instructor = client_for(sub="instructor-sub", email="Docente@Example.com")
+    body = (await instructor.get(ME)).json()
+    assert body["roles"] == ["instructor"]
+    assert body["is_new_user"] is False
+    renamed = client_for(sub="instructor-sub", email="otro-correo@example.com")
     assert (await renamed.get(ME)).json()["id"] == body["id"]
 
 
-async def test_email_of_a_user_linked_to_another_identity_is_403(
+async def test_email_of_a_user_linked_to_another_identity_is_409(
     client_for: ClientFactory,
 ) -> None:
     intruder = client_for(sub="intruso", email="admin@test.example")  # el correo del admin
     response = await intruder.get(ME)
-    assert response.status_code == 403
-    assert response.json()["code"] == "IDENTITY_CONFLICT"
+    assert response.status_code == 409
+    assert response.json()["code"] == "IDENTITY_ALREADY_LINKED"
 
 
 async def test_deactivated_user_cannot_use_the_api(
@@ -164,108 +247,85 @@ async def test_roles_in_the_token_are_ignored(client_for: ClientFactory) -> None
             "resource_access": {"x": {"roles": ["admin"]}},
         },
     )
-    assert (await sneaky.get(ME)).json()["roles"] == ["student"]
+    assert (await sneaky.get(ME)).json()["roles"] == ["learner"]
     assert (await sneaky.post("/api/v1/roles", json={"code": "x", "name": "X"})).status_code == 403
 
 
 # --- qué puede hacer cada rol -----------------------------------------------------------------
 
 
-async def test_student_can_browse_the_catalog_but_not_change_it(
-    client_for: ClientFactory, client: httpx.AsyncClient, world: dict[str, int]
+@pytest.mark.parametrize(
+    ("method", "path"),
+    [
+        ("POST", "/api/v1/courses"),
+        ("GET", "/api/v1/courses"),
+        ("GET", "/api/v1/courses/1"),
+        ("GET", "/api/v1/courses/1/topics"),
+        ("POST", "/api/v1/courses/1/publish"),
+        ("PATCH", "/api/v1/courses/1/owner"),
+        ("PUT", "/api/v1/topics/1"),
+        ("GET", "/api/v1/users"),
+        ("PUT", "/api/v1/users/1/roles"),
+        ("GET", "/api/v1/user-roles"),
+        ("POST", "/api/v1/roles"),
+    ],
+)
+async def test_a_learner_cannot_reach_instructor_or_admin_routes(
+    client_for: ClientFactory, method: str, path: str
 ) -> None:
-    student = client_for(sub="est-sub", email="est@example.com")
-    assert (await student.get("/api/v1/courses")).status_code == 200
-    assert (await student.get(f"/api/v1/topics/{world['topic']}")).status_code == 200
-    assert (await student.get("/api/v1/learning-paths")).status_code == 200
-    assert (await student.get("/api/v1/resources")).status_code == 200
-    assert (await student.get("/api/v1/roles")).status_code == 200
+    learner = client_for(sub="learner-sub", email="learner@example.com")
+    response = await learner.request(method, path, json={})
+    assert response.status_code == 403
+    assert response.json()["code"] == "INSUFFICIENT_ROLE"
 
-    for path, body in [
-        ("/api/v1/courses", {"owner_user_id": 1, "name": "X"}),
-        ("/api/v1/topics", {"course_id": world["course"], "name": "X"}),
-        ("/api/v1/learning-paths", {"course_id": world["course"], "name": "X"}),
-    ]:
-        denied = await student.post(path, json=body)
-        assert denied.status_code == 403, path
-        assert denied.json()["code"] == "INSUFFICIENT_ROLE"
-    assert (await student.patch(f"/api/v1/courses/{world['course']}/deactivate")).status_code == 403
+
+async def test_a_learner_can_read_the_roles_catalog(client_for: ClientFactory) -> None:
+    learner = client_for(sub="learner-sub", email="learner@example.com")
+    assert (await learner.get("/api/v1/roles")).status_code == 200
 
 
 @pytest.mark.parametrize(
-    "path",
+    ("method", "path"),
     [
-        "/api/v1/users",
-        "/api/v1/user-roles",
-        "/api/v1/enrollments",
-        "/api/v1/path-steps",
-        "/api/v1/diagnostics",
-        "/api/v1/assessment-attempts",
-        "/api/v1/badges",
-        "/api/v1/llm-call-logs",
+        ("GET", "/api/v1/users"),
+        ("PUT", "/api/v1/users/1/roles"),
+        ("POST", "/api/v1/user-roles"),
+        ("PATCH", "/api/v1/courses/1/owner"),
+        ("POST", "/api/v1/roles"),
     ],
 )
-async def test_student_cannot_read_other_peoples_data(client_for: ClientFactory, path: str) -> None:
-    student = client_for(sub="est-sub", email="est@example.com")
-    assert (await student.get(path)).status_code == 403
-
-
-async def test_teacher_manages_content_and_reads_users_but_does_not_administer(
-    client_for: ClientFactory, engine: AsyncEngine, world: dict[str, int]
+async def test_an_instructor_cannot_reach_admin_routes(
+    client_for: ClientFactory, engine: AsyncEngine, method: str, path: str
 ) -> None:
-    teacher_id = await insert_user(engine, email="doc@example.com", role="teacher", sub="doc-sub")
-    teacher = client_for(sub="doc-sub", email="doc@example.com")
-
-    created = await teacher.post(
-        "/api/v1/courses", json={"owner_user_id": teacher_id, "name": "Curso del docente"}
-    )
-    assert created.status_code == 201
-    assert (
-        await teacher.post("/api/v1/topics", json={"course_id": created.json()["id"], "name": "T"})
-    ).status_code == 201
-    assert (await teacher.get("/api/v1/users")).status_code == 200
-    assert (await teacher.get("/api/v1/enrollments")).status_code == 200
-
-    assert (
-        await teacher.post("/api/v1/users", json={"full_name": "X", "email": "x@example.com"})
-    ).status_code == 403
-    assert (
-        await teacher.post("/api/v1/user-roles", json={"user_id": 1, "role_id": 1})
-    ).status_code == 403
-    assert (await teacher.get("/api/v1/user-roles")).status_code == 403
-    assert (await teacher.get("/api/v1/llm-call-logs")).status_code == 403
+    await insert_user(engine, email="doc@example.com", role="instructor", sub="doc-sub")
+    instructor = client_for(sub="doc-sub", email="doc@example.com")
+    response = await instructor.request(method, path, json={})
+    assert response.status_code == 403
+    assert response.json()["code"] == "INSUFFICIENT_ROLE"
 
 
-async def test_admin_can_do_everything_including_creating_teachers_and_admins(
-    client: httpx.AsyncClient,
+async def test_second_factor_is_required_on_privileged_routes_when_enabled(
+    client_for: ClientFactory, engine: AsyncEngine, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    teacher = (
-        await client.post("/api/v1/users", json={"full_name": "Docente", "email": "d@example.com"})
-    ).json()
-    roles = {r["code"]: r["id"] for r in (await client.get("/api/v1/roles")).json()["items"]}
-    assigned = await client.post(
-        "/api/v1/user-roles", json={"user_id": teacher["id"], "role_id": roles["teacher"]}
-    )
-    assert assigned.status_code == 201
-    assert (await client.get("/api/v1/llm-call-logs")).status_code == 200
+    from app.core.config import get_settings
+
+    await insert_user(engine, email="doc@example.com", role="instructor", sub="doc-sub")
+    monkeypatch.setenv("REQUIRE_SECOND_FACTOR", "true")
+    get_settings.cache_clear()
+    try:
+        without = client_for(sub="doc-sub", email="doc@example.com")
+        denied = await without.get("/api/v1/courses")
+        assert denied.status_code == 403
+        assert denied.json()["code"] == "SECOND_FACTOR_REQUIRED"
+        assert (await without.get(ME)).status_code == 200  # /me no lo exige
+        with_otp = client_for(sub="doc-sub", email="doc@example.com", extra={"amr": ["otp"]})
+        assert (await with_otp.get("/api/v1/courses")).status_code == 200
+    finally:
+        monkeypatch.undo()
+        get_settings.cache_clear()
 
 
-async def test_changes_are_audited_with_the_authenticated_user_id(
-    client_for: ClientFactory, engine: AsyncEngine
-) -> None:
-    teacher_id = await insert_user(engine, email="doc@example.com", role="teacher", sub="doc-sub")
-    teacher = client_for(sub="doc-sub", email="doc@example.com")
-    await teacher.post("/api/v1/courses", json={"owner_user_id": teacher_id, "name": "Auditado"})
-    async with engine.connect() as conn:
-        actor = (
-            await conn.execute(
-                text("SELECT app_user_id FROM courses_audit WHERE operation = 'INSERT'")
-            )
-        ).scalar_one()
-    assert actor == str(teacher_id)
-
-
-async def test_openapi_offers_both_ways_to_authenticate(bare_client: httpx.AsyncClient) -> None:
+async def test_the_openapi_offers_both_ways_to_authenticate(bare_client: httpx.AsyncClient) -> None:
     spec = (await bare_client.get("/openapi.json")).json()
     schemes = spec["components"]["securitySchemes"]
     assert any(s.get("scheme") == "bearer" for s in schemes.values())  # pegar un token
@@ -285,6 +345,3 @@ async def test_swagger_ui_is_prefilled_with_the_dev_tools_client(
     assert "smartmentor-dev-tools" in page
     assert "persistAuthorization" in page
     assert "openid profile email" in page  # Keycloak rechaza un scope vacío
-
-
-Token = Callable[..., str]

@@ -1,43 +1,78 @@
-"""Modelos SQLAlchemy de cursos. Reflejan courses, topics y topic_prerequisites de Liquibase."""
+"""Modelos SQLAlchemy de cursos. Reflejan las tablas del esquema v2.0.0 (Liquibase)."""
 
 from typing import Any
 
-from pgvector.sqlalchemy import Vector
-from sqlalchemy import BigInteger, ForeignKey, String, Text
+from sqlalchemy import BigInteger, Boolean, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.common.models import TableModel
-from app.core.config import get_settings
+from app.common.models import PublicTableModel, UpdatableTableModel
 
 
-class CourseModel(TableModel):
+class CourseModel(PublicTableModel):
     __tablename__ = "courses"
 
-    owner_user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
+    owner_user_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("users.id"))
     name: Mapped[str] = mapped_column(String(200))
     description: Mapped[str | None] = mapped_column(Text)
-    raw_syllabus: Mapped[str | None] = mapped_column(Text)
-    syllabus_file_path: Mapped[str | None] = mapped_column(String(500))
-    status: Mapped[str] = mapped_column(String(20), server_default="draft")
+    status: Mapped[str] = mapped_column(String(30), server_default="draft")
+    extraction_error_code: Mapped[str | None] = mapped_column(String(60))
 
 
-class TopicModel(TableModel):
+class SyllabusDocumentModel(PublicTableModel):
+    __tablename__ = "syllabus_documents"
+
+    course_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("courses.id"))
+    source_type: Mapped[str] = mapped_column(String(10))
+    file_name: Mapped[str | None] = mapped_column(String(255))
+    file_sha256: Mapped[str] = mapped_column(String(64))
+    byte_size: Mapped[int | None] = mapped_column(Integer)
+    page_count: Mapped[int | None] = mapped_column(Integer)
+    extracted_char_count: Mapped[int | None] = mapped_column(Integer)
+    extracted_text: Mapped[str | None] = mapped_column(Text)
+
+
+class SyllabusExtractionModel(UpdatableTableModel):
+    __tablename__ = "syllabus_extractions"
+
+    course_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("courses.id"))
+    syllabus_document_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("syllabus_documents.id")
+    )
+    ai_job_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("ai_jobs.id"))
+    raw_output: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    prompt_version: Mapped[str | None] = mapped_column(String(60))
+    is_current: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+
+
+class TopicModel(PublicTableModel):
     __tablename__ = "topics"
 
     course_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("courses.id"))
     name: Mapped[str] = mapped_column(String(200))
     description: Mapped[str | None] = mapped_column(Text)
-    learning_outcomes: Mapped[list[Any]] = mapped_column(JSONB, server_default="[]")
+    subtopics: Mapped[list[Any]] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    position: Mapped[int] = mapped_column(Integer, server_default="0")
+    estimated_minutes: Mapped[int | None] = mapped_column(Integer)
+    is_mandatory: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
     bloom_level: Mapped[str | None] = mapped_column(String(20))
-    # Dimensión provisional (pendiente D-01): debe coincidir con el esquema de Liquibase.
-    embedding: Mapped[list[float] | None] = mapped_column(
-        Vector(get_settings().embedding_dimension)
-    )
+    origin: Mapped[str] = mapped_column(String(20), server_default="llm")
+    review_status: Mapped[str] = mapped_column(String(20), server_default="unchanged")
+    extraction_key: Mapped[str | None] = mapped_column(String(100))
 
 
-class TopicPrerequisiteModel(TableModel):
+class LearningOutcomeModel(PublicTableModel):
+    __tablename__ = "learning_outcomes"
+
+    topic_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("topics.id"))
+    code: Mapped[str] = mapped_column(String(100))
+    statement: Mapped[str] = mapped_column(Text)
+    bloom_level: Mapped[str | None] = mapped_column(String(20))
+
+
+class TopicPrerequisiteModel(UpdatableTableModel):
     __tablename__ = "topic_prerequisites"
 
     topic_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("topics.id"))
     prerequisite_topic_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("topics.id"))
+    origin: Mapped[str] = mapped_column(String(20), server_default="llm")

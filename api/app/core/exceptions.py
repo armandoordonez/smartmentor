@@ -8,28 +8,16 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.common.exceptions import (
-    BusinessRuleError,
-    ConflictError,
-    DomainError,
-    ForbiddenError,
-    NotFoundError,
-    ServiceUnavailableError,
-    UnauthorizedError,
-)
+from app.common.exceptions import DomainError
 from app.core.logging import request_id_var
 
 logger = logging.getLogger("app.errors")
 
 PROBLEM_JSON = "application/problem+json"
 
-_DOMAIN_STATUS: tuple[tuple[type[DomainError], int], ...] = (
-    (UnauthorizedError, 401),
-    (ForbiddenError, 403),
-    (ServiceUnavailableError, 503),
-    (NotFoundError, 404),
-    (ConflictError, 409),
-    (BusinessRuleError, 422),
+# Extensiones que el catálogo (docs/contracts/error-codes.md) permite en el cuerpo del error.
+ALLOWED_EXTENSIONS = frozenset(
+    {"errors", "retryable", "job_id", "cycle", "missing", "attempts_used", "max_attempts"}
 )
 
 
@@ -59,14 +47,16 @@ def problem_response(
 
 async def _domain_error_handler(request: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, DomainError)
-    status = next((code for cls, code in _DOMAIN_STATUS if isinstance(exc, cls)), 400)
+    status = exc.status_code
     headers = {"WWW-Authenticate": "Bearer"} if status == 401 else None
+    extra = {k: v for k, v in exc.extra.items() if k in ALLOWED_EXTENSIONS}
     return problem_response(
         request,
         status=status,
         title=exc.title,
         detail=exc.detail,
         code=exc.code,
+        extra=extra,
         headers=headers,
     )
 

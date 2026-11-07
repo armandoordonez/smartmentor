@@ -1,88 +1,141 @@
-"""Contratos HTTP de cursos."""
+"""Contratos HTTP de cursos (docs/contracts/api-v2.md, sección 5)."""
 
-from typing import Any
+from pydantic import BaseModel, ConfigDict, Field
 
-from pydantic import Field, field_validator
-
-from app.common.constants import BloomLevel, CourseStatus
-from app.common.schemas import RequestSchema, ResponseSchema
-from app.core.config import get_settings
+from app.common.constants import BloomLevel
+from app.common.schemas import RequestSchema, UtcDatetime
 
 
-def validate_embedding(value: list[float] | None) -> list[float] | None:
-    expected = get_settings().embedding_dimension
-    if value is not None and len(value) != expected:
-        raise ValueError(f"embedding must have {expected} dimensions, got {len(value)}")
-    return value
+class LearningPathInput(RequestSchema):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    group_label: str | None = Field(default=None, max_length=100)
 
 
 class CourseCreate(RequestSchema):
-    owner_user_id: int = Field(gt=0)
     name: str = Field(min_length=1, max_length=200)
-    description: str | None = None
-    raw_syllabus: str | None = None
-    syllabus_file_path: str | None = Field(default=None, max_length=500)
-    status: CourseStatus = CourseStatus.DRAFT
+    description: str | None = Field(default=None, max_length=4000)
+    learning_path: LearningPathInput | None = None
 
 
 class CourseUpdate(RequestSchema):
     name: str | None = Field(default=None, min_length=1, max_length=200)
-    description: str | None = None
-    raw_syllabus: str | None = None
-    syllabus_file_path: str | None = Field(default=None, max_length=500)
-    status: CourseStatus | None = None
+    description: str | None = Field(default=None, max_length=4000)
 
 
-class CourseResponse(ResponseSchema):
-    owner_user_id: int
+class CourseOwnerUpdate(RequestSchema):
+    owner_user_id: int | None = Field(default=None, gt=0)
+
+
+class LearningPathSummary(BaseModel):
+    id: int
     name: str
-    description: str | None
-    raw_syllabus: str | None
-    syllabus_file_path: str | None
+    group_label: str | None
     status: str
 
 
-class TopicCreate(RequestSchema):
-    course_id: int = Field(gt=0)
+class CourseResponse(BaseModel):
+    id: int
+    name: str
+    description: str | None
+    status: str
+    owner_user_id: int | None
+    extraction_error_code: str | None
+    extraction_job_id: str | None
+    learning_path: LearningPathSummary | None
+    created_at: UtcDatetime | None
+    updated_at: UtcDatetime | None
+
+
+class SyllabusTextBody(RequestSchema):
+    text: str = Field(min_length=1)
+
+
+class ExtractionRequest(RequestSchema):
+    confirm_discard_review: bool = False
+
+
+class OutcomeWrite(RequestSchema):
+    id: int | None = Field(default=None, gt=0)
+    statement: str = Field(min_length=1, max_length=1000)
+    bloom_level: BloomLevel
+
+
+class TopicWrite(RequestSchema):
     name: str = Field(min_length=1, max_length=200)
-    description: str | None = None
-    learning_outcomes: list[Any] = Field(default_factory=list)
+    description: str | None = Field(default=None, max_length=4000)
+    subtopics: list[str] = Field(default_factory=list, max_length=50)
+    position: int | None = Field(default=None, ge=1)
+    estimated_minutes: int | None = Field(default=None, ge=1, le=100_000)
+    is_mandatory: bool = False
     bloom_level: BloomLevel | None = None
-    embedding: list[float] | None = None
-
-    _check_embedding = field_validator("embedding")(validate_embedding)
-
-
-class TopicUpdate(RequestSchema):
-    name: str | None = Field(default=None, min_length=1, max_length=200)
-    description: str | None = None
-    learning_outcomes: list[Any] | None = None
-    bloom_level: BloomLevel | None = None
-    embedding: list[float] | None = None
-
-    _check_embedding = field_validator("embedding")(validate_embedding)
+    learning_outcomes: list[OutcomeWrite] = Field(default_factory=list, max_length=30)
+    prerequisite_topic_ids: list[int] = Field(default_factory=list, max_length=50)
 
 
-class TopicResponse(ResponseSchema):
-    """El embedding no se devuelve: es grande y solo lo usa la capa de IA."""
+class OutcomeResponse(BaseModel):
+    id: int
+    code: str
+    statement: str
+    bloom_level: str
 
+
+class TopicResponse(BaseModel):
+    id: int
     course_id: int
     name: str
     description: str | None
-    learning_outcomes: list[Any]
+    subtopics: list[str]
+    position: int
+    estimated_minutes: int | None
+    is_mandatory: bool
     bloom_level: str | None
-    has_embedding: bool
+    origin: str
+    review_status: str
+    extraction_key: str | None
+    learning_outcomes: list[OutcomeResponse]
+    prerequisite_topic_ids: list[int]
 
 
-class TopicPrerequisiteCreate(RequestSchema):
-    topic_id: int = Field(gt=0)
-    prerequisite_topic_id: int = Field(gt=0)
+class ReviewCounts(BaseModel):
+    unchanged: int
+    corrected: int
+    added: int
+    deleted: int
 
 
-class TopicPrerequisiteUpdate(RequestSchema):
-    """Un prerrequisito no tiene campos editables: se activa o se inactiva."""
+class TopicListResponse(BaseModel):
+    topics: list[TopicResponse]
+    review_counts: ReviewCounts
 
 
-class TopicPrerequisiteResponse(ResponseSchema):
-    topic_id: int
-    prerequisite_topic_id: int
+class GraphNode(BaseModel):
+    id: int
+    name: str
+    position: int
+
+
+class GraphEdge(BaseModel):
+    """`from` es el prerrequisito y `to` el tema que lo requiere."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    from_: int = Field(alias="from")
+    to: int
+    origin: str
+
+
+class TopicGraphResponse(BaseModel):
+    nodes: list[GraphNode]
+    edges: list[GraphEdge]
+
+
+class ScoreResponse(BaseModel):
+    precision: float | None
+    recall: float | None
+    f1: float | None
+
+
+class ExtractionMetricsResponse(BaseModel):
+    topics: ScoreResponse | None
+    prerequisites: ScoreResponse | None
+    corrections: int

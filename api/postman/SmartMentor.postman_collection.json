@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "SmartMentor API (local)",
-    "description": "Colección de la API de SmartMentor. Antes de cada petición un script pide a Keycloak el token con usuario y contraseña (cliente smartmentor-dev-tools, solo desarrollo) y lo envía como Bearer. Configura username y password en el entorno «SmartMentor local».",
+    "description": "Colección de la API de SmartMentor v2 (generada desde docs/contracts/openapi-api.json con api/scripts/dev.sh postman). Antes de cada petición un script pide a Keycloak el token con usuario y contraseña (cliente smartmentor-dev-tools, solo desarrollo) y lo envía como Bearer. Configura username y password en el entorno «SmartMentor local». Las variables de ruta ({{course_id}}, {{topic_id}}, {{job_id}}...) se definen en el entorno.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -58,10 +58,512 @@
   ],
   "item": [
     {
-      "name": "Sesión",
+      "name": "courses",
       "item": [
         {
-          "name": "Quién soy (/me)",
+          "name": "GET /api/v1/courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses"
+              ],
+              "query": [
+                {
+                  "key": "mine",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Courses\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/courses",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses"
+              ],
+              "query": []
+            },
+            "description": "Create Course\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/courses/{course_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}"
+              ],
+              "query": []
+            },
+            "description": "Get Course\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/courses/{course_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Course\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/courses/{course_id}/extraction-metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/extraction-metrics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "extraction-metrics"
+              ],
+              "query": []
+            },
+            "description": "Extraction Metrics\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/courses/{course_id}/extractions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/extractions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "extractions"
+              ],
+              "query": []
+            },
+            "description": "Re Extract\n\nVuelve a extraer los temas del último syllabus; la revisión se reemplaza (D2c).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/courses/{course_id}/owner",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/owner",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "owner"
+              ],
+              "query": []
+            },
+            "description": "Assign Owner\n\nAsigna el instructor dueño del curso, o lo deja «Sin asignar» con `null` (AD5).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/courses/{course_id}/publish",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/publish",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "publish"
+              ],
+              "query": []
+            },
+            "description": "Publish Course\n\nValida el DAG y la revisión y dispara la generación del contenido (D2)."
+          }
+        },
+        {
+          "name": "POST /api/v1/courses/{course_id}/syllabus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/syllabus",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "syllabus"
+              ],
+              "query": []
+            },
+            "description": "Upload Syllabus\n\nSube el syllabus (PDF ≤ 10 MB o texto), extrae su texto y encola `syllabus.structure`.\n\nTambién acepta JSON: {\"text\": \"...\"}.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/courses/{course_id}/topic-graph",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/topic-graph",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "topic-graph"
+              ],
+              "query": []
+            },
+            "description": "Topic Graph\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/courses/{course_id}/topics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/topics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "topics"
+              ],
+              "query": []
+            },
+            "description": "List Topics\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/courses/{course_id}/topics",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/topics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "topics"
+              ],
+              "query": []
+            },
+            "description": "Create Topic\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/v1/topics/{topic_id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics/{{topic_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics",
+                "{{topic_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Topic\n\nActualiza el tema con sus resultados y prerrequisitos en una sola operación (D2b).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/topics/{topic_id}/deactivate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics/{{topic_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics",
+                "{{topic_id}}",
+                "deactivate"
+              ],
+              "query": []
+            },
+            "description": "Deactivate Topic\n\n"
+          }
+        }
+      ]
+    },
+    {
+      "name": "health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "query": []
+            },
+            "description": "Health\n\nLiveness: el proceso responde. No consulta nada externo."
+          }
+        },
+        {
+          "name": "GET /ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ready",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ready"
+              ],
+              "query": []
+            },
+            "description": "Ready\n\nReadiness: hay conexión a la base y la extensión vector está instalada."
+          }
+        }
+      ]
+    },
+    {
+      "name": "jobs",
+      "item": [
+        {
+          "name": "GET /api/v1/jobs/{job_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/jobs/{{job_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "jobs",
+                "{{job_id}}"
+              ],
+              "query": []
+            },
+            "description": "Get Job\n\nConsulta el trabajo (la app lo hace cada 2 s, U1x).\n\nSi `ai/` terminó, la API valida el resultado y lo escribe en una transacción idempotente en\nesta misma petición. Un trabajo fallido responde `502 AI_TASK_FAILED` (con `retryable`) o\n`503 AI_BUDGET_EXCEEDED`. Un trabajo ajeno responde `404 JOB_NOT_FOUND`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "me",
+      "item": [
+        {
+          "name": "GET /api/v1/me",
           "request": {
             "method": "GET",
             "header": [],
@@ -74,63 +576,189 @@
                 "api",
                 "v1",
                 "me"
-              ]
+              ],
+              "query": []
             },
-            "description": "Devuelve el usuario autenticado y sus roles de la base de datos."
+            "description": "Read Me\n\nEl usuario autenticado. El primer ingreso lo crea con el rol `learner` (CU-34)."
           }
-        }
-      ]
-    },
-    {
-      "name": "Sin autenticación",
-      "item": [
+        },
         {
-          "name": "Health",
+          "name": "GET /api/v1/me/consents",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/health",
+              "raw": "{{base_url}}/api/v1/me/consents",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "health"
-              ]
+                "api",
+                "v1",
+                "me",
+                "consents"
+              ],
+              "query": []
             },
-            "description": "",
-            "auth": {
-              "type": "noauth"
+            "description": "List Consents\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/me/consents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/consents",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "consents"
+              ],
+              "query": []
+            },
+            "description": "Grant Consent\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"consent_type\": \"data_processing\",\n  \"document_version\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Ready",
+          "name": "PATCH /api/v1/me/consents/{consent_type}/revoke",
           "request": {
-            "method": "GET",
+            "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/ready",
+              "raw": "{{base_url}}/api/v1/me/consents/{{consent_type}}/revoke",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "ready"
-              ]
+                "api",
+                "v1",
+                "me",
+                "consents",
+                "{{consent_type}}",
+                "revoke"
+              ],
+              "query": []
             },
-            "description": "",
-            "auth": {
-              "type": "noauth"
+            "description": "Revoke Consent\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/me/data-subject-requests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/data-subject-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "data-subject-requests"
+              ],
+              "query": []
+            },
+            "description": "Create Data Subject Request\n\nSolicitud de acceso, rectificación o supresión (E11b). El administrador la ejecuta.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"request_type\": \"deletion\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "profile"
+              ],
+              "query": []
+            },
+            "description": "Read Profile\n\n"
+          }
+        },
+        {
+          "name": "PUT /api/v1/me/profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "profile"
+              ],
+              "query": []
+            },
+            "description": "Update Profile\n\nReemplaza la descripción y la hoja de vida (E2, E2b, E15).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }
       ]
     },
     {
-      "name": "Identidad",
+      "name": "roles",
       "item": [
         {
-          "name": "Listar roles",
+          "name": "GET /api/v1/roles",
           "request": {
             "method": "GET",
             "header": [],
@@ -143,42 +771,35 @@
                 "api",
                 "v1",
                 "roles"
-              ]
-            },
-            "description": ""
-          }
-        },
-        {
-          "name": "Listar usuarios",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/users?limit=20&offset=0",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "users"
               ],
               "query": [
                 {
                   "key": "limit",
-                  "value": "20"
+                  "value": "",
+                  "disabled": true
                 },
                 {
                   "key": "offset",
-                  "value": "0"
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "active",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "code",
+                  "value": "",
+                  "disabled": true
                 }
               ]
             },
-            "description": "Roles admin y teacher."
+            "description": "List Items\n\n"
           }
         },
         {
-          "name": "Crear usuario",
+          "name": "POST /api/v1/roles",
           "request": {
             "method": "POST",
             "header": [
@@ -188,20 +809,21 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/users",
+              "raw": "{{base_url}}/api/v1/roles",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "users"
-              ]
+                "roles"
+              ],
+              "query": []
             },
-            "description": "Solo admin. Para que sea docente, asígnale el rol con POST /api/v1/user-roles.",
+            "description": "Create\n\n",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Docente Ejemplo\",\n  \"email\": \"docente.ejemplo@example.com\"\n}",
+              "raw": "{\n  \"code\": \"texto\",\n  \"name\": \"texto\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -211,7 +833,158 @@
           }
         },
         {
-          "name": "Asignar rol",
+          "name": "GET /api/v1/roles/{item_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles",
+                "{{item_id}}"
+              ],
+              "query": []
+            },
+            "description": "Get Item\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/roles/{item_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles",
+                "{{item_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Item\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/roles/{item_id}/activate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/{{item_id}}/activate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles",
+                "{{item_id}}",
+                "activate"
+              ],
+              "query": []
+            },
+            "description": "Activate Item\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/roles/{item_id}/deactivate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/roles/{{item_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "roles",
+                "{{item_id}}",
+                "deactivate"
+              ],
+              "query": []
+            },
+            "description": "Deactivate Item\n\n"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user-roles",
+      "item": [
+        {
+          "name": "GET /api/v1/user-roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/user-roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user-roles"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "active",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "role_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Items\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/user-roles",
           "request": {
             "method": "POST",
             "header": [
@@ -229,12 +1002,13 @@
                 "api",
                 "v1",
                 "user-roles"
-              ]
+              ],
+              "query": []
             },
-            "description": "Solo admin.",
+            "description": "Create\n\n",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"role_id\": 2\n}",
+              "raw": "{\n  \"role_id\": 1,\n  \"user_id\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -242,33 +1016,150 @@
               }
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Cursos",
-      "item": [
+        },
         {
-          "name": "Listar cursos",
+          "name": "GET /api/v1/user-roles/{item_id}",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/courses",
+              "raw": "{{base_url}}/api/v1/user-roles/{{item_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "courses"
-              ]
+                "user-roles",
+                "{{item_id}}"
+              ],
+              "query": []
             },
-            "description": ""
+            "description": "Get Item\n\n"
           }
         },
         {
-          "name": "Crear curso",
+          "name": "PATCH /api/v1/user-roles/{item_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/user-roles/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user-roles",
+                "{{item_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Item\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/user-roles/{item_id}/activate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/user-roles/{{item_id}}/activate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user-roles",
+                "{{item_id}}",
+                "activate"
+              ],
+              "query": []
+            },
+            "description": "Activate Item\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/user-roles/{item_id}/deactivate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/user-roles/{{item_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "user-roles",
+                "{{item_id}}",
+                "deactivate"
+              ],
+              "query": []
+            },
+            "description": "Deactivate Item\n\n"
+          }
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "GET /api/v1/users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "active",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Items\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/users",
           "request": {
             "method": "POST",
             "header": [
@@ -278,20 +1169,21 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/courses",
+              "raw": "{{base_url}}/api/v1/users",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "courses"
-              ]
+                "users"
+              ],
+              "query": []
             },
-            "description": "Roles admin y teacher.",
+            "description": "Create\n\n",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"owner_user_id\": 1,\n  \"name\": \"Ciencia de datos\",\n  \"description\": \"Curso de ejemplo\"\n}",
+              "raw": "{\n  \"email\": \"texto\",\n  \"full_name\": \"texto\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -301,28 +1193,161 @@
           }
         },
         {
-          "name": "Listar temas de un curso",
+          "name": "GET /api/v1/users/{item_id}",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/topics?course_id=1",
+              "raw": "{{base_url}}/api/v1/users/{{item_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "topics"
+                "users",
+                "{{item_id}}"
               ],
-              "query": [
-                {
-                  "key": "course_id",
-                  "value": "1"
-                }
-              ]
+              "query": []
             },
-            "description": ""
+            "description": "Get Item\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/users/{item_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{item_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Item\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/users/{item_id}/activate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{item_id}}/activate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{item_id}}",
+                "activate"
+              ],
+              "query": []
+            },
+            "description": "Activate Item\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/users/{item_id}/deactivate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{item_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{item_id}}",
+                "deactivate"
+              ],
+              "query": []
+            },
+            "description": "Deactivate Item\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/users/{user_id}/roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "roles"
+              ],
+              "query": []
+            },
+            "description": "Read User Roles\n\n"
+          }
+        },
+        {
+          "name": "PUT /api/v1/users/{user_id}/roles",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/{{user_id}}/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user_id}}",
+                "roles"
+              ],
+              "query": []
+            },
+            "description": "Replace User Roles\n\nAsigna o quita roles (varios por usuario). Nunca deja la plataforma sin administrador.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roles\": [\n    \"admin\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         }
       ]
