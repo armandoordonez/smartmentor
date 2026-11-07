@@ -1,6 +1,6 @@
 # ADR 0004: Autenticación con Keycloak y bearer tokens
 
-* **Estado:** Aceptado
+* **Estado:** Aceptado; complementado por [ADR 0014](0014-service-to-service-auth-client-credentials.md) el 2026-11-07 (autenticación entre servicios, autorregistro con correo verificado, fuerza bruta y roles reflejados desde la base)
 * **Fecha:** 2026-10-07
 * **Autor:** eduar.troyano
 * **Fuente:** [`proyecto/brief.md`](../../proyecto/brief.md), módulo 1 "Gestión de usuarios" (registro, login, roles admin, docente y estudiante)
