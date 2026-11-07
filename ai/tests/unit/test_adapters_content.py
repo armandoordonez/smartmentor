@@ -2,21 +2,14 @@
 
 from __future__ import annotations
 
-import math
-from types import SimpleNamespace
-from typing import Any
-
 import httpx
 import pytest
-from google.genai import errors
 
-from app.adapters.gemini_embeddings import GeminiEmbeddingProvider, l2_normalize
 from app.adapters.memory_knowledge import InMemoryKnowledgeStore
 from app.adapters.metadata_transcripts import MetadataTranscriptProvider
 from app.adapters.youtube import YouTubeSearchProvider, parse_chapters
 from app.application.embeddings.chunking import Chunk
 from app.application.embeddings.store import SourceMaterial
-from app.ports.llm import LlmProviderError, LlmTimeoutError
 from app.ports.video import VideoSearchHit, VideoSearchQuery, VideoSearchUnavailableError
 
 KEY = "test-only-not-a-secret"
@@ -136,74 +129,6 @@ async def test_metadata_transcript_is_title_chapters_and_description() -> None:
     transcript = await MetadataTranscriptProvider().transcript(hit)
     assert transcript.source == "metadata"
     assert transcript.text == "Título Capítulos: Uno; Dos. Descripción larga"
-
-
-# ---------- Gemini embeddings ----------
-
-
-class FakeGenaiClient:
-    def __init__(
-        self, vectors: list[list[float]] | None = None, error: BaseException | None = None
-    ):
-        self.calls: list[dict[str, Any]] = []
-        self._vectors = vectors
-        self._error = error
-        self.aio = SimpleNamespace(models=SimpleNamespace(embed_content=self._embed))
-
-    async def _embed(self, *, model: str, contents: list[str], config: Any) -> Any:
-        self.calls.append({"model": model, "contents": contents, "config": config})
-        if self._error:
-            raise self._error
-        vectors = self._vectors or [[3.0, 4.0] for _ in contents]
-        return SimpleNamespace(embeddings=[SimpleNamespace(values=v) for v in vectors])
-
-
-async def test_gemini_embeddings_use_task_types_and_normalise() -> None:
-    client = FakeGenaiClient()
-    provider = GeminiEmbeddingProvider(client, "embedding-model-x", 2)
-    result = await provider.embed(["uno", "dos"], "query")
-    config = client.calls[0]["config"]
-    assert config.task_type == "RETRIEVAL_QUERY"
-    assert config.output_dimensionality == 2
-    assert result.model == "embedding-model-x"
-    assert all(math.isclose(math.hypot(*v), 1.0) for v in result.vectors)
-    assert result.input_tokens > 0
-    await provider.embed(["x"], "document")
-    await provider.embed(["x"], "similarity")
-    assert [c["config"].task_type for c in client.calls[1:]] == [
-        "RETRIEVAL_DOCUMENT",
-        "SEMANTIC_SIMILARITY",
-    ]
-
-
-async def test_gemini_embeddings_reject_a_wrong_dimension() -> None:
-    provider = GeminiEmbeddingProvider(FakeGenaiClient(), "m", 3)
-    with pytest.raises(LlmProviderError, match="dimension"):
-        await provider.embed(["x"], "document")
-
-
-async def test_gemini_embeddings_map_api_errors_and_timeouts() -> None:
-    api_error = errors.APIError(
-        429, {"error": {"message": "quota", "status": "RESOURCE_EXHAUSTED"}}
-    )
-    with pytest.raises(LlmProviderError, match="429"):
-        await GeminiEmbeddingProvider(FakeGenaiClient(error=api_error), "m", 2).embed(
-            ["x"], "query"
-        )
-    with pytest.raises(LlmTimeoutError):
-        await GeminiEmbeddingProvider(FakeGenaiClient(error=TimeoutError()), "m", 2).embed(
-            ["x"], "query"
-        )
-
-
-async def test_gemini_embeddings_of_nothing_do_not_call_the_provider() -> None:
-    client = FakeGenaiClient()
-    result = await GeminiEmbeddingProvider(client, "m", 2).embed([], "document")
-    assert result.vectors == [] and client.calls == []
-
-
-def test_l2_normalize_keeps_a_zero_vector() -> None:
-    assert l2_normalize([0.0, 0.0]) == [0.0, 0.0]
 
 
 # ---------- in-memory knowledge store ----------

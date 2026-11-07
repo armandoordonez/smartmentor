@@ -9,9 +9,9 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import ValidationError
 
-from app.application.content.context import TaskContext, TaskResult, to_json
+from app.application.content.context import to_json
 from app.application.llm_runner import CallContext, LlmRunner
 from app.domain.contracts.assessment import (
     AssessmentItem,
@@ -19,7 +19,6 @@ from app.domain.contracts.assessment import (
     AssessmentItemLLM,
     ItemReview,
     ItemReviewLLM,
-    ItemReviewResult,
     item_from_llm,
 )
 from app.domain.contracts.common import ItemSource, Meta
@@ -28,21 +27,6 @@ from app.domain.errors import TaskError
 
 BANK_CONTRACT = "assessment_item_bank.v1"
 REVIEW_CONTRACT = "item_review.v1"
-
-
-class ReviewItemInput(BaseModel):
-    item_id: str
-    item_type: str
-    bloom_level: str
-    stem: str
-    options: list[str] = Field(default_factory=list)
-    correct_option: int | None = None
-    rubric: list[dict[str, Any]] = Field(default_factory=list)
-    outcome: str = ""
-
-
-class ReviewInput(BaseModel):
-    items: list[ReviewItemInput] = Field(min_length=1)
 
 
 def review_payload(
@@ -88,26 +72,6 @@ class ItemReviewer:
     ) -> ItemReviewLLM:
         reviews, _ = await self.review_raw(review_payload(items, outcome_text), ctx)
         return reviews
-
-
-class ReviewTask:
-    """``items.review``: reviews a batch given in the input."""
-
-    job_type = "items.review"
-
-    def __init__(self, reviewer: ItemReviewer) -> None:
-        self._reviewer = reviewer
-
-    async def run(self, raw: dict[str, Any], ctx: TaskContext) -> TaskResult:
-        data = ReviewInput.model_validate(raw)
-        payload = [i.model_dump() for i in data.items]
-        llm, meta = await self._reviewer.review_raw(payload, ctx.call(self.job_type))
-        result = ItemReviewResult(
-            reviews=[ItemReview.model_validate(r.model_dump()) for r in llm.reviews],
-            discarded_item_ids=discarded_item_ids(llm),
-            meta=meta,
-        )
-        return TaskResult(REVIEW_CONTRACT, result.model_dump(mode="json"))
 
 
 def build_bank(

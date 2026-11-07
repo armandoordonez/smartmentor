@@ -1,7 +1,7 @@
 """Synchronous tasks (< 3 s, ADR 0010): ``levels.estimate`` and ``path.sequence``.
 
-``video.rank`` arrives in Phase 5; until then it answers ``404 UNKNOWN_TASK`` like any other
-unknown name. They create no ``ai_jobs`` rows (embedding calls are logged in ``llm_call_logs``).
+``video.rank`` is added by the content module (Phase 5). They create no ``ai_jobs`` rows
+(embedding calls are logged in ``llm_call_logs``).
 """
 
 from __future__ import annotations
@@ -12,9 +12,11 @@ from app.api.deps import ContainerDep
 from app.application.diagnostic import LevelsEstimateInput
 from app.application.llm_runner import CallContext
 from app.application.path import PathSequenceInput, sequence
+from app.application.video.service import RankInput
 from app.core.errors import ApiError
 from app.domain.contracts.diagnostic import DiagnosticResult
 from app.domain.contracts.learning_path import LearningPath
+from app.domain.contracts.video import VideoResource
 from app.domain.errors import TaskError
 from app.domain.sequencing import SequencingError
 
@@ -46,6 +48,14 @@ async def path_sequence(body: PathSequenceInput) -> LearningPath:
     except SequencingError as exc:
         extra = {"cycle": exc.cycle} if exc.cycle else None
         raise ApiError(422, exc.code, str(exc), extra=extra) from exc
+
+
+@router.post("/video.rank", responses={503: {"description": "BUDGET_EXCEEDED"}})
+async def video_rank(body: RankInput, container: ContainerDep) -> VideoResource:
+    try:
+        return await container.content.recommender.rank(body, CallContext(task="video.rank"))
+    except TaskError as exc:
+        raise task_error_to_http(exc) from exc
 
 
 @router.post("/{name}", responses={404: {"description": "UNKNOWN_TASK"}})

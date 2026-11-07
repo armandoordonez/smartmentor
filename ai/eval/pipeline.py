@@ -39,7 +39,7 @@ from app.adapters.prompt_files import FilePromptStore
 from app.application.content.context import Handler, TaskContext, TaskResult
 from app.application.content.course_generation import GenerateContentInput
 from app.application.content.privacy import pseudonymize_profile
-from app.application.content.registry import ContentDeps, build_content_handlers
+from app.application.content.registry import ContentDeps, build_content_services
 from app.application.embeddings.sources import DirectorySourceReader
 from app.application.grading.rule import grade_multiple_choice
 from app.application.llm_runner import CallContext, EmbeddingRunner, LlmRunner, ModelConfig
@@ -199,7 +199,9 @@ class EvalWorld:
             clock=self.now,
             video_search=runtime.video_search,
         )
-        self.handlers: dict[str, Handler] = build_content_handlers(self.deps)
+        self.handlers: dict[str, Handler] = {
+            t: s.run for t, s in build_content_services(self.deps).specs.items()
+        }
         self.package = Package(
             topics=[],
             quiz_items_per_topic=options.quiz_items_per_topic,

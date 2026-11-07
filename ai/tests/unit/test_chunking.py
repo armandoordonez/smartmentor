@@ -46,7 +46,7 @@ def test_token_count_is_an_estimate_of_four_characters_per_token() -> None:
     assert chunk.token_count == 100
 
 
-@given(st.text(alphabet=st.characters(blacklist_categories=("Cs",)), max_size=4000))
+@given(st.text(alphabet=st.characters(blacklist_categories=["Cs"]), max_size=4000))
 def test_fragments_never_exceed_the_target_and_keep_the_words(text: str) -> None:
     chunks = split_chunks(text)
     assert all(len(c.text) <= TARGET_CHARS for c in chunks)

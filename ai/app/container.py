@@ -28,6 +28,8 @@ from app.adapters.memory import (
     InMemoryJobRepository,
 )
 from app.adapters.prompt_files import FilePromptStore
+from app.application.content.registry import ContentServices, build_job_handlers
+from app.application.content.wiring import build_content_for_container
 from app.application.diagnostic import (
     DiagnosticFinalizeHandler,
     DiagnosticGenerateHandler,
@@ -104,6 +106,7 @@ class Container:
     embedding_runner: EmbeddingRunner
     level_estimator: LevelEstimator
     job_service: JobService
+    content: ContentServices
     worker_config: WorkerConfig
     token_validator: ServiceTokenValidator | None
     database_ping: Callable[[], Awaitable[None]] | None = None
@@ -168,13 +171,17 @@ def build_embeddings(settings: Settings) -> EmbeddingProvider:
 
 
 def build_handlers(
-    runner: LlmRunner, catalog: CatalogReader, estimator: LevelEstimator
+    runner: LlmRunner,
+    catalog: CatalogReader,
+    estimator: LevelEstimator,
+    content: ContentServices | None = None,
 ) -> dict[str, JobHandler[Any]]:
     handlers: list[JobHandler[Any]] = [
         SyllabusStructureHandler(runner, catalog),
         DiagnosticGenerateHandler(runner, catalog),
         ItemsReviewHandler(runner),
         DiagnosticFinalizeHandler(runner, estimator),
+        *(build_job_handlers(content) if content is not None else []),
     ]
     return {h.job_type: h for h in handlers}
 
@@ -271,10 +278,18 @@ def build_container(settings: Settings, overrides: Overrides | None = None) -> C
         clock=clock,
     )
     estimator = LevelEstimator(embedding_runner, catalog)
+    content = build_content_for_container(
+        runner=runner,
+        embedding_runner=embedding_runner,
+        catalog=catalog,
+        jobs=jobs,
+        clock=clock,
+        engine=engine,
+    )
     job_service = JobService(
         jobs=jobs,
         call_logs=call_logs,
-        handlers=build_handlers(runner, catalog, estimator),
+        handlers=build_handlers(runner, catalog, estimator, content),
         clock=clock,
     )
     token_validator = o.token_validator
@@ -300,6 +315,7 @@ def build_container(settings: Settings, overrides: Overrides | None = None) -> C
         embedding_runner=embedding_runner,
         level_estimator=estimator,
         job_service=job_service,
+        content=content,
         worker_config=WorkerConfig(
             lease_seconds=settings.ai_job_lock_seconds,
             max_attempts=settings.ai_job_max_attempts,

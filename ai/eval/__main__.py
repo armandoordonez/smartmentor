@@ -14,7 +14,7 @@ from pathlib import Path
 
 from app.core.config import REPO_ROOT, get_settings
 from eval.pipeline import DEFAULT_SYLLABUS, PipelineOptions, run_pipeline
-from eval.runtime import LiveEvaluationNotAllowedError, build_fake_runtime
+from eval.runtime import LiveEvaluationNotAllowedError, build_fake_runtime, build_live_runtime
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -24,19 +24,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--live", action="store_true", help="real providers (AI_EVAL_LIVE=1)")
     args = parser.parse_args(argv)
     if args.live:
-        # The real LLM adapter comes from ai-base; until it is wired here the run is refused.
         try:
-            settings = get_settings()
-            if not settings.ai_eval_live:
-                raise LiveEvaluationNotAllowedError("set AI_EVAL_LIVE=1 to call the real LLM")
-            raise LiveEvaluationNotAllowedError("live wiring pending the ai-base provider adapter")
+            runtime = build_live_runtime(get_settings())
         except LiveEvaluationNotAllowedError as exc:
             print(f"live run refused: {exc}", file=sys.stderr)  # noqa: T201
             return 2
+    else:
+        runtime = build_fake_runtime()
     stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M")
     out = args.out or REPO_ROOT / "data" / "examples" / f"ai-run-{stamp}"
     options = PipelineOptions(syllabus_text=args.syllabus.read_text(encoding="utf-8"), out_dir=out)
-    report = asyncio.run(run_pipeline(options, build_fake_runtime(), on_progress=None))
+    report = asyncio.run(run_pipeline(options, runtime))
     print(f"package: {report.output_dir}")  # noqa: T201
     print(f"consistency issues: {len(report.issues)}")  # noqa: T201
     return 0 if not report.issues else 1

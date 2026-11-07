@@ -11,11 +11,10 @@ import os
 from dataclasses import dataclass
 
 import httpx
-from google import genai
 
 from app.adapters.fake_embedding import FakeEmbeddingProvider
 from app.adapters.fake_llm import FakeLlmProvider
-from app.adapters.gemini_embeddings import GeminiEmbeddingProvider
+from app.adapters.gemini import GeminiEmbeddingProvider, GeminiProvider
 from app.adapters.youtube import YouTubeSearchProvider
 from app.core.config import REPO_ROOT, Settings
 from app.ports.embedding import EmbeddingProvider
@@ -110,12 +109,11 @@ def build_fake_runtime() -> EvalRuntime:
     )
 
 
-def build_live_runtime(settings: Settings, llm: LlmProvider) -> EvalRuntime:
+def build_live_runtime(settings: Settings) -> EvalRuntime:
     """Real providers for one evaluation run (plan 5.4.14: never in CI).
 
-    ``llm`` is the real LLM adapter (``ai-base``); embeddings use Gemini and the video search
-    uses YouTube when ``YOUTUBE_API_KEY`` is set. Without that key the run uses the instructor's
-    list only (L-08).
+    The LLM and the embeddings are Gemini; the video search uses YouTube when
+    ``YOUTUBE_API_KEY`` is set (without it the run has no videos, L-08).
     """
     if not settings.ai_eval_live:
         raise LiveEvaluationNotAllowedError("set AI_EVAL_LIVE=1 to call the real LLM")
@@ -123,22 +121,25 @@ def build_live_runtime(settings: Settings, llm: LlmProvider) -> EvalRuntime:
         raise LiveEvaluationNotAllowedError("the real LLM is never called in CI")
     if missing := settings.missing_configuration():
         raise LiveEvaluationNotAllowedError(f"incomplete configuration: {missing}")
+    if settings.ai_llm_provider != "gemini":
+        raise LiveEvaluationNotAllowedError("the live run supports AI_LLM_PROVIDER=gemini only")
     api_key = _required(settings.gemini_api_key).get_secret_value()
-    embedding_model = _required(settings.ai_embedding_model)
-    dimension = _required(settings.embedding_dimension)
-    default_model = _required(settings.ai_llm_model_default)
-    small_model = _required(settings.ai_llm_model_small)
-    client = genai.Client(api_key=api_key)
+    timeout = settings.ai_llm_timeout_seconds
     youtube_key = os.environ.get("YOUTUBE_API_KEY")
     return EvalRuntime(
-        provider=llm,
-        embedder=GeminiEmbeddingProvider(client, embedding_model, dimension),
+        provider=GeminiProvider.from_api_key(api_key, timeout_seconds=timeout),
+        embedder=GeminiEmbeddingProvider.from_api_key(
+            api_key,
+            model=_required(settings.ai_embedding_model),
+            dimension=_required(settings.embedding_dimension),
+            timeout_seconds=timeout,
+        ),
         video_search=(
             YouTubeSearchProvider(youtube_key, httpx.AsyncClient(timeout=20.0))
             if youtube_key
             else None
         ),
         live=True,
-        default_model=default_model,
-        small_model=small_model,
+        default_model=_required(settings.ai_llm_model_default),
+        small_model=_required(settings.ai_llm_model_small),
     )
