@@ -76,6 +76,10 @@ Commits: `fc1b43d` (realm), el del compose y scripts, y los posteriores de la ra
 - `REQUIRE_SECOND_FACTOR` queda en false: activarlo exige comprobar que el token de Keycloak trae `amr`/`acr` con OTP (no verificado aquí; el flujo `browser-role-otp` no configura ese claim).
 - CI, trabajo `api`: usa `ci_user` (superusuario del servicio efímero) para Liquibase y pytest; los roles `smartmentor_*` no existen allí y el changeset de permisos los omite con aviso. Se agregó `SEED_ADMIN_EMAIL` de prueba al paso de Liquibase. `api/scripts/dev.sh` (de `api`) carga `.env` con nombres antiguos (`DATABASE_*` desde `POSTGRES_*`); la CI no lo usa.
 
+## Prueba en seco de la integración
+
+Rama temporal desde `origin/dev` fusionando `database-v2-rebase`, `api-v2-identity-courses`, `app-v3-core` e `infra-compose-ci-keycloak` (eliminada, no publicada): **0 conflictos de fusión**. `docker compose config` válido con y sin perfiles y el compose vacío se niega a arrancar. La coherencia del `.env` detectó 3 ajustes internos de `Settings` sin documentar (`SYLLABUS_MAX_BYTES`, `IDEMPOTENCY_TTL_SECONDS`, `APP_FIXTURES_DIR`); se agregaron a `SETTINGS_INTERNAL` en `check-env-coherence.py`. `ai/Dockerfile` aún no existe: el perfil `ai` no se puede construir.
+
 ## Impacto en el brief
 
 - **Seguridad / identidad**: el brief debe decir que el autorregistro exige correo verificado, que hay OTP obligatorio para instructor y administrador y protección de fuerza bruta.

@@ -33,7 +33,11 @@ FUTURE_VARIABLES = {
 }
 
 # Campos de Settings que se pueden sobreescribir pero no forman parte de la configuración documentada.
-SETTINGS_INTERNAL = {"APP_NAME", "APP_VERSION", "OIDC_IDENTITY_PROVIDER"}
+# Ajustes con valor por defecto que no se configuran por despliegue (límites del contrato, carpeta de pruebas).
+SETTINGS_INTERNAL = {
+    "APP_NAME", "APP_VERSION", "OIDC_IDENTITY_PROVIDER",
+    "SYLLABUS_MAX_BYTES", "IDEMPOTENCY_TTL_SECONDS", "APP_FIXTURES_DIR",
+}
 
 SETTINGS_DIRS = ["api/app", "app/src", "ai/app"]
 SCRIPT_GLOBS = ["**/*.sh", "database/bootstrap/*.sql", "database/scripts/*"]
