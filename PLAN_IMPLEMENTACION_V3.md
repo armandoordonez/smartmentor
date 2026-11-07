@@ -66,12 +66,12 @@ Decisiones tomadas al revisar la primera versión de este plan. Quedan incorpora
 | R-7 | La base sigue siendo PostgreSQL y se puede rehacer, **conservando lo más posible del brief**; un cambio radical se detalla para discutirlo | Tabla de diferencias con el brief. Ningún cambio cumple el criterio de «radical»; hay tres a discutir | 15 |
 | R-8 | **Fase final** de revisión, pruebas de despliegue y de funcionamiento, y reajuste de la documentación, donde se edita **una nueva versión del brief** | Fase 10 nueva; el cierre pasa a ser la Fase 11 | 7 (Fases 10 y 11) |
 | R-9 | Los ajustes se separan en ramas `feature/*`; ya existen `stage` y `dev`; **las features suben como máximo a `dev`** | Lista de ramas por fase y línea base de `dev` | 16.1, DEF-25 |
-| R-10 | Reglas permanentes: documentos en español e identificadores en inglés; el dueño hace todos los `push`; se hace commit solo cuando el dueño lo pide; ninguna ejecución sin su autorización | Se mantienen en todas las fases | 7, 16.1 |
+| R-10 | Reglas permanentes: documentos en español e identificadores en inglés; **desde el 2026-11-07 Claude hace commits locales y `push` a ramas `feature/*`**; `stage` y `main` no se tocan nunca y `dev` solo recibe fusiones según la política de 16.3; ninguna ejecución sin la señal de inicio del dueño | Se mantienen en todas las fases | 7, 16.1 |
 | R-11 | Respuestas a las definiciones: DEF-01 Gemini; DEF-02 modelo y dimensión del notebook; DEF-13 con autorregistro, rol `learner` por defecto, varios roles por usuario y menú de perfil; DEF-14 secretos solo en `.env`; DEF-25 confirmada. **Lo no mencionado toma el valor por defecto** | Segunda revisión con huecos y mejoras | 9 y 18 |
 
 ### 0.2 Tabla resumen de fases: orden, personas y paralelización
 
-**Personas.** *Dueño* = quien autoriza y hace los `push` (eduar.troyano). *Director* = director del proyecto. *Resp. IA* = responsable de IA. *Resp. evaluación* = responsable de evaluación y ética. *Docente* = docente validador del curso del piloto. *Claude* = sesión principal (Opus) y subagentes (Sonnet o Haiku) que ejecutan las tareas. Un «frente» es una línea de trabajo que puede avanzar sola en su propia rama y su propio `git worktree`.
+**Personas.** *Dueño* = quien autoriza (eduar.troyano). *Director* = director del proyecto. *Resp. IA* = responsable de IA. *Resp. evaluación* = responsable de evaluación y ética. *Docente* = docente validador del curso del piloto. *Claude* = sesión principal (Opus) y subagentes (Sonnet o Haiku) que ejecutan las tareas. Un «frente» es una línea de trabajo que puede avanzar sola en su propia rama y su propio `git worktree`.
 
 | Ola | Fase | Qué produce | Personas humanas necesarias | Claude (modelo) | Se hace a la vez con | Depende de | Jornadas |
 | --- | --- | --- | --- | --- | --- | --- | ---: |
@@ -959,7 +959,7 @@ No se recortan: consentimiento, extracción y revisión del syllabus, diagnósti
 
 ## 7. Plan fase a fase
 
-Convenciones para todas las fases: una rama `feature/<tema>` por ajuste (lista en 16.1) que sale de `dev` una vez integrada la línea base, commits en español con Conventional Commits y el trailer de autoría que indique la sesión, pull request revisado hacia `dev` como **tope** (nunca `stage` ni `main`) y **`push` solo del dueño**. Un commit se hace solo cuando el dueño lo pide. Cada fase termina con `api/scripts/dev.sh all`, `ai/scripts/dev.sh all` o `app/scripts/dev.sh all` en verde según corresponda, y con `HANDOFF.md` y `proyecto/checklist.md` actualizados.
+Convenciones para todas las fases: una rama `feature/<tema>` por ajuste (lista en 16.1) que sale de `dev` una vez integrada la línea base, commits en español con Conventional Commits y el trailer de autoría que indique la sesión, pull request revisado hacia `dev` como **tope** (nunca `stage` ni `main`) y `push` solo a ramas `feature/*` (autorizado el 2026-11-07); la fusión a `dev` sigue la política de 16.3. Cada fase termina con `api/scripts/dev.sh all`, `ai/scripts/dev.sh all` o `app/scripts/dev.sh all` en verde según corresponda, y con `HANDOFF.md` y `proyecto/checklist.md` actualizados.
 
 ### Fase 0 · Decisiones, línea base en `dev` y congelamiento del alcance
 
@@ -1249,7 +1249,7 @@ B = bloqueante (sin respuesta no empieza la fase). A = asumible con el valor por
 | R-15 | Una clave o un modelo se versiona por error | Baja | Alto | `.env` ignorado, `gitleaks` en `pre-commit`, prueba de coherencia de `.env.example` |
 | R-16 | Dos versiones del brief en circulación | Media | Bajo | Etiqueta `brief-v1`, tabla de control de cambios y aviso en la cabecera |
 
-**Supuestos:** el equipo sigue con Python y Streamlit (ADR 0006); el piloto es de 15 a 30 personas (decidido el 2026-11-07); el dueño hace los `push`; las jornadas son de unas 6 horas asistidas; el syllabus del piloto es texto seleccionable o se pega.
+**Supuestos:** el equipo sigue con Python y Streamlit (ADR 0006); el piloto es de 15 a 30 personas (decidido el 2026-11-07); los `push` a ramas `feature/*` los hace Claude y la fusión a `dev` sigue 16.3; las jornadas son de unas 6 horas asistidas; el syllabus del piloto es texto seleccionable o se pega.
 
 ---
 
@@ -1477,7 +1477,7 @@ La versión actual se conserva con la etiqueta `brief-v1`. En la Fase 10 se edit
 | `feature/final-review-brief-v2` | 10 | Revisión final, runbook, brief v2 |
 | `feature/handoff-close` | 11 | Cierre y traspaso |
 
-Reglas: una rama por tema y por frente; pull request hacia `dev` con revisión; commits en español con Conventional Commits y el trailer de autoría; nunca fusionar en `stage` ni `main`; nunca `push` desde Claude. [`GIT_VERSIONING_STRATEGY.md`](GIT_VERSIONING_STRATEGY.md) decía que no se recomendaban ramas permanentes además de `main`; se actualiza para reflejar `dev` y `stage` (hecho en esta revisión).
+Reglas: una rama por tema y por frente; pull request hacia `dev` con revisión; commits en español con Conventional Commits y el trailer de autoría; nunca fusionar ni hacer `push` a `stage` ni `main`; `push` solo a ramas `feature/*` y nunca con fuerza (`--force`); no se borran ramas remotas. [`GIT_VERSIONING_STRATEGY.md`](GIT_VERSIONING_STRATEGY.md) decía que no se recomendaban ramas permanentes además de `main`; se actualiza para reflejar `dev` y `stage` (hecho en esta revisión).
 
 ### 16.2 Configuración en `.env`
 
@@ -1494,6 +1494,17 @@ Reglas: una rama por tema y por frente; pull request hacia `dev` con revisión; 
 | Claude | No lee ni imprime el contenido de `.env`; trabaja con `.env.example` |
 
 El `.env.example` actual tiene `change_me` en las contraseñas y no trae variables de IA. El borrador del Anexo D es la propuesta; **no se reemplaza el archivo hasta que el dueño autorice** (Fase 0 o Fase 8).
+
+### 16.3 Política de fusión a `dev`
+
+Pedido del dueño: opinión sobre las fusiones a `dev` (`stage` y `main` no se tocan nunca; confirmado el 2026-11-07). **Propuesta, pendiente de su respuesta:**
+
+| Tipo de cambio | Cómo llega a `dev` | Por qué |
+| --- | --- | --- |
+| Documentos, contratos aprobados, pruebas, tema y componentes de la app | Claude abre un pull request hacia `dev` (`gh pr create --base dev`) y lo fusiona **cuando la CI está en verde, no hay conflictos y una revisión con Opus (`code-review`, nivel `high`) no deja hallazgos abiertos** | Es reversible y el volumen de ramas en paralelo haría de cuello de botella esperar al dueño en cada una |
+| Changesets de la base, políticas de autorización, realm de Keycloak, secretos, scripts destructivos, integración con servicios reales | Claude abre el pull request y **solo el dueño lo fusiona** | Un error aquí cuesta datos o seguridad (sección 8.3) |
+
+Reglas comunes: fusión por *squash* (el mensaje conserva los coautores y queda un commit por funcionalidad); la rama `dev` protegida en GitHub (pull request obligatorio y CI en verde), ajuste que hace el dueño porque es de configuración del repositorio; nunca `push` directo a `dev`; nunca `--force`; nunca se borran ramas remotas; si dos ramas chocan, se rebasa la que llegó después y se vuelve a pasar la CI. Mientras no exista la CI (antes de `feature/repo-standards`), ninguna rama se fusiona a `dev` sin el visto bueno del dueño.
 
 ---
 
@@ -1695,7 +1706,7 @@ Ejecutar todo a la vez no es posible en bloque, porque cada fase usa lo que fija
 
 ### 19.2 Reglas para los agentes
 
-1. Cada agente trabaja en su rama `feature/*` y en su propio `git worktree`; nunca en `stage` ni `main`, y nunca hace `push`.
+1. Cada agente trabaja en su rama `feature/*` y en su propio `git worktree`; nunca en `stage` ni `main`, y solo hace `push` a su propia rama `feature/*`, nunca con fuerza.
 2. Cada agente es dueño de sus carpetas (`database/` para F2, `api/` para F3, `ai/` y `prompts/` para F4 y F5, `app/` para F7, `keycloak/`, `.github/` y compose para F8). Fuera de ellas solo lee.
 3. Los archivos compartidos (`docker-compose.yml`, `.env.example`, `HANDOFF.md`, `CHANGELOG.md`, `proyecto/checklist.md`, `docs/adr/README.md`) los consolida **un solo agente integrador**; los demás dejan sus cambios en su bitácora.
 4. Los agentes no leen ni imprimen `.env`; prueban con `FakeLlmProvider`, `FakeAiService`, `smartmentor_test` y Mailpit. Las corridas con servicios reales las lanza el dueño con sus credenciales.
@@ -1726,16 +1737,16 @@ Co-Authored-By: Nicolas Potes <arquitectosystem@gmail.com>
 Co-Authored-By: Carlos Villada <carlos.villada63@gmail.com>
 ```
 
-El autor es el configurado en git (`user.name` y `user.email`); como el correo configurado es corporativo, se propone fijar el autor de cada commit como Eduar Troyano `<eatroyano@gmail.com>` con `git -c user.name=… -c user.email=…`, sin tocar la configuración global (sección 19.5). Eduar Troyano hace los `push` al final. Se commitea solo cuando el dueño lo pide o lo autoriza de forma permanente para las ramas `feature/*` locales.
+El autor es el configurado en git (`user.name` y `user.email`); como el correo configurado es corporativo, se propone fijar el autor de cada commit como Eduar Troyano `<eatroyano@gmail.com>` con `git -c user.name=… -c user.email=…`, sin tocar la configuración global (sección 19.5). Desde el 2026-11-07 el dueño autoriza de forma permanente los commits locales y el `push` a ramas `feature/*`; la fusión a `dev` sigue 16.3. El autor de los commits ya es Eduar Troyano Velásquez `<eatroyano@gmail.com>` (configuración de git ajustada por el dueño).
 
 ### 19.5 Qué bloquearía el arranque (verificado en el entorno el 2026-11-07)
 
 | Bloqueo | Evidencia | Qué se necesita |
 | --- | --- | --- |
-| Puerto 8020 ocupado | Un contenedor de otro proyecto (`ara-agente-mercado`) publica el 8020, el de la API | Cambiar `API_PORT` en el `.env` del dueño o detener ese contenedor |
+| ~~Puerto 8020 ocupado~~ | Un contenedor de otro proyecto lo usaba. **Resuelto el 2026-11-07:** el dueño lo detuvo. Los puertos son configurables en `.env` (`API_PORT`, `AI_PORT`, `APP_PORT`, `KEYCLOAK_PORT`, `POSTGRES_PORT`; el compose ya los toma con valor por defecto) | Nada |
 | Disco casi lleno | 99 % de uso, 8,3 GB libres | Liberar espacio (se estiman 5 a 9 GB para varios worktrees con su `.venv` e imágenes Docker) o limitar a 3 worktrees a la vez |
-| Identidad de git | `user.name` Troyano y `user.email` un correo corporativo (`Cont.WorkCol8@solera.com`) | Confirmar que el autor de los commits sea Eduar Troyano `<eatroyano@gmail.com>` (propuesto) y no el correo corporativo |
-| Autorizaciones | Los commits y los subagentes se piden de forma explícita | Autorización permanente para commits locales en `feature/*` y para lanzar subagentes |
+| ~~Identidad de git~~ | **Resuelto el 2026-11-07:** el dueño ajustó `user.name` y `user.email` (Eduar Troyano Velásquez, `eatroyano@gmail.com`) | Nada |
+| Autorizaciones | Commits y `push` a `feature/*`: **autorizados el 2026-11-07**. Falta la política de fusión a `dev` (16.3) y la autorización para lanzar subagentes | Respuesta del dueño a 16.3 y su señal de inicio |
 | Contratos congelados | Los agentes de la Ola 1 inventarían interfaces distintas | Aprobación del dueño de la salida de la Ola 0 |
 
 No bloquean: DEF-02 (rige Gemini a 768), los secretos (los agentes usan simulaciones), la versión de Python (hay 3.12 y `uv`), ni Docker, `gh` y la red (comprobados).
