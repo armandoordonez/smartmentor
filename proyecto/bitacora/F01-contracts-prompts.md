@@ -9,7 +9,7 @@ Fuentes: `PLAN_IMPLEMENTACION_V3.md` (secciones 3, 5.3, 5.4, 13, 15, 18.2, Anexo
 | --- | --- | --- |
 | 1 | `ai/` mínimo: `pyproject.toml` (Python 3.12, Pydantic v2, pytest, Ruff, mypy estricto), `uv.lock`, `app/domain/contracts/` (10 esquemas `…LLM` y 16 contratos, validaciones de código, grafo de prerrequisitos, registro) y `scripts/export_schemas.py` (idempotente, con `--check`). Esquemas exportados a `prompts/schemas/*.v1.json` y `prompts/schemas/llm/*.v1.json` | `9bc1da0` |
 | 2 | 13 prompts `prompts/<id>/v1.md`, `prompts/catalog.yaml` con `sha256` por versión, `prompts/README.md`, 16 ejemplos por contrato y 13 por prompt (`prompts/examples/`), pruebas de contrato (`ai/tests/contract/`) y unitarias (`ai/tests/unit/`), `ai/README.md` | `50ac51c` |
-| 3 | `docs/contracts/ai-service-v1.md`, `docs/contracts/api-v2.md`, `docs/contracts/error-codes.md` y esta bitácora | (commit del bloque 3) |
+| 3 | `docs/contracts/ai-service-v1.md`, `docs/contracts/api-v2.md`, `docs/contracts/error-codes.md` y esta bitácora | `98701e4` |
 
 ## Desviaciones frente al plan o al brief
 
