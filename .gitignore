@@ -68,3 +68,9 @@ database/backups/*
 # Exports crudos del realm de Keycloak (llevan secretos): nunca se versionan
 keycloak/realm/*.raw.json
 keycloak/realm/*.local.json
+
+# Exportaciones pesadas de Figma (se regeneran; DEF-17) y checkpoints de Jupyter
+design/03-prototipo-alta-fidelidad/archivo_completo.json
+design/03-prototipo-alta-fidelidad/smartmentor_prototipo_v3.json
+design/03-prototipo-alta-fidelidad/smartmentor_figma/
+.ipynb_checkpoints/
