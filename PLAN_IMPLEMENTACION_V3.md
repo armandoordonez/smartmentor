@@ -1781,31 +1781,31 @@ Regla del dueño (2026-11-07, R-13): se olvida todo lo de v2 y anteriores; **tod
 
 ## 21. Tablero de avance del plan
 
-Se actualiza cada vez que un agente termina o se consolida una rama. Estados: ✔ hecho y en `dev` · ◐ en curso · ⏳ terminado, falta consolidar · ☐ pendiente · ⛔ bloqueado. **Última actualización: 2026-11-07.**
+Se actualiza cada vez que un agente termina o se consolida una rama. Estados: ✔ hecho y en `dev` · ◐ en curso · ⏳ terminado, falta consolidar · ☐ pendiente · ⛔ bloqueado. **Última actualización: 2026-11-07 (Ola 1 lanzada).**
 
 ### Ola 0 · Fase 0 y Fase 1
 
 | ID | Tarea | Responsable | Rama | Estado | Evidencia |
 | --- | --- | --- | --- | --- | --- |
 | 0.1 | Línea base en `dev` | Sesión principal | `feature/baseline-dev` | ✔ | `dev` = `eb84c97`; API 148 y app 36 pruebas |
-| 0.2 | Estándares del repo y CI mínima | Agente repo-standards (Sonnet) | `feature/repo-standards` | ⏳ | `726fc16`; Ruff y mypy sin errores, 148 + 36 pruebas |
-| 1.1 | Casos de uso, estados, flujos, glosario, `app/CLAUDE.md` | Agente design-docs (Sonnet) | `feature/design-use-cases-v3` | ⏳ | `e709dd4`; 0 enlaces rotos, 16 bloques Mermaid válidos |
-| 1.2 | ADR 0007 a 0021 | Agente adrs (Opus) | `feature/adr-architecture-v3` | ⏳ | `3e23ac3`; 21 ADR, índice coherente |
-| 1.3 | Contratos de `ai/`, prompts y esquemas, contratos de API y de IA | Agente contracts (Opus) | `feature/prompts-and-contracts` | ⏳ | `f81d49d`; Ruff y mypy sin errores, 197 pruebas |
-| 1.4 | V3 como única fuente; clave maestra de Figma | Sesión principal | `feature/v3-only-sources` | ⏳ | `37f44e8` |
-| 1.5 | Integración de la Ola 0 en `dev` | Sesión principal | `feature/integration-ola0` | ◐ | Merge de las 5 ramas sin conflictos; validación local y CI en curso |
+| 0.2 | Estándares del repo y CI mínima | Agente repo-standards (Sonnet) | `feature/repo-standards` | ✔ | `726fc16`; Ruff y mypy sin errores, 148 + 36 pruebas |
+| 1.1 | Casos de uso, estados, flujos, glosario, `app/CLAUDE.md` | Agente design-docs (Sonnet) | `feature/design-use-cases-v3` | ✔ | `e709dd4`; 0 enlaces rotos, 16 bloques Mermaid válidos |
+| 1.2 | ADR 0007 a 0021 | Agente adrs (Opus) | `feature/adr-architecture-v3` | ✔ | `3e23ac3`; 21 ADR, índice coherente |
+| 1.3 | Contratos de `ai/`, prompts y esquemas, contratos de API y de IA | Agente contracts (Opus) | `feature/prompts-and-contracts` | ✔ | `f81d49d`; Ruff y mypy sin errores, 197 pruebas |
+| 1.4 | V3 como única fuente; clave maestra de Figma | Sesión principal | `feature/v3-only-sources` | ✔ | `37f44e8` |
+| 1.5 | Integración de la Ola 0 en `dev` | Sesión principal | `feature/integration-ola0` | ✔ | `dev` = `8bb1828`; CI de GitHub en verde (api, app, liquibase); local: api 148, app 36, ai 197 pruebas |
 
 ### Ola 1 y Ola 2
 
 | ID | Fase | Tarea | Responsable | Rama | Estado |
 | --- | --- | --- | --- | --- | --- |
-| 2 | F2 | Re-base de la base `v2.0.0` (esquema, auditoría, roles de base, semillas, script de reinicio) | Agente database | `feature/database-v2-rebase` | ☐ |
-| 3a | F3 | API v2: identidad, cursos, `ai_gateway` con `FakeAiService` | Agente api-core | `feature/api-v2-identity-courses` | ☐ |
-| 4 | F4 | Servicio `ai/` base: puertos, trabajos, log, presupuesto, syllabus, diagnóstico | Agente ai-base | `feature/ai-service-base` | ☐ |
-| 7a | F7 | App v3: tema, estilos, autenticación, clientes, componentes | Agente app-core | `feature/app-v3-core` | ☐ |
-| 8 | F8 | Keycloak (clientes, roles, OTP, correo), compose, CI completa | Agente infra | `feature/keycloak-v3-clients` | ☐ |
-| 5 | F5 | `ai/` contenido, RAG, banco de ítems, calificación y videos | Agente ai-content | `feature/ai-content-evaluation` | ☐ (espera los puertos de F4) |
-| 9a | F9 | Herramientas de evaluación: métricas (κ, QWK, F1, P@k, nDCG, Hake, SUS) y notebook | Agente eval-tools | `feature/evaluation-pilot` | ☐ |
+| 2 | F2 | Re-base de la base `v2.0.0` (esquema, auditoría, roles de base, semillas, script de reinicio) | Agente database | `feature/database-v2-rebase` | ◐ |
+| 3a | F3 | API v2: identidad, cursos, `ai_gateway` con `FakeAiService` | Agente api-core | `feature/api-v2-identity-courses` | ◐ |
+| 4 | F4 | Servicio `ai/` base: puertos, trabajos, log, presupuesto, syllabus, diagnóstico | Agente ai-base | `feature/ai-service-base` | ◐ |
+| 7a | F7 | App v3: tema, estilos, autenticación, clientes, componentes | Agente app-core | `feature/app-v3-core` | ◐ |
+| 8 | F8 | Keycloak (clientes, roles, OTP, correo), compose, CI completa | Agente infra | `feature/keycloak-v3-clients` | ◐ |
+| 5 | F5 | `ai/` contenido, RAG, banco de ítems, calificación y videos | Agente ai-content | `feature/ai-content-evaluation` | ☐ (se lanza cuando F4 publique los puertos) |
+| 9a | F9 | Herramientas de evaluación: métricas (κ, QWK, F1, P@k, nDCG, Hake, SUS) y notebook | Agente eval-tools | `feature/evaluation-pilot` | ◐ |
 
 ### Después
 
