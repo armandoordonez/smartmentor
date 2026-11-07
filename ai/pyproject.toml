@@ -48,7 +48,7 @@ extend = "../ruff.toml"
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["app", "scripts", "tests"]
+files = ["app", "scripts", "tests", "eval"]
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
