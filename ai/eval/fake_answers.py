@@ -134,8 +134,12 @@ def _fragment_count(fragments: str) -> int:
 
 
 def _pick(seed: int, count: int) -> list[str]:
-    start = (seed * 7) % len(_VOCABULARY)
-    return [_VOCABULARY[(start + i * 3) % len(_VOCABULARY)] for i in range(count)]
+    """``count`` vocabulary words chosen by hash, so two seeds rarely share many of them."""
+    words: list[str] = []
+    for position in range(count):
+        digest = hashlib.sha256(f"{seed}:{position}".encode()).digest()
+        words.append(_VOCABULARY[int.from_bytes(digest[:4], "big") % len(_VOCABULARY)])
+    return words
 
 
 def _stable(text: str, modulo: int) -> int:
