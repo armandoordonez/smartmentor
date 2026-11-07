@@ -118,7 +118,7 @@ _Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
 - [x] Dejar de versionar usuarios, secretos y llaves del realm (`sanitize-realm.py`) — **Resp.:** eduar.troyano — 2026-11-07, rama `feature/keycloak-realm-no-secrets`
 - [ ] Rotar las llaves y los secretos ya publicados en el historial (pasos en `keycloak/README.md`); el plan los da por rotados — **Resp.:** eduar.troyano
 - [ ] Completar los valores reales en el `.env` antes de aprobar y correr el flujo — **Resp.:** eduar.troyano
-- [ ] **Regla inamovible:** protección de `stage` y `main` en GitHub (la configura el administrador del repositorio) antes de iniciar la ejecución — **Resp.:** eduar.troyano, con armandoordonez
+- [ ] Pedir al administrador la protección de `stage` y `main` en GitHub (no bloquea: rige la prohibición de subir sin autorización, R-12) — **Resp.:** eduar.troyano, con armandoordonez
 
 ## C. Fase 0: prototipado y validación del flujo
 
