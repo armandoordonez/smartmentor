@@ -70,6 +70,7 @@
     <include file="043-vector-indexes.xml" relativeToChangelogFile="true"/>
     <include file="044-views.xml" relativeToChangelogFile="true"/>
     <include file="045-db-roles-grants.xml" relativeToChangelogFile="true"/>
+    <include file="049-db-role-metrics-grants.xml" relativeToChangelogFile="true"/>
 
     <!-- Semillas y etiqueta -->
     <include file="046-seed-roles.xml" relativeToChangelogFile="true"/>

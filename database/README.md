@@ -99,7 +99,7 @@ En servicios gestionados, `CREATE EXTENSION vector`, `ALTER DATABASE ... SET tim
 - Ninguno puede alterar el esquema. **Ninguno tiene permisos sobre las tablas `_audit`**: las escribe `audit_row_change()`, que es `SECURITY DEFINER`, así que el trigger funciona sin dar acceso a la auditoría.
 - Cada tabla nueva exige su `GRANT` en un changeset; hay que verificarlo en la revisión.
 - Liquibase debe correr como `smartmentor_owner` (variable `LIQUIBASE_COMMAND_USERNAME`) para que las tablas queden a su nombre; con el superusuario también funciona, pero los objetos quedan a nombre de ese usuario.
-- Notebook de métricas de solo lectura (cuarto usuario del ADR 0019): pendiente; no entra en `v2.0.0`.
+- `smartmentor_metrics` (cuarto usuario del ADR 0019, `METRICS_DATABASE_USER` y `METRICS_DATABASE_PASSWORD`): solo `SELECT` sobre las tablas y vistas que lee `notebooks/metrics_data.py` (changeset `v2.0.0-049`).
 
 ## Datos iniciales (semillas)
 

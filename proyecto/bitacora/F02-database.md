@@ -96,3 +96,32 @@ Para el agente `infra` (`docker-compose.yml` y `.env.example`; yo no los toqué)
 7. **README raíz / HANDOFF / CHANGELOG** (los editan otros): mencionar `reset-app-schema.sh`, la etiqueta `schema-v1-final` y el paso v1 → v2.0.0 (las bases existentes se rehacen, no se migran).
 
 Para el agente de la API: usar `public_id` (uuid) en las rutas públicas (badge) y, donde convenga, en las demás; `ai_jobs.public_id` es el `job_id` de `ai/`; las sesiones deben fijar `smartmentor.current_user_id` para la auditoría; `smartmentor_api` no tiene permiso sobre `_audit` ni sobre las tablas `ai_*` (salvo lectura de `ai_jobs` y `llm_call_logs`).
+
+## Adenda: usuario `smartmentor_metrics` y notebook de métricas
+
+- **Cuarto usuario del ADR 0019** (`smartmentor_metrics`, solo lectura). Se crea en el bootstrap con `METRICS_DATABASE_USER` (por defecto `smartmentor_metrics`) y `METRICS_DATABASE_PASSWORD` (sin contraseña, no se crea). El changeset `v2.0.0-049-db-role-metrics-grants` (incluido antes de la etiqueta, aunque su número sea posterior a 048 porque se agregó después de publicar 045) da `SELECT` solo sobre las 18 tablas que lee `notebooks/metrics_data.py` (`syllabus_extractions`, `topics`, `topic_prerequisites`, `item_annotations`, `attempt_answers`, `assessment_attempts`, `enrollments`, `human_gradings`, `video_relevance_judgments`, `video_candidates`, `user_profiles`, `badges`, `path_steps`, `diagnostics`, `survey_responses`, `llm_call_logs`, `ai_jobs`, `resources`) y las 3 vistas. Sin acceso a `users`, `consents`, `data_subject_requests` ni `_audit`.
+- **Para `infra`**: agregar `METRICS_DATABASE_USER=smartmentor_metrics` y `METRICS_DATABASE_PASSWORD=` a `.env.example` y pasarlas al servicio `postgres` del compose. La URL del notebook (`METRICS_DATABASE_URL`) usa ese usuario.
+- **Prueba**: cada consulta de `QUERIES` se ejecutó como `smartmentor_metrics` en transacción de solo lectura; 10 de 11 pasan (falla `path_steps`, ver abajo). INSERT, UPDATE, DDL y `SELECT` sobre `users`, `consents` y `users_audit` son rechazados.
+
+### Los seis `SUPUESTO` del notebook frente al esquema real
+
+| Supuesto del notebook | Esquema `v2.0.0` | Diferencia |
+| --- | --- | --- |
+| `path_steps.first_attempt_passed` | **No existe** | Hay `attempts_used`, `best_score`, `last_score`, `status`. El primer intento se calcula desde `assessment_attempts` (`attempt_number = 1`, `passed`) |
+| `assessment_attempts.assessment_type` | Existe; valores `topic`, `final`, `retention` | Ninguna (`'final'` es correcto) |
+| `video_candidates.rank` | Existe (`smallint`, nulo) | Ninguna |
+| `ai_jobs.enrollment_id` | Existe, nulo, con FK a `enrollments` | Ninguna |
+| Claves de `survey_responses.likert` (`satisfaction`, `usefulness`, `self_efficacy`) | `likert` es `jsonb` libre, sin esquema ni CHECK | El esquema no fija las claves; las define la API. A confirmar con su dueño |
+| Forma de `diagnostics.level_by_topic` (objeto por tema con `test_score` de 0 a 1) | `jsonb` libre; el plan 5.2.1 describe `test_score`, `resume_prior`, `profile_prior`, `weights`, `level`, `classification` | Sin CHECK; el notebook usa `jsonb_each`, así que debe ser un objeto con el id del tema como clave. A confirmar con la API |
+
+Diferencias adicionales (no marcadas como `SUPUESTO`) que hacen fallar la consulta `path_steps`:
+
+- `ps.position`: **no existe**; en `path_steps` la posición es `step_order` (`topics.position` es la posición del tema en el curso).
+- `ps.status = 'approved'`: el estado real es **`passed`** (valores: `skipped`, `blocked`, `pending`, `in_progress`, `passed`, `attempts_exhausted`, `on_hold`).
+
+Todo lo demás coincide (`item_annotations`, `attempt_answers.is_correct/score/grader`, `human_gradings`, `user_profiles.languages` con `code` y `cefr_level`, `enrollments.analysis_included`, `badges.active`, `topics.review_status/extraction_key`, `resources.faithfulness`, `syllabus_extractions.is_current`; la forma de `raw_output->'topics'` depende del contrato `syllabus.v1`).
+
+### Pruebas adicionales
+
+- `reset-app-schema.sh` con `SEED_ADMIN_EMAIL=` (definida y vacía) y la imagen de Liquibase del repositorio: 51 changesets, 0 usuarios, 3 roles, etiqueta `v2.0.0`. `liquibase update` con la variable vacía también pasa.
+- Rollback total (`rollback-count --count=51`) con la variable vacía y con una definida: pasa y deja solo las tablas de control; `update-testing-rollback` pasa en ambos casos. Tras agregar 049: 88 de 88 comprobaciones de CHECK y permisos correctas.

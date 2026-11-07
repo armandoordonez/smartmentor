@@ -110,6 +110,28 @@ SELECT format('ALTER ROLE %I PASSWORD %L', :'ai_user', :'ai_password')
 WHERE :'has_ai'::boolean AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'ai_user')
 \gexec
 
+-- Cuarto usuario (ADR 0019): solo lectura, para el notebook de métricas (METRICS_DATABASE_USER, por defecto
+-- smartmentor_metrics; se crea solo con METRICS_DATABASE_PASSWORD no vacía). SELECT lo otorga el changeset 049.
+\getenv metrics_user METRICS_DATABASE_USER
+\getenv metrics_password METRICS_DATABASE_PASSWORD
+\if :{?metrics_user}
+\else
+\set metrics_user ''
+\endif
+\if :{?metrics_password}
+\else
+\set metrics_password ''
+\endif
+SELECT coalesce(nullif(:'metrics_user', ''), 'smartmentor_metrics') AS metrics_user,
+       (:'metrics_password' <> '') AS has_metrics
+\gset
+SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'metrics_user', :'metrics_password')
+WHERE :'has_metrics'::boolean AND NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'metrics_user')
+\gexec
+SELECT format('ALTER ROLE %I PASSWORD %L', :'metrics_user', :'metrics_password')
+WHERE :'has_metrics'::boolean AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'metrics_user')
+\gexec
+
 -- El dueño del esquema debe ser dueño de la base: así Liquibase puede crear objetos y fijar la zona horaria
 SELECT format('ALTER DATABASE %I OWNER TO %I', :'target_db', :'owner_user')
 WHERE :'has_owner'::boolean
