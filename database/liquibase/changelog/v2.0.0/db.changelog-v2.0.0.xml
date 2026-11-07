@@ -47,6 +47,18 @@
     <include file="026-create-table-item_annotations.xml" relativeToChangelogFile="true"/>
     <include file="027-create-table-human_gradings.xml" relativeToChangelogFile="true"/>
 
+    <!-- Grupo C: recursos, videos, piloto y encuestas -->
+    <include file="028-create-table-video_candidates.xml" relativeToChangelogFile="true"/>
+    <include file="029-create-table-resources.xml" relativeToChangelogFile="true"/>
+    <include file="030-create-table-video_relevance_judgments.xml" relativeToChangelogFile="true"/>
+    <include file="031-create-table-video_feedback.xml" relativeToChangelogFile="true"/>
+    <include file="032-create-table-badges.xml" relativeToChangelogFile="true"/>
+    <include file="033-create-table-pilots.xml" relativeToChangelogFile="true"/>
+    <include file="034-create-table-survey_responses.xml" relativeToChangelogFile="true"/>
+    <include file="035-create-table-alerts.xml" relativeToChangelogFile="true"/>
+    <include file="036-create-table-interaction_events.xml" relativeToChangelogFile="true"/>
+    <include file="037-create-table-study_goals.xml" relativeToChangelogFile="true"/>
+
     <!-- Semillas (el resto de los grupos aún no existe) -->
     <include file="046-seed-roles.xml" relativeToChangelogFile="true"/>
     <include file="047-seed-admin-user.xml" relativeToChangelogFile="true"/>

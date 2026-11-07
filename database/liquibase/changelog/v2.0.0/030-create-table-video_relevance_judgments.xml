@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/030-create-table-video_relevance_judgments.xml">
+
+    <changeSet id="v2.0.0-030-create-table-video_relevance_judgments" author="eduar.troyano">
+        <comment>Crea la tabla video_relevance_judgments: juicios de relevancia de videos por instructores (P@3 y nDCG@3). Incluye secuencia propia, tabla de auditoría video_relevance_judgments_audit y el trigger video_relevance_judgments_audit_trg.</comment>
+
+        <createSequence sequenceName="video_relevance_judgments_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="video_relevance_judgments_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="video_relevance_judgments" remarks="Relevance judgments of video candidates by instructors (P@3 and nDCG@3)">
+            <column name="id" type="bigint" defaultValueSequenceNext="video_relevance_judgments_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="video_relevance_judgments_pkey" nullable="false"/>
+            </column>
+            <column name="video_candidate_id" type="bigint" remarks="Judged video candidate">
+                <constraints nullable="false" foreignKeyName="video_relevance_judgments_video_candidate_id_fk" references="video_candidates(id)"/>
+            </column>
+            <column name="judge_user_id" type="bigint" remarks="Instructor that judged">
+                <constraints nullable="false" foreignKeyName="video_relevance_judgments_judge_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="is_relevant" type="boolean" remarks="Whether the video is relevant for the topic">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="video_relevance_judgments" constraintName="video_relevance_judgments_video_judge_uq" columnNames="video_candidate_id,judge_user_id"/>
+        <createIndex tableName="video_relevance_judgments" indexName="video_relevance_judgments_judge_idx">
+            <column name="judge_user_id"/>
+        </createIndex>
+        <sql>CREATE TRIGGER video_relevance_judgments_set_updated_at_trg BEFORE UPDATE ON video_relevance_judgments FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="video_relevance_judgments_audit" remarks="Append-only change history of video_relevance_judgments">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="video_relevance_judgments_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="video_relevance_judgments_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in video_relevance_judgments">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE video_relevance_judgments_audit ADD CONSTRAINT video_relevance_judgments_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="video_relevance_judgments_audit" indexName="video_relevance_judgments_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER video_relevance_judgments_audit_trg AFTER INSERT OR UPDATE OR DELETE ON video_relevance_judgments FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS video_relevance_judgments_audit_trg ON video_relevance_judgments</sql>
+            <dropTable tableName="video_relevance_judgments_audit"/>
+            <dropTable tableName="video_relevance_judgments" cascadeConstraints="true"/>
+            <dropSequence sequenceName="video_relevance_judgments_audit_id_seq"/>
+            <dropSequence sequenceName="video_relevance_judgments_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
