@@ -1,0 +1,85 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Fundamentos de Machine Learning",
+      "description": null,
+      "group_label": "Piloto 2026-2",
+      "section": "paths",
+      "tags": [
+        "recommended"
+      ],
+      "topics_count": 5,
+      "estimated_minutes": 480,
+      "level": "intermediate"
+    },
+    {
+      "id": 2,
+      "name": "Estadística para ciencia de datos",
+      "description": null,
+      "group_label": "Piloto 2026-2",
+      "section": "paths",
+      "tags": [
+        "new"
+      ],
+      "topics_count": 5,
+      "estimated_minutes": 360,
+      "level": "basic"
+    },
+    {
+      "id": 3,
+      "name": "Python para análisis de datos",
+      "description": null,
+      "group_label": "Piloto 2026-2",
+      "section": "paths",
+      "tags": [
+        "popular"
+      ],
+      "topics_count": 4,
+      "estimated_minutes": 300,
+      "level": "basic"
+    },
+    {
+      "id": 4,
+      "name": "Claude Ventas",
+      "description": "Usa un asistente de IA para prospectar, preparar reuniones y responder objeciones, cuidando los datos del cliente.",
+      "group_label": "Piloto 2026-2",
+      "section": "applied_ai",
+      "tags": [
+        "new_anthropic"
+      ],
+      "topics_count": 5,
+      "estimated_minutes": 215,
+      "level": "basic"
+    },
+    {
+      "id": 5,
+      "name": "Claude Marketing",
+      "description": "Briefs, voz de marca, contenido por canal y revisión con un asistente de IA.",
+      "group_label": "Piloto 2026-2",
+      "section": "applied_ai",
+      "tags": [
+        "new_anthropic"
+      ],
+      "topics_count": 5,
+      "estimated_minutes": 210,
+      "level": "basic"
+    },
+    {
+      "id": 6,
+      "name": "Google IA Estudio",
+      "description": "Instrucciones, pruebas y un prototipo de IA para tu área de trabajo.",
+      "group_label": "Piloto 2026-2",
+      "section": "applied_ai",
+      "tags": [
+        "new_google"
+      ],
+      "topics_count": 4,
+      "estimated_minutes": 180,
+      "level": "basic"
+    }
+  ],
+  "total": 6,
+  "limit": 20,
+  "offset": 0
+}

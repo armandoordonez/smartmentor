@@ -1,0 +1,6 @@
+/* Detalle por criterio de la rúbrica (E7): el resultado de cada criterio va escrito además del color. */
+[class*="st-key-rubric-"] {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-row);
+  padding: var(--space-12);
+}

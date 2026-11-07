@@ -8,7 +8,7 @@
 #   app/scripts/dev.sh lint          ruff check + ruff format --check
 #   app/scripts/dev.sh typecheck     mypy (modo estricto)
 #   app/scripts/dev.sh test [args]   pytest (unitarias y de páginas con AppTest)
-#   app/scripts/dev.sh run           levanta la interfaz en http://localhost:8501 (datos de ejemplo)
+#   app/scripts/dev.sh run           levanta la interfaz en http://localhost:8501 (modo fixtures)
 #   app/scripts/dev.sh all           lint + typecheck + test
 set -euo pipefail
 
@@ -20,7 +20,7 @@ APP_PORT="${APP_PORT:-8501}"
 uv_run() {
   docker run --rm --user "$(id -u):$(id -g)" \
     -e HOME=/tmp -e UV_CACHE_DIR=/tmp/uv-cache -e UV_LINK_MODE=copy -e UV_PYTHON_DOWNLOADS=never \
-    -e APP_DATA_SOURCE=sample \
+    -e APP_DATA_SOURCE=fixtures \
     -v "$ROOT_DIR:/repo" -w /repo/app "$@"
 }
 

@@ -1,21 +1,26 @@
-"""Tarjetas de indicadores (E11, D3, AD2) y de métricas con meta (AD3)."""
+"""Indicadores en tarjetas (E11, D3, AD2, AD3). El valor ya llega formateado por la página."""
 
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import streamlit as st
 
-from components.theme import BadgeColor
 
-Kpi = tuple[str, str]
-"""(valor ya formateado, etiqueta)."""
-
-
-def render_kpis(items: Sequence[Kpi]) -> None:
-    for column, (value, label) in zip(st.columns(len(items)), items, strict=True):
-        column.metric(label, value, border=True)
+@dataclass(frozen=True)
+class Kpi:
+    key: str
+    label: str
+    value: str
+    help: str | None = None
 
 
-def render_metric_card(value: str, label: str, badge: str, color: BadgeColor) -> None:
-    with st.container(border=True):
-        st.metric(label, value)
-        st.badge(badge, color=color)
+def render_metric_card(kpi: Kpi) -> None:
+    with st.container(key=f"kpi-{kpi.key}"):
+        st.metric(kpi.label, kpi.value, help=kpi.help)
+
+
+def render_kpis(kpis: Sequence[Kpi]) -> None:
+    """Fila de tarjetas de indicadores (hasta 4 columnas; se apilan en pantallas angostas)."""
+    for column, kpi in zip(st.columns(len(kpis)), kpis, strict=True):
+        with column:
+            render_metric_card(kpi)

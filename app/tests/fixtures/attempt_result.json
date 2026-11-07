@@ -1,0 +1,40 @@
+{
+  "attempt_id": 9001,
+  "status": "graded",
+  "score": 76.0,
+  "passed": true,
+  "pass_threshold": 70,
+  "answers": [
+    {
+      "attempt_answer_id": 1,
+      "item_id": 501,
+      "grading": {
+        "item_id": "501",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 100,
+        "is_correct": true,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": "Correcto."
+      },
+      "review_requested": false
+    }
+  ],
+  "remedial_resource_id": null,
+  "attempts": {
+    "used": 1,
+    "max": 3,
+    "remaining": 2
+  },
+  "next_action": {
+    "type": "study_topic",
+    "step_id": 813,
+    "attempt_id": null,
+    "job_id": null,
+    "screen": "E6"
+  }
+}

@@ -1,123 +1,140 @@
 """Contrato del acceso a datos de la interfaz.
 
-`SmartMentorClient` lista las operaciones que usan las pantallas. Lo implementan los datos de
-ejemplo (`sample_data.py`) y, cuando exista el login, el cliente HTTP de la API. Las pantallas y
-los servicios solo dependen de este Protocol, así que cambiar de fuente no las toca.
+`SmartMentorClient` lista las operaciones de la API (`docs/contracts/api-v2.md`) que usa la
+interfaz.
+Lo implementan el cliente HTTP real (`api.py`) y el de fixtures (`fixtures.py`). Los servicios y las
+páginas solo dependen de este Protocol: cambiar de fuente no los toca.
+
+Un agente que agregue pantallas del instructor o del administrador agrega aquí sus operaciones
+(una por ruta del contrato), en la sección de su rol.
 """
 
-from typing import Protocol
+from collections.abc import Sequence
+from typing import Any, Protocol
 
 from clients.models import (
-    Badge,
-    BankQuestion,
-    ContentResource,
-    Course,
+    AssessmentType,
+    Attempt,
+    AttemptResult,
+    BadgeSummary,
+    Consent,
+    ConsentType,
+    DataSubjectRequest,
     Diagnostic,
+    DiagnosticResult,
     Enrollment,
-    EvaluationMetric,
-    FinalAssessment,
-    FinalResult,
-    LearningPath,
-    LlmLog,
-    PathDashboard,
-    PathProgress,
-    PathSettings,
-    Quiz,
-    QuizResult,
-    ReviewStatus,
-    Role,
-    StudentDetail,
-    Topic,
-    TopicContent,
-    User,
+    Job,
+    JobAccepted,
+    LearnerAnswer,
+    LearningPathCard,
+    Me,
+    Objective,
+    Page,
+    PathDetail,
+    Profile,
+    ProfileUpdate,
+    RequestType,
+    ReviewPlan,
+    StepContent,
+    VideoRating,
 )
-
-Answers = dict[int, int | None]
-"""Respuestas por id de pregunta: índice de la opción elegida o None («No lo sé»)."""
 
 
 class ApiError(Exception):
-    """Error de la API con su código (las respuestas RFC 9457 traen `status` y `code`)."""
+    """Error de la API (RFC 9457): `status`, `code` estable y, si existen, sus extensiones.
 
-    def __init__(self, status: int, code: str, detail: str = "") -> None:
+    Sin conexión o con tiempo agotado el cliente lanza `ApiError(503, "SERVICE_UNAVAILABLE")`;
+    la interfaz nunca muestra el detalle técnico, solo el `request_id` va al registro.
+    """
+
+    def __init__(
+        self,
+        status: int,
+        code: str,
+        detail: str = "",
+        *,
+        request_id: str | None = None,
+        retryable: bool = False,
+        extra: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(f"{status} {code}: {detail}")
         self.status = status
         self.code = code
         self.detail = detail
+        self.request_id = request_id
+        self.retryable = retryable
+        self.extra: dict[str, Any] = extra or {}
 
 
 class SmartMentorClient(Protocol):
-    # --- identidad -----------------------------------------------------------------------------
-    def me(self) -> User: ...
+    """Operaciones que la interfaz pide a la API. El token lo pone cada implementación."""
 
-    # --- catálogo ------------------------------------------------------------------------------
-    def list_learning_paths(self) -> list[LearningPath]: ...
+    # --- Usuario actual, consentimientos y perfil (sección 2) ---
+    def get_me(self) -> Me: ...
+    def get_profile(self) -> Profile: ...
+    def update_profile(self, update: ProfileUpdate) -> Profile: ...
+    def list_consents(self) -> list[Consent]: ...
+    def grant_consent(self, consent_type: ConsentType, document_version: str) -> Consent: ...
+    def revoke_consent(self, consent_type: ConsentType) -> Consent: ...
+    def create_data_subject_request(
+        self, request_type: RequestType, comment: str
+    ) -> DataSubjectRequest: ...
 
-    def get_learning_path(self, learning_path_id: int) -> LearningPath: ...
-
-    def list_topics(self, course_id: int) -> list[Topic]: ...
-
-    # --- estudiante ----------------------------------------------------------------------------
-    def list_my_enrollments(self) -> list[Enrollment]: ...
-
-    def enroll(self, learning_path_id: int, profile_description: str) -> Enrollment: ...
-
+    # --- Aprendiz: catálogo, inscripción y diagnóstico (secciones 3 y 4) ---
+    def list_learning_paths(
+        self, *, limit: int = 20, offset: int = 0
+    ) -> Page[LearningPathCard]: ...
+    def create_enrollment(self, learning_path_id: int) -> Enrollment: ...
+    def list_enrollments(self, *, limit: int = 20, offset: int = 0) -> Page[Enrollment]: ...
+    def get_enrollment(self, enrollment_id: int) -> Enrollment: ...
+    def create_diagnostic(self, enrollment_id: int) -> Diagnostic: ...
     def get_diagnostic(self, enrollment_id: int) -> Diagnostic: ...
+    def save_diagnostic_answers(
+        self, enrollment_id: int, answers: Sequence[LearnerAnswer]
+    ) -> int: ...
+    def submit_diagnostic(self, enrollment_id: int, *, idempotency_key: str) -> JobAccepted: ...
+    def get_diagnostic_result(self, enrollment_id: int) -> DiagnosticResult: ...
+    def set_objective(self, enrollment_id: int, objective: Objective) -> Enrollment: ...
 
-    def submit_diagnostic(self, enrollment_id: int, answers: Answers) -> Diagnostic: ...
+    # --- Aprendiz: ruta, tema, intentos y cierre ---
+    def get_path(self, enrollment_id: int) -> PathDetail: ...
+    def get_step_content(self, enrollment_id: int, step_id: int) -> StepContent: ...
+    def create_attempt(
+        self,
+        enrollment_id: int,
+        step_id: int,
+        assessment_type: AssessmentType,
+        *,
+        idempotency_key: str,
+    ) -> Attempt | JobAccepted: ...
+    def get_attempt(self, attempt_id: int) -> Attempt: ...
+    def save_attempt_answers(self, attempt_id: int, answers: Sequence[LearnerAnswer]) -> int: ...
+    def submit_attempt(
+        self, attempt_id: int, *, idempotency_key: str
+    ) -> AttemptResult | JobAccepted: ...
+    def get_attempt_result(self, attempt_id: int) -> AttemptResult: ...
+    def request_answer_review(self, attempt_answer_id: int, comment: str) -> int: ...
+    def create_final_attempt(self, enrollment_id: int, *, idempotency_key: str) -> Attempt: ...
+    def get_review_plan(self, enrollment_id: int) -> ReviewPlan: ...
+    def list_badges(self) -> list[BadgeSummary]: ...
+    def get_badge(self, enrollment_id: int) -> BadgeSummary: ...
+    def send_video_feedback(
+        self,
+        *,
+        video_candidate_id: int,
+        enrollment_id: int,
+        rating: VideoRating,
+        comment: str | None,
+        watched_fully: bool,
+    ) -> None: ...
+    def submit_final_survey(
+        self,
+        enrollment_id: int,
+        *,
+        likert: dict[str, int],
+        sus_items: Sequence[int],
+        comment: str | None,
+    ) -> float: ...
 
-    def confirm_objective(self, enrollment_id: int, personal_objective: str) -> Enrollment: ...
-
-    def get_path_progress(self, enrollment_id: int) -> PathProgress: ...
-
-    def get_topic_content(self, topic_id: int) -> TopicContent: ...
-
-    def get_topic_quiz(self, enrollment_id: int, topic_id: int) -> Quiz: ...
-
-    def submit_topic_quiz(
-        self, enrollment_id: int, topic_id: int, answers: Answers
-    ) -> QuizResult: ...
-
-    def get_final_assessment(self, enrollment_id: int) -> FinalAssessment: ...
-
-    def submit_final_assessment(self, enrollment_id: int, answers: Answers) -> FinalResult: ...
-
-    def list_final_results(self, enrollment_id: int) -> list[FinalResult]: ...
-
-    def list_my_badges(self) -> list[Badge]: ...
-
-    # --- docente -------------------------------------------------------------------------------
-    def list_my_courses(self) -> list[Course]: ...
-
-    def create_course(self, title: str) -> Course: ...
-
-    def get_course(self, course_id: int) -> Course: ...
-
-    def publish_course(self, course_id: int) -> Course: ...
-
-    def get_path_dashboard(self, course_id: int) -> PathDashboard: ...
-
-    def update_path_settings(self, course_id: int, settings: PathSettings) -> PathSettings: ...
-
-    def get_student_detail(self, course_id: int, user_id: int) -> StudentDetail: ...
-
-    def list_topic_resources(self, topic_id: int) -> list[ContentResource]: ...
-
-    def list_topic_questions(self, topic_id: int) -> list[BankQuestion]: ...
-
-    def set_resource_status(self, resource_id: int, status: ReviewStatus) -> ContentResource: ...
-
-    def set_question_status(self, question_id: int, status: ReviewStatus) -> BankQuestion: ...
-
-    # --- administración ------------------------------------------------------------------------
-    def list_users(self) -> list[User]: ...
-
-    def create_user(self, full_name: str, email: str, role: Role) -> User: ...
-
-    def set_user_role(self, user_id: int, role: Role) -> User: ...
-
-    def set_user_active(self, user_id: int, active: bool) -> User: ...
-
-    def get_llm_log(self) -> LlmLog: ...
-
-    def list_evaluation_metrics(self) -> list[EvaluationMetric]: ...
+    # --- Trabajos de IA (sección 7) ---
+    def get_job(self, job_id: str) -> Job: ...

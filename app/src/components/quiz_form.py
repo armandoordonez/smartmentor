@@ -1,34 +1,44 @@
-"""Preguntas de opción múltiple (diagnóstico, quiz del tema y evaluación final) y la revisión de
-respuestas (E7)."""
+"""Pregunta del quiz o del diagnóstico: opciones de una en una y revisión de una respuesta."""
 
 from collections.abc import Sequence
 
 import streamlit as st
 
-from clients.models import AnswerReview, Question
 from components.theme import ANSWER_BADGE
 
+DONT_KNOW = -1
+"""Valor devuelto por `render_options` cuando se elige «No lo sé»."""
 
-def render_options(question: Question, *, selected: int | None, key: str) -> int | None:
-    """Opciones de la pregunta. Devuelve el índice elegido (o None si aún no elige)."""
-    options = list(range(len(question.options)))
-    choice: int | None = st.radio(
-        question.prompt,
-        options,
-        index=selected,
-        format_func=lambda i: question.options[i],
-        key=f"{key}-{question.id}",
-        label_visibility="collapsed",
-        width="stretch",
-    )
-    return choice
+DONT_KNOW_LABEL = "No lo sé"
 
 
-def render_answer_review(reviews: Sequence[AnswerReview]) -> None:
-    with st.container(border=True):
-        st.markdown("#### Revisión de respuestas")
-        for review in reviews:
-            label, color = ANSWER_BADGE[review.correct]
-            with st.container(horizontal=True, vertical_alignment="center"):
-                st.badge(label, color=color)
-                st.markdown(f"Pregunta {review.number} · {review.prompt}")
+def render_options(
+    *,
+    stem: str,
+    options: Sequence[str],
+    key: str,
+    selected: int | None = None,
+    allow_dont_know: bool = False,
+) -> int | None:
+    """Pregunta de opción múltiple. Devuelve el índice elegido, `DONT_KNOW` o None sin elegir."""
+    labels = list(options) + ([DONT_KNOW_LABEL] if allow_dont_know else [])
+    index = selected if selected is not None and selected != DONT_KNOW else None
+    if selected == DONT_KNOW and allow_dont_know:
+        index = len(options)
+    choice = st.radio(stem, labels, index=index, key=f"option-{key}")
+    if choice is None:
+        return None
+    position = labels.index(choice)
+    return DONT_KNOW if allow_dont_know and position == len(options) else position
+
+
+def render_answer_review(
+    *, number: int, stem: str, correct: bool, explanation: str | None = None
+) -> None:
+    """Fila de «Revisión de respuestas» (E7): la pregunta, si fue correcta y la explicación."""
+    label, color = ANSWER_BADGE[correct]
+    with st.container(border=True, key=f"panel-review-{number}"):
+        st.badge(label, color=color)
+        st.markdown(f"**Pregunta {number}** · {stem}")
+        if explanation:
+            st.caption(explanation)

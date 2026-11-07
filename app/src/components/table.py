@@ -46,16 +46,21 @@ def _render_cell(cell: Cell, key: str) -> str | None:
 
 
 def render_table(
-    headers: Sequence[str], widths: Sequence[float], rows: Sequence[Row], *, key: str
+    headers: Sequence[str],
+    widths: Sequence[float],
+    rows: Sequence[Row],
+    *,
+    key: str,
+    empty_text: str = "No hay registros todavía.",
 ) -> tuple[str, str] | None:
     """Dibuja la tabla y devuelve (clave de la fila, acción) si se pulsó una acción."""
     clicked: tuple[str, str] | None = None
-    with st.container(border=True, gap="small"):
+    with st.container(border=True, gap="small", key=f"panel-table-{key}"):
         for column, header in zip(st.columns(widths), headers, strict=True):
             if header:
                 column.caption(f"**{header.upper()}**")
         if not rows:
-            st.caption("No hay registros todavía.")
+            st.caption(empty_text)
         for row in rows:
             columns = st.columns(widths, vertical_alignment="center")
             for column, cell in zip(columns, row.cells, strict=True):

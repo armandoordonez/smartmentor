@@ -1,48 +1,76 @@
 """Piezas comunes de todas las pantallas: barra superior (componente Nav de Figma), encabezado de
-página, aviso de permisos y pantallas de estado (403, sesión vencida).
+página, aviso y pantallas de estado (403, sesión expirada).
+
+Los componentes no leen `st.session_state` ni llaman a `clients/`: reciben sus datos por parámetro
+y devuelven lo que eligió la persona (`HeaderAction`); la página decide qué hacer.
 """
 
 from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Literal
 
 import streamlit as st
 
 from clients.models import Role
 from components.formatting import initials
-from components.theme import ROLE_BADGE
+from components.theme import ROLE_COLOR
 
 NavLink = tuple[str, str]
-"""(ruta del archivo de la página, texto del enlace)."""
+"""(archivo de la página, texto del enlace)."""
+
+
+@dataclass(frozen=True)
+class HeaderAction:
+    kind: Literal["switch_role", "logout"]
+    role: Role | None = None
 
 
 def eyebrow(text: str) -> None:
-    """Antetítulo azul en negrita («PASO 1 DE 3 · PERFIL», «RECOMENDADA PARA TI»)."""
+    """Antetítulo de color en negrita («PASO 1 DE 4 · PERFIL», «RECOMENDADA PARA TI»)."""
     st.markdown(f":small[:blue[**{text}**]]")
 
 
-def render_brand(role: Role | None = None) -> None:
+def render_brand(role_label: str | None = None, role: Role | None = None) -> None:
     with st.container(horizontal=True, horizontal_alignment="center", vertical_alignment="center"):
         st.markdown("### :blue[:material/school:] SmartMentor", width="content")
-        if role is not None:
-            label, color = ROLE_BADGE[role]
-            st.badge(label, color=color)
+        if role_label is not None and role is not None:
+            st.badge(role_label, color=ROLE_COLOR[role])
 
 
-def render_header(role: Role, full_name: str, email: str, links: Sequence[NavLink]) -> bool:
-    """Barra superior con la marca, el rol, los enlaces del rol y el menú de la cuenta.
+def render_header(
+    *,
+    role: Role,
+    role_label: str,
+    full_name: str,
+    email: str,
+    links: Sequence[NavLink],
+    other_roles: Sequence[tuple[Role, str]] = (),
+    logout_label: str = "Cerrar sesión",
+    switch_label: str = "Cambiar de perfil",
+) -> HeaderAction | None:
+    """Barra superior: marca, rol, enlaces del rol y menú de la cuenta (CU-35).
 
-    Devuelve True si el usuario eligió cambiar de rol.
+    `other_roles` son los demás roles del usuario con su etiqueta; si hay alguno, el menú ofrece
+    cambiar de perfil. Devuelve la acción elegida (cambiar de rol o cerrar sesión), o None.
     """
-    label, color = ROLE_BADGE[role]
-    with st.container(border=True, horizontal=True, vertical_alignment="center", gap="medium"):
+    action: HeaderAction | None = None
+    with st.container(key="app-header", horizontal=True, vertical_alignment="center", gap="medium"):
         st.markdown(":blue[:material/school:] **SmartMentor**", width="content")
-        st.badge(label, color=color)
+        st.badge(role_label, color=ROLE_COLOR[role])
         st.space("stretch")
         for path, text in links:
             st.page_link(path, label=text)
         with st.popover(initials(full_name), type="tertiary"):
             st.markdown(f"**{full_name}**")
             st.caption(email)
-            return st.button("Cambiar de rol", icon=":material/swap_horiz:", key="switch-role")
+            if other_roles:
+                st.caption(f"**{switch_label.upper()}**")
+                for other, label in other_roles:
+                    if st.button(label, key=f"switch-role-{other}", icon=":material/swap_horiz:"):
+                        action = HeaderAction("switch_role", other)
+            if st.button(logout_label, key="logout", icon=":material/logout:"):
+                action = HeaderAction("logout")
+    return action
 
 
 def render_page_header(
@@ -62,13 +90,14 @@ def render_page_header(
 
 
 def render_notice(text: str) -> None:
-    """Aviso ámbar de permisos o reglas («Tu rol: Docente · Solo ves...»)."""
+    """Aviso ámbar de permisos o reglas («Tu rol: Instructor · Solo corriges tus cursos»)."""
     st.warning(text)
 
 
 def render_status_screen(
     *,
     role: Role | None,
+    role_label: str | None,
     code: str | None,
     title: str,
     message: str,
@@ -77,8 +106,8 @@ def render_status_screen(
 ) -> tuple[bool, bool]:
     """Pantalla centrada de estado (A6 · 403, A7 · sesión expirada). Devuelve qué botón se pulsó."""
     st.space("large")
-    render_brand(role)
-    with st.container(horizontal_alignment="center"):
+    render_brand(role_label, role)
+    with st.container(key="status-screen", horizontal_alignment="center"):
         if code:
             st.markdown(f"# :red[{code}]", width="content")
         st.subheader(title, anchor=False, width="content")

@@ -1,0 +1,35 @@
+/*
+ * Barra superior, tarjetas y rejilla. Solo clases propias y .st-key-<nombre> (el contenedor de
+ * Streamlit que lleva `key`). No se usan clases internas de Streamlit.
+ */
+
+/* Barra superior (render_header): superficie blanca con borde fino. */
+.st-key-app-header {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-10) var(--space-16);
+}
+
+/* Tarjetas de Figma: superficie blanca, borde fino y radio de 14 px. */
+[class*="st-key-card-"] {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}
+
+/* Paneles y filas alternas. */
+[class*="st-key-panel-"] {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-row);
+  padding: var(--space-12);
+}
+
+/* Pantallas de estado (A6, A7): contenido centrado. */
+.st-key-status-screen {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 560px;
+}

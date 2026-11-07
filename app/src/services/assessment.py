@@ -1,65 +1,35 @@
-"""Quiz del tema (E6, E7), evaluación final (E8), repaso dirigido (E9), badge (E10) y logros (E12).
+"""Vistas de evaluación: convierte el `grading.v1` de la API en lo que muestran los componentes.
 
-La calificación, los umbrales y los intentos los decide la API; la interfaz solo entrega las
-respuestas y muestra el resultado.
+Solo presenta datos: el puntaje, `is_correct` y los criterios los calcula la API. El mínimo de
+criterios («mínimo 2») se deriva de `min_criteria_ratio` únicamente para el texto.
 """
 
-from dataclasses import dataclass
+import math
+from typing import Any
 
-from clients.base import Answers, SmartMentorClient
-from clients.models import (
-    Badge,
-    Enrollment,
-    FinalAssessment,
-    FinalResult,
-    LearningPath,
-    QuizResult,
-)
-from services.catalog import active_enrollment
+from components.rubric_result import CriterionView, RubricView
 
 
-@dataclass(frozen=True)
-class BadgeSlot:
-    path: LearningPath
-    badge: Badge | None
-    enrolled: bool
-
-
-class AssessmentService:
-    def __init__(self, client: SmartMentorClient) -> None:
-        self._client = client
-
-    def submit_quiz(self, enrollment_id: int, topic_id: int, answers: Answers) -> QuizResult:
-        return self._client.submit_topic_quiz(enrollment_id, topic_id, answers)
-
-    def final_assessment(self, enrollment_id: int) -> FinalAssessment:
-        return self._client.get_final_assessment(enrollment_id)
-
-    def submit_final(self, enrollment_id: int, answers: Answers) -> FinalResult:
-        return self._client.submit_final_assessment(enrollment_id, answers)
-
-    def last_final_result(self, enrollment_id: int) -> FinalResult | None:
-        results = self._client.list_final_results(enrollment_id)
-        return results[-1] if results else None
-
-    def badge_for(self, enrollment: Enrollment) -> Badge | None:
-        return next(
-            (b for b in self._client.list_my_badges() if b.enrollment_id == enrollment.id), None
+def rubric_view(grading: dict[str, Any]) -> RubricView | None:
+    """Vista de la rúbrica de una respuesta corta; None si el ítem no es de respuesta corta."""
+    if grading.get("item_type") != "short_answer":
+        return None
+    total = int(grading.get("criteria_total", 0))
+    ratio = grading.get("min_criteria_ratio")
+    min_met = math.ceil(round(float(ratio) * total, 2)) if ratio is not None and total else None
+    criteria = tuple(
+        CriterionView(
+            name=str(item.get("criterion", "")),
+            met=bool(item.get("met", False)),
+            evidence=str(item.get("evidence", "")),
         )
-
-    def badge_slots(self) -> list[BadgeSlot]:
-        badges = {b.learning_path_id: b for b in self._client.list_my_badges()}
-        enrollments = self._client.list_my_enrollments()
-        paths = {p.id: p for p in self._client.list_learning_paths()}
-        # Una ruta con badge puede haber dejado de publicarse; el badge sigue siendo del estudiante.
-        for path_id in badges.keys() - paths.keys():
-            paths[path_id] = self._client.get_learning_path(path_id)
-        slots = [
-            BadgeSlot(
-                path=path,
-                badge=badges.get(path.id),
-                enrolled=active_enrollment(enrollments, path.id) is not None,
-            )
-            for path in paths.values()
-        ]
-        return sorted(slots, key=lambda s: (s.badge is None, s.path.title))
+        for item in grading.get("rubric_detail", [])
+    )
+    return RubricView(
+        criteria=criteria,
+        criteria_met=int(grading.get("criteria_met", 0)),
+        criteria_total=total,
+        min_met=min_met,
+        is_correct=bool(grading.get("is_correct", False)),
+        graded_by="un instructor" if grading.get("grader") == "human" else "IA",
+    )

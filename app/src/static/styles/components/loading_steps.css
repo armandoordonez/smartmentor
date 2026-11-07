@@ -1,0 +1,7 @@
+/* Estado de carga (U1x, D1c): tres pasos con su estado escrito además del color. */
+[class*="st-key-loading-"] {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}
