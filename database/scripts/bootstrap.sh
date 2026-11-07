@@ -32,7 +32,9 @@ else
   : "${POSTGRES_USER:?Define POSTGRES_USER (en .env o en el entorno)}"
   echo "Bootstrap de '$POSTGRES_DB' en el contenedor smartmentor-postgres..."
   docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T -e POSTGRES_DB="$POSTGRES_DB" \
-      -e KEYCLOAK_DB_NAME -e KEYCLOAK_DB_USER -e KEYCLOAK_DB_PASSWORD postgres \
+      -e KEYCLOAK_DB_NAME -e KEYCLOAK_DB_USER -e KEYCLOAK_DB_PASSWORD \
+      -e OWNER_DATABASE_USER -e OWNER_DATABASE_PASSWORD -e API_DATABASE_USER -e API_DATABASE_PASSWORD \
+      -e AI_DATABASE_USER -e AI_DATABASE_PASSWORD -e METRICS_DATABASE_USER -e METRICS_DATABASE_PASSWORD postgres \
     psql -U "$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1 -f - < "$SQL_FILE"
 fi
 echo "Listo."

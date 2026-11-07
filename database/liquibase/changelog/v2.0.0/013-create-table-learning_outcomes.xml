@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/013-create-table-learning_outcomes.xml">
+
+    <changeSet id="v2.0.0-013-create-table-learning_outcomes" author="eduar.troyano">
+        <comment>Crea la tabla learning_outcomes: resultados de aprendizaje de cada tema (antes un jsonb en topics). Incluye secuencia propia, tabla de auditoría learning_outcomes_audit y el trigger learning_outcomes_audit_trg.</comment>
+
+        <createSequence sequenceName="learning_outcomes_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="learning_outcomes_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="learning_outcomes" remarks="Measurable learning outcomes of a topic (replaces topics.learning_outcomes jsonb)">
+            <column name="id" type="bigint" defaultValueSequenceNext="learning_outcomes_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="learning_outcomes_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_id" type="bigint" remarks="Topic the outcome belongs to">
+                <constraints nullable="false" foreignKeyName="learning_outcomes_topic_id_fk" references="topics(id)"/>
+            </column>
+            <column name="code" type="varchar(50)" remarks="Outcome code, unique inside the topic">
+                <constraints nullable="false"/>
+            </column>
+            <column name="statement" type="text" remarks="Outcome statement">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bloom_level" type="varchar(20)" remarks="Bloom taxonomy level of the outcome"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="learning_outcomes" constraintName="learning_outcomes_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="learning_outcomes" constraintName="learning_outcomes_topic_code_uq" columnNames="topic_id,code"/>
+        <sql>ALTER TABLE learning_outcomes ADD CONSTRAINT learning_outcomes_bloom_level_ck CHECK (bloom_level IS NULL OR bloom_level IN ('remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'))</sql>
+        <sql>CREATE TRIGGER learning_outcomes_set_updated_at_trg BEFORE UPDATE ON learning_outcomes FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="learning_outcomes_audit" remarks="Append-only change history of learning_outcomes">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="learning_outcomes_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="learning_outcomes_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in learning_outcomes">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE learning_outcomes_audit ADD CONSTRAINT learning_outcomes_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="learning_outcomes_audit" indexName="learning_outcomes_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER learning_outcomes_audit_trg AFTER INSERT OR UPDATE OR DELETE ON learning_outcomes FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS learning_outcomes_audit_trg ON learning_outcomes</sql>
+            <dropTable tableName="learning_outcomes_audit"/>
+            <dropTable tableName="learning_outcomes" cascadeConstraints="true"/>
+            <dropSequence sequenceName="learning_outcomes_audit_id_seq"/>
+            <dropSequence sequenceName="learning_outcomes_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

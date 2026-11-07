@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/028-create-table-video_candidates.xml">
+
+    <changeSet id="v2.0.0-028-create-table-video_candidates" author="eduar.troyano">
+        <comment>Crea la tabla video_candidates: videos candidatos por tema (YouTube o cargados por el instructor) con similitud y estado de curaduría. Incluye secuencia propia, tabla de auditoría video_candidates_audit y el trigger video_candidates_audit_trg.</comment>
+
+        <createSequence sequenceName="video_candidates_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="video_candidates_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="video_candidates" remarks="Candidate videos of a topic collected from YouTube or loaded by the instructor">
+            <column name="id" type="bigint" defaultValueSequenceNext="video_candidates_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="video_candidates_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_id" type="bigint" remarks="Topic the video is a candidate for">
+                <constraints nullable="false" foreignKeyName="video_candidates_topic_id_fk" references="topics(id)"/>
+            </column>
+            <column name="youtube_video_id" type="varchar(20)" remarks="YouTube video id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(500)" remarks="Video title">
+                <constraints nullable="false"/>
+            </column>
+            <column name="channel" type="varchar(300)" remarks="Channel name"/>
+            <column name="duration_seconds" type="integer" remarks="Duration in seconds"/>
+            <column name="language" type="varchar(10)" remarks="Language code"/>
+            <column name="has_captions" type="boolean" remarks="Whether the video has captions"/>
+            <column name="characterization" type="text" remarks="Description of the video content used for similarity"/>
+            <column name="characterization_source" type="varchar(30)" remarks="Where the characterization comes from (captions, metadata, instructor)"/>
+            <column name="similarity" type="numeric(6,5)" remarks="Cosine similarity between the topic and the video"/>
+            <column name="rank" type="smallint" remarks="Rank among the candidates of the topic"/>
+            <column name="status" type="varchar(15)" defaultValueComputed="'candidate'" remarks="Status: candidate, in_use, backup or rejected">
+                <constraints nullable="false"/>
+            </column>
+            <column name="origin" type="varchar(15)" defaultValueComputed="'youtube_api'" remarks="Origin: youtube_api or instructor">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="video_candidates" constraintName="video_candidates_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="video_candidates" constraintName="video_candidates_topic_video_uq" columnNames="topic_id,youtube_video_id"/>
+        <sql>ALTER TABLE video_candidates ADD CONSTRAINT video_candidates_status_ck CHECK (status IN ('candidate', 'in_use', 'backup', 'rejected'))</sql>
+        <sql>ALTER TABLE video_candidates ADD CONSTRAINT video_candidates_origin_ck CHECK (origin IN ('youtube_api', 'instructor'))</sql>
+        <sql>CREATE TRIGGER video_candidates_set_updated_at_trg BEFORE UPDATE ON video_candidates FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="video_candidates_audit" remarks="Append-only change history of video_candidates">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="video_candidates_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="video_candidates_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in video_candidates">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE video_candidates_audit ADD CONSTRAINT video_candidates_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="video_candidates_audit" indexName="video_candidates_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER video_candidates_audit_trg AFTER INSERT OR UPDATE OR DELETE ON video_candidates FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS video_candidates_audit_trg ON video_candidates</sql>
+            <dropTable tableName="video_candidates_audit"/>
+            <dropTable tableName="video_candidates" cascadeConstraints="true"/>
+            <dropSequence sequenceName="video_candidates_audit_id_seq"/>
+            <dropSequence sequenceName="video_candidates_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

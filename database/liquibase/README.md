@@ -41,22 +41,24 @@ La API solo arranca si Liquibase terminó bien (`service_completed_successfully`
 ```text
 changelog/
 ├── db.changelog-master.xml          # punto de entrada: incluye cada versión en orden
-├── v1.0.0/                          # modelo de datos inicial
-│   ├── db.changelog-v1.0.0.xml      # incluye los changesets de la versión en orden
-│   ├── 001-extensions-and-timezone.xml
-│   ├── 002-audit-function.xml
-│   ├── 003-create-table-roles.xml
-│   ├── ...
-│   └── 019-tag-v1.0.0.xml
-└── v1.0.1/                          # usuario administrador inicial
-    ├── db.changelog-v1.0.1.xml
-    ├── 001-seed-admin-user.xml
-    └── 002-tag-v1.0.1.xml
+└── v2.0.0/                          # re-base del esquema (ADR 0007); v1.x se retiró (git: schema-v1-final)
+    ├── db.changelog-v2.0.0.xml      # incluye los changesets de la versión en orden
+    ├── 001-extensions-and-timezone.xml
+    ├── 002-audit-function.xml       # audit_row_change(), SECURITY DEFINER
+    ├── 003-updated-at-function.xml  # set_updated_at()
+    ├── 004-create-table-roles.xml   # 004 a 042: un archivo por tabla (con su _audit y triggers)
+    ├── ...
+    ├── 043-vector-indexes.xml       # índice HNSW de ai_embeddings
+    ├── 044-views.xml                # v_path_step_metrics, v_llm_cost_summary, v_item_validity
+    ├── 045-db-roles-grants.xml      # permisos de smartmentor_api y smartmentor_ai (ADR 0019)
+    ├── 046-seed-roles.xml           # learner, instructor, admin
+    ├── 047-seed-admin-user.xml      # administrador con la propiedad seed_admin_email
+    └── 048-tag-v2.0.0.xml
 ```
 
 | Elemento | Convención |
 | --- | --- |
-| Id | `vX.Y.Z-NNN-<accion>`, por ejemplo `v1.0.0-004-create-table-users` |
+| Id | `vX.Y.Z-NNN-<accion>`, por ejemplo `v2.0.0-005-create-table-users` |
 | Autor | `eduar.troyano` (cada integrante usa su propio identificador) |
 | `<comment>` del changeset | Español: qué hace y por qué |
 | Tablas, columnas, funciones | Inglés, `snake_case`, tablas en plural |
@@ -67,8 +69,14 @@ changelog/
 
 **Reglas del modelo:**
 
-- `id bigint` con secuencia `<tabla>_id_seq`, más `active` y `created_at`.
-- Toda tabla nueva se crea junto con su `<tabla>_audit`, la secuencia `<tabla>_audit_id_seq` y el trigger `<tabla>_audit_trg`, en el mismo changeset.
+- `id bigint` con secuencia `<tabla>_id_seq`, más `active`, `created_at` y, si la fila cambia, `updated_at` (trigger `<tabla>_set_updated_at_trg`).
+- Toda tabla nueva se crea junto con su `<tabla>_audit`, la secuencia `<tabla>_audit_id_seq` y el trigger `<tabla>_audit_trg`, en el mismo changeset, salvo las de solo inserción o de volumen alto (ADR 0007).
+- Toda tabla nueva exige su `GRANT` para `smartmentor_api` y `smartmentor_ai` en un changeset de permisos (ADR 0019).
+- Los enumerados llevan `CHECK` con nombre `<tabla>_<columna>_ck`; los recursos que la API expone llevan `public_id uuid`.
+
+**Propiedad de Liquibase `seed_admin_email`:** el changeset `v2.0.0-047-seed-admin-user` crea el administrador con el correo de la variable de entorno `SEED_ADMIN_EMAIL` (se pasa al contenedor con ese mismo nombre). Vacía = no crea nada. El `rollback` necesita la misma variable.
+
+**Rollback y extensión `vector`:** la crea el bootstrap con el administrador; si Liquibase corre como `smartmentor_owner`, el rollback de `v2.0.0-001` la deja en su sitio con un aviso.
 
 ## 3. Escenarios y comandos
 
@@ -83,9 +91,9 @@ Todos se ejecutan desde la raíz del repositorio. `run --rm` crea un contenedor 
 | Historial de lo aplicado | `docker compose run --rm liquibase history` |
 | Validar la sintaxis de los changelogs | `docker compose run --rm liquibase validate` |
 | Probar el rollback de lo pendiente (aplica, revierte y reaplica) | `docker compose run --rm liquibase update-testing-rollback` |
-| Revertir hasta una versión etiquetada | `docker compose run --rm liquibase rollback --tag=v1.0.0` |
+| Revertir hasta una versión etiquetada | `docker compose run --rm liquibase rollback --tag=v2.0.0` |
 | Revertir los últimos N changesets | `docker compose run --rm liquibase rollback-count --count=1` |
-| Ver el SQL de un rollback, sin ejecutarlo | `docker compose run --rm liquibase rollback-sql --tag=v1.0.0` |
+| Ver el SQL de un rollback, sin ejecutarlo | `docker compose run --rm liquibase rollback-sql --tag=v2.0.0` |
 | Liberar un bloqueo que quedó colgado (ejecución interrumpida) | `docker compose run --rm liquibase release-locks` |
 | Reconstruir la imagen (cambio del Dockerfile) | `docker compose build liquibase` |
 | Ejecutar contra otro ambiente (CI/CD o base gestionada) | ver abajo |
@@ -144,9 +152,9 @@ docker run --rm \
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
-        logicalFilePath="v1.1.0/001-add-column-users-phone.xml">
+        logicalFilePath="v2.1.0/001-add-column-users-phone.xml">
 
-    <changeSet id="v1.1.0-001-add-column-users-phone" author="eduar.troyano">
+    <changeSet id="v2.1.0-001-add-column-users-phone" author="eduar.troyano">
         <comment>Agrega el teléfono de contacto del usuario (opcional).</comment>
 
         <addColumn tableName="users">

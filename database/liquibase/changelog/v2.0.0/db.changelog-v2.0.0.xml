@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  v2.0.0: re-base del esquema para el prototipo v3 y la capa de IA (ADR 0007).
+  Autor: eduar.troyano. Fecha: 2026-11-07.
+  Recurso: PLAN_IMPLEMENTACION_V3.md, secciones 5.2.1 a 5.2.5; ADR 0007, 0009, 0012, 0019 y 0021.
+  Orden: 001 extensión y zona horaria, 002 función de auditoría, 003 función updated_at,
+  004-042 tablas (cada una con su secuencia, y su tabla _audit y trigger salvo las de solo inserción),
+  043 índice vectorial, 044 vistas, 045 permisos de los usuarios de base de datos, 046-047 semillas,
+  048 etiqueta v2.0.0.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/db.changelog-v2.0.0.xml">
+
+    <include file="001-extensions-and-timezone.xml" relativeToChangelogFile="true"/>
+    <include file="002-audit-function.xml" relativeToChangelogFile="true"/>
+    <include file="003-updated-at-function.xml" relativeToChangelogFile="true"/>
+
+    <!-- Grupo A: identidad y cursos -->
+    <include file="004-create-table-roles.xml" relativeToChangelogFile="true"/>
+    <include file="005-create-table-users.xml" relativeToChangelogFile="true"/>
+    <include file="006-create-table-user_roles.xml" relativeToChangelogFile="true"/>
+    <include file="007-create-table-user_profiles.xml" relativeToChangelogFile="true"/>
+    <include file="008-create-table-consents.xml" relativeToChangelogFile="true"/>
+    <include file="009-create-table-data_subject_requests.xml" relativeToChangelogFile="true"/>
+    <include file="010-create-table-courses.xml" relativeToChangelogFile="true"/>
+    <include file="011-create-table-syllabus_documents.xml" relativeToChangelogFile="true"/>
+    <include file="012-create-table-topics.xml" relativeToChangelogFile="true"/>
+    <include file="013-create-table-learning_outcomes.xml" relativeToChangelogFile="true"/>
+    <include file="014-create-table-topic_prerequisites.xml" relativeToChangelogFile="true"/>
+    <include file="015-create-table-course_evaluators.xml" relativeToChangelogFile="true"/>
+    <include file="016-create-table-ai_jobs.xml" relativeToChangelogFile="true"/>
+    <include file="017-create-table-syllabus_extractions.xml" relativeToChangelogFile="true"/>
+
+    <!-- Grupo B: rutas, inscripciones y evaluación -->
+    <include file="018-create-table-learning_paths.xml" relativeToChangelogFile="true"/>
+    <include file="019-create-table-enrollments.xml" relativeToChangelogFile="true"/>
+    <include file="020-create-table-diagnostics.xml" relativeToChangelogFile="true"/>
+    <include file="021-create-table-path_steps.xml" relativeToChangelogFile="true"/>
+    <include file="022-create-table-attempt_grants.xml" relativeToChangelogFile="true"/>
+    <include file="023-create-table-assessment_items.xml" relativeToChangelogFile="true"/>
+    <include file="024-create-table-assessment_attempts.xml" relativeToChangelogFile="true"/>
+    <include file="025-create-table-attempt_answers.xml" relativeToChangelogFile="true"/>
+    <include file="026-create-table-item_annotations.xml" relativeToChangelogFile="true"/>
+    <include file="027-create-table-human_gradings.xml" relativeToChangelogFile="true"/>
+
+    <!-- Grupo C: recursos, videos, piloto y encuestas -->
+    <include file="028-create-table-video_candidates.xml" relativeToChangelogFile="true"/>
+    <include file="029-create-table-resources.xml" relativeToChangelogFile="true"/>
+    <include file="030-create-table-video_relevance_judgments.xml" relativeToChangelogFile="true"/>
+    <include file="031-create-table-video_feedback.xml" relativeToChangelogFile="true"/>
+    <include file="032-create-table-badges.xml" relativeToChangelogFile="true"/>
+    <include file="033-create-table-pilots.xml" relativeToChangelogFile="true"/>
+    <include file="034-create-table-survey_responses.xml" relativeToChangelogFile="true"/>
+    <include file="035-create-table-alerts.xml" relativeToChangelogFile="true"/>
+    <include file="036-create-table-interaction_events.xml" relativeToChangelogFile="true"/>
+    <include file="037-create-table-study_goals.xml" relativeToChangelogFile="true"/>
+
+    <!-- Grupo D: tablas de la capa de IA (las escribe ai/) -->
+    <include file="038-create-table-ai_generation_cache.xml" relativeToChangelogFile="true"/>
+    <include file="039-create-table-ai_embeddings.xml" relativeToChangelogFile="true"/>
+    <include file="040-create-table-source_documents.xml" relativeToChangelogFile="true"/>
+    <include file="041-create-table-document_chunks.xml" relativeToChangelogFile="true"/>
+    <include file="042-create-table-llm_call_logs.xml" relativeToChangelogFile="true"/>
+
+    <!-- Índices vectoriales, vistas y permisos de los usuarios de base de datos -->
+    <include file="043-vector-indexes.xml" relativeToChangelogFile="true"/>
+    <include file="044-views.xml" relativeToChangelogFile="true"/>
+    <include file="045-db-roles-grants.xml" relativeToChangelogFile="true"/>
+    <include file="049-db-role-metrics-grants.xml" relativeToChangelogFile="true"/>
+
+    <!-- Semillas y etiqueta -->
+    <include file="046-seed-roles.xml" relativeToChangelogFile="true"/>
+    <include file="047-seed-admin-user.xml" relativeToChangelogFile="true"/>
+    <include file="048-tag-v2.0.0.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
