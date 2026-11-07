@@ -1,0 +1,38 @@
+# Ganchos locales (PLAN_IMPLEMENTACION_V3.md, sección 14.2). Instalación, una sola vez:
+#   uv tool install pre-commit && pre-commit install
+# `default_install_hook_types` instala también el gancho del mensaje de commit.
+# Ruff solo se aplica a api/ y app/ (que heredan ../ruff.toml); ai/ se agrega cuando exista.
+default_install_hook_types: [pre-commit, commit-msg]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        # En Markdown dos espacios finales pueden ser un salto de línea.
+        args: [--markdown-linebreak-ext=md]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.10
+    hooks:
+      - id: ruff-check
+        files: ^(api|app)/
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        files: ^(api|app)/
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  # Conventional Commits en el mensaje (ramas feature/*; mensajes en español).
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.5.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]

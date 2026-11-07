@@ -6,3 +6,12 @@ __pycache__/
 tests/
 scripts/
 *.md
+
+# Secretos e historial: nunca entran a una imagen.
+.env
+.env.*
+!.env.example
+.git
+.coverage
+htmlcov/
+*.log

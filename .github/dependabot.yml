@@ -1,0 +1,51 @@
+# Actualizaciones automáticas de dependencias. Los pull requests van a dev.
+version: 2
+updates:
+  # Python con uv (api/ y app/; ai/ se agrega cuando exista).
+  - package-ecosystem: uv
+    directory: /api
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: uv
+    directory: /app
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci(deps)"
+
+  # Imágenes base de los Dockerfile.
+  - package-ecosystem: docker
+    directory: /api
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: docker
+    directory: /app
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: docker
+    directory: /database/liquibase
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
