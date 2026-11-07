@@ -1248,6 +1248,7 @@ B = bloqueante (sin respuesta no empieza la fase). A = asumible con el valor por
 | R-14 | El cambio de vocabulario deja términos viejos en código, prompts, realm y documentos | Alta | Bajo | Glosario, búsqueda `grep` de `student` y `teacher` en cada fase y revisión final (Fase 10) |
 | R-15 | Una clave o un modelo se versiona por error | Baja | Alto | `.env` ignorado, `gitleaks` en `pre-commit`, prueba de coherencia de `.env.example` |
 | R-16 | Dos versiones del brief en circulación | Media | Bajo | Etiqueta `brief-v1`, tabla de control de cambios y aviso en la cabecera |
+| R-17 | **El repositorio es público y el realm de Keycloak con secretos de cliente está en una rama publicada** (`feature/phase-0-prototypes`); el ADR 0005 lo aceptaba solo con repositorio privado. Además `stage` y `main` no tienen protección | Alta | Alto | Rotar los secretos del realm ya (G-08), volver el repositorio privado o dejar de versionar el realm con secretos; pedir la protección de ramas al administrador |
 
 **Supuestos:** el equipo sigue con Python y Streamlit (ADR 0006); el piloto es de 15 a 30 personas (decidido el 2026-11-07); los `push` a ramas `feature/*` los hace Claude y la fusión a `dev` sigue 16.3; las jornadas son de unas 6 horas asistidas; el syllabus del piloto es texto seleccionable o se pega.
 
@@ -1495,16 +1496,24 @@ Reglas: una rama por tema y por frente; pull request hacia `dev` con revisión; 
 
 El `.env.example` actual tiene `change_me` en las contraseñas y no trae variables de IA. El borrador del Anexo D es la propuesta; **no se reemplaza el archivo hasta que el dueño autorice** (Fase 0 o Fase 8).
 
-### 16.3 Política de fusión a `dev`
+### 16.3 Política de fusión a `dev` (decidida el 2026-11-07)
 
-Pedido del dueño: opinión sobre las fusiones a `dev` (`stage` y `main` no se tocan nunca; confirmado el 2026-11-07). **Propuesta, pendiente de su respuesta:**
+**Decisión del dueño:** Claude hace `push` a ramas `feature/*` y **fusiona a `dev` sin pull request, pero solo con las validaciones de calidad de código en verde**; es independiente hasta `dev`. `stage` y `main` no se tocan nunca. El control del dueño pasa a ser la promoción `dev` → `stage` → `main`.
 
-| Tipo de cambio | Cómo llega a `dev` | Por qué |
-| --- | --- | --- |
-| Documentos, contratos aprobados, pruebas, tema y componentes de la app | Claude abre un pull request hacia `dev` (`gh pr create --base dev`) y lo fusiona **cuando la CI está en verde, no hay conflictos y una revisión con Opus (`code-review`, nivel `high`) no deja hallazgos abiertos** | Es reversible y el volumen de ramas en paralelo haría de cuello de botella esperar al dueño en cada una |
-| Changesets de la base, políticas de autorización, realm de Keycloak, secretos, scripts destructivos, integración con servicios reales | Claude abre el pull request y **solo el dueño lo fusiona** | Un error aquí cuesta datos o seguridad (sección 8.3) |
+| Paso | Qué se hace |
+| --- | --- |
+| 1 | Rebasar la rama `feature/*` sobre `dev` y dejar un solo commit por funcionalidad (*squash* local, con los cuatro coautores) |
+| 2 | Correr en local el `dev.sh all` de cada servicio tocado (Ruff, mypy, pytest) y `liquibase validate` si hay changesets |
+| 3 | Para ramas con código o configuración sensible (changesets, autorización, realm, secretos): revisión con Opus (`code-review` nivel `high` y, si aplica, `security-review`), con el resultado en la bitácora |
+| 4 | `push` de la rama `feature/*`; esperar a que la CI de GitHub quede en verde **sobre ese mismo commit** |
+| 5 | Avance rápido de `dev` a ese commit (`git push origin <rama>:dev`, sin `--force`) |
+| 6 | Anotar en la bitácora la rama, el commit y el resultado de las validaciones |
 
-Reglas comunes: fusión por *squash* (el mensaje conserva los coautores y queda un commit por funcionalidad); la rama `dev` protegida en GitHub (pull request obligatorio y CI en verde), ajuste que hace el dueño porque es de configuración del repositorio; nunca `push` directo a `dev`; nunca `--force`; nunca se borran ramas remotas; si dos ramas chocan, se rebasa la que llegó después y se vuelve a pasar la CI. Mientras no exista la CI (antes de `feature/repo-standards`), ninguna rama se fusiona a `dev` sin el visto bueno del dueño.
+Reglas: nunca `--force`, nunca borrar ramas remotas, nunca `push` directo a `stage` ni `main`; si la CI falla o hay conflictos, no se fusiona y se corrige en la rama. **Mientras no exista la CI** (antes de fusionar `feature/repo-standards`), solo rigen los pasos 2 y 3, y `feature/repo-standards` es lo primero que entra a `dev`.
+
+**Qué cambia con esto en el trabajo en paralelo:** se quita la espera del dueño en cada fusión, que era el cuello de botella. No se quitan las dependencias entre fases (los contratos de la Fase 1 van primero), los archivos compartidos (los consolida un integrador), el disco, el uso de sesión ni las acciones sobre su base local (vaciar `smartmentor` en la Fase 2 sigue pidiendo su autorización; los agentes usan una base de pruebas aparte).
+
+**Límite que impone GitHub (verificado el 2026-11-07):** la cuenta `troyano` tiene permiso de `push` pero **no de administración** en `armandoordonez/smartmentor`, así que no puede crear reglas de protección. Hoy `dev`, `stage` y `main` **no tienen protección**: que `stage` y `main` no se toquen depende solo de esta regla. Se recomienda que el administrador del repositorio (armandoordonez) active la protección de `stage` y `main` (solo con pull request y aprobación) y, en `dev`, exija la CI en verde sin exigir pull request.
 
 ---
 
@@ -1555,7 +1564,7 @@ Se hizo después de las respuestas del dueño a las DEF (registradas en la secci
 | G-05 | **Menú de perfil con varios roles:** Figma v3 solo tiene el selector de rol previo al login (A1) y un menú superior por rol; no hay menú de perfil con cambio de rol | El dueño pidió que, al entrar, se vea el menú del perfil | El «rol activo» es solo de presentación: la API autoriza por la unión de roles y cada ruta pide su rol; `GET /me` devuelve `roles`, `role_labels` y `default_role`. El prototipo de Streamlit ya tiene un `popover` con «Cambiar de rol». Caso de uso nuevo CU-35 y ajuste del diseño | F1 y F7 | Media |
 | G-06 | El administrador reajusta roles: CU-14 hoy solo cubre usuarios y un rol | Un usuario puede tener varios roles | Ampliar CU-14: asignar o quitar roles, **nunca dejar la plataforma sin administrador**, auditar el cambio (el trigger `_audit` ya lo guarda) y reflejarlo en Keycloak | F1 y F3 | Media |
 | G-07 | El administrador sembrado usa `admin.smartmentor@yopmail.com` (verificado), un dominio desechable | Cualquiera puede leer ese buzón | `SEED_ADMIN_EMAIL` en `.env` (DEF-28); el realm exportado no trae usuarios | F2 y F8 | Alta |
-| G-08 | El realm versionado trae **tres secretos de cliente** y el usuario administrador (verificado) | DEF-14: los secretos viven solo en `.env` | Importar el realm con variables (`${VAR}`), regenerar los secretos y rotarlos; limpiar el historial queda como tarea aparte | F8 | Alta |
+| G-08 | El realm versionado trae **tres secretos de cliente** y el usuario administrador (verificado), **y el repositorio es público** (verificado con `gh`) | DEF-14: los secretos viven solo en `.env`; el ADR 0005 solo lo aceptaba con el repositorio privado | Importar el realm con variables (`${VAR}`), **regenerar y rotar ya los secretos** (tras eso, los publicados dejan de valer), y decidir con el administrador si el repositorio pasa a privado; limpiar el historial queda como tarea aparte | F8, rotación inmediata | Alta |
 | G-09 | **Corrección:** dije que verificar la dimensión del vector no bloqueaba hasta la Fase 4. La columna `vector(N)` se escribe en la Fase 2 | Si `N` cambia después hay que migrar | Usar **768** (el del notebook) en la Fase 2: cambiarlo cuesta un changeset y un reindexado (5.2.5). Confirmar en P-05 antes de la Fase 5 | F2 | Media |
 
 ### 18.2 Huecos de estandarización (verificados en el repositorio)
@@ -1746,7 +1755,7 @@ El autor es el configurado en git (`user.name` y `user.email`); como el correo c
 | ~~Puerto 8020 ocupado~~ | Un contenedor de otro proyecto lo usaba. **Resuelto el 2026-11-07:** el dueño lo detuvo. Los puertos son configurables en `.env` (`API_PORT`, `AI_PORT`, `APP_PORT`, `KEYCLOAK_PORT`, `POSTGRES_PORT`; el compose ya los toma con valor por defecto) | Nada |
 | Disco casi lleno | 99 % de uso, 8,3 GB libres | Liberar espacio (se estiman 5 a 9 GB para varios worktrees con su `.venv` e imágenes Docker) o limitar a 3 worktrees a la vez |
 | ~~Identidad de git~~ | **Resuelto el 2026-11-07:** el dueño ajustó `user.name` y `user.email` (Eduar Troyano Velásquez, `eatroyano@gmail.com`) | Nada |
-| Autorizaciones | Commits y `push` a `feature/*`: **autorizados el 2026-11-07**. Falta la política de fusión a `dev` (16.3) y la autorización para lanzar subagentes | Respuesta del dueño a 16.3 y su señal de inicio |
+| Autorizaciones | Commits, `push` a `feature/*` y fusión a `dev` con validaciones: **autorizados el 2026-11-07** (16.3). Falta la autorización para lanzar subagentes | Su señal de inicio, que incluye lanzar subagentes |
 | Contratos congelados | Los agentes de la Ola 1 inventarían interfaces distintas | Aprobación del dueño de la salida de la Ola 0 |
 
 No bloquean: DEF-02 (rige Gemini a 768), los secretos (los agentes usan simulaciones), la versión de Python (hay 3.12 y `uv`), ni Docker, `gh` y la red (comprobados).
