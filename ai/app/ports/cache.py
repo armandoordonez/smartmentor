@@ -26,8 +26,7 @@ def cache_key(
 @dataclass(frozen=True)
 class CachedGeneration:
     cache_key: str
-    task: str
-    prompt_id: str
+    task: str  # prompt id (ai_generation_cache.task)
     prompt_version: str
     model: str
     output: dict[str, Any]

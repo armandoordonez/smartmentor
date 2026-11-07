@@ -294,6 +294,9 @@ class LlmRunner:
         """
         template = self._prompts.get(prompt_id)
         model = self.model_for(template)
+        if not model:
+            # No default model in code (ADR 0011): /ready already reports it.
+            raise TaskError("INTERNAL_ERROR", "AI_LLM_MODEL_DEFAULT or AI_LLM_MODEL_SMALL missing")
         prompt = template.render(variables)
         key = cache_key(
             model=model,
@@ -356,8 +359,7 @@ class LlmRunner:
                     await self._cache.put(
                         CachedGeneration(
                             cache_key=key,
-                            task=template.task,
-                            prompt_id=template.id,
+                            task=template.id,
                             prompt_version=template.version_label,
                             model=model,
                             output=parsed.model_dump(mode="json"),
