@@ -64,3 +64,7 @@ database/backups/*
 
 .vscode/extensions.json
 .vscode/settings.json
+
+# Exports crudos del realm de Keycloak (llevan secretos): nunca se versionan
+keycloak/realm/*.raw.json
+keycloak/realm/*.local.json

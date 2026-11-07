@@ -8,7 +8,8 @@ Proveedor de identidad de SmartMentor: **Keycloak 26.8.0** (OpenID Connect) en u
 keycloak/
 ├── README.md              # este documento
 ├── realm/
-│   └── smartmentor-realm.json   # el realm completo: roles, clientes, mappers y usuarios de prueba (en git)
+│   ├── smartmentor-realm.json   # el realm: roles, clientes y mappers, SIN usuarios, secretos ni llaves (en git)
+│   └── sanitize-realm.py        # quita usuarios, secretos y llaves de un export (lo ejecuta export-realm.sh)
 └── scripts/
     └── export-realm.sh    # exporta el realm de la consola al archivo anterior
 ```
@@ -37,7 +38,7 @@ No se copian archivos de datos en bruto. Hay dos mecanismos:
 
 | Qué | Cómo viaja | ¿En git? |
 | --- | --- | --- |
-| **Configuración y usuarios de prueba** (realm, roles, clientes, mappers) | `keycloak/realm/smartmentor-realm.json`. Keycloak lo importa **solo si el realm no existe** | **Sí** |
+| **Configuración** (realm, roles, clientes, mappers), sin usuarios ni secretos | `keycloak/realm/smartmentor-realm.json`. Keycloak lo importa **solo si el realm no existe** | **Sí** |
 | **Datos acumulados** (usuarios nuevos, sesiones, cambios hechos después) | Respaldo lógico con `database/scripts/backup.sh` y restauración con `restore.sh` | No |
 
 ### PC nuevo
@@ -48,11 +49,11 @@ cp .env.example .env       # reemplaza los change_me por contraseñas propias
 docker compose up -d --build
 ```
 
-Sin más pasos: se crean las bases (incluida `keycloak`), Liquibase aplica el esquema y Keycloak importa el realm con sus roles, clientes y usuarios. El PC nuevo comparte las mismas llaves de firma, así que un token emitido en un PC lo valida la API de otro.
+Sin más pasos: se crean las bases (incluida `keycloak`), Liquibase aplica el esquema y Keycloak importa el realm con sus roles, clientes y mappers. **El realm no trae usuarios, secretos ni llaves**: Keycloak genera unas llaves de firma y un secreto por cliente confidencial en cada PC (un token de un PC no lo valida la API de otro), y el usuario administrador se crea en la consola (sección «4. El usuario administrador»).
 
 ### Compartir un cambio de configuración
 
-Cuando cambies algo en la consola (un cliente, un mapper, un rol, un usuario de prueba), expórtalo y haz commit del archivo:
+Cuando cambies algo en la consola (un cliente, un mapper, un rol), expórtalo y haz commit del archivo. El script guarda el export crudo en una carpeta temporal fuera del repositorio y lo pasa por `sanitize-realm.py`:
 
 ```bash
 keycloak/scripts/export-realm.sh      # detiene Keycloak un momento y reescribe keycloak/realm/smartmentor-realm.json
@@ -82,11 +83,12 @@ docker compose up -d
 
 ## Datos sensibles en git
 
-El archivo `realm/smartmentor-realm.json` incluye, **por decisión del proyecto** (son datos de prueba): los *client secrets*, las **llaves privadas** con que Keycloak firma los tokens y los hashes de contraseñas de los usuarios. Quien tenga el archivo puede firmar tokens válidos para la API.
+**Desde el 2026-11-07 el archivo versionado no lleva secretos.** El repositorio es público, así que `realm/smartmentor-realm.json` ya no incluye los usuarios con sus hashes de contraseña, los *client secrets* ni las llaves privadas de firma (`sanitize-realm.py` los quita en cada export, y `export-realm.sh` nunca deja el export crudo dentro del repositorio).
 
-- Mientras el repositorio sea privado y los datos de prueba, es aceptable.
-- **Antes de usar datos reales o hacer público el repositorio:** regenera las llaves y los secretos en la consola, deja de versionar los usuarios y el archivo (`.gitignore`), y elimina el archivo del historial de git. Está anotado en `HANDOFF.md`.
+- **El historial de git sigue teniendo los valores antiguos** (estaban en ramas publicadas). Se tratan como comprometidos y se invalidan **rotándolos**; no se reescribe el historial.
+- **Rotar en un Keycloak que ya importó el realm viejo** (consola, realm `smartmentor`): *Realm settings → Keys → Providers*: crear un `rsa-generated` y un `rsa-enc-generated` nuevos con mayor prioridad y borrar los anteriores (o recrear el realm: `DROP SCHEMA` de la sección «Compartir un cambio»); *Clients → smartmentor-api → Credentials → Regenerate*; cambiar la contraseña del usuario administrador y activar el OTP.
 - Los respaldos `keycloak_*.dump` también contienen hashes y llaves; `database/backups/` está ignorado por git.
+- Los secretos de despliegue (cliente de la interfaz, cuenta de servicio, SMTP) van en `.env`, nunca en este archivo; ver el plan de implementación, G-08.
 
 ## Configuración que necesita el realm
 

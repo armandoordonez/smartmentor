@@ -39,7 +39,7 @@ En grupos de 2 personas los roles se combinan.
 | Sección | Hechas | Total | Avance |
 | --- | ---: | ---: | ---: |
 | A. Gestión del proyecto y repositorio | 6 | 15 | 40 % |
-| B. Infraestructura, datos e identidad | 7 | 15 | 47 % |
+| B. Infraestructura, datos e identidad | 8 | 16 | 50 % |
 | C. Fase 0: prototipado y validación del flujo | 1 | 6 | 17 % |
 | D. Módulos del brief (backend) | 12 | 26 | 46 % |
 | E. Componente de IA y ciencia de datos | 1 | 9 | 11 % |
@@ -47,7 +47,7 @@ En grupos de 2 personas los roles se combinan.
 | G. Evaluación, piloto y entregables | 0 | 11 | 0 % |
 | H. Decisiones técnicas pendientes | 1 | 6 | 17 % |
 | I. Plan de implementación v3 | 3 | 18 | 17 % |
-| **Total** | **33** | **117** | **28 %** |
+| **Total** | **34** | **118** | **29 %** |
 
 _Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
 
@@ -115,7 +115,8 @@ _Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
 
 - [ ] HTTPS y nombre de host fijo en Keycloak, CORS restringido al frontend y limitación de peticiones — **Resp.:** _por asignar_ (Responsable de producto)
 - [ ] Eliminar el cliente `smartmentor-dev-tools` y dejar `OIDC_DOCS_CLIENT_ID` vacío — **Resp.:** _por asignar_ (Responsable de producto)
-- [ ] Dejar de versionar usuarios y secretos del realm y limpiar el historial de git — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Dejar de versionar usuarios, secretos y llaves del realm (`sanitize-realm.py`) — **Resp.:** eduar.troyano — 2026-11-07, rama `feature/keycloak-realm-no-secrets`
+- [ ] Rotar las llaves y los secretos del Keycloak local, ya publicados en el historial (pasos en `keycloak/README.md`) — **Resp.:** eduar.troyano
 
 ## C. Fase 0: prototipado y validación del flujo
 
