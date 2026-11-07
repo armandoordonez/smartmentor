@@ -1,0 +1,28 @@
+{
+  "algorithm": "topological_threshold v1",
+  "mastery_skip_threshold": 80.0,
+  "pilot_arm": "personalized",
+  "steps": [
+    {
+      "step_order": 1,
+      "topic_id": "fundamentos_datos",
+      "status": "skipped",
+      "inclusion_reason": "skipped_mastered",
+      "diagnostic_level": 95.5
+    },
+    {
+      "step_order": 2,
+      "topic_id": "regresion_lineal",
+      "status": "pending",
+      "inclusion_reason": "weak_prerequisite",
+      "diagnostic_level": 64.4
+    },
+    {
+      "step_order": 3,
+      "topic_id": "regresion_logistica",
+      "status": "blocked",
+      "inclusion_reason": "objective_focus",
+      "diagnostic_level": 4.4
+    }
+  ]
+}

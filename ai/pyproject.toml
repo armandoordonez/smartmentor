@@ -1,0 +1,55 @@
+[project]
+name = "smartmentor-ai"
+version = "0.1.0"
+description = "Servicio de IA de SmartMentor: contratos, prompts, generación y evaluación"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pydantic>=2.9",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "jsonschema>=4.23",
+    "pyyaml>=6.0",
+    "types-jsonschema>=4.23",
+    "types-pyyaml>=6.0",
+]
+
+# El servicio no es un paquete instalable: solo se resuelven sus dependencias.
+[tool.uv]
+package = false
+
+# Ruff local con las reglas de la sección 14.2 del plan. Cuando exista el ruff.toml común de la
+# raíz (rama feature/repo-standards), esta sección se reemplaza por: extend = "../ruff.toml".
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC", "S", "DTZ", "C4", "PT", "RUF", "ARG", "T20"]
+
+[tool.ruff.lint.per-file-ignores]
+# assert es la forma idiomática de pytest.
+"tests/**" = ["S101"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app", "scripts", "tests"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

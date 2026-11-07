@@ -1,0 +1,61 @@
+{
+  "topic_id": "regresion_logistica",
+  "kind": "main",
+  "audience": "all_learners",
+  "version": "1.0",
+  "edited_by_user_id": null,
+  "title": "Regresión logística",
+  "sections": [
+    {
+      "heading": "De la combinación lineal a una probabilidad",
+      "body": "La regresión logística es un modelo de clasificación binaria: calcula una combinación lineal de las variables y la transforma con la función sigmoide, 1/(1+e^(-z)), que devuelve valores entre 0 y 1 interpretables como la probabilidad de la clase positiva [1]."
+    },
+    {
+      "heading": "El umbral de decisión",
+      "body": "Para decidir la clase se compara la probabilidad con un umbral, por defecto 0,5, que puede ajustarse según el costo de los errores [1]. ¿Qué pasaría con los falsos negativos si lo bajas?"
+    },
+    {
+      "heading": "Cómo se estiman e interpretan los coeficientes",
+      "body": "Los parámetros se estiman minimizando la log-loss, que castiga con fuerza las predicciones seguras y equivocadas [2]. Cada coeficiente es el cambio en el logaritmo de las odds por unidad de la variable y exp(coeficiente) es la razón de odds [2]."
+    },
+    {
+      "heading": "Regularización L2",
+      "body": "La regularización L2 penaliza los coeficientes grandes para reducir el sobreajuste; en scikit-learn su fuerza se controla con C, y un C menor implica más regularización [2]."
+    }
+  ],
+  "worked_example": "Un modelo da z = 1,2 para un caso. La sigmoide da 1/(1+e^(-1,2)) ≈ 0,77 [1]. Con umbral 0,5 se predice la clase positiva; con umbral 0,8, la negativa [1].",
+  "summary": "La regresión logística convierte una combinación lineal en una probabilidad con la sigmoide y decide la clase con un umbral ajustable [1]. Sus coeficientes se leen en log-odds y la regularización L2 controla el sobreajuste [2].",
+  "reflection_questions": [
+    "¿Por qué no basta con mirar el signo de un coeficiente para saber cuánto cambia la probabilidad?",
+    "¿En qué situación de tu trabajo preferirías un umbral menor a 0,5?"
+  ],
+  "gaps_detected": [],
+  "sources": [
+    {
+      "n": 1,
+      "source_id": "apuntes_u3_a",
+      "title": "Apuntes U3: regresión logística y sigmoide",
+      "url": "https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression",
+      "license": "BSD-3-Clause"
+    },
+    {
+      "n": 2,
+      "source_id": "apuntes_u3_b",
+      "title": "Apuntes U3: log-loss, log-odds y regularización",
+      "url": "https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression",
+      "license": "BSD-3-Clause"
+    }
+  ],
+  "faithfulness": 0.833,
+  "unsupported_claims": [
+    "La regularización L2 siempre mejora la exactitud en prueba."
+  ],
+  "meta": {
+    "prompt_id": "topic_explanation",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "7b38103635bbcd0b3f1c11dd277b1ed850b46ef044382d13bb5b6160c5cd8c7c",
+    "from_cache": false
+  }
+}

@@ -1,0 +1,190 @@
+# Catálogo de prompts de SmartMentor (fuente de verdad para ai/, C4 y AD2).
+#
+# Regla: cambiar el texto de un prompt obliga a crear <id>/v<n+1>.md, registrar su sha256 aquí y
+# subir current_version. Los archivos de una versión publicada no se editan: la prueba
+# ai/tests/contract/test_prompt_catalog.py compara cada sha256 con el archivo.
+#
+# Campos:
+#   current_version  versión vigente (archivo <id>/v<versión>.md)
+#   name_es          nombre visible en C4 y AD2
+#   task             job_type o tarea de ai/ que usa el prompt (plan 5.4.3)
+#   scope            alcance de la generación y de la caché
+#   temperature      temperatura inicial (notebook v2, sección 3.2 del plan)
+#   model_tier       default = AI_LLM_MODEL_DEFAULT; small = AI_LLM_MODEL_SMALL (plan 5.4.6)
+#   output_schema    esquema de salida que se pasa al proveedor (prompts/schemas/...)
+#   contract         contrato que ai/ entrega a la API (prompts/schemas/...)
+#   screens          pantallas del prototipo v3 que muestran el resultado
+#   versions         sha256 de cada archivo publicado
+
+schema_version: v1
+source_notebook: design/04-prueba-mago-de-oz/smartmentor_mago_de_oz_gemini_v2.ipynb
+
+prompts:
+  - id: syllabus_structuring
+    current_version: 1
+    name_es: Estructuración del syllabus
+    task: syllabus.structure
+    scope: por documento de syllabus (SHA-256 del texto)
+    temperature: 0.1
+    model_tier: default
+    output_schema: llm/syllabus_llm.v1.json
+    contract: syllabus.v1.json
+    screens: [D1c, D2]
+    versions:
+      1: cb1a09b430e706ece71613c2077bd58ff13a1ffc3b548e7ee6ed384917a918a2
+
+  - id: diagnostic_generation
+    current_version: 1
+    name_es: Generación del diagnóstico
+    task: diagnostic.generate_items
+    scope: por curso
+    temperature: 0.5
+    model_tier: default
+    output_schema: llm/assessment_items_llm.v1.json
+    contract: assessment_item_bank.v1.json
+    screens: [E3]
+    versions:
+      1: 7e8ed0b9bb5fccd23dd39011db732fdac155ce8f97c4c3a7a74a11ec14004705
+
+  - id: item_review
+    current_version: 1
+    name_es: Revisión automática de ítems
+    task: items.review
+    scope: por lote de ítems (caché por ítem)
+    temperature: 0.0
+    model_tier: small
+    output_schema: llm/item_review_llm.v1.json
+    contract: item_review.v1.json
+    screens: [D5]
+    versions:
+      1: 68185cda0d7bc55c030bb606edd8598f579016965aa1ab48c2cc77f82842e2b5
+
+  - id: simulated_learner
+    current_version: 1
+    name_es: Aprendiz simulado (solo evaluación)
+    task: eval.simulate_learner
+    scope: por inscripción simulada (arnés de evaluación)
+    temperature: 0.7
+    model_tier: default
+    output_schema: llm/simulated_answers_llm.v1.json
+    contract: simulated_answers.v1.json
+    screens: []
+    versions:
+      1: 8fc4471c629d1bbcc9994dfde3625f0f2a35a608077ceb7566270148add1358c
+
+  - id: learning_objective
+    current_version: 1
+    name_es: Objetivo de aprendizaje
+    task: diagnostic.finalize
+    scope: por inscripción
+    temperature: 0.4
+    model_tier: default
+    output_schema: llm/objective_llm.v1.json
+    contract: objective.v1.json
+    screens: [E4, E4b]
+    versions:
+      1: 1ee797492467fcc6466087817ebbe683a11a589931935d64606c83b0c9646735
+
+  - id: topic_explanation
+    current_version: 1
+    name_es: Explicación del tema
+    task: content.explain_topic
+    scope: por tema, compartido entre aprendices
+    temperature: 0.4
+    model_tier: default
+    output_schema: llm/topic_explanation_llm.v1.json
+    contract: topic_explanation.v1.json
+    screens: [E6, D5, D5d]
+    versions:
+      1: fde68dbe74fe0748d1d97578c5b39d4d4cefb3e4799809b3331ad15a2f46f95a
+
+  - id: remedial_explanation
+    current_version: 1
+    name_es: Explicación alterna
+    task: content.remedial
+    scope: por inscripción e intento (sin caché entre aprendices)
+    temperature: 0.4
+    model_tier: default
+    output_schema: llm/topic_explanation_llm.v1.json
+    contract: topic_explanation.v1.json
+    screens: [E7b]
+    versions:
+      1: a623384c79bdd59c341ef63e0e99c17358cca3450e0025d2aeecb4408dcf531e
+
+  - id: personalized_example
+    current_version: 1
+    name_es: Ejemplo personalizado
+    task: content.personal_example
+    scope: por inscripción (P2)
+    temperature: 0.4
+    model_tier: default
+    output_schema: llm/personalized_example_llm.v1.json
+    contract: personalized_example.v1.json
+    screens: [E6]
+    versions:
+      1: 70fe4e2f5519488524228e99f5e060d8f6bf0c5434a4ff30deca4b21da99071e
+
+  - id: rag_faithfulness
+    current_version: 1
+    name_es: Verificación de fidelidad
+    task: content.check_faithfulness
+    scope: por versión de la explicación
+    temperature: 0.0
+    model_tier: default
+    output_schema: llm/faithfulness_check_llm.v1.json
+    contract: faithfulness_check.v1.json
+    screens: [D5, D5d]
+    versions:
+      1: 02c6d63659d4d739e8396a4989ae84709fbec39b7da15e673d9090ccd12a0b1e
+
+  - id: topic_quiz
+    current_version: 1
+    name_es: Banco del quiz del tema
+    task: items.generate_quiz_bank
+    scope: por tema (banco; bajo demanda si se agota)
+    temperature: 0.6
+    model_tier: default
+    output_schema: llm/assessment_items_llm.v1.json
+    contract: assessment_item_bank.v1.json
+    screens: [E6b, E6c, U1b, D5]
+    versions:
+      1: bc3a912e313000cd5ad2a0a20aff49d0898e77a5ea1bf4e327515792b1f4b189
+
+  - id: short_answer_grading
+    current_version: 1
+    name_es: Calificación de respuesta corta
+    task: grading.short_answer
+    scope: por respuesta (sin caché entre aprendices)
+    temperature: 0.0
+    model_tier: small
+    output_schema: llm/short_answer_grading_llm.v1.json
+    contract: grading.v1.json
+    screens: [E7, U1c, U1d, D5c]
+    versions:
+      1: dc65358318e761c5c451d91af7a3b0766dd4d879ae06191042434d01651acc47
+
+  - id: final_assessment
+    current_version: 1
+    name_es: Banco de la evaluación final
+    task: items.generate_final_bank
+    scope: por ruta (ítems final y retention con equivalence_group)
+    temperature: 0.6
+    model_tier: default
+    output_schema: llm/assessment_items_llm.v1.json
+    contract: assessment_item_bank.v1.json
+    screens: [E8, E14]
+    versions:
+      1: 09f41e0921c42a0e02cf694c718a91cdbccb4aebd1e26cb2300e6a991c0dd621
+
+  - id: badge_text
+    current_version: 1
+    name_es: Texto del badge
+    task: badge.compose_text
+    scope: por ruta
+    temperature: 0.4
+    model_tier: small
+    output_schema: llm/badge_text_llm.v1.json
+    contract: badge_text.v1.json
+    screens: [E10]
+    versions:
+      1: 2c86471286f1bea76741a0fea198e591cf31b82f9c3a3531620217f592d9315c

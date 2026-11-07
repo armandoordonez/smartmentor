@@ -1,0 +1,10 @@
+{
+  "name": "Fundamentos de Machine Learning: regresión y clasificación",
+  "description": "Acredita la construcción y evaluación de modelos supervisados básicos sobre datos tabulares. Se otorga tras aprobar la evaluación final de la ruta.",
+  "criteria": "Aprobar los quices de los temas de la ruta (70 % o más) y la evaluación final integradora con 80 % o más.",
+  "competencies": [
+    "Prepara datos tabulares sin fuga de información",
+    "Interpreta coeficientes de modelos lineales y logísticos",
+    "Ajusta el umbral de decisión según el costo de los errores"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "topic_id": "regresion_logistica",
+  "example": "Imagina que en tu empresa de logística quieres anticipar qué pedidos llegarán tarde. Con datos de distancia, transportadora y retraso del proveedor, la regresión logística calcula para cada pedido una probabilidad de retraso. Luego eliges un umbral: si la probabilidad lo supera, el pedido se marca para seguimiento. Un coeficiente positivo en «retraso_proveedor» indica que más retraso aumenta las odds de llegar tarde.",
+  "connection": "Conecta el tema con su interés declarado de predecir entregas tardías en logística.",
+  "meta": {
+    "prompt_id": "personalized_example",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "79aaf27e0a042a25fc5260c26d2f4faeced3cd752337253ebb833dc728229744",
+    "from_cache": false
+  }
+}

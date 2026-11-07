@@ -1,0 +1,150 @@
+{
+  "items": [
+    {
+      "id": "f1_v1",
+      "topic_id": "regresion_lineal",
+      "outcome_id": "lo_regresion_lineal_2",
+      "item_type": "multiple_choice",
+      "bloom_level": "apply",
+      "difficulty": 2,
+      "stem": "Dos modelos de regresión tienen MSE de 12 y 30 sobre el mismo conjunto de prueba. ¿Cuál predice mejor?",
+      "options": ["El de MSE 30", "El de MSE 12", "Son equivalentes", "No se puede comparar el MSE"],
+      "correct_option": 1,
+      "model_answer": "Un MSE menor indica errores cuadráticos más pequeños en promedio sobre los mismos datos.",
+      "rubric": [],
+      "equivalence_group": "eg_1"
+    },
+    {
+      "id": "f1_v2",
+      "topic_id": "regresion_lineal",
+      "outcome_id": "lo_regresion_lineal_2",
+      "item_type": "multiple_choice",
+      "bloom_level": "apply",
+      "difficulty": 2,
+      "stem": "Sobre la misma muestra de prueba, el modelo A tiene MSE 8,5 y el modelo B, 4,1. ¿Qué modelo comete errores más pequeños en promedio?",
+      "options": ["El modelo A", "El modelo B", "Ninguno: el MSE no mide eso", "Depende del R² y no del MSE"],
+      "correct_option": 1,
+      "model_answer": "El modelo B: su MSE es menor sobre los mismos datos.",
+      "rubric": [],
+      "equivalence_group": "eg_1"
+    },
+    {
+      "id": "f2_v1",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_3",
+      "item_type": "multiple_choice",
+      "bloom_level": "analyze",
+      "difficulty": 3,
+      "stem": "Al subir el umbral de 0,5 a 0,8, ¿qué ocurre normalmente con los falsos positivos y los falsos negativos?",
+      "options": ["Ambos bajan", "Bajan los falsos positivos y suben los falsos negativos", "Suben los falsos positivos y bajan los falsos negativos", "Ambos suben"],
+      "correct_option": 1,
+      "model_answer": "Un umbral más alto marca menos casos como positivos: menos falsos positivos y más falsos negativos.",
+      "rubric": [],
+      "equivalence_group": "eg_2"
+    },
+    {
+      "id": "f2_v2",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_3",
+      "item_type": "multiple_choice",
+      "bloom_level": "analyze",
+      "difficulty": 3,
+      "stem": "Si se baja el umbral de decisión de 0,5 a 0,3, ¿qué cambio es el más probable?",
+      "options": ["Menos falsos positivos y más falsos negativos", "Más falsos positivos y menos falsos negativos", "Ningún cambio en los errores", "Solo cambia la log-loss"],
+      "correct_option": 1,
+      "model_answer": "Un umbral más bajo marca más casos como positivos: suben los falsos positivos y bajan los falsos negativos.",
+      "rubric": [],
+      "equivalence_group": "eg_2"
+    },
+    {
+      "id": "f3_v1",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_2",
+      "item_type": "short_answer",
+      "bloom_level": "analyze",
+      "difficulty": 3,
+      "stem": "Compara cómo se interpreta un coeficiente en la regresión lineal y en la logística, con un ejemplo de cada uno.",
+      "options": [],
+      "correct_option": -1,
+      "model_answer": "En la lineal, el coeficiente es el cambio esperado en la respuesta por unidad de la variable con las demás constantes; en la logística, es el cambio en el logaritmo de las odds y exp(coeficiente) es la razón de odds.",
+      "rubric": [
+        {"criterion": "Interpreta correctamente el coeficiente lineal", "points": 0.5},
+        {"criterion": "Interpreta el coeficiente logístico como log-odds o razón de odds", "points": 0.5}
+      ],
+      "equivalence_group": "eg_3"
+    },
+    {
+      "id": "f3_v2",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_2",
+      "item_type": "short_answer",
+      "bloom_level": "analyze",
+      "difficulty": 3,
+      "stem": "Explica la diferencia entre lo que significa un coeficiente de 0,3 en una regresión lineal y en una regresión logística.",
+      "options": [],
+      "correct_option": -1,
+      "model_answer": "En la lineal, la respuesta aumenta 0,3 unidades por unidad de la variable; en la logística, el log de las odds aumenta 0,3 y las odds se multiplican por exp(0,3) ≈ 1,35.",
+      "rubric": [
+        {"criterion": "Interpreta correctamente el coeficiente lineal", "points": 0.5},
+        {"criterion": "Interpreta el coeficiente logístico como log-odds o razón de odds", "points": 0.5}
+      ],
+      "equivalence_group": "eg_3"
+    },
+    {
+      "id": "f4_v1",
+      "topic_id": "regresion_lineal",
+      "outcome_id": "lo_regresion_lineal_1",
+      "item_type": "multiple_choice",
+      "bloom_level": "understand",
+      "difficulty": 1,
+      "stem": "En un modelo lineal, ¿qué indica el coeficiente de una variable?",
+      "options": ["El cambio esperado en la respuesta por unidad de la variable, con las demás constantes", "La correlación entre la variable y la respuesta", "El error del modelo para esa variable", "La importancia de la variable en porcentaje"],
+      "correct_option": 0,
+      "model_answer": "Es el cambio esperado por unidad manteniendo las demás constantes; no es una correlación ni un porcentaje de importancia.",
+      "rubric": [],
+      "equivalence_group": "eg_4"
+    },
+    {
+      "id": "f4_v2",
+      "topic_id": "regresion_lineal",
+      "outcome_id": "lo_regresion_lineal_1",
+      "item_type": "multiple_choice",
+      "bloom_level": "understand",
+      "difficulty": 1,
+      "stem": "Si el coeficiente de «peso_kg» es 2 en un modelo de costo de envío, ¿qué significa?",
+      "options": ["El costo se duplica por cada kg", "Cada kg adicional suma 2 unidades de costo, con las demás variables constantes", "El peso explica el 2 % del costo", "El peso y el costo tienen correlación 2"],
+      "correct_option": 1,
+      "model_answer": "Cada unidad adicional de la variable suma el valor del coeficiente a la respuesta esperada, con las demás constantes.",
+      "rubric": [],
+      "equivalence_group": "eg_4"
+    },
+    {
+      "id": "f5_v1",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_1",
+      "item_type": "multiple_choice",
+      "bloom_level": "understand",
+      "difficulty": 1,
+      "stem": "¿Qué papel cumple la función sigmoide en la regresión logística?",
+      "options": ["Escala las variables de entrada", "Convierte la combinación lineal en una probabilidad entre 0 y 1", "Elige el umbral de decisión", "Regulariza los coeficientes"],
+      "correct_option": 1,
+      "model_answer": "La sigmoide transforma la combinación lineal en un valor entre 0 y 1 interpretable como probabilidad.",
+      "rubric": [],
+      "equivalence_group": "eg_5"
+    },
+    {
+      "id": "f5_v2",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_1",
+      "item_type": "multiple_choice",
+      "bloom_level": "understand",
+      "difficulty": 1,
+      "stem": "¿Por qué la regresión logística aplica la sigmoide a la combinación lineal?",
+      "options": ["Para obtener un valor interpretable como probabilidad", "Para eliminar variables irrelevantes", "Para reducir el sobreajuste", "Para calcular el R²"],
+      "correct_option": 0,
+      "model_answer": "La sigmoide lleva cualquier número real al intervalo (0, 1), que se interpreta como probabilidad de la clase positiva.",
+      "rubric": [],
+      "equivalence_group": "eg_5"
+    }
+  ]
+}
