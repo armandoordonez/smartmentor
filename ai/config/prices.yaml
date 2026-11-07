@@ -1,0 +1,21 @@
+# Precios de los modelos de IA en USD por millón de tokens (ADR 0011, plan 5.4.11 y 18.5).
+#
+# LO LLENA EL DUEÑO después de verificar las tarifas vigentes del proveedor (pendiente P-05).
+# Mientras un modelo configurado en AI_LLM_MODEL_DEFAULT, AI_LLM_MODEL_SMALL o AI_EMBEDDING_MODEL
+# no tenga precio aquí, GET /ready responde 503 NOT_READY y lo nombra en "missing", y el worker no
+# arranca. Con AI_LLM_PROVIDER=fake (pruebas y CI) un modelo sin precio cuesta 0.
+#
+# Formato de cada modelo (la clave es el nombre exacto del modelo, igual que en .env):
+#
+#   models:
+#     <nombre-del-modelo>:
+#       input: <USD por millón de tokens de entrada>
+#       output: <USD por millón de tokens de salida; 0 en modelos de embeddings>
+#
+# Anota en verified_on la fecha de verificación y en source la página de precios consultada.
+
+currency: USD
+unit: per_million_tokens
+verified_on: null
+source: null
+models: {}
