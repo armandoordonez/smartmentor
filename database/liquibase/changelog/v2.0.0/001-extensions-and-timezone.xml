@@ -24,7 +24,17 @@
                 END
                 $$;
             </sql>
-            <sql>DROP EXTENSION IF EXISTS vector</sql>
+            <!-- pgvector no es de confianza: lo crea el bootstrap (administrador). Si Liquibase corre como
+                 smartmentor_owner no puede borrarla; en ese caso el rollback la deja en su sitio. -->
+            <sql splitStatements="false">
+                DO $$
+                BEGIN
+                    DROP EXTENSION IF EXISTS vector;
+                EXCEPTION WHEN insufficient_privilege THEN
+                    RAISE NOTICE 'Extension vector kept: it belongs to the administrator role';
+                END
+                $$;
+            </sql>
         </rollback>
     </changeSet>
 
