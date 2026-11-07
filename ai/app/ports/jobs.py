@@ -7,7 +7,7 @@ again when it expires) and, for a queued job, the earliest time it may run (retr
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Literal, Protocol
 from uuid import UUID
@@ -47,7 +47,8 @@ class Job:
     started_at: datetime | None = None
     finished_at: datetime | None = None
     locked_until: datetime | None = None
-    extra: dict[str, Any] = field(default_factory=dict)
+    # True when the claim took a running job whose lease expired (its worker died).
+    reclaimed: bool = False
 
 
 @dataclass(frozen=True)

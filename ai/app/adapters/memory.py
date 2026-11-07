@@ -83,6 +83,7 @@ class InMemoryJobRepository:
                 return None
             job = replace(
                 candidates[0],
+                reclaimed=candidates[0].status == "running",
                 status="running",
                 attempts=candidates[0].attempts + 1,
                 started_at=candidates[0].started_at or now,

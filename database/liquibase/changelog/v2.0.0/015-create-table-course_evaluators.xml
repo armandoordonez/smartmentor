@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/015-create-table-course_evaluators.xml">
+
+    <changeSet id="v2.0.0-015-create-table-course_evaluators" author="eduar.troyano">
+        <comment>Crea la tabla course_evaluators: instructores asignados como evaluadores de un curso sin ser su dueño (reemplaza el rol evaluator); un trigger impide asignar al dueño. Incluye secuencia propia, tabla de auditoría course_evaluators_audit y el trigger course_evaluators_audit_trg.</comment>
+
+        <createSequence sequenceName="course_evaluators_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="course_evaluators_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="course_evaluators" remarks="Instructors assigned as evaluators of a course without owning it (replaces the evaluator role, DEF-24)">
+            <column name="id" type="bigint" defaultValueSequenceNext="course_evaluators_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="course_evaluators_pkey" nullable="false"/>
+            </column>
+            <column name="course_id" type="bigint" remarks="Course the evaluator is assigned to">
+                <constraints nullable="false" foreignKeyName="course_evaluators_course_id_fk" references="courses(id)"/>
+            </column>
+            <column name="user_id" type="bigint" remarks="Instructor assigned as evaluator; cannot be the course owner">
+                <constraints nullable="false" foreignKeyName="course_evaluators_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="assigned_by_user_id" type="bigint" remarks="User that made the assignment">
+                <constraints nullable="false" foreignKeyName="course_evaluators_assigned_by_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="course_evaluators" constraintName="course_evaluators_course_user_uq" columnNames="course_id,user_id"/>
+        <createIndex tableName="course_evaluators" indexName="course_evaluators_user_id_idx">
+            <column name="user_id"/>
+        </createIndex>
+        <sql splitStatements="false">CREATE FUNCTION course_evaluators_check_not_owner() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM courses c WHERE c.id = NEW.course_id AND c.owner_user_id = NEW.user_id) THEN
+        RAISE EXCEPTION 'The course owner cannot be assigned as evaluator of the same course' USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+END
+$$</sql>
+        <sql>CREATE TRIGGER course_evaluators_not_owner_trg BEFORE INSERT OR UPDATE ON course_evaluators FOR EACH ROW EXECUTE FUNCTION course_evaluators_check_not_owner()</sql>
+        <sql>CREATE TRIGGER course_evaluators_set_updated_at_trg BEFORE UPDATE ON course_evaluators FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="course_evaluators_audit" remarks="Append-only change history of course_evaluators">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="course_evaluators_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="course_evaluators_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in course_evaluators">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE course_evaluators_audit ADD CONSTRAINT course_evaluators_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="course_evaluators_audit" indexName="course_evaluators_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER course_evaluators_audit_trg AFTER INSERT OR UPDATE OR DELETE ON course_evaluators FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP FUNCTION IF EXISTS course_evaluators_check_not_owner() CASCADE</sql>
+            <sql>DROP TRIGGER IF EXISTS course_evaluators_audit_trg ON course_evaluators</sql>
+            <dropTable tableName="course_evaluators_audit"/>
+            <dropTable tableName="course_evaluators" cascadeConstraints="true"/>
+            <dropSequence sequenceName="course_evaluators_audit_id_seq"/>
+            <dropSequence sequenceName="course_evaluators_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

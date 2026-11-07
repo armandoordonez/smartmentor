@@ -43,6 +43,9 @@ extend = "../ruff.toml"
 # o para sobrescribir una firma sin usar el valor (ARG001/ARG002); los valores de prueba son
 # desechables y obvios, no secretos (S105/S106).
 "tests/**" = ["S101", "ARG001", "ARG002", "S105", "S106"]
+# Adaptadores PostgreSQL: las consultas interpolan solo constantes del módulo (lista de columnas y
+# condiciones fijas); todo valor externo va como parámetro enlazado de SQLAlchemy.
+"app/adapters/postgres/**" = ["S608"]
 
 [tool.mypy]
 python_version = "3.12"

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/044-views.xml">
+
+    <changeSet id="v2.0.0-044-view-path-step-metrics" author="eduar.troyano">
+        <comment>Crea la vista v_path_step_metrics (solo lectura): por ruta, tema y brazo del piloto, pasos aprobados, aprobados al primer intento, intentos promedio y abandonos por tema (D3).</comment>
+        <sql>
+            CREATE VIEW v_path_step_metrics AS
+            SELECT lp.id AS learning_path_id,
+                   ps.topic_id,
+                   e.pilot_arm,
+                   count(*) AS steps_total,
+                   count(*) FILTER (WHERE ps.status = 'passed') AS steps_passed,
+                   count(*) FILTER (WHERE ps.status = 'passed' AND ps.attempts_used = 1) AS passed_first_attempt,
+                   round(avg(ps.attempts_used) FILTER (WHERE ps.attempts_used > 0), 2) AS avg_attempts_used,
+                   count(*) FILTER (WHERE ps.status = 'attempts_exhausted') AS attempts_exhausted,
+                   count(*) FILTER (WHERE e.status IN ('abandoned', 'withdrawn') AND ps.status NOT IN ('passed', 'skipped')) AS abandoned
+            FROM path_steps ps
+            JOIN enrollments e ON e.id = ps.enrollment_id
+            JOIN learning_paths lp ON lp.id = e.learning_path_id
+            WHERE ps.active AND e.active
+            GROUP BY lp.id, ps.topic_id, e.pilot_arm
+        </sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS v_path_step_metrics</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2.0.0-044-view-llm-cost-summary" author="eduar.troyano">
+        <comment>Crea la vista v_llm_cost_summary (solo lectura): por día, curso, proveedor, modelo y tarea, número de llamadas, costo, tokens, latencia, aciertos de caché y salidas inválidas (AD2).</comment>
+        <sql>
+            CREATE VIEW v_llm_cost_summary AS
+            SELECT date_trunc('day', l.created_at) AS call_day,
+                   j.course_id,
+                   l.provider,
+                   l.model,
+                   l.task,
+                   count(*) AS calls,
+                   count(*) FILTER (WHERE l.from_cache) AS cache_hits,
+                   count(*) FILTER (WHERE l.status = 'invalid_output') AS invalid_outputs,
+                   count(*) FILTER (WHERE l.status = 'error') AS errors,
+                   count(*) FILTER (WHERE l.status = 'budget_exceeded') AS budget_exceeded,
+                   sum(l.cost_usd) AS cost_usd,
+                   sum(l.input_tokens) AS input_tokens,
+                   sum(l.output_tokens) AS output_tokens,
+                   round(avg(l.latency_ms)) AS avg_latency_ms
+            FROM llm_call_logs l
+            LEFT JOIN ai_jobs j ON j.id = l.ai_job_id
+            GROUP BY date_trunc('day', l.created_at), j.course_id, l.provider, l.model, l.task
+        </sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS v_llm_cost_summary</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2.0.0-044-view-item-validity" author="eduar.troyano">
+        <comment>Crea la vista v_item_validity (solo lectura): por ítem, votos válidos e inválidos de la anotación ciega y el veredicto de cada evaluador, insumo del kappa de Cohen (AD3).</comment>
+        <sql>
+            CREATE VIEW v_item_validity AS
+            SELECT i.id AS assessment_item_id,
+                   i.topic_id,
+                   i.source,
+                   i.item_type,
+                   i.review_status,
+                   count(a.id) AS annotations,
+                   count(a.id) FILTER (WHERE a.verdict = 'valid') AS valid_votes,
+                   count(a.id) FILTER (WHERE a.verdict = 'invalid') AS invalid_votes,
+                   max(a.verdict) FILTER (WHERE a.evaluator_slot = 1) AS slot1_verdict,
+                   max(a.verdict) FILTER (WHERE a.evaluator_slot = 2) AS slot2_verdict,
+                   (count(a.id) FILTER (WHERE a.evaluator_slot IN (1, 2)) = 2
+                    AND count(DISTINCT a.verdict) = 1) AS evaluators_agree
+            FROM assessment_items i
+            LEFT JOIN item_annotations a ON a.assessment_item_id = i.id AND a.active
+            WHERE i.active
+            GROUP BY i.id
+        </sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS v_item_validity</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
