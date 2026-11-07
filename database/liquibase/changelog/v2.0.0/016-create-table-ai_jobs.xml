@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/016-create-table-ai_jobs.xml">
+
+    <changeSet id="v2.0.0-016-create-table-ai_jobs" author="eduar.troyano">
+        <comment>Crea la tabla ai_jobs: trabajos asíncronos de IA (los escribe ai/; la API solo lee); public_id es el job_id del contrato. Incluye secuencia propia, tabla de auditoría ai_jobs_audit y el trigger ai_jobs_audit_trg.</comment>
+
+        <createSequence sequenceName="ai_jobs_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="ai_jobs_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="ai_jobs" remarks="Asynchronous AI jobs. Written by the ai service (smartmentor_ai); the API only reads it. public_id is the job_id of the ai contract">
+            <column name="id" type="bigint" defaultValueSequenceNext="ai_jobs_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="ai_jobs_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="job_type" type="varchar(60)" remarks="Job type (for example syllabus.structure); open list defined by the ai contract">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(15)" defaultValueComputed="'queued'" remarks="Job status: queued, running, succeeded or failed">
+                <constraints nullable="false"/>
+            </column>
+            <column name="idempotency_key" type="varchar(200)" remarks="Idempotency key of the job, unique">
+                <constraints nullable="false"/>
+            </column>
+            <column name="input_sha256" type="char(64)" remarks="SHA-256 of the canonical input, to detect key reuse with another body"/>
+            <column name="input" type="jsonb" remarks="Job input">
+                <constraints nullable="false"/>
+            </column>
+            <column name="result" type="jsonb" remarks="Job result validated against the contract"/>
+            <column name="error_code" type="varchar(60)" remarks="Error code when the job failed"/>
+            <column name="error_message" type="text" remarks="Error message when the job failed"/>
+            <column name="attempts" type="integer" defaultValueComputed="0" remarks="Executions of the job">
+                <constraints nullable="false"/>
+            </column>
+            <column name="requested_by" type="varchar(100)" remarks="Caller that requested the job (service or user identifier)"/>
+            <column name="course_id" type="bigint" remarks="Course related to the job, for cost filters">
+                <constraints foreignKeyName="ai_jobs_course_id_fk" references="courses(id)"/>
+            </column>
+            <column name="topic_id" type="bigint" remarks="Topic related to the job">
+                <constraints foreignKeyName="ai_jobs_topic_id_fk" references="topics(id)"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment related to the job (foreign key added with enrollments)"/>
+            <column name="started_at" type="timestamp with time zone" remarks="Moment the job started running"/>
+            <column name="finished_at" type="timestamp with time zone" remarks="Moment the job finished"/>
+            <column name="locked_until" type="timestamp with time zone" remarks="Lease of the worker that runs the job"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="ai_jobs" constraintName="ai_jobs_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="ai_jobs" constraintName="ai_jobs_idempotency_key_uq" columnNames="idempotency_key"/>
+        <createIndex tableName="ai_jobs" indexName="ai_jobs_status_idx">
+            <column name="status"/>
+            <column name="locked_until"/>
+        </createIndex>
+        <createIndex tableName="ai_jobs" indexName="ai_jobs_course_id_idx">
+            <column name="course_id"/>
+        </createIndex>
+        <createIndex tableName="ai_jobs" indexName="ai_jobs_topic_id_idx">
+            <column name="topic_id"/>
+        </createIndex>
+        <createIndex tableName="ai_jobs" indexName="ai_jobs_enrollment_id_idx">
+            <column name="enrollment_id"/>
+        </createIndex>
+        <sql>ALTER TABLE ai_jobs ADD CONSTRAINT ai_jobs_status_ck CHECK (status IN ('queued', 'running', 'succeeded', 'failed'))</sql>
+        <sql>ALTER TABLE ai_jobs ADD CONSTRAINT ai_jobs_attempts_ck CHECK (attempts &gt;= 0)</sql>
+        <sql>CREATE TRIGGER ai_jobs_set_updated_at_trg BEFORE UPDATE ON ai_jobs FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="ai_jobs_audit" remarks="Append-only change history of ai_jobs">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="ai_jobs_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="ai_jobs_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in ai_jobs">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE ai_jobs_audit ADD CONSTRAINT ai_jobs_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="ai_jobs_audit" indexName="ai_jobs_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER ai_jobs_audit_trg AFTER INSERT OR UPDATE OR DELETE ON ai_jobs FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS ai_jobs_audit_trg ON ai_jobs</sql>
+            <dropTable tableName="ai_jobs_audit"/>
+            <dropTable tableName="ai_jobs" cascadeConstraints="true"/>
+            <dropSequence sequenceName="ai_jobs_audit_id_seq"/>
+            <dropSequence sequenceName="ai_jobs_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

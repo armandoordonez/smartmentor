@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/019-create-table-enrollments.xml">
+
+    <changeSet id="v2.0.0-019-create-table-enrollments" author="eduar.troyano">
+        <comment>Crea la tabla enrollments: inscripción del aprendiz con estado, instantánea de perfil, objetivo en tres partes y brazo del piloto; también agrega la FK de ai_jobs.enrollment_id. Incluye secuencia propia, tabla de auditoría enrollments_audit y el trigger enrollments_audit_trg.</comment>
+
+        <createSequence sequenceName="enrollments_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="enrollments_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="enrollments" remarks="Learner enrollment in a learning path, with profile snapshot, three-part objective and pilot arm. The profile embedding lives in ai_embeddings">
+            <column name="id" type="bigint" defaultValueSequenceNext="enrollments_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="enrollments_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint" remarks="Enrolled learner">
+                <constraints nullable="false" foreignKeyName="enrollments_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="learning_path_id" type="bigint" remarks="Learning path of the enrollment">
+                <constraints nullable="false" foreignKeyName="enrollments_learning_path_id_fk" references="learning_paths(id)"/>
+            </column>
+            <column name="status" type="varchar(20)" defaultValueComputed="'enrolled'" remarks="Enrollment status: enrolled, profiling, diagnosing, objective_pending, in_path, final_ready, completed, abandoned or withdrawn">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_description" type="text" remarks="Free-text description of the current knowledge of the learner"/>
+            <column name="profile_snapshot" type="jsonb" remarks="Profile of the learner at the moment of the diagnostic"/>
+            <column name="objective_bloom_verb" type="varchar(60)" remarks="Personal objective, part 1: Bloom verb"/>
+            <column name="objective_content" type="text" remarks="Personal objective, part 2: content"/>
+            <column name="objective_criterion" type="text" remarks="Personal objective, part 3: success criterion"/>
+            <column name="objective_origin" type="varchar(20)" remarks="Origin of the objective: path_default, llm_proposed or learner_edited"/>
+            <column name="pilot_arm" type="varchar(15)" remarks="Pilot arm: personalized or fixed; null outside the pilot"/>
+            <column name="analysis_included" type="boolean" defaultValueComputed="false" remarks="Whether the data enters the research analysis (needs pilot_research consent)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_at" type="timestamp with time zone" remarks="Moment the enrollment was completed"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="enrollments" constraintName="enrollments_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="enrollments" constraintName="enrollments_user_path_uq" columnNames="user_id,learning_path_id"/>
+        <createIndex tableName="enrollments" indexName="enrollments_learning_path_id_idx">
+            <column name="learning_path_id"/>
+        </createIndex>
+        <sql>ALTER TABLE enrollments ADD CONSTRAINT enrollments_status_ck CHECK (status IN ('enrolled', 'profiling', 'diagnosing', 'objective_pending', 'in_path', 'final_ready', 'completed', 'abandoned', 'withdrawn'))</sql>
+        <sql>ALTER TABLE enrollments ADD CONSTRAINT enrollments_objective_origin_ck CHECK (objective_origin IS NULL OR objective_origin IN ('path_default', 'llm_proposed', 'learner_edited'))</sql>
+        <sql>ALTER TABLE enrollments ADD CONSTRAINT enrollments_pilot_arm_ck CHECK (pilot_arm IS NULL OR pilot_arm IN ('personalized', 'fixed'))</sql>
+        <sql>ALTER TABLE ai_jobs ADD CONSTRAINT ai_jobs_enrollment_id_fk FOREIGN KEY (enrollment_id) REFERENCES enrollments (id)</sql>
+        <sql>CREATE TRIGGER enrollments_set_updated_at_trg BEFORE UPDATE ON enrollments FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="enrollments_audit" remarks="Append-only change history of enrollments">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="enrollments_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="enrollments_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in enrollments">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE enrollments_audit ADD CONSTRAINT enrollments_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="enrollments_audit" indexName="enrollments_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER enrollments_audit_trg AFTER INSERT OR UPDATE OR DELETE ON enrollments FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>ALTER TABLE ai_jobs DROP CONSTRAINT IF EXISTS ai_jobs_enrollment_id_fk</sql>
+            <sql>DROP TRIGGER IF EXISTS enrollments_audit_trg ON enrollments</sql>
+            <dropTable tableName="enrollments_audit"/>
+            <dropTable tableName="enrollments" cascadeConstraints="true"/>
+            <dropSequence sequenceName="enrollments_audit_id_seq"/>
+            <dropSequence sequenceName="enrollments_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/039-create-table-ai_embeddings.xml">
+
+    <changeSet id="v2.0.0-039-create-table-ai_embeddings" author="eduar.troyano">
+        <comment>Crea la tabla ai_embeddings: vectores de 768 dimensiones de temas, perfiles, videos y fragmentos (la escribe ai/; sin auditoría). Incluye secuencia propia (sin tabla de auditoría: tabla de volumen alto o de solo inserción).</comment>
+
+        <createSequence sequenceName="ai_embeddings_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="ai_embeddings" remarks="Embeddings of topics, profiles, videos and chunks (vector(768), ADR 0012). Written by the ai service. No audit table">
+            <column name="id" type="bigint" defaultValueSequenceNext="ai_embeddings_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="ai_embeddings_pkey" nullable="false"/>
+            </column>
+            <column name="owner_type" type="varchar(10)" remarks="Kind of the owner: topic, profile, video or chunk">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner_id" type="bigint" remarks="Id of the owner in its table (topics, enrollments, video_candidates or document_chunks)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="varchar(100)" remarks="Embedding model; vectors of different models must not be compared">
+                <constraints nullable="false"/>
+            </column>
+            <column name="embedding" type="vector(768)" remarks="Embedding vector, 768 dimensions">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content_sha256" type="char(64)" remarks="SHA-256 of the embedded content, to skip unchanged content">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="ai_embeddings" constraintName="ai_embeddings_owner_model_uq" columnNames="owner_type,owner_id,model"/>
+        <sql>ALTER TABLE ai_embeddings ADD CONSTRAINT ai_embeddings_owner_type_ck CHECK (owner_type IN ('topic', 'profile', 'video', 'chunk'))</sql>
+        <sql>CREATE TRIGGER ai_embeddings_set_updated_at_trg BEFORE UPDATE ON ai_embeddings FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <rollback>
+            <dropTable tableName="ai_embeddings" cascadeConstraints="true"/>
+            <dropSequence sequenceName="ai_embeddings_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

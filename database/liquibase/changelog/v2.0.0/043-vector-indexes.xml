@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/043-vector-indexes.xml">
+
+    <changeSet id="v2.0.0-043-vector-indexes" author="eduar.troyano">
+        <comment>Crea el índice HNSW (distancia coseno) sobre ai_embeddings.embedding, de 768 dimensiones (ADR 0012). Cambiar de modelo o de dimensión exige un changeset que altere la columna y recree el índice.</comment>
+        <sql>CREATE INDEX ai_embeddings_embedding_hnsw_idx ON ai_embeddings USING hnsw (embedding vector_cosine_ops)</sql>
+        <sql>CREATE INDEX ai_embeddings_owner_idx ON ai_embeddings (owner_type, owner_id)</sql>
+        <rollback>
+            <sql>DROP INDEX IF EXISTS ai_embeddings_owner_idx</sql>
+            <sql>DROP INDEX IF EXISTS ai_embeddings_embedding_hnsw_idx</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
