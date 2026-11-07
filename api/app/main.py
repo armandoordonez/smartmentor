@@ -1,5 +1,7 @@
 """Composición de la aplicación FastAPI: lifespan, middleware, errores y routers."""
 
+import asyncio
+import contextlib
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -12,13 +14,11 @@ from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestContextMiddleware
 from app.core.security import TokenValidator
-from app.domains.assessments.controller import routers as assessments_routers
-from app.domains.content.controller import routers as content_routers
+from app.domains.ai_gateway.controller import routers as ai_gateway_routers
+from app.domains.ai_gateway.factory import create_ai_service
+from app.domains.ai_gateway.sweeper import run_sweeper
 from app.domains.courses.controller import routers as courses_routers
 from app.domains.identity.controller import routers as identity_routers
-from app.domains.learning_paths.controller import routers as learning_paths_routers
-from app.domains.observability.controller import routers as observability_routers
-from app.domains.student.controller import routers as student_routers
 from app.health.controller import router as health_router
 
 API_PREFIX = "/api/v1"
@@ -30,9 +30,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     engine = create_engine(settings)
     app.state.session_factory = create_session_factory(engine)
     app.state.token_validator = TokenValidator.from_settings(settings)
+    ai_service, ai_client = create_ai_service(settings)
+    app.state.ai_service = ai_service
+    sweeper: asyncio.Task[None] | None = None
+    if settings.ai_sweep_interval_seconds > 0:
+        # Ingesta los trabajos de `ai/` terminados que nadie consultó (plan 5.3.3).
+        sweeper = asyncio.create_task(
+            run_sweeper(app.state.session_factory, ai_service, settings.ai_sweep_interval_seconds),
+            name="ai-jobs-sweeper",
+        )
     try:
         yield
     finally:
+        if sweeper is not None:
+            sweeper.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await sweeper
+        if ai_client is not None:
+            await ai_client.aclose()
         await engine.dispose()
 
 
@@ -62,15 +77,7 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
 
     app.include_router(health_router)
-    for routers in (
-        identity_routers,
-        courses_routers,
-        learning_paths_routers,
-        content_routers,
-        assessments_routers,
-        observability_routers,
-        student_routers,
-    ):
+    for routers in (identity_routers, courses_routers, ai_gateway_routers):
         for router in routers:
             app.include_router(router, prefix=API_PREFIX)
     return app

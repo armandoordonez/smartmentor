@@ -5,10 +5,12 @@ description = "API de negocio de SmartMentor: usuarios, cursos, rutas y evaluaci
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115",
+    "python-multipart>=0.0.20",
+    "httpx>=0.28",
+    "pypdf>=5.1",
     "uvicorn[standard]>=0.30",
     "sqlalchemy[asyncio]>=2.0.36",
     "asyncpg>=0.30",
-    "pgvector>=0.3.6",
     "pydantic[email]>=2.9",
     "pydantic-settings>=2.6",
     "pyjwt[crypto]>=2.9",
@@ -21,7 +23,8 @@ dev = [
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
     "pytest-cov>=6.0",
-    "httpx>=0.28",
+    "jsonschema>=4.23",
+    "types-jsonschema>=4.23",
 ]
 
 # La API no es un paquete instalable: solo se resuelven sus dependencias.
@@ -50,10 +53,6 @@ strict = true
 plugins = ["pydantic.mypy"]
 files = ["app"]
 
-[[tool.mypy.overrides]]
-module = ["pgvector.*"]
-ignore_missing_imports = true
-
 # El router genérico recibe las clases de esquema como parámetros de ejecución
 # (FastAPI las lee de las anotaciones), algo que mypy no puede expresar.
 [[tool.mypy.overrides]]
@@ -66,4 +65,3 @@ asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
 markers = ["integration: pruebas que requieren la base de datos smartmentor_test"]
-filterwarnings = ["ignore:Did not recognize type 'vector'"]

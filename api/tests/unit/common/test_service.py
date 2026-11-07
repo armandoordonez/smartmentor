@@ -45,12 +45,12 @@ async def test_deactivate_is_logical_and_reversible() -> None:
 async def test_search_ignores_empty_filters() -> None:
     service, _, _ = make_service()
     await service.create(Role(code="admin", name="Admin"))
-    await service.create(Role(code="teacher", name="Teacher"))
+    await service.create(Role(code="instructor", name="Teacher"))
     items, total = await service.search(filters={"code": None}, active=True, limit=10, offset=0)
     assert total == 2
     assert len(items) == 2
-    only_teacher, total = await service.search(
-        filters={"code": "teacher"}, active=True, limit=10, offset=0
+    only_instructor, total = await service.search(
+        filters={"code": "instructor"}, active=True, limit=10, offset=0
     )
     assert total == 1
-    assert only_teacher[0].code == "teacher"
+    assert only_instructor[0].code == "instructor"

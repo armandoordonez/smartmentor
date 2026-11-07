@@ -10,6 +10,7 @@ from typing import Annotated
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
 
+from app.common.constants import RoleCode
 from app.common.exceptions import ForbiddenError, UnauthorizedError
 from app.common.repository_impl import SqlAlchemyUnitOfWork
 from app.core.config import get_settings
@@ -93,6 +94,7 @@ async def get_current_user(
             email=claims.email,
             email_verified=claims.email_verified,
             full_name=claims.full_name,
+            second_factor=claims.second_factor,
         )
     )
     # A partir de aquí, cada cambio de la petición se audita con el id del usuario autenticado.
@@ -104,13 +106,26 @@ CurrentUserDep = Annotated[CurrentUser, Depends(get_current_user)]
 
 
 def require_roles(*allowed: str) -> Callable[..., Awaitable[CurrentUser]]:
-    """Dependencia de ruta: exige estar autenticado y tener alguno de los roles indicados."""
+    """Dependencia de ruta: exige estar autenticado y tener alguno de los roles indicados.
+
+    Los roles salen de `user_roles` (la unión de todos los del usuario), no del token. Si la ruta
+    es solo de instructor o admin (no admite `learner`) y `REQUIRE_SECOND_FACTOR` está activo, el
+    token debe indicar un segundo factor (DEF-27, G-03).
+    """
+    privileged = RoleCode.LEARNER not in allowed
 
     async def guard(user: CurrentUserDep) -> CurrentUser:
         if not user.has_any_role(*allowed):
             raise ForbiddenError(
                 "Your role does not allow this operation.", code="INSUFFICIENT_ROLE"
             )
+        if privileged and get_settings().require_second_factor and not user.second_factor:
+            raise ForbiddenError(
+                "This operation requires a second authentication factor.",
+                code="SECOND_FACTOR_REQUIRED",
+            )
         return user
 
+    # Permite a las pruebas recorrer las rutas y comprobar que ninguna queda sin protección.
+    guard.allowed_roles = tuple(allowed)  # type: ignore[attr-defined]
     return guard

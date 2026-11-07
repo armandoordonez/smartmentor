@@ -1,25 +1,22 @@
-"""Quién puede qué: grupos de roles para proteger los recursos (decisión D-03).
+"""Quién puede qué: grupos de roles para proteger las rutas (matriz del plan, sección 5.3.2).
 
-Los roles salen de `user_roles` en la base de datos, no del token.
+Los roles salen de `user_roles` en la base de datos, no del token. Un usuario puede tener varios
+roles y la autorización usa la unión: el «rol activo» de la app es solo de presentación (CU-35).
 """
 
 from app.common.constants import RoleCode
 
 ADMIN = (RoleCode.ADMIN,)
-STAFF = (RoleCode.ADMIN, RoleCode.TEACHER)
-ANY_ROLE = (RoleCode.ADMIN, RoleCode.TEACHER, RoleCode.STUDENT)
+INSTRUCTOR = (RoleCode.INSTRUCTOR,)
+LEARNER = (RoleCode.LEARNER,)
+STAFF = (RoleCode.ADMIN, RoleCode.INSTRUCTOR)
+ANY_ROLE = (RoleCode.ADMIN, RoleCode.INSTRUCTOR, RoleCode.LEARNER)
 
-# Resumen de la matriz (lectura / escritura):
-#   roles                        cualquier rol / admin
-#   users                        admin, teacher / admin
-#   user-roles                   admin / admin
-#   courses, topics, topic-prerequisites, learning-paths, resources
-#                                cualquier rol / admin, teacher
-#   enrollments, path-steps, diagnostics, assessment-attempts, badges
-#                                admin, teacher / admin, teacher
-#   llm-call-logs                admin / admin
-#   /me/**                       cualquier rol, solo sobre lo propio (dominio student)
-# Los estudiantes consultan el catálogo y gestionan lo suyo con /me/enrollments y lo que cuelga de
-# ellas (inscribirse, ver su ruta, entregar respuestas, ver su badge); cada operación verifica que
-# la inscripción sea del usuario autenticado. El CRUD genérico de enrollments, path-steps,
-# diagnostics, assessment-attempts y badges sigue reservado al personal (admin y teacher).
+# Resumen de la matriz de esta parte (lectura / escritura):
+#   /me, /me/profile, /me/consents, /me/data-subject-requests   cualquier rol, solo lo propio
+#   roles                          cualquier rol / admin
+#   users, user-roles, users/{id}/roles   admin / admin
+#   courses, topics, syllabus      instructor (los suyos) y admin (todos)
+#   courses/{id}/owner             admin
+#   jobs/{id}                      dueño del trabajo (instructor, aprendiz) y admin
+# Pedir un objeto ajeno responde 404, nunca 403 (sección 18.2 del plan).

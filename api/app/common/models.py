@@ -23,3 +23,13 @@ class TableModel(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class UpdatableTableModel(TableModel):
+    """Tabla de negocio que cambia: agrega `updated_at` (convención v2.0.0, sección 5.2.1)."""
+
+    __abstract__ = True
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
