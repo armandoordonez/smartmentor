@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/018-create-table-learning_paths.xml">
+
+    <changeSet id="v2.0.0-018-create-table-learning_paths" author="eduar.troyano">
+        <comment>Crea la tabla learning_paths: rutas de aprendizaje con umbrales, objetivo por defecto en tres partes, pesos de nivel (80/10/10) y proporción mínima de respuesta corta. Incluye secuencia propia, tabla de auditoría learning_paths_audit y el trigger learning_paths_audit_trg.</comment>
+
+        <createSequence sequenceName="learning_paths_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="learning_paths_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="learning_paths" remarks="Learning paths of a course with approval thresholds, default objective and level weights">
+            <column name="id" type="bigint" defaultValueSequenceNext="learning_paths_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="learning_paths_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="course_id" type="bigint" remarks="Course the path belongs to">
+                <constraints nullable="false" foreignKeyName="learning_paths_course_id_fk" references="courses(id)"/>
+            </column>
+            <column name="name" type="varchar(200)" remarks="Learning path name">
+                <constraints nullable="false"/>
+            </column>
+            <column name="group_label" type="varchar(100)" remarks="Label of the group the path serves"/>
+            <column name="status" type="varchar(15)" defaultValueComputed="'draft'" remarks="Path status: draft or published">
+                <constraints nullable="false"/>
+            </column>
+            <column name="default_objective_bloom_verb" type="varchar(60)" remarks="Default objective, part 1: Bloom verb"/>
+            <column name="default_objective_content" type="text" remarks="Default objective, part 2: content"/>
+            <column name="default_objective_criterion" type="text" remarks="Default objective, part 3: success criterion"/>
+            <column name="topic_pass_threshold" type="numeric(5,2)" defaultValueComputed="70" remarks="Minimum percentage to pass a topic quiz">
+                <constraints nullable="false"/>
+            </column>
+            <column name="final_pass_threshold" type="numeric(5,2)" defaultValueComputed="80" remarks="Minimum percentage to pass the final assessment and earn the badge">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mastery_skip_threshold" type="numeric(5,2)" defaultValueComputed="80" remarks="Diagnostic percentage from which a topic is skipped">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_attempts" type="smallint" defaultValueComputed="3" remarks="Maximum attempts per assessment">
+                <constraints nullable="false"/>
+            </column>
+            <column name="level_weights" type="jsonb" defaultValueComputed="'{&quot;test&quot;: 80, &quot;resume&quot;: 10, &quot;profile&quot;: 10}'::jsonb" remarks="Weights of the diagnostic level (test, resume, profile), 80/10/10 by default">
+                <constraints nullable="false"/>
+            </column>
+            <column name="short_answer_min_ratio" type="numeric(4,3)" defaultValueComputed="0.200" remarks="Minimum share of short-answer items in assessments (0 to 1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="learning_paths" constraintName="learning_paths_public_id_uq" columnNames="public_id"/>
+        <createIndex tableName="learning_paths" indexName="learning_paths_course_id_idx">
+            <column name="course_id"/>
+        </createIndex>
+        <sql>ALTER TABLE learning_paths ADD CONSTRAINT learning_paths_status_ck CHECK (status IN ('draft', 'published'))</sql>
+        <sql>ALTER TABLE learning_paths ADD CONSTRAINT learning_paths_thresholds_ck CHECK (topic_pass_threshold BETWEEN 0 AND 100 AND final_pass_threshold BETWEEN 0 AND 100 AND mastery_skip_threshold BETWEEN 0 AND 100)</sql>
+        <sql>ALTER TABLE learning_paths ADD CONSTRAINT learning_paths_max_attempts_ck CHECK (max_attempts &gt;= 1)</sql>
+        <sql>ALTER TABLE learning_paths ADD CONSTRAINT learning_paths_level_weights_ck CHECK (jsonb_typeof(level_weights) = 'object')</sql>
+        <sql>ALTER TABLE learning_paths ADD CONSTRAINT learning_paths_short_answer_ratio_ck CHECK (short_answer_min_ratio BETWEEN 0 AND 1)</sql>
+        <sql>CREATE TRIGGER learning_paths_set_updated_at_trg BEFORE UPDATE ON learning_paths FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="learning_paths_audit" remarks="Append-only change history of learning_paths">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="learning_paths_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="learning_paths_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in learning_paths">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE learning_paths_audit ADD CONSTRAINT learning_paths_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="learning_paths_audit" indexName="learning_paths_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER learning_paths_audit_trg AFTER INSERT OR UPDATE OR DELETE ON learning_paths FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS learning_paths_audit_trg ON learning_paths</sql>
+            <dropTable tableName="learning_paths_audit"/>
+            <dropTable tableName="learning_paths" cascadeConstraints="true"/>
+            <dropSequence sequenceName="learning_paths_audit_id_seq"/>
+            <dropSequence sequenceName="learning_paths_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/031-create-table-video_feedback.xml">
+
+    <changeSet id="v2.0.0-031-create-table-video_feedback" author="eduar.troyano">
+        <comment>Crea la tabla video_feedback: calificación del aprendiz sobre un video (útil, problema de audio, desactualizado, muy largo). Incluye secuencia propia, tabla de auditoría video_feedback_audit y el trigger video_feedback_audit_trg.</comment>
+
+        <createSequence sequenceName="video_feedback_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="video_feedback_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="video_feedback" remarks="Learner feedback about a video">
+            <column name="id" type="bigint" defaultValueSequenceNext="video_feedback_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="video_feedback_pkey" nullable="false"/>
+            </column>
+            <column name="video_candidate_id" type="bigint" remarks="Video that was rated">
+                <constraints nullable="false" foreignKeyName="video_feedback_video_candidate_id_fk" references="video_candidates(id)"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment of the learner that rated">
+                <constraints nullable="false" foreignKeyName="video_feedback_enrollment_id_fk" references="enrollments(id)"/>
+            </column>
+            <column name="rating" type="varchar(15)" remarks="Rating: useful, audio_issue, outdated or too_long">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="text" remarks="Free-text comment"/>
+            <column name="watched_fully" type="boolean" remarks="Whether the learner watched the whole video"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="video_feedback" constraintName="video_feedback_video_enrollment_uq" columnNames="video_candidate_id,enrollment_id"/>
+        <createIndex tableName="video_feedback" indexName="video_feedback_enrollment_idx">
+            <column name="enrollment_id"/>
+        </createIndex>
+        <sql>ALTER TABLE video_feedback ADD CONSTRAINT video_feedback_rating_ck CHECK (rating IN ('useful', 'audio_issue', 'outdated', 'too_long'))</sql>
+        <sql>CREATE TRIGGER video_feedback_set_updated_at_trg BEFORE UPDATE ON video_feedback FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="video_feedback_audit" remarks="Append-only change history of video_feedback">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="video_feedback_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="video_feedback_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in video_feedback">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE video_feedback_audit ADD CONSTRAINT video_feedback_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="video_feedback_audit" indexName="video_feedback_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER video_feedback_audit_trg AFTER INSERT OR UPDATE OR DELETE ON video_feedback FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS video_feedback_audit_trg ON video_feedback</sql>
+            <dropTable tableName="video_feedback_audit"/>
+            <dropTable tableName="video_feedback" cascadeConstraints="true"/>
+            <dropSequence sequenceName="video_feedback_audit_id_seq"/>
+            <dropSequence sequenceName="video_feedback_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

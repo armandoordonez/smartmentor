@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/048-tag-v2.0.0.xml">
+
+    <!-- Comentario del changeset: etiqueta la base de datos como v2.0.0 (re-base del esquema para el
+         prototipo v3 y la capa de IA, ADR 0007). tagDatabase debe ser el único elemento del changeset,
+         por eso el comentario va aquí y no en <comment>. -->
+    <changeSet id="v2.0.0-048-tag" author="eduar.troyano">
+        <tagDatabase tag="v2.0.0"/>
+    </changeSet>
+
+</databaseChangeLog>

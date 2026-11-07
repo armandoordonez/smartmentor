@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/022-create-table-attempt_grants.xml">
+
+    <changeSet id="v2.0.0-022-create-table-attempt_grants" author="eduar.troyano">
+        <comment>Crea la tabla attempt_grants: intentos extra habilitados por el instructor para un paso o para la evaluación final. Incluye secuencia propia, tabla de auditoría attempt_grants_audit y el trigger attempt_grants_audit_trg.</comment>
+
+        <createSequence sequenceName="attempt_grants_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="attempt_grants_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="attempt_grants" remarks="Extra attempts granted by an instructor to a learner, for a path step or for the final assessment">
+            <column name="id" type="bigint" defaultValueSequenceNext="attempt_grants_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="attempt_grants_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="path_step_id" type="bigint" remarks="Path step that receives the attempts; null for the final assessment">
+                <constraints foreignKeyName="attempt_grants_path_step_id_fk" references="path_steps(id)"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment that receives the attempts for the final assessment">
+                <constraints foreignKeyName="attempt_grants_enrollment_id_fk" references="enrollments(id)"/>
+            </column>
+            <column name="granted_by_user_id" type="bigint" remarks="Instructor that granted the attempts">
+                <constraints nullable="false" foreignKeyName="attempt_grants_granted_by_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="attempts" type="smallint" remarks="Number of extra attempts granted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="note" type="text" remarks="Reason or note of the grant"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="attempt_grants" constraintName="attempt_grants_public_id_uq" columnNames="public_id"/>
+        <createIndex tableName="attempt_grants" indexName="attempt_grants_path_step_id_idx">
+            <column name="path_step_id"/>
+        </createIndex>
+        <createIndex tableName="attempt_grants" indexName="attempt_grants_enrollment_id_idx">
+            <column name="enrollment_id"/>
+        </createIndex>
+        <sql>ALTER TABLE attempt_grants ADD CONSTRAINT attempt_grants_target_ck CHECK (num_nonnulls(path_step_id, enrollment_id) = 1)</sql>
+        <sql>ALTER TABLE attempt_grants ADD CONSTRAINT attempt_grants_attempts_ck CHECK (attempts &gt;= 1)</sql>
+        <sql>CREATE TRIGGER attempt_grants_set_updated_at_trg BEFORE UPDATE ON attempt_grants FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="attempt_grants_audit" remarks="Append-only change history of attempt_grants">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="attempt_grants_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="attempt_grants_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in attempt_grants">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE attempt_grants_audit ADD CONSTRAINT attempt_grants_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="attempt_grants_audit" indexName="attempt_grants_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER attempt_grants_audit_trg AFTER INSERT OR UPDATE OR DELETE ON attempt_grants FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS attempt_grants_audit_trg ON attempt_grants</sql>
+            <dropTable tableName="attempt_grants_audit"/>
+            <dropTable tableName="attempt_grants" cascadeConstraints="true"/>
+            <dropSequence sequenceName="attempt_grants_audit_id_seq"/>
+            <dropSequence sequenceName="attempt_grants_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

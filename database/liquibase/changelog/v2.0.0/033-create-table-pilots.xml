@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/033-create-table-pilots.xml">
+
+    <changeSet id="v2.0.0-033-create-table-pilots" author="eduar.troyano">
+        <comment>Crea la tabla pilots: configuración del piloto sobre una ruta (fechas, semilla de aleatorización y estado). Incluye secuencia propia, tabla de auditoría pilots_audit y el trigger pilots_audit_trg.</comment>
+
+        <createSequence sequenceName="pilots_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="pilots_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="pilots" remarks="Pilot study configuration of a learning path (randomization and measurement dates)">
+            <column name="id" type="bigint" defaultValueSequenceNext="pilots_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="pilots_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="learning_path_id" type="bigint" remarks="Learning path under study">
+                <constraints nullable="false" foreignKeyName="pilots_learning_path_id_fk" references="learning_paths(id)"/>
+            </column>
+            <column name="starts_on" type="date" remarks="Start date of the pilot">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ends_on" type="date" remarks="End date of the pilot">
+                <constraints nullable="false"/>
+            </column>
+            <column name="delayed_posttest_on" type="date" remarks="Date of the delayed post-test (retention)"/>
+            <column name="random_seed" type="bigint" remarks="Seed used to randomize the learners into arms"/>
+            <column name="status" type="varchar(15)" defaultValueComputed="'draft'" remarks="Pilot status: draft, randomized, running or closed">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="pilots" constraintName="pilots_public_id_uq" columnNames="public_id"/>
+        <createIndex tableName="pilots" indexName="pilots_learning_path_id_idx">
+            <column name="learning_path_id"/>
+        </createIndex>
+        <sql>ALTER TABLE pilots ADD CONSTRAINT pilots_status_ck CHECK (status IN ('draft', 'randomized', 'running', 'closed'))</sql>
+        <sql>ALTER TABLE pilots ADD CONSTRAINT pilots_dates_ck CHECK (ends_on &gt;= starts_on)</sql>
+        <sql>CREATE TRIGGER pilots_set_updated_at_trg BEFORE UPDATE ON pilots FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="pilots_audit" remarks="Append-only change history of pilots">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="pilots_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="pilots_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in pilots">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE pilots_audit ADD CONSTRAINT pilots_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="pilots_audit" indexName="pilots_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER pilots_audit_trg AFTER INSERT OR UPDATE OR DELETE ON pilots FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS pilots_audit_trg ON pilots</sql>
+            <dropTable tableName="pilots_audit"/>
+            <dropTable tableName="pilots" cascadeConstraints="true"/>
+            <dropSequence sequenceName="pilots_audit_id_seq"/>
+            <dropSequence sequenceName="pilots_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
