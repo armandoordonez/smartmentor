@@ -208,7 +208,7 @@ def fake_grade_short_answer(input_: dict[str, Any]) -> dict[str, Any]:
         "approval_rule": "min_criteria_ratio",
         "min_criteria_ratio": ratio,
         "score": min(score, 100.0),
-        "is_correct": total > 0 and met_count / total >= ratio - 1e-9,
+        "is_correct": total > 0 and met_count / total >= ratio - 1e-3,
         "criteria_met": met_count,
         "criteria_total": total,
         "rubric_detail": detail,

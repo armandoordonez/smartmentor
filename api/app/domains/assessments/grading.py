@@ -8,6 +8,7 @@ from app.domains.assessments.entities import AssessmentItem, AttemptAnswer
 
 MULTIPLE_CHOICE = "multiple_choice"
 SHORT_ANSWER = "short_answer"
+RATIO_TOLERANCE = 1e-3
 
 
 def grade_multiple_choice(item: AssessmentItem, answer: AttemptAnswer) -> dict[str, Any]:
@@ -39,7 +40,8 @@ def short_answer_is_correct(criteria_met: int, criteria_total: int, min_ratio: f
     """Aprobada si cumple la proporción mínima de criterios (DEF-21: 2 de 3 por defecto)."""
     if criteria_total <= 0:
         return False
-    return criteria_met / criteria_total >= min_ratio - 1e-9
+    # Tolerancia de redondeo: la base guarda la proporción con 3 decimales (2/3 -> 0,667).
+    return criteria_met / criteria_total >= min_ratio - RATIO_TOLERANCE
 
 
 def attempt_score(scores: Iterable[float | None]) -> float:
