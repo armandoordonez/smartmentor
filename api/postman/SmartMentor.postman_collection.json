@@ -847,6 +847,242 @@
       ]
     },
     {
+      "name": "evaluation",
+      "item": [
+        {
+          "name": "POST /api/v1/attempt-answers/{answer_id}/human-gradings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attempt-answers/{{answer_id}}/human-gradings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attempt-answers",
+                "{{answer_id}}",
+                "human-gradings"
+              ],
+              "query": []
+            },
+            "description": "Grade Answer\n\nGuarda la calificación humana y recién entonces devuelve la nota del LLM para comparar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criteria\": [\n    {\n      \"criterion\": \"texto\",\n      \"met\": false,\n      \"points_awarded\": 1\n    }\n  ],\n  \"sample_type\": \"random\",\n  \"score\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/course-evaluators/{evaluator_id}/deactivate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/course-evaluators/{{evaluator_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "course-evaluators",
+                "{{evaluator_id}}",
+                "deactivate"
+              ],
+              "query": []
+            },
+            "description": "Remove Evaluator\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/courses/{course_id}/evaluators",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/evaluators",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "evaluators"
+              ],
+              "query": []
+            },
+            "description": "List Evaluators\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/courses/{course_id}/evaluators",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/evaluators",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "evaluators"
+              ],
+              "query": []
+            },
+            "description": "Assign Evaluator\n\nAsigna un instructor (que no es el dueño) como evaluador del curso (DEF-24).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/evaluation/annotation-queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evaluation/annotation-queue",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "evaluation",
+                "annotation-queue"
+              ],
+              "query": [
+                {
+                  "key": "course_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "done",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Annotation Queue\n\nÍtems por anotar. La anotación del otro evaluador nunca se devuelve (anotación ciega)."
+          }
+        },
+        {
+          "name": "GET /api/v1/evaluation/grading-queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evaluation/grading-queue",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "evaluation",
+                "grading-queue"
+              ],
+              "query": [
+                {
+                  "key": "sample",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Grading Queue\n\nRespuestas cortas por calificar a mano. La nota del LLM no se devuelve aquí."
+          }
+        },
+        {
+          "name": "POST /api/v1/items/{item_id}/annotations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/items/{{item_id}}/annotations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "items",
+                "{{item_id}}",
+                "annotations"
+              ],
+              "query": []
+            },
+            "description": "Annotate Item\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verdict\": \"valid\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "health",
       "item": [
         {

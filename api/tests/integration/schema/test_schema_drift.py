@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 import app.domains.ai_gateway.models
 import app.domains.content.models
 import app.domains.courses.models
+import app.domains.evaluation.models
 import app.domains.identity.models
 import app.domains.learning_paths.models  # noqa: F401  (registra los modelos en Base.metadata)
 from app.common.models import Base

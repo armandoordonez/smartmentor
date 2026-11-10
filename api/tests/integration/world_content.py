@@ -145,3 +145,46 @@ async def insert_enrollment(
             )
         ).scalar_one()
     return int(value)
+
+
+async def assign_evaluator(
+    admin: httpx.AsyncClient, course: Course, evaluator_id: int
+) -> httpx.Response:
+    return await admin.post(f"{API}/courses/{course.id}/evaluators", json={"user_id": evaluator_id})
+
+
+async def insert_short_answer(
+    engine: AsyncEngine,
+    enrollment_id: int,
+    item_id: int,
+    *,
+    text_answer: str = "Mi respuesta",
+    score: float = 66.67,
+    review_requested: bool = False,
+) -> int:
+    """Una respuesta corta ya calificada por el LLM, como la dejaría el dominio de evaluaciones."""
+    async with engine.begin() as conn:
+        attempt = (
+            await conn.execute(
+                text(
+                    "INSERT INTO assessment_attempts "
+                    "(enrollment_id, assessment_type, attempt_number, status) "
+                    "SELECT :e, 'final', COALESCE(max(attempt_number), 0) + 1, 'graded' "
+                    "FROM assessment_attempts WHERE enrollment_id = :e RETURNING id"
+                ),
+                {"e": enrollment_id},
+            )
+        ).scalar_one()
+        answer = (
+            await conn.execute(
+                text(
+                    "INSERT INTO attempt_answers (assessment_attempt_id, assessment_item_id, "
+                    "text_answer, is_correct, score, grader, rubric_detail, feedback, "
+                    "review_requested_at) VALUES (:a, :i, :t, true, :s, 'llm_judge', "
+                    'CAST(\'[{"criterion": "x", "met": true}]\' AS jsonb), \'Bien\', '
+                    "CASE WHEN :r THEN now() END) RETURNING id"
+                ),
+                {"a": attempt, "i": item_id, "t": text_answer, "s": score, "r": review_requested},
+            )
+        ).scalar_one()
+    return int(answer)

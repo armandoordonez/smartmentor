@@ -1,6 +1,180 @@
 {
   "components": {
     "schemas": {
+      "AnnotationCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "bloom_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Ok"
+          },
+          "clear_stem": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clear Stem"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "plausible_distractors": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plausible Distractors"
+          },
+          "single_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Single Correct"
+          },
+          "verdict": {
+            "enum": [
+              "valid",
+              "invalid"
+            ],
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "verdict"
+        ],
+        "title": "AnnotationCreate",
+        "type": "object"
+      },
+      "AnnotationResponse": {
+        "properties": {
+          "assessment_item_id": {
+            "title": "Assessment Item Id",
+            "type": "integer"
+          },
+          "bloom_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Ok"
+          },
+          "clear_stem": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clear Stem"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "evaluator_slot": {
+            "title": "Evaluator Slot",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "plausible_distractors": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plausible Distractors"
+          },
+          "single_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Single Correct"
+          },
+          "verdict": {
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "assessment_item_id",
+          "evaluator_slot",
+          "single_correct",
+          "clear_stem",
+          "bloom_ok",
+          "plausible_distractors",
+          "verdict",
+          "comment",
+          "created_at"
+        ],
+        "title": "AnnotationResponse",
+        "type": "object"
+      },
       "BloomLevel": {
         "enum": [
           "remember",
@@ -366,6 +540,34 @@
         "title": "CourseUpdate",
         "type": "object"
       },
+      "CriterionGrade": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Criterion",
+            "type": "string"
+          },
+          "met": {
+            "title": "Met",
+            "type": "boolean"
+          },
+          "points_awarded": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Points Awarded",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterion",
+          "met",
+          "points_awarded"
+        ],
+        "title": "CriterionGrade",
+        "type": "object"
+      },
       "DataSubjectRequestCreate": {
         "additionalProperties": false,
         "properties": {
@@ -434,6 +636,61 @@
         ],
         "title": "EducationLevel",
         "type": "string"
+      },
+      "EvaluatorCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "title": "EvaluatorCreate",
+        "type": "object"
+      },
+      "EvaluatorResponse": {
+        "properties": {
+          "assigned_by_user_id": {
+            "title": "Assigned By User Id",
+            "type": "integer"
+          },
+          "course_id": {
+            "title": "Course Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "course_id",
+          "user_id",
+          "assigned_by_user_id",
+          "created_at"
+        ],
+        "title": "EvaluatorResponse",
+        "type": "object"
       },
       "ExperienceBand": {
         "enum": [
@@ -514,6 +771,77 @@
         "title": "ExtractionRequest",
         "type": "object"
       },
+      "GradingQueueEntry": {
+        "description": "Una respuesta corta por calificar: sin la nota del LLM ni la identidad del aprendiz.",
+        "properties": {
+          "attempt_answer_id": {
+            "title": "Attempt Answer Id",
+            "type": "integer"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "review_requested_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Requested At"
+          },
+          "rubric": {
+            "items": {},
+            "title": "Rubric",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "text_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Answer"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "attempt_answer_id",
+          "item_id",
+          "topic_id",
+          "stem",
+          "model_answer",
+          "rubric",
+          "text_answer",
+          "review_requested_at"
+        ],
+        "title": "GradingQueueEntry",
+        "type": "object"
+      },
       "GraphEdge": {
         "description": "`from` es el prerrequisito y `to` el tema que lo requiere.",
         "properties": {
@@ -572,6 +900,98 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HumanGradingCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "criteria": {
+            "items": {
+              "$ref": "#/components/schemas/CriterionGrade"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Criteria",
+            "type": "array"
+          },
+          "sample_type": {
+            "enum": [
+              "random",
+              "learner_request"
+            ],
+            "title": "Sample Type",
+            "type": "string"
+          },
+          "score": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criteria",
+          "score",
+          "sample_type"
+        ],
+        "title": "HumanGradingCreate",
+        "type": "object"
+      },
+      "HumanGradingResponse": {
+        "properties": {
+          "attempt_answer_id": {
+            "title": "Attempt Answer Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "criteria": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criteria"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "llm_grading": {
+            "$ref": "#/components/schemas/LlmGradeResponse"
+          },
+          "sample_type": {
+            "title": "Sample Type",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "attempt_answer_id",
+          "sample_type",
+          "criteria",
+          "score",
+          "llm_grading",
+          "created_at"
+        ],
+        "title": "HumanGradingResponse",
         "type": "object"
       },
       "ItemResponse": {
@@ -1006,6 +1426,54 @@
         "title": "LearningPathSummary",
         "type": "object"
       },
+      "LlmGradeResponse": {
+        "properties": {
+          "feedback": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback"
+          },
+          "is_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Correct"
+          },
+          "rubric_detail": {
+            "title": "Rubric Detail"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "required": [
+          "score",
+          "is_correct",
+          "rubric_detail",
+          "feedback"
+        ],
+        "title": "LlmGradeResponse",
+        "type": "object"
+      },
       "MeResponse": {
         "description": "El usuario autenticado y sus roles (CU-34, CU-35).",
         "properties": {
@@ -1184,6 +1652,37 @@
         "title": "Page[CourseResponse]",
         "type": "object"
       },
+      "Page_GradingQueueEntry_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GradingQueueEntry"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[GradingQueueEntry]",
+        "type": "object"
+      },
       "Page_ItemResponse_": {
         "properties": {
           "items": {
@@ -1213,6 +1712,37 @@
           "offset"
         ],
         "title": "Page[ItemResponse]",
+        "type": "object"
+      },
+      "Page_QueueItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QueueItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[QueueItem]",
         "type": "object"
       },
       "Page_RoleResponse_": {
@@ -1518,6 +2048,128 @@
           }
         },
         "title": "ProfileUpdate",
+        "type": "object"
+      },
+      "QueueItem": {
+        "description": "Un ítem por anotar: con la clave y la rúbrica, nunca la anotación de otro evaluador.",
+        "properties": {
+          "bloom_level": {
+            "title": "Bloom Level",
+            "type": "string"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "item_type": {
+            "title": "Item Type",
+            "type": "string"
+          },
+          "learning_outcome_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Outcome Id"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "own_annotation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "rubric": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rubric"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "learning_outcome_id",
+          "source",
+          "item_type",
+          "bloom_level",
+          "difficulty",
+          "stem",
+          "options",
+          "correct_option",
+          "model_answer",
+          "rubric",
+          "review_status",
+          "own_annotation"
+        ],
+        "title": "QueueItem",
         "type": "object"
       },
       "ResourceEditResponse": {
@@ -3199,6 +3851,117 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/attempt-answers/{answer_id}/human-gradings": {
+      "post": {
+        "description": "Guarda la calificación humana y recién entonces devuelve la nota del LLM para comparar.",
+        "operationId": "grade_answer_api_v1_attempt_answers__answer_id__human_gradings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "answer_id",
+            "required": true,
+            "schema": {
+              "title": "Answer Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanGradingCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanGradingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grade Answer",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/api/v1/course-evaluators/{evaluator_id}/deactivate": {
+      "patch": {
+        "operationId": "remove_evaluator_api_v1_course_evaluators__evaluator_id__deactivate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "evaluator_id",
+            "required": true,
+            "schema": {
+              "title": "Evaluator Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluatorResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Remove Evaluator",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
     "/api/v1/courses": {
       "get": {
         "operationId": "list_courses_api_v1_courses_get",
@@ -3443,6 +4206,119 @@
         "summary": "Update Course",
         "tags": [
           "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/evaluators": {
+      "get": {
+        "operationId": "list_evaluators_api_v1_courses__course_id__evaluators_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EvaluatorResponse"
+                  },
+                  "title": "Response List Evaluators Api V1 Courses  Course Id  Evaluators Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Evaluators",
+        "tags": [
+          "evaluation"
+        ]
+      },
+      "post": {
+        "description": "Asigna un instructor (que no es el dueño) como evaluador del curso (DEF-24).",
+        "operationId": "assign_evaluator_api_v1_courses__course_id__evaluators_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluatorCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluatorResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Assign Evaluator",
+        "tags": [
+          "evaluation"
         ]
       }
     },
@@ -3968,6 +4844,179 @@
         ]
       }
     },
+    "/api/v1/evaluation/annotation-queue": {
+      "get": {
+        "description": "Ítems por anotar. La anotación del otro evaluador nunca se devuelve (anotación ciega).",
+        "operationId": "annotation_queue_api_v1_evaluation_annotation_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "description": "Los ya anotados por mí (solo mi anotación)",
+            "in": "query",
+            "name": "done",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Los ya anotados por mí (solo mi anotación)",
+              "title": "Done",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_QueueItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Annotation Queue",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/api/v1/evaluation/grading-queue": {
+      "get": {
+        "description": "Respuestas cortas por calificar a mano. La nota del LLM no se devuelve aquí.",
+        "operationId": "grading_queue_api_v1_evaluation_grading_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sample",
+            "required": false,
+            "schema": {
+              "default": "random",
+              "enum": [
+                "random",
+                "learner_request"
+              ],
+              "title": "Sample",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_GradingQueueEntry_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grading Queue",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
     "/api/v1/items/{item_id}": {
       "patch": {
         "description": "Aprueba, retira o edita un ítem; editar lo devuelve a `pending_review` (`items.review`).",
@@ -4026,6 +5075,66 @@
         "summary": "Update Item",
         "tags": [
           "content"
+        ]
+      }
+    },
+    "/api/v1/items/{item_id}/annotations": {
+      "post": {
+        "operationId": "annotate_item_api_v1_items__item_id__annotations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnotationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Annotate Item",
+        "tags": [
+          "evaluation"
         ]
       }
     },
