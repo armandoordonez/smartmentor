@@ -264,6 +264,14 @@ class _Base:
             user, await self._r.reader.course(path.course_id)
         )
 
+    async def topic_names(self, enrollment_id: int) -> dict[int, str]:
+        """Nombre de cada tema de la ruta de la inscripción (para mostrar «Tema · …»)."""
+        enrollment = await self._r.enrollments.get(enrollment_id)
+        if enrollment is None:
+            return {}
+        path = await self._path(enrollment)
+        return {n.id: n.name for n in await self._r.reader.topic_nodes(path.course_id)}
+
     async def _final_counters(self, enrollment: Enrollment, path: LearningPath) -> tuple[int, int]:
         """(intentos de la final usados, máximo con los extra)."""
         attempts = await self._r.attempts.list_for_enrollment(require_id(enrollment))
@@ -801,6 +809,17 @@ class StepContentView:
 
 
 @dataclass(frozen=True)
+class AttemptHistoryEntry:
+    attempt_id: int
+    number: int
+    score: float
+    correct: int
+    total: int
+    extra_grant: bool
+    passed: bool
+
+
+@dataclass(frozen=True)
 class WeakTopic:
     topic_id: int
     name: str
@@ -1309,6 +1328,38 @@ class AttemptService(_Base):
                     )
                 )
         return sorted(weak, key=lambda w: w.score)
+
+    async def history(
+        self, user: CurrentUser, enrollment_id: int, step_id: int | None
+    ) -> list[AttemptHistoryEntry]:
+        """Intentos calificados de un tema o de la final, para el historial (E7c, E9c)."""
+        enrollment = await self._own_enrollment(user, enrollment_id)
+        if step_id is not None:
+            step = await self._r.steps.get(step_id)
+            if step is None or step.enrollment_id != enrollment_id:
+                raise path_errors.step_not_found(step_id)
+        kind = "topic" if step_id is not None else "final"
+        entries: list[AttemptHistoryEntry] = []
+        for attempt in await self._r.attempts.list_for_enrollment(require_id(enrollment)):
+            if (
+                attempt.assessment_type != kind
+                or attempt.path_step_id != step_id
+                or attempt.status != AttemptStatus.GRADED
+            ):
+                continue
+            answers = await self._r.answers.list_for_attempt(require_id(attempt))
+            entries.append(
+                AttemptHistoryEntry(
+                    attempt_id=require_id(attempt),
+                    number=attempt.attempt_number,
+                    score=attempt.score or 0.0,
+                    correct=sum(1 for a in answers if a.is_correct),
+                    total=len(answers),
+                    extra_grant=attempt.uses_extra_grant,
+                    passed=bool(attempt.passed),
+                )
+            )
+        return entries
 
     async def final_counters(self, user: CurrentUser, enrollment_id: int) -> tuple[int, int]:
         enrollment = await self._own_enrollment(user, enrollment_id)

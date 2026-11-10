@@ -1,0 +1,12 @@
+{
+  "job_id": "job-diagnostic",
+  "job_type": "diagnostic.finalize",
+  "status": "failed",
+  "progress_label": null,
+  "ingested": false,
+  "next_action": null,
+  "error": {
+    "code": "AI_TASK_FAILED",
+    "retryable": true
+  }
+}

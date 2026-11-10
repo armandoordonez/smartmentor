@@ -277,6 +277,12 @@ class AssessmentItem(ApiModel):
     item_type: ItemType
     options: list[str] = Field(default_factory=list)
     allows_dont_know: bool = False
+    topic_name: str | None = None
+    """Propuesta (F07b): nombre del tema, para «Tema · Regresión lineal» (E3, E6b, E8)."""
+    bloom_level: BloomLevel | None = None
+    """Propuesta (F07b): nivel de Bloom de la pregunta («Bloom · Aplicar»)."""
+    rubric_summary: str | None = None
+    """Propuesta (F07b): rúbrica visible de una respuesta corta («CÓMO SE CALIFICA», E6c)."""
 
 
 class LearnerAnswer(ApiModel):

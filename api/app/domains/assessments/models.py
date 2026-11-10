@@ -1,7 +1,6 @@
 """Modelos SQLAlchemy de evaluaciones. Reflejan las tablas del esquema v2.0.0 (Liquibase).
 
-`assessment_items` también la edita el instructor desde el dominio de contenido (D5): el modelo
-declara `extend_existing` para convivir con otra declaración de la misma tabla.
+`assessment_items` se declara una sola vez, en el dominio de contenido (D5); aquí se reexporta.
 """
 
 from datetime import datetime
@@ -23,30 +22,15 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.common.models import PublicTableModel
+from app.domains.content.models import AssessmentItemModel
 
-
-class AssessmentItemModel(PublicTableModel):
-    __tablename__ = "assessment_items"
-    __table_args__ = ({"extend_existing": True},)
-
-    topic_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("topics.id"))
-    learning_outcome_id: Mapped[int | None] = mapped_column(
-        BigInteger, ForeignKey("learning_outcomes.id")
-    )
-    source: Mapped[str] = mapped_column(String(15))
-    item_type: Mapped[str] = mapped_column(String(20))
-    bloom_level: Mapped[str] = mapped_column(String(20))
-    difficulty: Mapped[int] = mapped_column(SmallInteger)
-    stem: Mapped[str] = mapped_column(Text)
-    options: Mapped[list[Any] | None] = mapped_column(JSONB)
-    correct_option: Mapped[str | None] = mapped_column(String(10))
-    model_answer: Mapped[str | None] = mapped_column(Text)
-    rubric: Mapped[list[Any] | None] = mapped_column(JSONB)
-    equivalence_group: Mapped[str | None] = mapped_column(String(100))
-    review_status: Mapped[str] = mapped_column(String(20), server_default="pending_review")
-    auto_review: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
-    prompt_version: Mapped[str | None] = mapped_column(String(50))
-    ai_job_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("ai_jobs.id"))
+__all__ = [
+    "AssessmentAttemptModel",
+    "AssessmentItemModel",
+    "AttemptAnswerModel",
+    "BadgeModel",
+    "DiagnosticModel",
+]
 
 
 class DiagnosticModel(PublicTableModel):

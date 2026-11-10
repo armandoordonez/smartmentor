@@ -22,6 +22,7 @@ from app.domains.assessments.dependencies import (
 )
 from app.domains.assessments.entities import AssessmentItem, AttemptAnswer
 from app.domains.assessments.service import (
+    AttemptHistoryEntry,
     AttemptOutcome,
     AttemptResultView,
     AttemptView,
@@ -29,12 +30,17 @@ from app.domains.assessments.service import (
     LearnerAnswerInput,
 )
 from app.domains.identity.authentication import CurrentUser
-from app.domains.learner.dependencies import EventServiceDep, SurveyServiceDep
-from app.domains.learner.entities import InteractionEvent
+from app.domains.learner.dependencies import (
+    EventServiceDep,
+    StudyGoalServiceDep,
+    SurveyServiceDep,
+)
+from app.domains.learner.entities import InteractionEvent, StudyGoals
 from app.domains.learner.schemas import (
     AnswersBody,
     AttemptCounters,
     AttemptCreate,
+    AttemptHistoryItem,
     AttemptResponse,
     AttemptResultResponse,
     BadgeSummary,
@@ -54,6 +60,8 @@ from app.domains.learner.schemas import (
     SavedResponse,
     StepContentResponse,
     StepTopic,
+    StudyGoalsBody,
+    StudyGoalsResponse,
     SurveyBody,
     SurveyResponseBody,
     TopicLevelResponse,
@@ -102,13 +110,26 @@ def _answers(body: AnswersBody) -> list[LearnerAnswerInput]:
     ]
 
 
-def _item(item: AssessmentItem) -> ItemForLearner:
+def _rubric_summary(item: AssessmentItem) -> str | None:
+    """Rúbrica visible de una respuesta corta («Cómo se califica», E6c), sin la respuesta modelo."""
+    if item.item_type != "short_answer" or not item.rubric:
+        return None
+    return " · ".join(
+        f"{c.get('criterion', '')} ({round(float(c.get('points', 0)) * 100)} %)"
+        for c in item.rubric
+    )
+
+
+def _item(item: AssessmentItem, names: dict[int, str] | None = None) -> ItemForLearner:
     return ItemForLearner(
         item_id=require_id(item),
         topic_id=item.topic_id,
         stem=item.stem,
         item_type=item.item_type,
         options=[str(o) for o in item.options or []],
+        topic_name=(names or {}).get(item.topic_id),
+        bloom_level=item.bloom_level,
+        rubric_summary=_rubric_summary(item),
     )
 
 
@@ -121,7 +142,7 @@ def _answer(answer: AttemptAnswer) -> LearnerAnswerResponse:
     )
 
 
-def _attempt(view: AttemptView) -> AttemptResponse:
+def _attempt(view: AttemptView, names: dict[int, str] | None = None) -> AttemptResponse:
     attempt = view.attempt
     return AttemptResponse(
         id=require_id(attempt),
@@ -129,7 +150,7 @@ def _attempt(view: AttemptView) -> AttemptResponse:
         status=attempt.status,
         step_id=attempt.path_step_id,
         attempt_number=attempt.attempt_number,
-        items=[_item(i) for i in view.items],
+        items=[_item(i, names) for i in view.items],
         answers=[_answer(a) for a in view.answers],
         uses_extra_grant=attempt.uses_extra_grant,
         created_at=attempt.created_at,
@@ -170,13 +191,13 @@ def _result(view: AttemptResultView) -> AttemptResultResponse:
     )
 
 
-def _outcome(outcome: AttemptOutcome) -> BaseModel:
+def _outcome(outcome: AttemptOutcome, names: dict[int, str] | None = None) -> BaseModel:
     if outcome.job is not None:
         return _accepted(outcome.job)
     if outcome.result is not None:
         return _result(outcome.result)
     assert outcome.view is not None  # noqa: S101
-    return _attempt(outcome.view)
+    return _attempt(outcome.view, names)
 
 
 def _status_created(result: BaseModel) -> int:
@@ -243,10 +264,11 @@ async def start_diagnostic(
 ) -> DiagnosticResponse:
     """Arma el diagnóstico desde el banco aprobado (sin LLM)."""
     view = await service.start(user, enrollment_id)
+    names = await service.topic_names(enrollment_id)
     return DiagnosticResponse(
         id=require_id(view.diagnostic),
         status=view.diagnostic.status,
-        items=[_item(i) for i in view.items],
+        items=[_item(i, names) for i in view.items],
         answers=[],
         submitted_at=None,
     )
@@ -258,10 +280,11 @@ async def get_diagnostic(
 ) -> DiagnosticResponse:
     view = await service.get(user, enrollment_id)
     stored: dict[str, Any] = view.diagnostic.answers or {}
+    names = await service.topic_names(enrollment_id)
     return DiagnosticResponse(
         id=require_id(view.diagnostic),
         status=view.diagnostic.status,
-        items=[_item(i) for i in view.items],
+        items=[_item(i, names) for i in view.items],
         answers=[
             LearnerAnswerResponse(
                 item_id=int(item_id),
@@ -430,7 +453,8 @@ async def start_attempt(
 
     async def action() -> BaseModel:
         return _outcome(
-            await service.start_topic(user, enrollment_id, step_id, payload.assessment_type)
+            await service.start_topic(user, enrollment_id, step_id, payload.assessment_type),
+            await service.topic_names(enrollment_id),
         )
 
     return await idempotency.run(
@@ -451,7 +475,8 @@ async def get_attempt(
     attempt_id: int, user: LearnerUser, service: AttemptServiceDep
 ) -> AttemptResponse:
     """Ítems (sin solución) y respuestas guardadas."""
-    return _attempt(await service.get(user, attempt_id))
+    view = await service.get(user, attempt_id)
+    return _attempt(view, await service.topic_names(view.attempt.enrollment_id))
 
 
 @router.put("/attempts/{attempt_id}/answers", response_model=SavedResponse)
@@ -526,7 +551,10 @@ async def start_final_attempt(
     """Intento de la final: solo con todos los pasos `passed` o `skipped` (E8)."""
 
     async def action() -> BaseModel:
-        return _outcome(await service.start_final(user, enrollment_id))
+        return _outcome(
+            await service.start_final(user, enrollment_id),
+            await service.topic_names(enrollment_id),
+        )
 
     return await idempotency.run(
         user_id=user.id,
@@ -604,6 +632,67 @@ async def record_events(
         for e in payload.events
     ]
     return EventsAccepted(accepted=await service.record(user, events))
+
+
+# --- historial de intentos y metas personales (rutas que pidió la app, F07b) --------------------
+
+
+def _history(entries: list[AttemptHistoryEntry]) -> list[AttemptHistoryItem]:
+    return [
+        AttemptHistoryItem(
+            attempt_id=e.attempt_id,
+            number=e.number,
+            score=e.score,
+            correct=e.correct,
+            total=e.total,
+            extra_grant=e.extra_grant,
+            passed=e.passed,
+        )
+        for e in entries
+    ]
+
+
+@router.get(
+    "/enrollments/{enrollment_id}/steps/{step_id}/attempts",
+    response_model=list[AttemptHistoryItem],
+)
+async def step_attempt_history(
+    enrollment_id: int, step_id: int, user: LearnerUser, service: AttemptServiceDep
+) -> list[AttemptHistoryItem]:
+    """Intentos calificados del tema (E7c): número, puntaje, aciertos y si fue extra."""
+    return _history(await service.history(user, enrollment_id, step_id))
+
+
+@router.get("/enrollments/{enrollment_id}/final/attempts", response_model=list[AttemptHistoryItem])
+async def final_attempt_history(
+    enrollment_id: int, user: LearnerUser, service: AttemptServiceDep
+) -> list[AttemptHistoryItem]:
+    """Intentos calificados de la evaluación final (E9, E9c)."""
+    return _history(await service.history(user, enrollment_id, None))
+
+
+def _goals(goals: StudyGoals) -> StudyGoalsResponse:
+    return StudyGoalsResponse(
+        daily_minutes_goal=goals.daily_minutes_goal,
+        daily_minutes_done=goals.daily_minutes_done,
+        monthly_topics_goal=goals.monthly_topics_goal,
+        monthly_topics_done=goals.monthly_topics_done,
+        streak_days=goals.streak_days,
+    )
+
+
+@router.get("/study-goals", response_model=StudyGoalsResponse)
+async def get_study_goals(user: LearnerUser, service: StudyGoalServiceDep) -> StudyGoalsResponse:
+    """Metas personales y avance de hoy y del mes (E11, P2). `404` si aún no hay metas."""
+    return _goals(await service.get(user))
+
+
+@router.put("/study-goals", response_model=StudyGoalsResponse)
+async def put_study_goals(
+    payload: StudyGoalsBody, user: LearnerUser, service: StudyGoalServiceDep
+) -> StudyGoalsResponse:
+    """Define o cambia las metas (minutos al día y temas al mes)."""
+    return _goals(await service.save(user, payload.daily_minutes_goal, payload.monthly_topics_goal))
 
 
 routers: list[APIRouter] = [router]

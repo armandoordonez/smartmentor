@@ -106,6 +106,12 @@ class PlatformReader(Protocol):
 
     async def pilot_running(self, learning_path_id: int) -> bool: ...
 
+    async def pilot_arm_for_new_enrollment(self, learning_path_id: int) -> str | None:
+        """Brazo para una inscripción posterior al sorteo: `None` si la ruta no tiene un piloto
+        sorteado o en curso; si lo tiene, el brazo con menos inscripciones (equilibra los grupos).
+        """
+        ...
+
     async def first_admin_id(self) -> int | None:
         """Un administrador activo (destinatario de alertas de cursos «Sin asignar»)."""
         ...

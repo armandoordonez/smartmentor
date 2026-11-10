@@ -274,8 +274,9 @@ def fake_quiz_bank(input_: dict[str, Any]) -> dict[str, Any]:
 LEARNING_JOB_RESULTS: dict[str, tuple[str, Any]] = {
     "diagnostic.finalize": ("diagnostic_finalization.v1", fake_diagnostic_finalize),
     "grading.short_answer": ("grading.v1", fake_grade_short_answer),
-    "items.generate_quiz_bank": ("assessment_item_bank.v1", fake_quiz_bank),
 }
+# `items.generate_quiz_bank` lo define el dominio `content` (CONTENT_RESULTS); `fake_quiz_bank`
+# queda para la prueba de contrato.
 
 LEARNING_TASK_RESULTS: dict[str, Any] = {
     "levels.estimate": fake_levels_estimate,

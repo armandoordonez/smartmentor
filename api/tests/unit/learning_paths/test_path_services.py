@@ -104,6 +104,7 @@ class Reader:
     profiles: dict[int, UserProfile] = field(default_factory=dict)
     consents: set[tuple[int, str]] = field(default_factory=set)
     running_pilot: bool = False
+    arm: str | None = None
 
     async def course(self, course_id: int) -> Course | None:
         return self.courses.get(course_id)
@@ -125,6 +126,9 @@ class Reader:
 
     async def pilot_running(self, learning_path_id: int) -> bool:
         return self.running_pilot
+
+    async def pilot_arm_for_new_enrollment(self, learning_path_id: int) -> str | None:
+        return self.arm
 
     async def first_admin_id(self) -> int | None:
         return 1
@@ -218,6 +222,19 @@ async def test_a_complete_profile_goes_straight_to_the_diagnostic(world: World) 
     view = await world.enrollment_service.enroll(LEARNER, 1)
     assert view.enrollment.status == "diagnosing"
     assert view.enrollment.analysis_included is True
+
+
+async def test_an_enrollment_after_the_draw_gets_an_arm_only_with_pilot_consent(
+    world: World,
+) -> None:
+    world.reader.arm = "fixed"
+    world.reader.consents |= {(LEARNER, "pilot_research"), (OWNER, "data_processing")}
+    with_consent = await world.enrollment_service.enroll(LEARNER, 1)
+    assert with_consent.enrollment.pilot_arm == "fixed"
+    assert with_consent.enrollment.analysis_included is True
+    without = await world.enrollment_service.enroll(OWNER, 1)
+    assert without.enrollment.pilot_arm is None
+    assert without.enrollment.analysis_included is False
 
 
 async def test_sequencing_creates_the_steps_and_the_dependents_wait(world: World) -> None:

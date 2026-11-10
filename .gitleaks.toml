@@ -10,3 +10,8 @@ paths = [
   # Exportación de variables de Figma: contiene identificadores de nodos que parecen claves.
   '''design/03-prototipo-alta-fidelidad/.*variables\.json''',
 ]
+# Claves de idempotencia (UUID) escritas a propósito en las pruebas de la API: no son secretos.
+regexTarget = "line"
+regexes = [
+  '''Idempotency-Key["']\s*:\s*["'][0-9a-fA-F-]{36}["']''',
+]

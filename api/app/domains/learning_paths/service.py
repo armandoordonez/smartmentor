@@ -402,13 +402,22 @@ class EnrollmentService:
         target = EnrollmentStatus.DIAGNOSING if has_description else EnrollmentStatus.PROFILING
         check_enrollment_transition(EnrollmentStatus.ENROLLED, target)
         pilot_consent = await self._reader.consent_in_force(user_id, ConsentType.PILOT_RESEARCH)
+        # Después del sorteo, quien entra con consentimiento del piloto recibe brazo (y entra al
+        # análisis); sin piloto sorteado, el análisis depende solo del consentimiento.
+        arm = (
+            await self._reader.pilot_arm_for_new_enrollment(learning_path_id)
+            if analysis and pilot_consent
+            else None
+        )
+        has_pilot = await self._reader.pilot_running(learning_path_id) or arm is not None
         created = await self._enrollments.add(
             Enrollment(
                 user_id=user_id,
                 learning_path_id=learning_path_id,
                 status=target,
                 profile_description=profile.description if profile is not None else None,
-                analysis_included=analysis and pilot_consent,
+                pilot_arm=arm,
+                analysis_included=analysis and pilot_consent and (arm is not None or not has_pilot),
             )
         )
         await self._uow.commit()

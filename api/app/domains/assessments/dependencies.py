@@ -24,6 +24,7 @@ from app.domains.assessments.repository_impl import (
     SqlAlchemyItemRepository,
 )
 from app.domains.assessments.service import (
+    QUIZ_BANK,
     AttemptService,
     BadgeService,
     DiagnosticService,
@@ -60,14 +61,21 @@ def build_repos(session: AsyncSession) -> Repos:
     )
 
 
-def build_ingestors(session: AsyncSession, ai: AiServicePort) -> list[JobIngestor]:
-    """Ingestores de `diagnostic.finalize`, `grading.short_answer` e `items.generate_quiz_bank`."""
+def build_ingestors(
+    session: AsyncSession, ai: AiServicePort, others: list[JobIngestor] | None = None
+) -> list[JobIngestor]:
+    """Ingestores de `diagnostic.finalize`, `grading.short_answer` e `items.generate_quiz_bank`.
+
+    `others` son los ingestores ya registrados (contenido): el del banco del quiz recibe el suyo
+    para los bancos que no pidió un aprendiz.
+    """
     repos, uow = build_repos(session), SqlAlchemyUnitOfWork(session)
     attempts = AttemptService(repos, ai, uow)
+    fallback = next((i for i in others or [] if i.job_type == QUIZ_BANK), None)
     return [
         DiagnosticFinalizeIngestor(DiagnosticService(repos, ai, uow)),
         ShortAnswerGradingIngestor(attempts),
-        QuizBankIngestor(attempts),
+        QuizBankIngestor(attempts, fallback),
     ]
 
 

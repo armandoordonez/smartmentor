@@ -27,3 +27,14 @@ class InteractionEvent:
     occurred_at: datetime
     topic_id: int | None = None
     payload: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class StudyGoals:
+    """Metas personales (E11, CU-23, P2) con el avance del día y del mes."""
+
+    daily_minutes_goal: int
+    monthly_topics_goal: int
+    daily_minutes_done: int = 0
+    monthly_topics_done: int = 0
+    streak_days: int = 0

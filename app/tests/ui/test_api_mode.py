@@ -62,6 +62,9 @@ def test_with_a_valid_token_the_user_comes_from_get_me(monkeypatch: pytest.Monke
     me = respx.get(f"{API}/api/v1/me").mock(
         return_value=httpx.Response(200, json=fixture("me_instructor"))
     )
+    courses = respx.get(f"{API}/api/v1/courses").mock(
+        return_value=httpx.Response(200, json={"items": [], "total": 0, "limit": 50, "offset": 0})
+    )
     paths = respx.get(f"{API}/api/v1/learning-paths").mock(
         return_value=httpx.Response(200, json=fixture("learning_paths"))
     )
@@ -71,6 +74,7 @@ def test_with_a_valid_token_the_user_comes_from_get_me(monkeypatch: pytest.Monke
     assert session_of(at).active_role == "instructor"
     assert me.calls.last.request.headers["Authorization"] == f"Bearer {token}"
     assert "Instructor" in header_texts(at)
+    assert courses.called  # el inicio del instructor es «Mis cursos» (D1)
     # Cambiar de perfil (CU-35) abre el catálogo del aprendiz con el mismo token.
     at.button(key="switch-role-learner").click().run()
     assert [e.value for e in at.exception] == []

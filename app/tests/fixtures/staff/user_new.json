@@ -1,0 +1,9 @@
+{
+  "id": 400,
+  "email": "nuevo@universidad.edu.co",
+  "full_name": "Nuevo",
+  "roles": [
+    "learner"
+  ],
+  "active": true
+}

@@ -518,4 +518,5 @@ async def test_publishing_twice_with_the_same_content_reuses_the_same_job(world:
     await world.courses.update(course_id, {"status": "in_review"})
     second = await world.publication_service.publish(world.instructor, course_id)
     assert first.job_id == second.job_id
-    assert len(world.ai.jobs) == 2  # la extracción y una sola generación
+    # la extracción, una sola generación y un solo banco del diagnóstico
+    assert len(world.ai.jobs) == 3

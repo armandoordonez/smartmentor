@@ -100,3 +100,4 @@ class JobType(StrEnum):
 
     SYLLABUS_STRUCTURE = "syllabus.structure"
     COURSE_GENERATE_CONTENT = "course.generate_content"
+    DIAGNOSTIC_GENERATE_ITEMS = "diagnostic.generate_items"

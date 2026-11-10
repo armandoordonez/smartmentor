@@ -18,7 +18,7 @@ RUBRIC = [
     {"criterion": "ejemplo aplicado", "points": 0.3},
     {"criterion": "conclusión clara", "points": 0.3},
 ]
-GOOD_SHORT_ANSWER = "concepto clave, un ejemplo aplicado y una conclusión"
+GOOD_SHORT_ANSWER = "Define el concepto clave, da un ejemplo aplicado y una conclusión clara"
 TWO_OF_THREE = "concepto clave y un ejemplo"
 BAD_SHORT_ANSWER = "no recuerdo"
 

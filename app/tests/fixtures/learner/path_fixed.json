@@ -1,0 +1,85 @@
+{
+  "enrollment_id": 7,
+  "steps": [
+    {
+      "step_id": 811,
+      "step_order": 1,
+      "topic_id": 10,
+      "name": "Introducción y tipos de aprendizaje",
+      "status": "passed",
+      "inclusion_reason": "fixed_path",
+      "diagnostic_level": 92.0,
+      "estimated_minutes": 80,
+      "attempts_used": 1,
+      "max_attempts": 3,
+      "extra_attempts_granted": 0,
+      "best_score": 90.0
+    },
+    {
+      "step_id": 812,
+      "step_order": 2,
+      "topic_id": 11,
+      "name": "Regresión lineal",
+      "status": "passed",
+      "inclusion_reason": "fixed_path",
+      "diagnostic_level": 64.0,
+      "estimated_minutes": 90,
+      "attempts_used": 1,
+      "max_attempts": 3,
+      "extra_attempts_granted": 0,
+      "best_score": 85.0
+    },
+    {
+      "step_id": 813,
+      "step_order": 3,
+      "topic_id": 12,
+      "name": "Regresión logística",
+      "status": "in_progress",
+      "inclusion_reason": "fixed_path",
+      "diagnostic_level": 38.0,
+      "estimated_minutes": 60,
+      "attempts_used": 1,
+      "max_attempts": 3,
+      "extra_attempts_granted": 0,
+      "best_score": 60.0
+    },
+    {
+      "step_id": 814,
+      "step_order": 4,
+      "topic_id": 13,
+      "name": "Árboles de decisión",
+      "status": "pending",
+      "inclusion_reason": "fixed_path",
+      "diagnostic_level": 25.0,
+      "estimated_minutes": 45,
+      "attempts_used": 0,
+      "max_attempts": 3,
+      "extra_attempts_granted": 0,
+      "best_score": null
+    },
+    {
+      "step_id": 815,
+      "step_order": 5,
+      "topic_id": 14,
+      "name": "Evaluación de modelos",
+      "status": "pending",
+      "inclusion_reason": "fixed_path",
+      "diagnostic_level": 45.0,
+      "estimated_minutes": 50,
+      "attempts_used": 0,
+      "max_attempts": 3,
+      "extra_attempts_granted": 0,
+      "best_score": null
+    }
+  ],
+  "savings": {
+    "skipped_topics": 0,
+    "skipped_minutes": 0
+  },
+  "final": {
+    "locked": true,
+    "attempts_used": 0,
+    "max_attempts": 3,
+    "pass_threshold": 80
+  }
+}

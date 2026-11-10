@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": 7,
+      "learning_path": {
+        "id": 1,
+        "name": "Fundamentos de Machine Learning",
+        "group_label": "Piloto 2026-2"
+      },
+      "status": "in_path",
+      "objective": null,
+      "progress": {
+        "steps_total": 5,
+        "steps_done": 2,
+        "percent": 40
+      },
+      "pilot_arm": "fixed",
+      "next_action": {
+        "type": "study_topic",
+        "step_id": 813,
+        "attempt_id": null,
+        "job_id": null,
+        "screen": "E6"
+      },
+      "created_at": "2026-10-01T14:05:00Z",
+      "completed_at": null
+    }
+  ],
+  "total": 1,
+  "limit": 20,
+  "offset": 0
+}

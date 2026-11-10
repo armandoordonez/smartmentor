@@ -187,6 +187,19 @@ class SqlAlchemyAlertRepository(SqlAlchemyCrudRepository[AlertModel, Alert]):
     model = AlertModel
     entity = Alert
 
+    async def mark_review_read_for_answer(self, attempt_answer_id: int) -> None:
+        """Marca leída la alerta `review_requested` de esa respuesta (ya se calificó a mano)."""
+        await self._session.execute(
+            text(
+                "UPDATE alerts al SET read_at = now() FROM attempt_answers aa "
+                "JOIN assessment_attempts at ON at.id = aa.assessment_attempt_id "
+                "WHERE aa.id = :answer_id AND al.alert_type = 'review_requested' "
+                "AND al.read_at IS NULL AND al.enrollment_id = at.enrollment_id "
+                "AND al.path_step_id IS NOT DISTINCT FROM at.path_step_id"
+            ),
+            {"answer_id": attempt_answer_id},
+        )
+
     async def list_for_recipient(
         self, user_id: int, *, unread: bool | None, limit: int, offset: int
     ) -> tuple[list[Alert], int]:
@@ -282,6 +295,31 @@ class SqlAlchemyPlatformReader:
             {"path_id": learning_path_id},
         )
         return found.first() is not None
+
+    async def pilot_arm_for_new_enrollment(self, learning_path_id: int) -> str | None:
+        found = await self._session.execute(
+            text(
+                "SELECT 1 FROM pilots WHERE learning_path_id = :path_id AND active "
+                "AND status IN ('randomized', 'running') LIMIT 1"
+            ),
+            {"path_id": learning_path_id},
+        )
+        if found.first() is None:
+            return None
+        counts: dict[str, int] = dict(
+            (
+                await self._session.execute(
+                    text(
+                        "SELECT pilot_arm, count(*) FROM enrollments WHERE learning_path_id = "
+                        ":path_id AND active AND pilot_arm IS NOT NULL GROUP BY pilot_arm"
+                    ),
+                    {"path_id": learning_path_id},
+                )
+            )
+            .tuples()
+            .all()
+        )
+        return "fixed" if counts.get("fixed", 0) < counts.get("personalized", 0) else "personalized"
 
     async def first_admin_id(self) -> int | None:
         found = await self._session.execute(

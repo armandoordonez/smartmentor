@@ -1,0 +1,118 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Fundamentos de Machine Learning",
+      "description": null,
+      "status": "in_review",
+      "learning_path": {
+        "id": 11,
+        "name": "Fundamentos de Machine Learning",
+        "group_label": "Grupo 2026-2"
+      },
+      "owner": {
+        "id": 12,
+        "full_name": "Elena Ramírez"
+      },
+      "topics_count": 5,
+      "enrolled_count": 24,
+      "syllabus": {
+        "filename": "syllabus_ML_2026-2.pdf",
+        "pages": 12,
+        "characters": 18400
+      },
+      "extraction_job_id": null
+    },
+    {
+      "id": 2,
+      "name": "Python para análisis de datos",
+      "description": null,
+      "status": "published",
+      "learning_path": {
+        "id": 12,
+        "name": "Python para análisis de datos",
+        "group_label": "Grupo 2026-2"
+      },
+      "owner": {
+        "id": 12,
+        "full_name": "Elena Ramírez"
+      },
+      "topics_count": 4,
+      "enrolled_count": 0,
+      "syllabus": null,
+      "extraction_job_id": null
+    },
+    {
+      "id": 3,
+      "name": "Estadística para ciencia de datos",
+      "description": null,
+      "status": "draft",
+      "learning_path": null,
+      "owner": null,
+      "topics_count": 5,
+      "enrolled_count": 0,
+      "syllabus": null,
+      "extraction_job_id": null
+    },
+    {
+      "id": 4,
+      "name": "Claude Ventas",
+      "description": null,
+      "status": "published",
+      "learning_path": {
+        "id": 14,
+        "name": "Claude Ventas",
+        "group_label": "Grupo 2026-2"
+      },
+      "owner": {
+        "id": 12,
+        "full_name": "Elena Ramírez"
+      },
+      "topics_count": 5,
+      "enrolled_count": 24,
+      "syllabus": null,
+      "extraction_job_id": null
+    },
+    {
+      "id": 5,
+      "name": "Claude Marketing",
+      "description": null,
+      "status": "published",
+      "learning_path": {
+        "id": 15,
+        "name": "Claude Marketing",
+        "group_label": "Grupo 2026-2"
+      },
+      "owner": {
+        "id": 12,
+        "full_name": "Elena Ramírez"
+      },
+      "topics_count": 5,
+      "enrolled_count": 18,
+      "syllabus": null,
+      "extraction_job_id": null
+    },
+    {
+      "id": 6,
+      "name": "Google IA Estudio",
+      "description": null,
+      "status": "published",
+      "learning_path": {
+        "id": 16,
+        "name": "Google IA Estudio",
+        "group_label": "Grupo 2026-2"
+      },
+      "owner": {
+        "id": 12,
+        "full_name": "Elena Ramírez"
+      },
+      "topics_count": 4,
+      "enrolled_count": 15,
+      "syllabus": null,
+      "extraction_job_id": null
+    }
+  ],
+  "total": 6,
+  "limit": 50,
+  "offset": 0
+}

@@ -1,0 +1,58 @@
+{
+  "topic_id": 103,
+  "topic_name": "Regresión logística",
+  "candidates": [
+    {
+      "id": 1,
+      "youtube_video_id": "EXAMPLE0001",
+      "title": "Regresión logística explicada paso a paso",
+      "channel": "Canal Datos en Español",
+      "duration_seconds": 660,
+      "language": "Español",
+      "has_subtitles": false,
+      "relevance": 0.94,
+      "status": "in_use",
+      "is_relevant": true,
+      "origin": "youtube"
+    },
+    {
+      "id": 2,
+      "youtube_video_id": "EXAMPLE0002",
+      "title": "Logistic regression, clearly explained",
+      "channel": "StatQuest",
+      "duration_seconds": 540,
+      "language": "Inglés",
+      "has_subtitles": true,
+      "relevance": 0.91,
+      "status": "candidate",
+      "is_relevant": null,
+      "origin": "youtube"
+    },
+    {
+      "id": 3,
+      "youtube_video_id": "EXAMPLE0003",
+      "title": "Clasificación con scikit-learn",
+      "channel": "Canal Python Fácil",
+      "duration_seconds": 1440,
+      "language": "Español",
+      "has_subtitles": false,
+      "relevance": 0.83,
+      "status": "candidate",
+      "is_relevant": null,
+      "origin": "youtube"
+    },
+    {
+      "id": 4,
+      "youtube_video_id": "EXAMPLE0004",
+      "title": "Regresión logística · clase grabada del curso 2026-1",
+      "channel": null,
+      "duration_seconds": 1080,
+      "language": "Español",
+      "has_subtitles": false,
+      "relevance": null,
+      "status": "backup",
+      "is_relevant": null,
+      "origin": "instructor"
+    }
+  ]
+}

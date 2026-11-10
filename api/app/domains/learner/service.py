@@ -3,12 +3,12 @@
 from collections.abc import Mapping
 from typing import Any
 
-from app.common.exceptions import ConflictError, InvalidStateTransitionError
+from app.common.exceptions import ConflictError, InvalidStateTransitionError, NotFoundError
 from app.common.unit_of_work import UnitOfWork
 from app.domains.assessments.grading import sus_score
 from app.domains.identity.authentication import CurrentUser
-from app.domains.learner.entities import InteractionEvent, SurveyResponse
-from app.domains.learner.repository import EventRepository, SurveyRepository
+from app.domains.learner.entities import InteractionEvent, StudyGoals, SurveyResponse
+from app.domains.learner.repository import EventRepository, StudyGoalRepository, SurveyRepository
 from app.domains.learning_paths import exceptions as path_errors
 from app.domains.learning_paths.entities import Enrollment
 from app.domains.learning_paths.repository import EnrollmentRepository
@@ -78,3 +78,21 @@ class EventService:
         saved = await self._events.add_many(events)
         await self._uow.commit()
         return saved
+
+
+class StudyGoalService:
+    def __init__(self, goals: StudyGoalRepository, uow: UnitOfWork) -> None:
+        self._goals = goals
+        self._uow = uow
+
+    async def get(self, user: CurrentUser) -> StudyGoals:
+        """Metas y avance; `404` si aún no las definió (la app lo muestra como «sin metas»)."""
+        goals = await self._goals.get(user.id)
+        if goals is None:
+            raise NotFoundError("Study goals", user.id)
+        return await self._goals.progress(user.id, goals)
+
+    async def save(self, user: CurrentUser, daily_minutes: int, monthly_topics: int) -> StudyGoals:
+        await self._goals.save(user.id, daily_minutes, monthly_topics)
+        await self._uow.commit()
+        return await self._goals.progress(user.id, (daily_minutes, monthly_topics))

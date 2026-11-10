@@ -42,6 +42,9 @@ class ItemForLearner(BaseModel):
     item_type: str
     options: list[str]
     allows_dont_know: bool = True
+    topic_name: str | None = None
+    bloom_level: str | None = None
+    rubric_summary: str | None = None
 
 
 class DiagnosticResponse(BaseModel):
@@ -208,3 +211,32 @@ class EventsBody(RequestSchema):
 
 class EventsAccepted(BaseModel):
     accepted: int
+
+
+class StudyGoalsBody(RequestSchema):
+    daily_minutes_goal: Annotated[int, Field(ge=1, le=600)]
+    monthly_topics_goal: Annotated[int, Field(ge=1, le=100)]
+
+
+class StudyGoalsResponse(BaseModel):
+    """Metas personales (E11, P2) con su avance; las opciones son sugerencias de la pantalla."""
+
+    daily_minutes_goal: int
+    daily_minutes_done: int
+    monthly_topics_goal: int
+    monthly_topics_done: int
+    streak_days: int
+    daily_options: list[int] = Field(default_factory=lambda: [15, 30, 45])
+    monthly_options: list[int] = Field(default_factory=lambda: [2, 3, 4])
+
+
+class AttemptHistoryItem(BaseModel):
+    """Un intento calificado, para el historial (E7c, E9c)."""
+
+    attempt_id: int
+    number: int
+    score: float
+    correct: int
+    total: int
+    extra_grant: bool
+    passed: bool

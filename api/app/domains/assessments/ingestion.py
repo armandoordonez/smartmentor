@@ -7,6 +7,7 @@ inscripción y comprueba que el trabajo siga siendo el vigente: ingerir dos vece
 from pydantic import BaseModel
 
 from app.domains.ai_gateway.entities import JobRefs, JobStatus, PendingJob
+from app.domains.ai_gateway.service import JobIngestor
 from app.domains.assessments.contracts import (
     AssessmentItemBankV1,
     DiagnosticFinalizationV1,
@@ -69,24 +70,41 @@ class ShortAnswerGradingIngestor:
 
 
 class QuizBankIngestor:
-    """`items.generate_quiz_bank` bajo demanda → ítems nuevos del tema (U1b)."""
+    """`items.generate_quiz_bank` bajo demanda → ítems nuevos del tema (U1b).
+
+    Un banco pedido por un aprendiz (`refs.enrollment_id`) lo ingiere este dominio; los demás
+    (generados al publicar el curso) van al ingestor de contenido (`fallback`), que los deja
+    `pending_review` para el instructor.
+    """
 
     job_type = QUIZ_BANK
     result_model: type[BaseModel] = AssessmentItemBankV1
     progress_label = "Preparando preguntas nuevas"
 
-    def __init__(self, service: AttemptService) -> None:
+    def __init__(self, service: AttemptService, fallback: JobIngestor | None = None) -> None:
         self._service = service
+        self._fallback = fallback
+
+    def _delegate(self, refs: JobRefs) -> JobIngestor | None:
+        return self._fallback if refs.enrollment_id is None else None
 
     async def is_owner(self, refs: JobRefs, user: CurrentUser) -> bool:
+        delegate = self._delegate(refs)
+        if delegate is not None:
+            return await delegate.is_owner(refs, user)
         return await self._service.can_see(refs.enrollment_id, user)
 
     async def ingest(self, job: JobStatus, result: BaseModel) -> bool:
+        delegate = self._delegate(job.refs)
+        if delegate is not None:
+            return await delegate.ingest(job, delegate.result_model.model_validate(job.result))
         return await self._service.ingest_quiz_bank(job, result)
 
-    async def on_failed(self, job: JobStatus, error_code: str) -> None:  # noqa: ARG002
-        return None
+    async def on_failed(self, job: JobStatus, error_code: str) -> None:
+        delegate = self._delegate(job.refs)
+        if delegate is not None:
+            await delegate.on_failed(job, error_code)
 
     async def pending_jobs(self) -> list[PendingJob]:
-        # Solo se ingiere al consultar: el aprendiz vuelve a pedir el intento (U1b).
-        return []
+        # Los del aprendiz se ingieren al consultar (vuelve a pedir el intento, U1b).
+        return await self._fallback.pending_jobs() if self._fallback is not None else []
