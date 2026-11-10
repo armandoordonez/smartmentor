@@ -1,4 +1,4 @@
-"""Flujo completo del aprendiz con `FakeAiService` contra el esquema real (Fase 3, salida verificable).
+"""Flujo completo del aprendiz con `FakeAiService` contra el esquema real (salida de la Fase 3).
 
 inscripción → diagnóstico → objetivo → ruta → quiz (con generación bajo demanda, intentos agotados
 e intentos extra) → final → badge → encuesta, más las reglas de cada paso.
@@ -71,7 +71,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     # Catálogo e inscripción
     catalog = (await learner.get(f"{API}/learning-paths")).json()
     card = next(c for c in catalog["items"] if c["id"] == path.path_id)
-    assert card["topic_count"] == 3 and card["enrolled"] is False
+    assert card["topic_count"] == 3
+    assert card["enrolled"] is False
     created = await learner.post(f"{API}/me/enrollments", json={"learning_path_id": path.path_id})
     assert created.status_code == 201, created.text
     enrollment = created.json()
@@ -79,13 +80,15 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     assert enrollment["status"] == "diagnosing"
     assert enrollment["next_action"]["type"] == "start_diagnostic"
     again = await learner.post(f"{API}/me/enrollments", json={"learning_path_id": path.path_id})
-    assert again.status_code == 409 and again.json()["code"] == "ENROLLMENT_ALREADY_EXISTS"
+    assert again.status_code == 409
+    assert again.json()["code"] == "ENROLLMENT_ALREADY_EXISTS"
 
     # Diagnóstico: domina fundamentos y regresión lineal; no sabe regresión logística
     diagnostic = await learner.post(f"{API}/me/enrollments/{enrollment_id}/diagnostic")
     assert diagnostic.status_code == 201, diagnostic.text
     items = diagnostic.json()["items"]
-    assert len(items) == 3 and all("correct_option" not in i for i in items)
+    assert len(items) == 3
+    assert all("correct_option" not in i for i in items)
     duplicated = await learner.post(f"{API}/me/enrollments/{enrollment_id}/diagnostic")
     assert duplicated.json()["code"] == "DIAGNOSTIC_ALREADY_EXISTS"
     answers = [
@@ -102,7 +105,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
         f"{API}/me/enrollments/{enrollment_id}/diagnostic/answers", json={"answers": answers}
     )
     stored = (await learner.get(f"{API}/me/enrollments/{enrollment_id}/diagnostic")).json()
-    assert stored["status"] == "in_progress" and len(stored["answers"]) == 3
+    assert stored["status"] == "in_progress"
+    assert len(stored["answers"]) == 3
     not_ready = await learner.get(f"{API}/me/enrollments/{enrollment_id}/diagnostic/result")
     assert not_ready.json()["code"] == "DIAGNOSTIC_NOT_READY"
 
@@ -125,7 +129,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
         "screen": "U1a",
     }
     polled = (await learner.get(f"{API}/jobs/{job_id}")).json()
-    assert polled["ingested"] is True and polled["status"] == "succeeded"
+    assert polled["ingested"] is True
+    assert polled["status"] == "succeeded"
     result = (await learner.get(f"{API}/me/enrollments/{enrollment_id}/diagnostic/result")).json()
     levels = {t["topic_id"]: t for t in result["level_by_topic"]}
     assert levels[path.linear]["classification"] == "mastered"
@@ -164,11 +169,13 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     logistic = int(steps[path.logistic]["step_id"])
 
     blocked = await learner.get(f"{API}/me/enrollments/{enrollment_id}/steps/{logistic}/content")
-    assert blocked.status_code == 409 and blocked.json()["code"] == "STEP_NOT_AVAILABLE"
+    assert blocked.status_code == 409
+    assert blocked.json()["code"] == "STEP_NOT_AVAILABLE"
     locked = await learner.post(
         f"{API}/me/enrollments/{enrollment_id}/final-attempts", headers=key()
     )
-    assert locked.status_code == 422 and locked.json()["code"] == "FINAL_ASSESSMENT_LOCKED"
+    assert locked.status_code == 422
+    assert locked.json()["code"] == "FINAL_ASSESSMENT_LOCKED"
 
     content = await learner.get(
         f"{API}/me/enrollments/{enrollment_id}/steps/{fundamentals}/content"
@@ -195,9 +202,11 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     first = (
         await answer_attempt(learner, engine, attempt, correct=True, short_text=TWO_OF_THREE)
     ).json()
-    assert first["passed"] is True and first["score"] == 94.0
+    assert first["passed"] is True
+    assert first["score"] == 94.0
     short = next(a for a in first["answers"] if a["grading"]["item_type"] == "short_answer")
-    assert short["grading"]["criteria_met"] == 2 and short["grading"]["is_correct"] is True
+    assert short["grading"]["criteria_met"] == 2
+    assert short["grading"]["is_correct"] is True
     assert first["attempts"] == {"used": 1, "max": 3, "remaining": 2}
     assert first["next_action"]["type"] == "study_topic"
     assert first["next_action"]["step_id"] == logistic
@@ -206,7 +215,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     review = await learner.post(
         f"{API}/me/attempt-answers/{short['attempt_answer_id']}/review-request", json={}
     )
-    assert review.status_code == 201 and review.json()["alert_id"] is not None
+    assert review.status_code == 201
+    assert review.json()["alert_id"] is not None
     repeated = await learner.post(
         f"{API}/me/attempt-answers/{short['attempt_answer_id']}/review-request", json={}
     )
@@ -215,7 +225,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     refused = await learner.post(
         f"{API}/me/attempt-answers/{choice['attempt_answer_id']}/review-request", json={}
     )
-    assert refused.status_code == 422 and refused.json()["code"] == "REVIEW_NOT_ALLOWED"
+    assert refused.status_code == 422
+    assert refused.json()["code"] == "REVIEW_NOT_ALLOWED"
 
     # Regresión logística: tres intentos fallidos (los dos últimos con ítems generados bajo
     # demanda, nunca repetidos), intentos agotados y alerta al instructor
@@ -238,7 +249,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     )
     assert no_more.status_code == 422
     assert no_more.json()["code"] == "MAX_ATTEMPTS_EXCEEDED"
-    assert no_more.json()["attempts_used"] == 3 and no_more.json()["max_attempts"] == 3
+    assert no_more.json()["attempts_used"] == 3
+    assert no_more.json()["max_attempts"] == 3
     alerts = (await instructor.get(f"{API}/alerts", params={"unread": True})).json()
     assert {a["alert_type"] for a in alerts["items"]} == {
         "review_requested",
@@ -276,7 +288,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     assert final.status_code == 201, final.text
     assert len(final.json()["items"]) == 10
     failed_final = (await answer_attempt(learner, engine, final.json(), correct=False)).json()
-    assert failed_final["passed"] is False and failed_final["pass_threshold"] == 80
+    assert failed_final["passed"] is False
+    assert failed_final["pass_threshold"] == 80
     assert failed_final["next_action"]["type"] == "review_final"
     plan = (await learner.get(f"{API}/me/enrollments/{enrollment_id}/review-plan")).json()
     assert {w["topic_id"] for w in plan["weak_topics"]} == set(path.topics.values())
@@ -289,7 +302,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     assert passed_final["passed"] is True
     assert passed_final["next_action"]["type"] == "answer_survey"
     completed = (await learner.get(f"{API}/me/enrollments/{enrollment_id}")).json()
-    assert completed["status"] == "completed" and completed["completed_at"] is not None
+    assert completed["status"] == "completed"
+    assert completed["completed_at"] is not None
 
     # Badge: verificación «hosted» pública y solo con datos con hash
     mine = (await learner.get(f"{API}/me/badges")).json()
@@ -302,16 +316,19 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     assert assertion.json()["id"].startswith("http://test/api/v1/badges/")
     assert "ana@example.com" not in assertion.text
     image = await bare_client.get(badge["image_url"])
-    assert image.status_code == 200 and image.content.startswith(b"\x89PNG\r\n\x1a\n")
+    assert image.status_code == 200
+    assert image.content.startswith(b"\x89PNG\r\n\x1a\n")
     missing = await bare_client.get(f"{API}/badges/{uuid.uuid4()}/assertion.json")
-    assert missing.status_code == 404 and missing.json()["code"] == "BADGE_NOT_FOUND"
+    assert missing.status_code == 404
+    assert missing.json()["code"] == "BADGE_NOT_FOUND"
 
     # Encuesta final con SUS
     survey = await learner.post(
         f"{API}/me/enrollments/{enrollment_id}/surveys/final",
         json={"likert": {"q1": 5}, "sus_items": [4, 2, 5, 1, 4, 2, 5, 1, 4, 2], "comment": "Útil"},
     )
-    assert survey.status_code == 201 and survey.json()["sus_score"] == 85.0
+    assert survey.status_code == 201
+    assert survey.json()["sus_score"] == 85.0
     twice = await learner.post(
         f"{API}/me/enrollments/{enrollment_id}/surveys/final",
         json={"sus_items": [3] * 10},
@@ -340,7 +357,8 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
             ]
         },
     )
-    assert events.status_code == 202 and events.json() == {"accepted": 2}
+    assert events.status_code == 202
+    assert events.json() == {"accepted": 2}
     async with engine.connect() as conn:
         stored_events = (
             await conn.execute(text("SELECT count(*) FROM interaction_events"))
@@ -353,7 +371,8 @@ async def test_consent_is_required_to_enroll(
 ) -> None:
     http = await learner_client(client_for, engine, "sin", consent=False)
     refused = await http.post(f"{API}/me/enrollments", json={"learning_path_id": path.path_id})
-    assert refused.status_code == 403 and refused.json()["code"] == "CONSENT_REQUIRED"
+    assert refused.status_code == 403
+    assert refused.json()["code"] == "CONSENT_REQUIRED"
 
 
 async def test_only_published_paths_accept_enrollments(
@@ -363,7 +382,8 @@ async def test_only_published_paths_accept_enrollments(
     refused = await learner.post(
         f"{API}/me/enrollments", json={"learning_path_id": draft["learning_path"]["id"]}
     )
-    assert refused.status_code == 422 and refused.json()["code"] == "LEARNING_PATH_NOT_PUBLISHED"
+    assert refused.status_code == 422
+    assert refused.json()["code"] == "LEARNING_PATH_NOT_PUBLISHED"
     catalog = (await learner.get(f"{API}/learning-paths")).json()
     assert catalog["total"] == 0
 
@@ -379,7 +399,8 @@ async def test_profile_completion_and_recalculation(
     assert created["status"] == "profiling"
     assert created["next_action"]["type"] == "complete_profile"
     early = await http.post(f"{API}/me/enrollments/{created['id']}/diagnostic")
-    assert early.status_code == 422 and early.json()["code"] == "PROFILE_INCOMPLETE"
+    assert early.status_code == 422
+    assert early.json()["code"] == "PROFILE_INCOMPLETE"
     saved = (await http.put(f"{API}/me/profile", json={"description": "Analista"})).json()
     assert saved["recalculated_enrollment_ids"] == [created["id"]]
     assert (await http.get(f"{API}/me/enrollments/{created['id']}")).json()[
@@ -430,7 +451,8 @@ async def test_a_grading_job_that_fails_leaves_the_attempt_in_grading_failed(
     submitted = await http.post(f"{API}/me/attempts/{attempt['id']}/submit", headers=key())
     assert submitted.status_code == 202
     polled = await http.get(submitted.json()["poll_url"])
-    assert polled.status_code == 502 and polled.json()["code"] == "AI_TASK_FAILED"
+    assert polled.status_code == 502
+    assert polled.json()["code"] == "AI_TASK_FAILED"
     stored = (await http.get(f"{API}/me/attempts/{attempt['id']}")).json()
     assert stored["status"] == "grading_failed"
     not_graded = await http.get(f"{API}/me/attempts/{attempt['id']}/result")
