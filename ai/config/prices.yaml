@@ -16,6 +16,20 @@
 
 currency: USD
 unit: per_million_tokens
-verified_on: null
-source: null
-models: {}
+verified_on: "2026-11-10"
+source: "https://ai.google.dev/gemini-api/docs/pricing"
+# AVISO: gemini-3.8-flash tiene precio de lanzamiento hasta el 2026-12-31 (0.75 y 3.75). Desde el
+# 2027-01-01 cuesta 1.50 de entrada y 7.50 de salida: actualizar este archivo ese día o el costo que
+# registra el servicio (y el tope de presupuesto) quedará a la mitad del real.
+# Los precios de la API de pago no incluyen el nivel gratuito: con datos de personas se usa siempre el
+# nivel de pago (el gratuito permite a Google usar los datos para mejorar sus productos).
+models:
+  gemini-3.8-flash:
+    input: 0.75
+    output: 3.75
+  gemini-3.5-flash-lite:
+    input: 0.30
+    output: 2.50
+  gemini-embedding-001:
+    input: 0.15
+    output: 0
