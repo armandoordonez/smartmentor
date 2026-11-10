@@ -1,0 +1,181 @@
+{
+  "course_id": 1,
+  "learning_path": {
+    "id": 11,
+    "name": "Fundamentos de ML",
+    "group_label": "Grupo 2026-2"
+  },
+  "published": true,
+  "pilot_running": false,
+  "settings": {
+    "topic_pass_threshold": 70,
+    "final_pass_threshold": 80,
+    "mastery_skip_threshold": 80,
+    "max_attempts": 3,
+    "short_answer_min_ratio": 0.6667,
+    "level_weights": {
+      "test": 0.8,
+      "profile": 0.1,
+      "resume": 0.1
+    },
+    "default_objective": null,
+    "confirm_pilot_change": false
+  },
+  "kpis": {
+    "enrolled": 18,
+    "completion_rate": 0.44,
+    "badges_issued": 6,
+    "attempts_per_topic": 1.6
+  },
+  "learners": [
+    {
+      "enrollment_id": 201,
+      "full_name": "Laura Martínez",
+      "status": "in_path",
+      "steps_done": 2,
+      "steps_total": 5,
+      "current_topic": "Regresión logística",
+      "current_score": 72,
+      "badge_issued": false
+    },
+    {
+      "enrollment_id": 202,
+      "full_name": "Andrés Gómez",
+      "status": "completed",
+      "steps_done": 5,
+      "steps_total": 5,
+      "current_topic": null,
+      "current_score": 88,
+      "badge_issued": true
+    },
+    {
+      "enrollment_id": 203,
+      "full_name": "Camila Rojas",
+      "status": "in_path",
+      "steps_done": 1,
+      "steps_total": 5,
+      "current_topic": "Regresión lineal",
+      "current_score": 55,
+      "badge_issued": false
+    },
+    {
+      "enrollment_id": 204,
+      "full_name": "Julián Pérez",
+      "status": "abandoned",
+      "steps_done": 1,
+      "steps_total": 5,
+      "current_topic": "Regresión lineal",
+      "current_score": 40,
+      "badge_issued": false
+    }
+  ],
+  "topics": [
+    {
+      "topic_id": 101,
+      "position": 1,
+      "name": "Introducción y tipos de aprendizaje"
+    },
+    {
+      "topic_id": 102,
+      "position": 2,
+      "name": "Regresión lineal"
+    },
+    {
+      "topic_id": 103,
+      "position": 3,
+      "name": "Regresión logística"
+    },
+    {
+      "topic_id": 104,
+      "position": 4,
+      "name": "Árboles de decisión"
+    },
+    {
+      "topic_id": 105,
+      "position": 5,
+      "name": "Evaluación de modelos"
+    }
+  ],
+  "mastery": [
+    {
+      "enrollment_id": 201,
+      "full_name": "Laura Martínez",
+      "cells": [
+        "skipped",
+        "passed",
+        "in_progress",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "enrollment_id": 202,
+      "full_name": "Andrés Gómez",
+      "cells": [
+        "skipped",
+        "passed",
+        "passed",
+        "passed",
+        "passed"
+      ]
+    },
+    {
+      "enrollment_id": 203,
+      "full_name": "Camila Rojas",
+      "cells": [
+        "passed",
+        "reinforce",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    },
+    {
+      "enrollment_id": 204,
+      "full_name": "Julián Pérez",
+      "cells": [
+        "passed",
+        "attempts_exhausted",
+        "pending",
+        "pending",
+        "pending"
+      ]
+    }
+  ],
+  "topic_stats": [
+    {
+      "topic_id": 101,
+      "first_attempt_pass_rate": 1.0,
+      "avg_attempts": 1.0,
+      "abandonments": 0
+    },
+    {
+      "topic_id": 102,
+      "first_attempt_pass_rate": 0.33,
+      "avg_attempts": 2.3,
+      "abandonments": 1
+    },
+    {
+      "topic_id": 103,
+      "first_attempt_pass_rate": null,
+      "avg_attempts": 1.0,
+      "abandonments": 0
+    },
+    {
+      "topic_id": 104,
+      "first_attempt_pass_rate": null,
+      "avg_attempts": null,
+      "abandonments": 0
+    },
+    {
+      "topic_id": 105,
+      "first_attempt_pass_rate": null,
+      "avg_attempts": null,
+      "abandonments": 0
+    }
+  ],
+  "critical_topic_ids": [
+    102
+  ],
+  "unread_alerts": 1
+}

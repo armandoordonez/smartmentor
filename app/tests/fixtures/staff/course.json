@@ -1,0 +1,23 @@
+{
+  "id": 1,
+  "name": "Fundamentos de Machine Learning",
+  "description": null,
+  "status": "in_review",
+  "learning_path": {
+    "id": 11,
+    "name": "Fundamentos de Machine Learning",
+    "group_label": "Grupo 2026-2"
+  },
+  "owner": {
+    "id": 12,
+    "full_name": "Elena Ramírez"
+  },
+  "topics_count": 5,
+  "enrolled_count": 18,
+  "syllabus": {
+    "filename": "syllabus_ML_2026-2.pdf",
+    "pages": 12,
+    "characters": 18400
+  },
+  "extraction_job_id": null
+}

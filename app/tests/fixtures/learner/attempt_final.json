@@ -1,0 +1,174 @@
+{
+  "id": 9100,
+  "assessment_type": "final",
+  "status": "in_progress",
+  "step_id": null,
+  "items": [
+    {
+      "item_id": 601,
+      "topic_id": 14,
+      "stem": "¿Qué mide la exactitud de un clasificador?",
+      "item_type": "multiple_choice",
+      "options": [
+        "La proporción de aciertos",
+        "El error medio",
+        "La varianza",
+        "El sesgo"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "remember"
+    },
+    {
+      "item_id": 602,
+      "topic_id": 11,
+      "stem": "¿Qué mide el coeficiente de determinación R²?",
+      "item_type": "multiple_choice",
+      "options": [
+        "La proporción de varianza explicada",
+        "El error medio absoluto",
+        "La correlación",
+        "El número de variables"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Regresión lineal",
+      "bloom_level": "understand"
+    },
+    {
+      "item_id": 603,
+      "topic_id": 14,
+      "stem": "Un modelo de clasificación detecta fraude con 99 % de exactitud, pero casi nunca encuentra los fraudes. ¿Qué explica esto?",
+      "item_type": "multiple_choice",
+      "options": [
+        "Las clases están muy desbalanceadas",
+        "El modelo está subajustado",
+        "La exactitud siempre es la mejor métrica",
+        "El umbral debe ser 1,0"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "analyze"
+    },
+    {
+      "item_id": 604,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 4.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 605,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 5.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 606,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 6.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 607,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 7.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 608,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 8.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 609,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 9.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 610,
+      "topic_id": 14,
+      "stem": "Pregunta de la evaluación final 10.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    }
+  ],
+  "answers": [
+    {
+      "item_id": 601,
+      "selected_option": 0,
+      "dont_know": false,
+      "text_answer": null
+    },
+    {
+      "item_id": 602,
+      "selected_option": 0,
+      "dont_know": false,
+      "text_answer": null
+    }
+  ],
+  "uses_extra_grant": false,
+  "created_at": "2026-10-05T15:00:00Z"
+}

@@ -1,0 +1,15 @@
+{
+  "job_id": "job-diagnostic",
+  "job_type": "diagnostic.finalize",
+  "status": "succeeded",
+  "progress_label": null,
+  "ingested": true,
+  "next_action": {
+    "type": "confirm_objective",
+    "step_id": null,
+    "attempt_id": null,
+    "job_id": null,
+    "screen": "E4"
+  },
+  "error": null
+}

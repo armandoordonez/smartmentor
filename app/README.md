@@ -102,7 +102,19 @@ Las pantallas de login (A2, A4 y A5) no se construyen: son de Keycloak. Endpoint
 | E1 · Catálogo | `learner/catalog.py` | Aprendiz | `GET /learning-paths`, `POST /me/enrollments` | Hecha |
 | E2 · Perfil, E2b · Hoja de vida | `learner/onboarding_profile.py`, `onboarding_resume.py` | Aprendiz | `GET`, `PUT /me/profile` | Hecha |
 | E15 · Mi perfil | `learner/my_profile.py` | Aprendiz | `GET`, `PUT /me/profile` | Hecha |
-| E3 a E14, D1 a D5f, AD1 a AD5, C4 | ver `CLAUDE.md`, sección 4 | | | Siguientes partes |
+| E3, U1a · Diagnóstico | `learner/diagnostic.py` | Aprendiz | `POST`, `GET`, `PUT …/diagnostic`, `…/submit`, `GET /jobs/{id}` | Hecha |
+| E4, E4b · Resultado y objetivo | `learner/diagnostic_result.py` | Aprendiz | `GET …/diagnostic/result`, `PUT …/objective` | Hecha |
+| E5, E5b · Vista de ruta | `learner/path.py` | Aprendiz | `GET …/path` | Hecha |
+| E6 · Tema | `learner/topic.py` | Aprendiz | `GET …/steps/{id}/content`, `POST …/attempts`, `POST /me/video-feedback` | Hecha |
+| E6b, E6c, U1b, U1c · Quiz | `learner/quiz.py` | Aprendiz | `GET`, `PUT`, `POST /me/attempts/{id}…` | Hecha |
+| E7, E7b, E7c · Resultado del quiz | `learner/quiz_result.py` | Aprendiz | `GET /me/attempts/{id}/result`, `POST …/review-request` | Hecha |
+| E8, U1d · Evaluación final | `learner/final_assessment.py` | Aprendiz | `POST …/final-attempts` | Hecha |
+| E9, E9c · Repaso dirigido | `learner/final_result.py` | Aprendiz | `GET …/review-plan` | Hecha |
+| E10 · Badge, E12 · Logros | `learner/badge.py`, `achievements.py` | Aprendiz | `GET /me/badges`, `GET /badges/{id}/assertion.json` | Hecha |
+| E11, E11b · Mi progreso | `learner/progress.py` | Aprendiz | `GET /me/enrollments`, `PATCH /me/consents/…/revoke` | Hecha |
+| E13a, E13b · Encuesta final | `learner/final_survey.py` | Aprendiz | `POST …/surveys/final` | Hecha |
+| E14 · Prueba de retención (P2) | `learner/retention_test.py` | Aprendiz | `POST …/attempts` (`retention`) | Hecha |
+| D1 a D5f, AD1 a AD5, C4 | ver `CLAUDE.md`, sección 4 | | | Siguientes partes |
 
 ### Autenticación
 

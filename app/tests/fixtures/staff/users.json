@@ -1,0 +1,53 @@
+{
+  "items": [
+    {
+      "id": 12,
+      "email": "elena.ramirez@universidad.edu.co",
+      "full_name": "Elena Ramírez",
+      "roles": [
+        "instructor",
+        "learner"
+      ],
+      "active": true
+    },
+    {
+      "id": 301,
+      "email": "laura.martinez@universidad.edu.co",
+      "full_name": "Laura Martínez",
+      "roles": [
+        "learner"
+      ],
+      "active": true
+    },
+    {
+      "id": 304,
+      "email": "julian.perez@universidad.edu.co",
+      "full_name": "Julián Pérez",
+      "roles": [
+        "learner"
+      ],
+      "active": false
+    },
+    {
+      "id": 1,
+      "email": "admin@universidad.edu.co",
+      "full_name": "Admin MSc",
+      "roles": [
+        "admin"
+      ],
+      "active": true
+    },
+    {
+      "id": 13,
+      "email": "marta.gomez@universidad.edu.co",
+      "full_name": "Marta Gómez",
+      "roles": [
+        "instructor"
+      ],
+      "active": true
+    }
+  ],
+  "total": 24,
+  "limit": 100,
+  "offset": 0
+}

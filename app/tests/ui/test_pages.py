@@ -113,10 +113,10 @@ def test_admin_can_switch_to_the_other_two_profiles() -> None:
     assert keys == {"switch-role-instructor", "switch-role-learner"}
 
 
-def test_roles_without_built_pages_land_on_coming_soon() -> None:
+def test_instructor_and_admin_land_on_their_home_pages() -> None:
     at = signed_in("instructor")
     assert_no_exception(at)
-    assert "Próximamente" in page_texts(at)
+    assert "Mis cursos" in page_texts(at)
 
 
 def test_logout_returns_to_the_role_selector() -> None:
@@ -335,8 +335,8 @@ def test_e1_open_path_with_existing_enrollment_does_not_duplicate_it() -> None:
     at.button(key="open-path-1").click().run()
     assert_no_exception(at)
     assert session_of(at).selected_enrollment_id == 7
-    # El `next_action` (E6) todavía no tiene página: la interfaz informa y no inventa un destino.
-    assert [i.value for i in at.info if "Te inscribiste" in i.value]
+    # El `next_action` (E6) ya tiene página (F07b): la interfaz navega al tema.
+    assert "QUIZ DEL TEMA" in page_texts(at)
 
 
 def test_e1_has_tags_as_eyebrows() -> None:

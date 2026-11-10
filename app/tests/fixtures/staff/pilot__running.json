@@ -1,0 +1,23 @@
+{
+  "id": 1,
+  "learning_path": {
+    "id": 11,
+    "name": "Fundamentos de ML",
+    "group_label": "Grupo 2026-2"
+  },
+  "status": "running",
+  "starts_on": "2026-11-02",
+  "ends_on": "2026-11-15",
+  "delayed_posttest_on": null,
+  "random_seed": 2026,
+  "groups": {
+    "personalized": 12,
+    "fixed": 12
+  },
+  "consents": {
+    "accepted": 22,
+    "total": 24
+  },
+  "equivalent_items_topics": 5,
+  "topics_total": 5
+}

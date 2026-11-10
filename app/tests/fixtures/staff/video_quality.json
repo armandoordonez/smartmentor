@@ -1,0 +1,93 @@
+{
+  "rows": [
+    {
+      "video_candidate_id": 11,
+      "topic_id": 101,
+      "topic_label": "T1 · Tipos de aprendizaje en 10 minutos",
+      "index": 86,
+      "rating_average": 4.5,
+      "ratings_count": 21,
+      "ratings_needed": 10,
+      "watched_fully_rate": 0.82,
+      "quiz_effect_points": 11,
+      "reports": 0,
+      "status": "recommended"
+    },
+    {
+      "video_candidate_id": 12,
+      "topic_id": 102,
+      "topic_label": "T2 · Regresión lineal desde cero",
+      "index": 78,
+      "rating_average": 4.1,
+      "ratings_count": 19,
+      "ratings_needed": 10,
+      "watched_fully_rate": 0.74,
+      "quiz_effect_points": 8,
+      "reports": 0,
+      "status": "recommended"
+    },
+    {
+      "video_candidate_id": 13,
+      "topic_id": 103,
+      "topic_label": "T3 · Regresión logística explicada paso a paso",
+      "index": 81,
+      "rating_average": 4.3,
+      "ratings_count": 16,
+      "ratings_needed": 10,
+      "watched_fully_rate": 0.79,
+      "quiz_effect_points": 10,
+      "reports": 0,
+      "status": "recommended"
+    },
+    {
+      "video_candidate_id": 14,
+      "topic_id": 104,
+      "topic_label": "T4 · Árboles de decisión con scikit-learn",
+      "index": 57,
+      "rating_average": 3.0,
+      "ratings_count": 14,
+      "ratings_needed": 10,
+      "watched_fully_rate": 0.48,
+      "quiz_effect_points": 2,
+      "reports": 3,
+      "status": "under_review"
+    },
+    {
+      "video_candidate_id": 15,
+      "topic_id": 105,
+      "topic_label": "T5 · Métricas de clasificación",
+      "index": null,
+      "rating_average": null,
+      "ratings_count": 6,
+      "ratings_needed": 10,
+      "watched_fully_rate": null,
+      "quiz_effect_points": null,
+      "reports": 0,
+      "status": "measuring"
+    }
+  ],
+  "feedback": [
+    {
+      "video_candidate_id": 14,
+      "labels": [
+        {
+          "label": "Audio bajo",
+          "count": 7
+        },
+        {
+          "label": "Muy largo",
+          "count": 5
+        },
+        {
+          "label": "Buen ejemplo final",
+          "count": 4
+        }
+      ],
+      "comments": [
+        "La primera mitad casi no se escucha.",
+        "El ejemplo útil llega al minuto 15; podría empezar por ahí."
+      ],
+      "comments_total": 12
+    }
+  ]
+}

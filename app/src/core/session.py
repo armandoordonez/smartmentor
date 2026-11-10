@@ -14,6 +14,7 @@ import streamlit as st
 
 from clients.fixtures import FixturesClient
 from clients.models import Me, Role
+from core.learner_state import LearnerState
 
 _KEY = "app_session"
 
@@ -38,6 +39,9 @@ class AppSession:
     selected_path_id: int | None = None
     selected_enrollment_id: int | None = None
     extra_tools: list[str] = field(default_factory=list)
+
+    # Aprendiz: diagnóstico, ruta, intentos y trabajos de IA (F07b)
+    learner: LearnerState = field(default_factory=LearnerState)
 
     # Claves de idempotencia por operación, estables entre reejecuciones del mismo botón.
     idempotency_keys: dict[str, str] = field(default_factory=dict)

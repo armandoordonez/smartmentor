@@ -1,0 +1,32 @@
+{
+  "pilot_arm": "fixed",
+  "steps": [
+    {
+      "step_order": 1,
+      "topic_id": 101,
+      "name": "Introducción y tipos de aprendizaje"
+    },
+    {
+      "step_order": 2,
+      "topic_id": 102,
+      "name": "Regresión lineal"
+    },
+    {
+      "step_order": 3,
+      "topic_id": 103,
+      "name": "Regresión logística"
+    },
+    {
+      "step_order": 4,
+      "topic_id": 104,
+      "name": "Árboles de decisión"
+    },
+    {
+      "step_order": 5,
+      "topic_id": 105,
+      "name": "Evaluación de modelos"
+    }
+  ],
+  "final_pass_threshold": 80,
+  "mastery_skip_threshold": 80
+}
