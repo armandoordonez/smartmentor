@@ -12,11 +12,15 @@ import app.domains.content.models
 import app.domains.courses.models
 import app.domains.evaluation.models
 import app.domains.identity.models
-import app.domains.learning_paths.models  # noqa: F401  (registra los modelos en Base.metadata)
-import app.domains.pilot.models
+import app.domains.learning_paths.models
+import app.domains.observability.models
+import app.domains.pilot.models  # noqa: F401  (registra los modelos en Base.metadata)
 from app.common.models import Base
 
 pytestmark = pytest.mark.integration
+
+# Append-only y de volumen alto: sin `_audit` (plan 5.2.1).
+NO_AUDIT_BY_DESIGN = {"llm_call_logs"}
 
 
 def _compare(sync_conn: Connection) -> list[str]:
@@ -51,4 +55,6 @@ async def test_every_business_table_has_an_audit_table(engine: AsyncEngine) -> N
     async with engine.connect() as conn:
         tables = set(await conn.run_sync(lambda c: inspect(c).get_table_names()))
     for table in Base.metadata.sorted_tables:
+        if table.name in NO_AUDIT_BY_DESIGN:
+            continue
         assert f"{table.name}_audit" in tables, f"{table.name} no tiene tabla de auditoría"

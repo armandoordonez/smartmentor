@@ -132,10 +132,9 @@ async def test_readiness_names_what_is_missing_and_start_freezes_the_pilot(world
         topics_without_video=[1],
     )
     service, _, pilots = build(world, learners(2), facts)
-    pilot_id = (await service.create(replace(CONFIG, starts_on=None))).pilot.id or 0
+    pilot_id = (await service.create(CONFIG)).pilot.id or 0
     missing = (await service.readiness(pilot_id)).missing
     assert missing == [
-        "dates",
         "randomization",
         "min_consents",
         "item_bank",

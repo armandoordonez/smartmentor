@@ -9,8 +9,8 @@ from app.common.entities import BaseEntity
 @dataclass(kw_only=True)
 class Pilot(BaseEntity):
     learning_path_id: int
-    starts_on: date | None = None
-    ends_on: date | None = None
+    starts_on: date
+    ends_on: date
     delayed_posttest_on: date | None = None
     random_seed: int | None = None
     status: str = "draft"

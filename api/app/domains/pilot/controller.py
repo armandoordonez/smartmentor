@@ -22,8 +22,8 @@ PilotServiceDep = Annotated[PilotService, Depends(get_pilot_service)]
 
 class PilotWrite(RequestSchema):
     learning_path_id: int = Field(gt=0)
-    starts_on: date | None = None
-    ends_on: date | None = None
+    starts_on: date
+    ends_on: date
     delayed_posttest_on: date | None = None
     random_seed: int | None = Field(default=None, ge=0, le=2**62)
 
@@ -36,8 +36,8 @@ class ArmCounts(BaseModel):
 class PilotResponse(BaseModel):
     id: int
     learning_path_id: int
-    starts_on: date | None
-    ends_on: date | None
+    starts_on: date
+    ends_on: date
     delayed_posttest_on: date | None
     random_seed: int | None
     status: str

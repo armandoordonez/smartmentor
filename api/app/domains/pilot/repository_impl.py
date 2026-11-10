@@ -121,20 +121,24 @@ class SqlAlchemyPilotPopulation:
 
         base = "SELECT t.id FROM topics t WHERE t.course_id = :c AND t.active AND NOT EXISTS ("
         no_text = await lacking(
-            base + "SELECT 1 FROM resources r WHERE r.topic_id = t.id AND r.active "
+            base  # noqa: S608  (fragmentos fijos, sin entrada del usuario)
+            + "SELECT 1 FROM resources r WHERE r.topic_id = t.id AND r.active "
             "AND r.resource_type = 'text' AND r.kind = 'main' AND r.audience = 'all_learners' "
             "AND r.review_status = 'approved') ORDER BY t.id"
         )
         no_items = await lacking(
-            base + "SELECT 1 FROM assessment_items i WHERE i.topic_id = t.id AND i.active "
+            base  # noqa: S608  (fragmentos fijos, sin entrada del usuario)
+            + "SELECT 1 FROM assessment_items i WHERE i.topic_id = t.id AND i.active "
             "AND i.source = 'topic_quiz' AND i.review_status = 'approved') ORDER BY t.id"
         )
         no_video = await lacking(
-            base + "SELECT 1 FROM video_candidates v WHERE v.topic_id = t.id AND v.active "
+            base  # noqa: S608  (fragmentos fijos, sin entrada del usuario)
+            + "SELECT 1 FROM video_candidates v WHERE v.topic_id = t.id AND v.active "
             "AND v.status = 'in_use') ORDER BY t.id"
         )
         no_backup = await lacking(
-            base + "SELECT 1 FROM video_candidates v WHERE v.topic_id = t.id AND v.active "
+            base  # noqa: S608  (fragmentos fijos, sin entrada del usuario)
+            + "SELECT 1 FROM video_candidates v WHERE v.topic_id = t.id AND v.active "
             "AND v.status = 'backup') ORDER BY t.id"
         )
         counts = {

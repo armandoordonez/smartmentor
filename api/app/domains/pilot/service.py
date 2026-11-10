@@ -33,8 +33,8 @@ _EDITABLE = frozenset({PilotStatus.DRAFT, PilotStatus.RANDOMIZED})
 @dataclass(frozen=True)
 class PilotConfig:
     learning_path_id: int
-    starts_on: date | None
-    ends_on: date | None
+    starts_on: date
+    ends_on: date
     delayed_posttest_on: date | None
     random_seed: int | None
 
@@ -60,11 +60,7 @@ class Randomization:
 
 
 def _check_dates(config: PilotConfig) -> None:
-    if (
-        config.starts_on is not None
-        and config.ends_on is not None
-        and config.ends_on < config.starts_on
-    ):
+    if config.ends_on < config.starts_on:
         raise BusinessRuleError("ends_on must not be before starts_on.", code="VALIDATION_ERROR")
     if (
         config.delayed_posttest_on is not None
@@ -211,8 +207,6 @@ class PilotService:
 
     async def _readiness(self, pilot: Pilot) -> Readiness:
         missing: list[str] = []
-        if pilot.starts_on is None or pilot.ends_on is None:
-            missing.append("dates")
         if pilot.status == PilotStatus.DRAFT:
             missing.append("randomization")
         arms = await self._population.arm_counts(pilot.learning_path_id)

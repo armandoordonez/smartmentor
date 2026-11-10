@@ -12,8 +12,8 @@ class PilotModel(PublicTableModel):
     __tablename__ = "pilots"
 
     learning_path_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("learning_paths.id"))
-    starts_on: Mapped[date | None] = mapped_column(Date)
-    ends_on: Mapped[date | None] = mapped_column(Date)
+    starts_on: Mapped[date] = mapped_column(Date)
+    ends_on: Mapped[date] = mapped_column(Date)
     delayed_posttest_on: Mapped[date | None] = mapped_column(Date)
     random_seed: Mapped[int | None] = mapped_column(BigInteger)
     status: Mapped[str] = mapped_column(String(15), server_default="draft")

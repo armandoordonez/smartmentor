@@ -21,6 +21,8 @@ from app.domains.content.controller import routers as content_routers
 from app.domains.courses.controller import routers as courses_routers
 from app.domains.evaluation.controller import routers as evaluation_routers
 from app.domains.identity.controller import routers as identity_routers
+from app.domains.identity.data_subject_admin import routers as data_subject_routers
+from app.domains.observability.controller import routers as observability_routers
 from app.domains.pilot.controller import routers as pilot_routers
 from app.health.controller import router as health_router
 
@@ -87,6 +89,8 @@ def create_app() -> FastAPI:
         content_routers,
         evaluation_routers,
         pilot_routers,
+        observability_routers,
+        data_subject_routers,
     ):
         for router in routers:
             app.include_router(router, prefix=API_PREFIX)

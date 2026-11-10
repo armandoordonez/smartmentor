@@ -24,6 +24,8 @@ from tests.integration.world_content import (
 
 pytestmark = pytest.mark.integration
 
+DATES = {"starts_on": "2026-12-01", "ends_on": "2026-12-20"}
+
 
 @pytest.fixture
 async def course(engine: AsyncEngine, client_for: ClientFactory) -> Course:
@@ -110,7 +112,7 @@ async def test_the_admin_configures_the_pilot_and_only_one_stays_open_per_path(
     assert pilot["status"] == "draft"
     assert pilot["arms"] == {"personalized": 0, "fixed": 0}
     again = await client.post(
-        f"{API}/pilots", json={"learning_path_id": course.path_id, "random_seed": 1}
+        f"{API}/pilots", json={**DATES, "learning_path_id": course.path_id, "random_seed": 1}
     )
     assert again.status_code == 409
 
@@ -128,7 +130,7 @@ async def test_the_admin_configures_the_pilot_and_only_one_stays_open_per_path(
         f"{API}/pilots/{pilot['id']}", json={**body, "ends_on": "2026-11-01"}
     )
     assert bad_dates.status_code == 422
-    unknown = await client.post(f"{API}/pilots", json={"learning_path_id": 9999})
+    unknown = await client.post(f"{API}/pilots", json={**DATES, "learning_path_id": 9999})
     assert unknown.status_code == 404
 
 
@@ -225,7 +227,7 @@ async def test_the_pilot_starts_only_when_it_is_ready_and_then_it_is_frozen(
     assert started.json()["arms"] == {"personalized": 1, "fixed": 1}
 
     frozen = await client.put(
-        f"{API}/pilots/{pilot['id']}", json={"learning_path_id": course.path_id}
+        f"{API}/pilots/{pilot['id']}", json={**DATES, "learning_path_id": course.path_id}
     )
     assert frozen.status_code == 409
     assert frozen.json()["code"] == "PILOT_ALREADY_STARTED"
