@@ -16,6 +16,11 @@ Fase 7, parte 3: páginas del instructor y del administrador. Rama creada desde 
 - Instructor: D1 `courses`, D1b/D1c/D1d `new_course`, D2/D2b/D2c/D2d `syllabus_review`, D3/D3b
   `path_dashboard`, D4/D4b/D4c `learner_detail`, D5/D5d `content_review`, D5b `item_annotation`,
   D5c `short_answer_grading`, D5e `topic_videos`, D5f `video_quality`.
+- Administrador: AD1 `users`, AD2 `llm_logs`, AD3 `metrics`, AD4/AD4b `pilot`, AD5
+  `courses_enrollments`, C4 `prompt_catalog` (catálogo copiado de `prompts/catalog.yaml` en
+  `services/staff_prompts.py`).
+- Commits en la rama: `5a613da` (cliente), `13f4dd1` (D1 a D2d), `64aa9a2` (D3 a D5f), `5675502`
+  (AD1 a AD3) y `e35d0f7` (AD4, AD4b, AD5, C4).
 - Pruebas: `tests/unit/test_staff_client.py`, `tests/ui/test_staff_{courses,syllabus,dashboard,content}.py`,
   ayudas en `tests/staff_support.py`.
 
@@ -63,7 +68,26 @@ Fase 7, parte 3: páginas del instructor y del administrador. Rama creada desde 
 
 ## Métricas
 
-(Se completan al cierre.)
+- `ruff check` y `ruff format --check`: limpios. `mypy` estricto: sin errores (a `src/`).
+- `pytest` de `app`: 399 pasan en unos 37 s (274 de la base + las de `dev` + 125 de esta parte:
+  fixtures contra los modelos, cliente HTTP con `respx`, una prueba `AppTest` por página y escenario).
+- Comparación con `estructura-pantallas.json` (`assert_matches_figma`): D1, D2, D3, D4, D4b, D5, D5e,
+  AD1, AD2 y AD3, con las diferencias aceptadas declaradas en cada prueba (botones separados, KPI de
+  `st.metric`, `▶`, nombres de tema abreviados, el nombre del usuario que va en la barra superior).
+- Tamaño: unas 2.700 líneas de páginas, 2.000 de cliente/servicios/núcleo y 1.050 de pruebas; 49
+  JSON de fixtures.
+- Contenedor desechable (imagen uv, repositorio montado, `APP_DATA_SOURCE=fixtures`): la app arranca y
+  `/_stcore/health` responde 200 `ok`; el contenedor se eliminó.
+
+## Qué falta
+
+- Revisión visual en un navegador (no hay capturas ni Figma) y del color del botón por rol.
+- Alertas del instructor (`GET /alerts`, `PATCH /alerts/{id}/read`) sin pantalla.
+- Filtros del log del LLM (`task`, `model`, `prompt_id`) y edición/desactivación de cursos en AD5:
+  el contrato lista rutas (`PATCH /courses/{id}`) pero no el archivado; solo se asigna instructor.
+- Importar CSV de usuarios (botón deshabilitado: sin ruta en el contrato).
+- Los escenarios de `staff/` no están en el selector A1; se eligen en las pruebas.
+- Verificar con la API real (Fase 6) las formas propuestas de `Course`, `Dashboard`, etc.
 
 ## Impacto en el brief
 
@@ -71,4 +95,7 @@ Fase 7, parte 3: páginas del instructor y del administrador. Rama creada desde 
 
 ## Cambios pedidos a archivos compartidos
 
-- Ninguno por ahora.
+- `app/README.md` y `app/CLAUDE.md` (agente `app-core`): marcar como hechas las páginas D1 a D5f,
+  AD1 a AD5 y C4 en la tabla «Pantallas, roles y endpoints», y listar `ops_staff*.py`,
+  `models_staff.py`, `core/staff_*.py`, `services/staff_*.py` y `components/staff_theme.py`.
+- `core/navigation.py`: sin cambios (las páginas se registran por existencia del archivo).
