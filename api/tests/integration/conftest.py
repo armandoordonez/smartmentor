@@ -24,6 +24,16 @@ from tests.auth_helpers import AUDIENCE, ISSUER, KeyPair, StaticKeyResolver, mak
 
 # Tablas de negocio que las pruebas vacían (con su `_audit`). `roles` es un catálogo sembrado.
 _BUSINESS_TABLES = [
+    "alerts",
+    "survey_responses",
+    "badges",
+    "attempt_answers",
+    "assessment_attempts",
+    "attempt_grants",
+    "path_steps",
+    "diagnostics",
+    "enrollments",
+    "assessment_items",
     "syllabus_extractions",
     "syllabus_documents",
     "learning_outcomes",
@@ -91,7 +101,8 @@ async def insert_user(
 async def clean_database(engine: AsyncEngine) -> None:
     app.state.ai_service = FakeAiService()
     app.state.idempotency_store = InMemoryIdempotencyStore()
-    tables = ", ".join(f"{t}, {t}_audit" for t in _BUSINESS_TABLES)
+    # `interaction_events` es de solo inserción: no tiene `_audit`.
+    tables = ", ".join([*(f"{t}, {t}_audit" for t in _BUSINESS_TABLES), "interaction_events"])
     async with engine.begin() as conn:
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     await insert_user(

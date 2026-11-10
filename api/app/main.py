@@ -17,8 +17,11 @@ from app.core.security import TokenValidator
 from app.domains.ai_gateway.controller import routers as ai_gateway_routers
 from app.domains.ai_gateway.factory import create_ai_service
 from app.domains.ai_gateway.sweeper import run_sweeper
+from app.domains.assessments.controller import routers as assessments_routers
 from app.domains.courses.controller import routers as courses_routers
 from app.domains.identity.controller import routers as identity_routers
+from app.domains.learner.controller import routers as learner_routers
+from app.domains.learning_paths.controller import routers as learning_paths_routers
 from app.health.controller import router as health_router
 
 API_PREFIX = "/api/v1"
@@ -77,7 +80,14 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
 
     app.include_router(health_router)
-    for routers in (identity_routers, courses_routers, ai_gateway_routers):
+    for routers in (
+        identity_routers,
+        courses_routers,
+        ai_gateway_routers,
+        learning_paths_routers,
+        learner_routers,
+        assessments_routers,
+    ):
         for router in routers:
             app.include_router(router, prefix=API_PREFIX)
     return app

@@ -116,7 +116,7 @@ def fake_diagnostic_finalize(input_: dict[str, Any]) -> dict[str, Any]:
 
 
 def fake_path_sequence(input_: dict[str, Any]) -> dict[str, Any]:
-    """`path.sequence`: orden topológico que respeta `position`; omite lo dominado no obligatorio."""
+    """`path.sequence`: orden topológico por `position`; omite lo dominado no obligatorio."""
     topics = sorted(
         enumerate(input_["topics"]), key=lambda pair: (pair[1].get("position", 0), pair[0])
     )
@@ -138,10 +138,7 @@ def fake_path_sequence(input_: dict[str, Any]) -> dict[str, Any]:
     skipped = {
         t
         for t in order
-        if not fixed
-        and not by_id[t].get("is_mandatory")
-        and t in levels
-        and levels[t] >= threshold
+        if not fixed and not by_id[t].get("is_mandatory") and t in levels and levels[t] >= threshold
     }
     included = [t for t in order if t not in skipped]
     prerequisite_of_included = {p for t in included for p in by_id[t].get("prerequisites", [])}
@@ -182,12 +179,14 @@ def fake_path_sequence(input_: dict[str, Any]) -> dict[str, Any]:
 
 
 def fake_grade_short_answer(input_: dict[str, Any]) -> dict[str, Any]:
-    """`grading.short_answer`: un criterio se cumple si su primera palabra aparece en la respuesta."""
+    """`grading.short_answer`: un criterio se cumple si su primera palabra está en la respuesta."""
     answer = str(input_.get("answer_text") or "").casefold()
     ratio = float(input_.get("min_criteria_ratio") or 2 / 3)
     detail = []
     for criterion in input_.get("rubric", []):
-        keyword = str(criterion["criterion"]).split()[0].casefold() if criterion["criterion"] else ""
+        keyword = (
+            str(criterion["criterion"]).split()[0].casefold() if criterion["criterion"] else ""
+        )
         met = bool(keyword) and keyword in answer
         points = float(criterion["points"])
         detail.append(
@@ -219,7 +218,7 @@ def fake_grade_short_answer(input_: dict[str, Any]) -> dict[str, Any]:
 
 
 def fake_quiz_bank(input_: dict[str, Any]) -> dict[str, Any]:
-    """`items.generate_quiz_bank`: ítems nuevos del tema (el último de cada lote es respuesta corta)."""
+    """`items.generate_quiz_bank`: ítems nuevos del tema (el último es de respuesta corta)."""
     topic_id = str(input_["topic_id"])
     n_choice = int(input_.get("n_multiple_choice", 4))
     n_short = int(input_.get("n_short_answer", 1))

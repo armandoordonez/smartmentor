@@ -1,4 +1,4 @@
-"""Composición: repositorios SQLAlchemy y servicios de evaluaciones, e ingestores para `ai_gateway`."""
+"""Composición: repositorios y servicios de evaluaciones, e ingestores para `ai_gateway`."""
 
 from typing import Annotated
 

@@ -35,7 +35,11 @@ class SqlAlchemyItemRepository(SqlAlchemyCrudRepository[AssessmentItemModel, Ass
         if not item_ids:
             return {}
         rows = (
-            (await self._session.execute(select(AssessmentItemModel).where(AssessmentItemModel.id.in_(item_ids))))
+            (
+                await self._session.execute(
+                    select(AssessmentItemModel).where(AssessmentItemModel.id.in_(item_ids))
+                )
+            )
             .scalars()
             .all()
         )
@@ -67,7 +71,9 @@ class SqlAlchemyItemRepository(SqlAlchemyCrudRepository[AssessmentItemModel, Ass
             await self._session.execute(
                 select(func.count())
                 .select_from(AssessmentItemModel)
-                .where(AssessmentItemModel.topic_id == topic_id, AssessmentItemModel.source == source)
+                .where(
+                    AssessmentItemModel.topic_id == topic_id, AssessmentItemModel.source == source
+                )
             )
         ).scalar_one()
         return int(total)
@@ -104,7 +110,9 @@ class SqlAlchemyDiagnosticRepository(SqlAlchemyCrudRepository[DiagnosticModel, D
         ),
     }
 
-    async def by_enrollment(self, enrollment_id: int, *, for_update: bool = False) -> Diagnostic | None:
+    async def by_enrollment(
+        self, enrollment_id: int, *, for_update: bool = False
+    ) -> Diagnostic | None:
         query = select(DiagnosticModel).where(DiagnosticModel.enrollment_id == enrollment_id)
         if for_update:
             query = query.with_for_update()
@@ -128,7 +136,9 @@ class SqlAlchemyDiagnosticRepository(SqlAlchemyCrudRepository[DiagnosticModel, D
         return [self._to_entity(row) for row in rows]
 
 
-class SqlAlchemyAttemptRepository(SqlAlchemyCrudRepository[AssessmentAttemptModel, AssessmentAttempt]):
+class SqlAlchemyAttemptRepository(
+    SqlAlchemyCrudRepository[AssessmentAttemptModel, AssessmentAttempt]
+):
     model = AssessmentAttemptModel
     entity = AssessmentAttempt
     constraint_messages: ClassVar[dict[str, tuple[str, str]]] = {
@@ -138,7 +148,7 @@ class SqlAlchemyAttemptRepository(SqlAlchemyCrudRepository[AssessmentAttemptMode
         ),
     }
 
-    async def get(self, attempt_id: int, *, for_update: bool = False) -> AssessmentAttempt | None:  # type: ignore[override]
+    async def get(self, attempt_id: int, *, for_update: bool = False) -> AssessmentAttempt | None:
         query = select(AssessmentAttemptModel).where(AssessmentAttemptModel.id == attempt_id)
         if for_update:
             query = query.with_for_update()
@@ -238,7 +248,9 @@ class SqlAlchemyBadgeRepository(SqlAlchemyCrudRepository[BadgeModel, Badge]):
             (
                 await self._session.execute(
                     select(BadgeModel)
-                    .where(BadgeModel.enrollment_id.in_(enrollment_ids), BadgeModel.active.is_(True))
+                    .where(
+                        BadgeModel.enrollment_id.in_(enrollment_ids), BadgeModel.active.is_(True)
+                    )
                     .order_by(BadgeModel.id)
                 )
             )
@@ -258,6 +270,13 @@ def _content(value: str | None) -> Any:
         return value
 
 
+# Las condiciones son fragmentos fijos de este módulo; los datos van como parámetros.
+_RESOURCE_QUERY = (
+    "SELECT id, version, prompt_version, content, faithfulness FROM resources "
+    "WHERE active AND {where} ORDER BY version DESC, id DESC LIMIT 1"
+)
+
+
 class SqlAlchemyContentReader:
     """Lee `resources`, `video_candidates` y `learning_outcomes` sin declarar sus modelos.
 
@@ -269,14 +288,15 @@ class SqlAlchemyContentReader:
 
     async def _resource(self, where: str, params: dict[str, Any]) -> dict[str, Any] | None:
         row = (
-            await self._session.execute(
-                text(
-                    "SELECT id, version, prompt_version, content, faithfulness FROM resources "
-                    f"WHERE active AND {where} ORDER BY version DESC, id DESC LIMIT 1"  # noqa: S608  (fragmento fijo, sin datos del usuario)
-                ),
-                params,
+            (
+                await self._session.execute(
+                    text(_RESOURCE_QUERY.format(where=where)),
+                    params,
+                )
             )
-        ).mappings().first()
+            .mappings()
+            .first()
+        )
         if row is None:
             return None
         return {
@@ -311,17 +331,21 @@ class SqlAlchemyContentReader:
 
     async def video(self, topic_id: int) -> dict[str, Any] | None:
         row = (
-            await self._session.execute(
-                text(
-                    "SELECT id, youtube_video_id, title, duration_seconds, status "
-                    "FROM video_candidates WHERE active AND topic_id = :topic_id "
-                    "AND status IN ('in_use', 'backup') "
-                    "ORDER BY CASE status WHEN 'in_use' THEN 0 ELSE 1 END, rank NULLS LAST, id "
-                    "LIMIT 1"
-                ),
-                {"topic_id": topic_id},
+            (
+                await self._session.execute(
+                    text(
+                        "SELECT id, youtube_video_id, title, duration_seconds, status "
+                        "FROM video_candidates WHERE active AND topic_id = :topic_id "
+                        "AND status IN ('in_use', 'backup') "
+                        "ORDER BY CASE status WHEN 'in_use' THEN 0 ELSE 1 END, rank NULLS LAST, id "
+                        "LIMIT 1"
+                    ),
+                    {"topic_id": topic_id},
+                )
             )
-        ).mappings().first()
+            .mappings()
+            .first()
+        )
         if row is None:
             return None
         return {
@@ -334,14 +358,18 @@ class SqlAlchemyContentReader:
 
     async def outcomes(self, topic_id: int) -> list[dict[str, Any]]:
         rows = (
-            await self._session.execute(
-                text(
-                    "SELECT id, statement, bloom_level FROM learning_outcomes "
-                    "WHERE active AND topic_id = :topic_id ORDER BY id"
-                ),
-                {"topic_id": topic_id},
+            (
+                await self._session.execute(
+                    text(
+                        "SELECT id, statement, bloom_level FROM learning_outcomes "
+                        "WHERE active AND topic_id = :topic_id ORDER BY id"
+                    ),
+                    {"topic_id": topic_id},
+                )
             )
-        ).mappings().all()
+            .mappings()
+            .all()
+        )
         return [
             {"id": int(r["id"]), "statement": r["statement"], "bloom_level": r["bloom_level"]}
             for r in rows

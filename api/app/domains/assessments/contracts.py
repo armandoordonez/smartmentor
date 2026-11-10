@@ -3,7 +3,8 @@
 - `diagnostic_finalization.v1` (`diagnostic.finalize`) y `diagnostic_result.v1` (`levels.estimate`).
 - `grading.v1` (`grading.short_answer`).
 - `assessment_item_bank.v1` (`items.generate_quiz_bank` bajo demanda, U1b).
-La prueba de contrato valida las salidas de `FakeAiService` contra el JSON Schema y contra estos modelos.
+La prueba de contrato valida las salidas de `FakeAiService` contra el JSON Schema y estos
+modelos.
 """
 
 from datetime import datetime

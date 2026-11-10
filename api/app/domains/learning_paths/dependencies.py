@@ -1,4 +1,4 @@
-"""Composición: servicios de rutas con sus repositorios y los puertos que implementa `assessments`."""
+"""Composición: servicios de rutas, sus repositorios y los puertos que implementa `assessments`."""
 
 from typing import Annotated
 

@@ -49,7 +49,7 @@ def attempt_score(scores: Iterable[float | None]) -> float:
 
 
 def sus_score(items: Sequence[int]) -> float:
-    """System Usability Scale: (Σ impares − 5 + 25 − Σ pares) × 2,5, con 10 respuestas de 1 a 5."""
+    """SUS: (suma de impares - 5 + 25 - suma de pares) x 2,5, con 10 respuestas de 1 a 5."""
     if len(items) != 10 or any(not 1 <= v <= 5 for v in items):
         raise BusinessRuleError(
             "sus_items must have 10 answers from 1 to 5.", code="VALIDATION_ERROR"
@@ -72,7 +72,9 @@ def pick_quiz_items(
     return sorted(picked[:count], key=lambda i: i.id or 0)
 
 
-def round_robin(items: Sequence[AssessmentItem], topic_order: Sequence[int], count: int) -> list[AssessmentItem]:
+def round_robin(
+    items: Sequence[AssessmentItem], topic_order: Sequence[int], count: int
+) -> list[AssessmentItem]:
     """Reparte `count` ítems entre los temas, en el orden de la ruta (evaluación final)."""
     by_topic: dict[int, list[AssessmentItem]] = {t: [] for t in topic_order}
     for item in items:

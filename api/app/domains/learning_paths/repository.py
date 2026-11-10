@@ -1,4 +1,4 @@
-"""Interfaces (puertos) de los repositorios de rutas, inscripciones, pasos, intentos extra y alertas."""
+"""Puertos de los repositorios de rutas, inscripciones, pasos, intentos extra y alertas."""
 
 from typing import Any, Protocol
 

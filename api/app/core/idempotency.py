@@ -102,6 +102,7 @@ class IdempotencyRunner:
         action: Callable[[], Awaitable[BaseModel]],
         status_code: int = 202,
         location: Callable[[BaseModel], str | None] | None = None,
+        status_of: Callable[[BaseModel], int] | None = None,
     ) -> JSONResponse:
         key = self.key  # valida antes de tocar nada
         if isinstance(body, BaseModel):
@@ -126,6 +127,8 @@ class IdempotencyRunner:
                     headers={**stored.headers, REPLAY_HEADER: "true"},
                 )
             result = await action()
+            if status_of is not None:  # p. ej. 200 calificado al instante o 202 con un trabajo
+                status_code = status_of(result)
             headers: dict[str, str] = {}
             target = location(result) if location is not None else None
             if target:

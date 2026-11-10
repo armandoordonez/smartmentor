@@ -6,9 +6,18 @@ declara `extend_existing` para convivir con otra declaración de la misma tabla.
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, ClassVar
+from typing import Any
 
-from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Numeric, SmallInteger, String, Text
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Numeric,
+    SmallInteger,
+    String,
+    Text,
+)
 from sqlalchemy import text as sql_text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -18,7 +27,7 @@ from app.common.models import PublicTableModel
 
 class AssessmentItemModel(PublicTableModel):
     __tablename__ = "assessment_items"
-    __table_args__: ClassVar[dict[str, Any]] = {"extend_existing": True}
+    __table_args__ = ({"extend_existing": True},)
 
     topic_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("topics.id"))
     learning_outcome_id: Mapped[int | None] = mapped_column(
@@ -90,7 +99,9 @@ class BadgeModel(PublicTableModel):
     __tablename__ = "badges"
 
     enrollment_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("enrollments.id"))
-    issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=sql_text("now()"))
+    issued_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=sql_text("now()")
+    )
     image_url: Mapped[str | None] = mapped_column(String(1000))
     image_path: Mapped[str | None] = mapped_column(String(500))
     open_badges_metadata: Mapped[dict[str, Any] | None] = mapped_column(JSONB)

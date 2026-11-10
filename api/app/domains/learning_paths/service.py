@@ -1,4 +1,4 @@
-"""Casos de uso de rutas: catálogo, inscripciones, pasos, intentos extra, ajustes, tablero y alertas.
+"""Casos de uso de rutas: catálogo, inscripciones, pasos, intentos extra, tablero y alertas.
 
 Las reglas de estado están en `states.py` (funciones puras). Este módulo las aplica sobre los
 repositorios. Lo que pertenece a las evaluaciones (diagnóstico, intentos, badge) se lee a través de
@@ -273,7 +273,9 @@ class PathProgress:
         self, enrollment: Enrollment, path: LearningPath, sequenced: LearningPathV1
     ) -> list[PathStep]:
         """Recalcula los pasos aún no empezados (E15). Lo ya cursado no cambia."""
-        by_topic = {s.topic_id: s for s in await self._steps.list_for_enrollment(require_id(enrollment))}
+        by_topic = {
+            s.topic_id: s for s in await self._steps.list_for_enrollment(require_id(enrollment))
+        }
         for new in sequenced.steps:
             current = by_topic.get(int(new.topic_id))
             if current is None:
@@ -306,9 +308,7 @@ class PathProgress:
         """Resultado de un quiz: aprueba, sigue o agota los intentos (con alerta)."""
         best = score if step.best_score is None else max(step.best_score, score)
         if passed:
-            await self.set_step_status(
-                step, StepStatus.PASSED, last_score=score, best_score=best
-            )
+            await self.set_step_status(step, StepStatus.PASSED, last_score=score, best_score=best)
         elif step.remaining_attempts(path.max_attempts) <= 0:
             exhausted = await self.set_step_status(
                 step, StepStatus.ATTEMPTS_EXHAUSTED, last_score=score, best_score=best
@@ -383,7 +383,9 @@ class EnrollmentService:
             )
         return cards, total
 
-    async def enroll(self, user_id: int, learning_path_id: int, *, analysis: bool = True) -> EnrollmentView:
+    async def enroll(
+        self, user_id: int, learning_path_id: int, *, analysis: bool = True
+    ) -> EnrollmentView:
         """Inscribe al aprendiz (CU-17: exige el consentimiento de datos vigente)."""
         if not await self._reader.consent_in_force(user_id, ConsentType.DATA_PROCESSING):
             raise errors.consent_required()
@@ -428,7 +430,9 @@ class EnrollmentService:
         items, total = await self._enrollments.list_for_user(user.id, limit=limit, offset=offset)
         return [await self._view(e) for e in items], total
 
-    async def path_view(self, user: CurrentUser, enrollment_id: int, final_used: int, final_max: int) -> PathView:
+    async def path_view(
+        self, user: CurrentUser, enrollment_id: int, final_used: int, final_max: int
+    ) -> PathView:
         enrollment = await self.get_own(user, enrollment_id)
         path = await self._path_of(enrollment)
         nodes = {n.id: n for n in await self._reader.topic_nodes(path.course_id)}
@@ -447,7 +451,9 @@ class EnrollmentService:
             raise errors.path_not_found(enrollment.learning_path_id)
         return path
 
-    async def _view(self, enrollment: Enrollment, path: LearningPath | None = None) -> EnrollmentView:
+    async def _view(
+        self, enrollment: Enrollment, path: LearningPath | None = None
+    ) -> EnrollmentView:
         path = path or await self._path_of(enrollment)
         steps = await self._steps.list_for_enrollment(require_id(enrollment))
         facts = await self._progress.facts(enrollment, steps)
@@ -607,9 +613,7 @@ class PathStaffService:
         if "level_weights" in values:
             weights = values["level_weights"]
             if abs(sum(float(weights.get(k, 0)) for k in ("test", "profile", "resume")) - 1) > 0.01:
-                raise BusinessRuleError(
-                    "level_weights must add up to 1.", code="VALIDATION_ERROR"
-                )
+                raise BusinessRuleError("level_weights must add up to 1.", code="VALIDATION_ERROR")
         if not confirm_pilot and await self._reader.pilot_running(path_id):
             raise ConflictError(
                 "A pilot is running: changing the settings breaks the comparison. "

@@ -6,7 +6,10 @@ from fastapi import Depends
 
 from app.common.repository_impl import SqlAlchemyUnitOfWork
 from app.core.database import SessionDep
-from app.domains.learner.repository_impl import SqlAlchemyEventRepository, SqlAlchemySurveyRepository
+from app.domains.learner.repository_impl import (
+    SqlAlchemyEventRepository,
+    SqlAlchemySurveyRepository,
+)
 from app.domains.learner.service import EventService, SurveyService
 from app.domains.learning_paths.repository_impl import SqlAlchemyEnrollmentRepository
 

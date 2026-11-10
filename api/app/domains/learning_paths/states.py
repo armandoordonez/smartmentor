@@ -107,9 +107,7 @@ OPEN_ATTEMPTS = frozenset({AttemptStatus.CREATED, AttemptStatus.IN_PROGRESS})
 
 def _check(table: Mapping[str, frozenset[str]], entity: str, current: str, target: str) -> None:
     if target not in table.get(current, frozenset()):
-        raise InvalidStateTransitionError(
-            f"The {entity} cannot go from '{current}' to '{target}'."
-        )
+        raise InvalidStateTransitionError(f"The {entity} cannot go from '{current}' to '{target}'.")
 
 
 def check_enrollment_transition(current: str, target: str) -> None:
@@ -160,7 +158,11 @@ def refresh_availability(
             current = status_by_topic[step.topic_id]
             if current not in (StepStatus.BLOCKED, StepStatus.PENDING, StepStatus.ON_HOLD):
                 continue
-            pre = [status_by_topic[p] for p in prerequisites.get(step.topic_id, ()) if p in status_by_topic]
+            pre = [
+                status_by_topic[p]
+                for p in prerequisites.get(step.topic_id, ())
+                if p in status_by_topic
+            ]
             if any(p in (StepStatus.ATTEMPTS_EXHAUSTED, StepStatus.ON_HOLD) for p in pre):
                 target = StepStatus.ON_HOLD
             elif all(p in DONE_STEPS for p in pre):

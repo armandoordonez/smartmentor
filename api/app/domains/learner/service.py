@@ -15,7 +15,9 @@ from app.domains.learning_paths.repository import EnrollmentRepository
 from app.domains.learning_paths.states import EnrollmentStatus
 
 
-async def _own(enrollments: EnrollmentRepository, user: CurrentUser, enrollment_id: int) -> Enrollment:
+async def _own(
+    enrollments: EnrollmentRepository, user: CurrentUser, enrollment_id: int
+) -> Enrollment:
     enrollment = await enrollments.get(enrollment_id)
     if enrollment is None or enrollment.user_id != user.id or not enrollment.active:
         raise path_errors.enrollment_not_found(enrollment_id)

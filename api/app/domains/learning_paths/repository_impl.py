@@ -293,4 +293,3 @@ class SqlAlchemyPlatformReader:
         )
         value = found.scalar_one_or_none()
         return None if value is None else int(value)
-

@@ -1,6 +1,600 @@
 {
   "components": {
     "schemas": {
+      "AdminEnrollmentCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "learning_path_id": {
+            "minimum": 1.0,
+            "title": "Learning Path Id",
+            "type": "integer"
+          },
+          "user_id": {
+            "minimum": 1.0,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id",
+          "learning_path_id"
+        ],
+        "title": "AdminEnrollmentCreate",
+        "type": "object"
+      },
+      "AdminEnrollmentResponse": {
+        "properties": {
+          "analysis_included": {
+            "title": "Analysis Included",
+            "type": "boolean"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "learning_path": {
+            "$ref": "#/components/schemas/PathRef"
+          },
+          "next_action": {
+            "$ref": "#/components/schemas/NextActionResponse"
+          },
+          "objective": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ObjectiveResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pilot_arm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pilot Arm"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressResponse"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "learning_path",
+          "status",
+          "objective",
+          "progress",
+          "pilot_arm",
+          "analysis_included",
+          "next_action",
+          "created_at",
+          "completed_at",
+          "user_id"
+        ],
+        "title": "AdminEnrollmentResponse",
+        "type": "object"
+      },
+      "AlertResponse": {
+        "properties": {
+          "alert_type": {
+            "enum": [
+              "topic_attempts_exhausted",
+              "final_attempts_exhausted",
+              "review_requested"
+            ],
+            "title": "Alert Type",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "enrollment_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enrollment Id"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "path_step_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path Step Id"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read At"
+          }
+        },
+        "required": [
+          "id",
+          "alert_type",
+          "enrollment_id",
+          "path_step_id",
+          "read_at",
+          "created_at"
+        ],
+        "title": "AlertResponse",
+        "type": "object"
+      },
+      "AnswersBody": {
+        "additionalProperties": false,
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/LearnerAnswerBody"
+            },
+            "maxItems": 200,
+            "title": "Answers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "answers"
+        ],
+        "title": "AnswersBody",
+        "type": "object"
+      },
+      "AttemptCounters": {
+        "properties": {
+          "max": {
+            "title": "Max",
+            "type": "integer"
+          },
+          "remaining": {
+            "title": "Remaining",
+            "type": "integer"
+          },
+          "used": {
+            "title": "Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "used",
+          "max",
+          "remaining"
+        ],
+        "title": "AttemptCounters",
+        "type": "object"
+      },
+      "AttemptCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment_type": {
+            "default": "topic",
+            "enum": [
+              "topic",
+              "retention"
+            ],
+            "title": "Assessment Type",
+            "type": "string"
+          }
+        },
+        "title": "AttemptCreate",
+        "type": "object"
+      },
+      "AttemptGrantCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "default": 1,
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "title": "AttemptGrantCreate",
+        "type": "object"
+      },
+      "AttemptGrantResponse": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "enrollment_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enrollment Id"
+          },
+          "granted_by_user_id": {
+            "title": "Granted By User Id",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "path_step_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path Step Id"
+          }
+        },
+        "required": [
+          "id",
+          "path_step_id",
+          "enrollment_id",
+          "attempts",
+          "note",
+          "granted_by_user_id",
+          "created_at"
+        ],
+        "title": "AttemptGrantResponse",
+        "type": "object"
+      },
+      "AttemptResponse": {
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/LearnerAnswerResponse"
+            },
+            "title": "Answers",
+            "type": "array"
+          },
+          "assessment_type": {
+            "title": "Assessment Type",
+            "type": "string"
+          },
+          "attempt_number": {
+            "title": "Attempt Number",
+            "type": "integer"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemForLearner"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "step_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Id"
+          },
+          "uses_extra_grant": {
+            "title": "Uses Extra Grant",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "assessment_type",
+          "status",
+          "step_id",
+          "attempt_number",
+          "items",
+          "answers",
+          "uses_extra_grant",
+          "created_at"
+        ],
+        "title": "AttemptResponse",
+        "type": "object"
+      },
+      "AttemptResultResponse": {
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/GradedAnswer"
+            },
+            "title": "Answers",
+            "type": "array"
+          },
+          "assessment_type": {
+            "title": "Assessment Type",
+            "type": "string"
+          },
+          "attempt_id": {
+            "title": "Attempt Id",
+            "type": "integer"
+          },
+          "attempts": {
+            "$ref": "#/components/schemas/AttemptCounters"
+          },
+          "next_action": {
+            "$ref": "#/components/schemas/NextActionResponse"
+          },
+          "pass_threshold": {
+            "title": "Pass Threshold",
+            "type": "number"
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passed"
+          },
+          "remedial_resource_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remedial Resource Id"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "assessment_type",
+          "status",
+          "score",
+          "passed",
+          "pass_threshold",
+          "answers",
+          "remedial_resource_id",
+          "attempts",
+          "next_action"
+        ],
+        "title": "AttemptResultResponse",
+        "type": "object"
+      },
+      "AttemptSummaryResponse": {
+        "properties": {
+          "assessment_type": {
+            "title": "Assessment Type",
+            "type": "string"
+          },
+          "attempt_number": {
+            "title": "Attempt Number",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passed"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "step_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Id"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          },
+          "uses_extra_grant": {
+            "title": "Uses Extra Grant",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "assessment_type",
+          "step_id",
+          "attempt_number",
+          "status",
+          "score",
+          "passed",
+          "uses_extra_grant",
+          "submitted_at"
+        ],
+        "title": "AttemptSummaryResponse",
+        "type": "object"
+      },
+      "BadgeSummary": {
+        "properties": {
+          "assertion_url": {
+            "title": "Assertion Url",
+            "type": "string"
+          },
+          "course_name": {
+            "title": "Course Name",
+            "type": "string"
+          },
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "image_url": {
+            "title": "Image Url",
+            "type": "string"
+          },
+          "issued_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued At"
+          },
+          "learning_path_name": {
+            "title": "Learning Path Name",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "public_id": {
+            "title": "Public Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "public_id",
+          "enrollment_id",
+          "name",
+          "course_name",
+          "learning_path_name",
+          "issued_at",
+          "assertion_url",
+          "image_url"
+        ],
+        "title": "BadgeSummary",
+        "type": "object"
+      },
       "BloomLevel": {
         "enum": [
           "remember",
@@ -293,6 +887,36 @@
         "title": "CourseResponse",
         "type": "object"
       },
+      "CourseSummary": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "title": "CourseSummary",
+        "type": "object"
+      },
       "CourseUpdate": {
         "additionalProperties": false,
         "properties": {
@@ -323,6 +947,217 @@
           }
         },
         "title": "CourseUpdate",
+        "type": "object"
+      },
+      "CriticalTopic": {
+        "properties": {
+          "attempts_exhausted": {
+            "title": "Attempts Exhausted",
+            "type": "integer"
+          },
+          "average_attempts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Attempts"
+          },
+          "first_attempt_pass_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Attempt Pass Rate"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "attempts_exhausted",
+          "average_attempts",
+          "first_attempt_pass_rate"
+        ],
+        "title": "CriticalTopic",
+        "type": "object"
+      },
+      "DashboardKpi": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "integer"
+          },
+          "average_progress": {
+            "title": "Average Progress",
+            "type": "number"
+          },
+          "completed": {
+            "title": "Completed",
+            "type": "integer"
+          },
+          "completion_rate": {
+            "title": "Completion Rate",
+            "type": "number"
+          },
+          "exhausted_steps": {
+            "title": "Exhausted Steps",
+            "type": "integer"
+          },
+          "first_attempt_pass_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Attempt Pass Rate"
+          },
+          "learners": {
+            "title": "Learners",
+            "type": "integer"
+          },
+          "withdrawn": {
+            "title": "Withdrawn",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "learners",
+          "active",
+          "completed",
+          "withdrawn",
+          "completion_rate",
+          "average_progress",
+          "first_attempt_pass_rate",
+          "exhausted_steps"
+        ],
+        "title": "DashboardKpi",
+        "type": "object"
+      },
+      "DashboardLearner": {
+        "properties": {
+          "analysis_included": {
+            "title": "Analysis Included",
+            "type": "boolean"
+          },
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "pilot_arm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pilot Arm"
+          },
+          "progress_percent": {
+            "title": "Progress Percent",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "steps_done": {
+            "title": "Steps Done",
+            "type": "integer"
+          },
+          "steps_total": {
+            "title": "Steps Total",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enrollment_id",
+          "user_id",
+          "full_name",
+          "status",
+          "progress_percent",
+          "steps_done",
+          "steps_total",
+          "analysis_included",
+          "pilot_arm"
+        ],
+        "title": "DashboardLearner",
+        "type": "object"
+      },
+      "DashboardResponse": {
+        "properties": {
+          "critical_topics": {
+            "items": {
+              "$ref": "#/components/schemas/CriticalTopic"
+            },
+            "title": "Critical Topics",
+            "type": "array"
+          },
+          "kpi": {
+            "$ref": "#/components/schemas/DashboardKpi"
+          },
+          "learners": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardLearner"
+            },
+            "title": "Learners",
+            "type": "array"
+          },
+          "learning_path_id": {
+            "title": "Learning Path Id",
+            "type": "integer"
+          },
+          "mastery_matrix": {
+            "items": {
+              "$ref": "#/components/schemas/MasteryRow"
+            },
+            "title": "Mastery Matrix",
+            "type": "array"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicSummary"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "learning_path_id",
+          "kpi",
+          "learners",
+          "topics",
+          "mastery_matrix",
+          "critical_topics"
+        ],
+        "title": "DashboardResponse",
         "type": "object"
       },
       "DataSubjectRequestCreate": {
@@ -382,6 +1217,130 @@
         "title": "DataSubjectRequestType",
         "type": "string"
       },
+      "DefaultObjectiveBody": {
+        "additionalProperties": false,
+        "properties": {
+          "bloom_verb": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Verb"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "criterion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criterion"
+          }
+        },
+        "title": "DefaultObjectiveBody",
+        "type": "object"
+      },
+      "DiagnosticResponse": {
+        "properties": {
+          "answers": {
+            "items": {
+              "$ref": "#/components/schemas/LearnerAnswerResponse"
+            },
+            "title": "Answers",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemForLearner"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "submitted_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitted At"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "items",
+          "answers",
+          "submitted_at"
+        ],
+        "title": "DiagnosticResponse",
+        "type": "object"
+      },
+      "DiagnosticResultResponse": {
+        "properties": {
+          "level_by_topic": {
+            "items": {
+              "$ref": "#/components/schemas/TopicLevelResponse"
+            },
+            "title": "Level By Topic",
+            "type": "array"
+          },
+          "overall_score": {
+            "title": "Overall Score",
+            "type": "number"
+          },
+          "proposed_objective": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposedObjective"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "level_by_topic",
+          "overall_score",
+          "proposed_objective"
+        ],
+        "title": "DiagnosticResultResponse",
+        "type": "object"
+      },
       "EducationLevel": {
         "enum": [
           "secondary",
@@ -393,6 +1352,181 @@
         ],
         "title": "EducationLevel",
         "type": "string"
+      },
+      "EnrollmentCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "learning_path_id": {
+            "minimum": 1.0,
+            "title": "Learning Path Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "learning_path_id"
+        ],
+        "title": "EnrollmentCreate",
+        "type": "object"
+      },
+      "EnrollmentResponse": {
+        "properties": {
+          "analysis_included": {
+            "title": "Analysis Included",
+            "type": "boolean"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "learning_path": {
+            "$ref": "#/components/schemas/PathRef"
+          },
+          "next_action": {
+            "$ref": "#/components/schemas/NextActionResponse"
+          },
+          "objective": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ObjectiveResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pilot_arm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pilot Arm"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressResponse"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "learning_path",
+          "status",
+          "objective",
+          "progress",
+          "pilot_arm",
+          "analysis_included",
+          "next_action",
+          "created_at",
+          "completed_at"
+        ],
+        "title": "EnrollmentResponse",
+        "type": "object"
+      },
+      "EventBody": {
+        "additionalProperties": false,
+        "properties": {
+          "enrollment_id": {
+            "minimum": 1.0,
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "event_type": {
+            "maxLength": 60,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_.]*$",
+            "title": "Event Type",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          },
+          "topic_id": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Id"
+          }
+        },
+        "required": [
+          "enrollment_id",
+          "event_type",
+          "occurred_at"
+        ],
+        "title": "EventBody",
+        "type": "object"
+      },
+      "EventsAccepted": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accepted"
+        ],
+        "title": "EventsAccepted",
+        "type": "object"
+      },
+      "EventsBody": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventBody"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Events",
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
+        ],
+        "title": "EventsBody",
+        "type": "object"
       },
       "ExperienceBand": {
         "enum": [
@@ -450,6 +1584,70 @@
           }
         },
         "title": "ExtractionRequest",
+        "type": "object"
+      },
+      "FinalLockResponse": {
+        "properties": {
+          "attempts_used": {
+            "title": "Attempts Used",
+            "type": "integer"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          },
+          "max_attempts": {
+            "title": "Max Attempts",
+            "type": "integer"
+          },
+          "pass_threshold": {
+            "title": "Pass Threshold",
+            "type": "number"
+          }
+        },
+        "required": [
+          "locked",
+          "attempts_used",
+          "max_attempts",
+          "pass_threshold"
+        ],
+        "title": "FinalLockResponse",
+        "type": "object"
+      },
+      "GradedAnswer": {
+        "properties": {
+          "attempt_answer_id": {
+            "title": "Attempt Answer Id",
+            "type": "integer"
+          },
+          "grading": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grading"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "review_requested": {
+            "title": "Review Requested",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "attempt_answer_id",
+          "item_id",
+          "grading",
+          "review_requested"
+        ],
+        "title": "GradedAnswer",
         "type": "object"
       },
       "GraphEdge": {
@@ -510,6 +1708,48 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ItemForLearner": {
+        "description": "Ítem sin `correct_option`, `model_answer` ni `rubric`.",
+        "properties": {
+          "allows_dont_know": {
+            "default": true,
+            "title": "Allows Dont Know",
+            "type": "boolean"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "item_type": {
+            "title": "Item Type",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_id",
+          "topic_id",
+          "stem",
+          "item_type",
+          "options"
+        ],
+        "title": "ItemForLearner",
         "type": "object"
       },
       "JobAccepted": {
@@ -615,6 +1855,267 @@
         "title": "LanguageSkill",
         "type": "object"
       },
+      "LearnerAnswerBody": {
+        "additionalProperties": false,
+        "description": "`LearnerAnswer` (forma de `simulated_answers.v1`) con `item_id` entero.",
+        "properties": {
+          "dont_know": {
+            "default": false,
+            "title": "Dont Know",
+            "type": "boolean"
+          },
+          "item_id": {
+            "minimum": 1.0,
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "selected_option": {
+            "anyOf": [
+              {
+                "maximum": 3.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Option"
+          },
+          "text_answer": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Answer"
+          }
+        },
+        "required": [
+          "item_id"
+        ],
+        "title": "LearnerAnswerBody",
+        "type": "object"
+      },
+      "LearnerAnswerResponse": {
+        "properties": {
+          "dont_know": {
+            "title": "Dont Know",
+            "type": "boolean"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "selected_option": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Option"
+          },
+          "text_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Answer"
+          }
+        },
+        "required": [
+          "item_id",
+          "selected_option",
+          "dont_know",
+          "text_answer"
+        ],
+        "title": "LearnerAnswerResponse",
+        "type": "object"
+      },
+      "LearnerDetailResponse": {
+        "description": "Detalle del aprendiz para el instructor (D4, D4b): perfil reducido según A3c.",
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/AttemptSummaryResponse"
+            },
+            "title": "Attempts",
+            "type": "array"
+          },
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "final_attempts_granted": {
+            "title": "Final Attempts Granted",
+            "type": "integer"
+          },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
+          "level_by_topic": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Level By Topic",
+            "type": "array"
+          },
+          "objective": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ObjectiveResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Profile",
+            "type": "object"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/StepResponse"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enrollment_id",
+          "user_id",
+          "full_name",
+          "profile",
+          "status",
+          "objective",
+          "level_by_topic",
+          "steps",
+          "attempts",
+          "final_attempts_granted"
+        ],
+        "title": "LearnerDetailResponse",
+        "type": "object"
+      },
+      "LearningOutcomeBrief": {
+        "properties": {
+          "bloom_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Level"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "statement": {
+            "title": "Statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "statement",
+          "bloom_level"
+        ],
+        "title": "LearningOutcomeBrief",
+        "type": "object"
+      },
+      "LearningPathCard": {
+        "description": "Tarjeta del catálogo (E1): solo rutas publicadas.",
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/CourseSummary"
+          },
+          "enrolled": {
+            "title": "Enrolled",
+            "type": "boolean"
+          },
+          "estimated_minutes": {
+            "title": "Estimated Minutes",
+            "type": "integer"
+          },
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "topic_count": {
+            "title": "Topic Count",
+            "type": "integer"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicSummary"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "group_label",
+          "course",
+          "topics",
+          "topic_count",
+          "estimated_minutes",
+          "enrolled"
+        ],
+        "title": "LearningPathCard",
+        "type": "object"
+      },
       "LearningPathInput": {
         "additionalProperties": false,
         "properties": {
@@ -680,6 +2181,99 @@
           "status"
         ],
         "title": "LearningPathSummary",
+        "type": "object"
+      },
+      "LevelWeightsBody": {
+        "additionalProperties": false,
+        "properties": {
+          "profile": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Profile",
+            "type": "number"
+          },
+          "resume": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Resume",
+            "type": "number"
+          },
+          "test": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Test",
+            "type": "number"
+          }
+        },
+        "required": [
+          "test",
+          "profile",
+          "resume"
+        ],
+        "title": "LevelWeightsBody",
+        "type": "object"
+      },
+      "MasteryCell": {
+        "properties": {
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Score"
+          },
+          "diagnostic_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnostic Level"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic_id",
+          "status",
+          "diagnostic_level",
+          "best_score"
+        ],
+        "title": "MasteryCell",
+        "type": "object"
+      },
+      "MasteryRow": {
+        "properties": {
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/MasteryCell"
+            },
+            "title": "Cells",
+            "type": "array"
+          },
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enrollment_id",
+          "cells"
+        ],
+        "title": "MasteryRow",
         "type": "object"
       },
       "MeResponse": {
@@ -769,6 +2363,168 @@
         "title": "MeResponse",
         "type": "object"
       },
+      "MoveRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "learning_path_id": {
+            "minimum": 1.0,
+            "title": "Learning Path Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "learning_path_id"
+        ],
+        "title": "MoveRequest",
+        "type": "object"
+      },
+      "NextActionResponse": {
+        "properties": {
+          "attempt_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "screen": {
+            "title": "Screen",
+            "type": "string"
+          },
+          "step_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Id"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "screen"
+        ],
+        "title": "NextActionResponse",
+        "type": "object"
+      },
+      "ObjectiveResponse": {
+        "properties": {
+          "bloom_verb": {
+            "title": "Bloom Verb",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "criterion": {
+            "title": "Criterion",
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin"
+          },
+          "statement": {
+            "title": "Statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "statement",
+          "bloom_verb",
+          "content",
+          "criterion",
+          "origin"
+        ],
+        "title": "ObjectiveResponse",
+        "type": "object"
+      },
+      "ObjectiveUpdate": {
+        "additionalProperties": false,
+        "description": "Objetivo en tres partes (E4b). Si falta una: `422 OBJECTIVE_NOT_MEASURABLE`.",
+        "properties": {
+          "bloom_verb": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Verb"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "criterion": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criterion"
+          },
+          "statement": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statement"
+          }
+        },
+        "title": "ObjectiveUpdate",
+        "type": "object"
+      },
       "OutcomeResponse": {
         "properties": {
           "bloom_level": {
@@ -829,6 +2585,68 @@
         "title": "OutcomeWrite",
         "type": "object"
       },
+      "Page_AdminEnrollmentResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AdminEnrollmentResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[AdminEnrollmentResponse]",
+        "type": "object"
+      },
+      "Page_AlertResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AlertResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[AlertResponse]",
+        "type": "object"
+      },
       "Page_CourseResponse_": {
         "properties": {
           "items": {
@@ -858,6 +2676,68 @@
           "offset"
         ],
         "title": "Page[CourseResponse]",
+        "type": "object"
+      },
+      "Page_EnrollmentResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EnrollmentResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[EnrollmentResponse]",
+        "type": "object"
+      },
+      "Page_LearningPathCard_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LearningPathCard"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[LearningPathCard]",
         "type": "object"
       },
       "Page_RoleResponse_": {
@@ -951,6 +2831,224 @@
           "offset"
         ],
         "title": "Page[UserRoleResponse]",
+        "type": "object"
+      },
+      "PathRef": {
+        "properties": {
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "group_label"
+        ],
+        "title": "PathRef",
+        "type": "object"
+      },
+      "PathResponse": {
+        "properties": {
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "final": {
+            "$ref": "#/components/schemas/FinalLockResponse"
+          },
+          "savings": {
+            "$ref": "#/components/schemas/SavingsResponse"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/StepResponse"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enrollment_id",
+          "steps",
+          "savings",
+          "final"
+        ],
+        "title": "PathResponse",
+        "type": "object"
+      },
+      "PathSettingsResponse": {
+        "properties": {
+          "default_objective": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Default Objective",
+            "type": "object"
+          },
+          "final_pass_threshold": {
+            "title": "Final Pass Threshold",
+            "type": "number"
+          },
+          "learning_path_id": {
+            "title": "Learning Path Id",
+            "type": "integer"
+          },
+          "level_weights": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Level Weights",
+            "type": "object"
+          },
+          "mastery_skip_threshold": {
+            "title": "Mastery Skip Threshold",
+            "type": "number"
+          },
+          "max_attempts": {
+            "title": "Max Attempts",
+            "type": "integer"
+          },
+          "short_answer_min_ratio": {
+            "title": "Short Answer Min Ratio",
+            "type": "number"
+          },
+          "topic_pass_threshold": {
+            "title": "Topic Pass Threshold",
+            "type": "number"
+          }
+        },
+        "required": [
+          "learning_path_id",
+          "topic_pass_threshold",
+          "final_pass_threshold",
+          "mastery_skip_threshold",
+          "max_attempts",
+          "short_answer_min_ratio",
+          "level_weights",
+          "default_objective"
+        ],
+        "title": "PathSettingsResponse",
+        "type": "object"
+      },
+      "PathSettingsUpdate": {
+        "additionalProperties": false,
+        "description": "`PathSettings` (D3b). Todos los campos son opcionales: se cambian los que llegan.",
+        "properties": {
+          "confirm_pilot_change": {
+            "default": false,
+            "title": "Confirm Pilot Change",
+            "type": "boolean"
+          },
+          "default_objective": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DefaultObjectiveBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "final_pass_threshold": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Final Pass Threshold"
+          },
+          "level_weights": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LevelWeightsBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mastery_skip_threshold": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mastery Skip Threshold"
+          },
+          "max_attempts": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Attempts"
+          },
+          "short_answer_min_ratio": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Answer Min Ratio"
+          },
+          "topic_pass_threshold": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Pass Threshold"
+          }
+        },
+        "title": "PathSettingsUpdate",
         "type": "object"
       },
       "ProfileCompletenessResponse": {
@@ -1165,6 +3263,92 @@
         "title": "ProfileUpdate",
         "type": "object"
       },
+      "ProgressResponse": {
+        "properties": {
+          "percent": {
+            "title": "Percent",
+            "type": "integer"
+          },
+          "steps_done": {
+            "title": "Steps Done",
+            "type": "integer"
+          },
+          "steps_total": {
+            "title": "Steps Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "steps_total",
+          "steps_done",
+          "percent"
+        ],
+        "title": "ProgressResponse",
+        "type": "object"
+      },
+      "ProposedObjective": {
+        "properties": {
+          "bloom_verb": {
+            "title": "Bloom Verb",
+            "type": "string"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "criterion": {
+            "title": "Criterion",
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin"
+          },
+          "statement": {
+            "title": "Statement",
+            "type": "string"
+          }
+        },
+        "required": [
+          "statement",
+          "bloom_verb",
+          "content",
+          "criterion",
+          "origin"
+        ],
+        "title": "ProposedObjective",
+        "type": "object"
+      },
+      "QuizRules": {
+        "properties": {
+          "items_per_attempt": {
+            "title": "Items Per Attempt",
+            "type": "integer"
+          },
+          "pass_threshold": {
+            "title": "Pass Threshold",
+            "type": "number"
+          },
+          "short_answer_min_criteria_ratio": {
+            "title": "Short Answer Min Criteria Ratio",
+            "type": "number"
+          }
+        },
+        "required": [
+          "pass_threshold",
+          "items_per_attempt",
+          "short_answer_min_criteria_ratio"
+        ],
+        "title": "QuizRules",
+        "type": "object"
+      },
       "ReviewCounts": {
         "properties": {
           "added": {
@@ -1191,6 +3375,61 @@
           "deleted"
         ],
         "title": "ReviewCounts",
+        "type": "object"
+      },
+      "ReviewPlanResponse": {
+        "properties": {
+          "weak_topics": {
+            "items": {
+              "$ref": "#/components/schemas/WeakTopicResponse"
+            },
+            "title": "Weak Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "weak_topics"
+        ],
+        "title": "ReviewPlanResponse",
+        "type": "object"
+      },
+      "ReviewRequestBody": {
+        "additionalProperties": false,
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          }
+        },
+        "title": "ReviewRequestBody",
+        "type": "object"
+      },
+      "ReviewRequestResponse": {
+        "properties": {
+          "alert_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Id"
+          }
+        },
+        "required": [
+          "alert_id"
+        ],
+        "title": "ReviewRequestResponse",
         "type": "object"
       },
       "RoleCode": {
@@ -1314,6 +3553,37 @@
         "title": "RoleUpdate",
         "type": "object"
       },
+      "SavedResponse": {
+        "properties": {
+          "saved": {
+            "title": "Saved",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "saved"
+        ],
+        "title": "SavedResponse",
+        "type": "object"
+      },
+      "SavingsResponse": {
+        "properties": {
+          "skipped_minutes": {
+            "title": "Skipped Minutes",
+            "type": "integer"
+          },
+          "skipped_topics": {
+            "title": "Skipped Topics",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "skipped_topics",
+          "skipped_minutes"
+        ],
+        "title": "SavingsResponse",
+        "type": "object"
+      },
       "ScoreResponse": {
         "properties": {
           "f1": {
@@ -1358,6 +3628,274 @@
         "title": "ScoreResponse",
         "type": "object"
       },
+      "StepContentResponse": {
+        "properties": {
+          "attempts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Attempts",
+            "type": "object"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
+          },
+          "personal_example": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personal Example"
+          },
+          "quiz_rules": {
+            "$ref": "#/components/schemas/QuizRules"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "step_id": {
+            "title": "Step Id",
+            "type": "integer"
+          },
+          "topic": {
+            "$ref": "#/components/schemas/StepTopic"
+          },
+          "video": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video"
+          }
+        },
+        "required": [
+          "step_id",
+          "status",
+          "topic",
+          "explanation",
+          "personal_example",
+          "video",
+          "quiz_rules",
+          "attempts"
+        ],
+        "title": "StepContentResponse",
+        "type": "object"
+      },
+      "StepResponse": {
+        "properties": {
+          "attempts_used": {
+            "title": "Attempts Used",
+            "type": "integer"
+          },
+          "best_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Score"
+          },
+          "diagnostic_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnostic Level"
+          },
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "extra_attempts_granted": {
+            "title": "Extra Attempts Granted",
+            "type": "integer"
+          },
+          "inclusion_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inclusion Reason"
+          },
+          "last_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Score"
+          },
+          "max_attempts": {
+            "title": "Max Attempts",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "step_id": {
+            "title": "Step Id",
+            "type": "integer"
+          },
+          "step_order": {
+            "title": "Step Order",
+            "type": "integer"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "step_id",
+          "step_order",
+          "topic_id",
+          "name",
+          "status",
+          "inclusion_reason",
+          "diagnostic_level",
+          "estimated_minutes",
+          "attempts_used",
+          "max_attempts",
+          "extra_attempts_granted",
+          "best_score",
+          "last_score"
+        ],
+        "title": "StepResponse",
+        "type": "object"
+      },
+      "StepTopic": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "learning_outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/LearningOutcomeBrief"
+            },
+            "title": "Learning Outcomes",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "learning_outcomes"
+        ],
+        "title": "StepTopic",
+        "type": "object"
+      },
+      "SurveyBody": {
+        "additionalProperties": false,
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "likert": {
+            "additionalProperties": {
+              "maximum": 5.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "maxProperties": 50,
+            "title": "Likert",
+            "type": "object"
+          },
+          "sus_items": {
+            "items": {
+              "maximum": 5.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "maxItems": 10,
+            "minItems": 10,
+            "title": "Sus Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "sus_items"
+        ],
+        "title": "SurveyBody",
+        "type": "object"
+      },
+      "SurveyResponseBody": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "sus_score": {
+            "title": "Sus Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "sus_score"
+        ],
+        "title": "SurveyResponseBody",
+        "type": "object"
+      },
       "TopicGraphResponse": {
         "properties": {
           "edges": {
@@ -1380,6 +3918,78 @@
           "edges"
         ],
         "title": "TopicGraphResponse",
+        "type": "object"
+      },
+      "TopicLevelResponse": {
+        "properties": {
+          "classification": {
+            "title": "Classification",
+            "type": "string"
+          },
+          "level": {
+            "title": "Level",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "profile_prior": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Prior"
+          },
+          "resume_prior": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resume Prior"
+          },
+          "test_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Score"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "weights": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Weights",
+            "type": "object"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "test_score",
+          "profile_prior",
+          "resume_prior",
+          "weights",
+          "level",
+          "classification"
+        ],
+        "title": "TopicLevelResponse",
         "type": "object"
       },
       "TopicListResponse": {
@@ -1515,6 +4125,41 @@
           "prerequisite_topic_ids"
         ],
         "title": "TopicResponse",
+        "type": "object"
+      },
+      "TopicSummary": {
+        "properties": {
+          "estimated_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Minutes"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "is_mandatory": {
+            "title": "Is Mandatory",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "estimated_minutes",
+          "is_mandatory"
+        ],
+        "title": "TopicSummary",
         "type": "object"
       },
       "TopicWrite": {
@@ -1906,6 +4551,60 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "WeakTopicResponse": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "resource_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Id"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic_id",
+          "name",
+          "score",
+          "resource_id"
+        ],
+        "title": "WeakTopicResponse",
+        "type": "object"
+      },
+      "WithdrawRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "title": "WithdrawRequest",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -1937,6 +4636,228 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/alerts": {
+      "get": {
+        "description": "Alertas del instructor (D3, D4): intentos agotados y revisiones pedidas.",
+        "operationId": "list_alerts_api_v1_alerts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "unread",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Unread"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AlertResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Alerts",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
+    "/api/v1/alerts/{alert_id}/read": {
+      "patch": {
+        "operationId": "mark_alert_read_api_v1_alerts__alert_id__read_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "alert_id",
+            "required": true,
+            "schema": {
+              "title": "Alert Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Mark Alert Read",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
+    "/api/v1/badges/{public_id}/assertion.json": {
+      "get": {
+        "description": "Aserción `badge.v1` (Open Badges 2.0, verificación hosted).",
+        "operationId": "badge_assertion_api_v1_badges__public_id__assertion_json_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Public Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Badge Assertion Api V1 Badges  Public Id  Assertion Json Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "BADGE_NOT_FOUND"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Badge Assertion",
+        "tags": [
+          "badges-public"
+        ]
+      }
+    },
+    "/api/v1/badges/{public_id}/image.png": {
+      "get": {
+        "operationId": "badge_image_api_v1_badges__public_id__image_png_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Public Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {}
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "BADGE_NOT_FOUND"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Badge Image",
+        "tags": [
+          "badges-public"
+        ]
+      }
+    },
     "/api/v1/courses": {
       "get": {
         "operationId": "list_courses_api_v1_courses_get",
@@ -2706,6 +5627,333 @@
         ]
       }
     },
+    "/api/v1/enrollments": {
+      "get": {
+        "operationId": "admin_list_enrollments_api_v1_enrollments_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "learning_path_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Learning Path Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AdminEnrollmentResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Admin List Enrollments",
+        "tags": [
+          "enrollments-admin"
+        ]
+      },
+      "post": {
+        "description": "Inscribe a un aprendiz (exige su consentimiento de datos: `403 CONSENT_REQUIRED`).",
+        "operationId": "admin_enroll_api_v1_enrollments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminEnrollmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Admin Enroll",
+        "tags": [
+          "enrollments-admin"
+        ]
+      }
+    },
+    "/api/v1/enrollments/{enrollment_id}/final-attempt-grants": {
+      "post": {
+        "description": "Intentos extra de la evaluación final (D4c).",
+        "operationId": "grant_final_attempts_api_v1_enrollments__enrollment_id__final_attempt_grants_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptGrantCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptGrantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grant Final Attempts",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
+    "/api/v1/enrollments/{enrollment_id}/move": {
+      "patch": {
+        "description": "Mueve al aprendiz a otra ruta: la inscripción nueva queda fuera del análisis.",
+        "operationId": "move_enrollment_api_v1_enrollments__enrollment_id__move_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MoveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Move Enrollment",
+        "tags": [
+          "enrollments-admin"
+        ]
+      }
+    },
+    "/api/v1/enrollments/{enrollment_id}/withdraw": {
+      "patch": {
+        "description": "Retira la inscripción (no se borra) y la saca del análisis.",
+        "operationId": "withdraw_enrollment_api_v1_enrollments__enrollment_id__withdraw_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Withdraw Enrollment",
+        "tags": [
+          "enrollments-admin"
+        ]
+      }
+    },
     "/api/v1/jobs/{job_id}": {
       "get": {
         "description": "Consulta el trabajo (la app lo hace cada 2 s, U1x).\n\nSi `ai/` terminó, la API valida el resultado y lo escribe en una transacción idempotente en\nesta misma petición. Un trabajo fallido responde `502 AI_TASK_FAILED` (con `retryable`) o\n`503 AI_BUDGET_EXCEEDED`. Un trabajo ajeno responde `404 JOB_NOT_FOUND`.",
@@ -2758,6 +6006,243 @@
         ]
       }
     },
+    "/api/v1/learning-paths": {
+      "get": {
+        "description": "Catálogo (E1): solo rutas publicadas, con sus temas y minutos estimados.",
+        "operationId": "list_learning_paths_api_v1_learning_paths_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_LearningPathCard_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Learning Paths",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
+    "/api/v1/learning-paths/{learning_path_id}/dashboard": {
+      "get": {
+        "description": "Tablero de la ruta (D3): KPI, aprendices, matriz de dominio y temas críticos.",
+        "operationId": "dashboard_api_v1_learning_paths__learning_path_id__dashboard_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "learning_path_id",
+            "required": true,
+            "schema": {
+              "title": "Learning Path Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Dashboard",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
+    "/api/v1/learning-paths/{learning_path_id}/learners/{enrollment_id}": {
+      "get": {
+        "description": "Detalle del aprendiz (D4, D4b): perfil reducido, niveles, pasos e intentos.",
+        "operationId": "learner_detail_api_v1_learning_paths__learning_path_id__learners__enrollment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "learning_path_id",
+            "required": true,
+            "schema": {
+              "title": "Learning Path Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearnerDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Learner Detail",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
+    "/api/v1/learning-paths/{learning_path_id}/settings": {
+      "patch": {
+        "description": "Umbrales y objetivo por defecto (D3b). `409 PILOT_RUNNING` sin `confirm_pilot_change`.",
+        "operationId": "update_settings_api_v1_learning_paths__learning_path_id__settings_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "learning_path_id",
+            "required": true,
+            "schema": {
+              "title": "Learning Path Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PathSettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathSettingsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Settings",
+        "tags": [
+          "learning-paths"
+        ]
+      }
+    },
     "/api/v1/me": {
       "get": {
         "description": "El usuario autenticado. El primer ingreso lo crea con el rol `learner` (CU-34).",
@@ -2785,6 +6270,341 @@
         "summary": "Read Me",
         "tags": [
           "me"
+        ]
+      }
+    },
+    "/api/v1/me/attempt-answers/{answer_id}/review-request": {
+      "post": {
+        "description": "Pide la revisión humana de una respuesta corta (crea una alerta para el instructor).",
+        "operationId": "request_review_api_v1_me_attempt_answers__answer_id__review_request_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "answer_id",
+            "required": true,
+            "schema": {
+              "title": "Answer Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Request Review",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/attempts/{attempt_id}": {
+      "get": {
+        "description": "Ítems (sin solución) y respuestas guardadas.",
+        "operationId": "get_attempt_api_v1_me_attempts__attempt_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Attempt",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/attempts/{attempt_id}/answers": {
+      "put": {
+        "operationId": "save_attempt_answers_api_v1_me_attempts__attempt_id__answers_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Save Attempt Answers",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/attempts/{attempt_id}/result": {
+      "get": {
+        "description": "Resultado, rúbrica, explicación alterna (si existe) y siguiente acción (E7, E9).",
+        "operationId": "attempt_result_api_v1_me_attempts__attempt_id__result_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Attempt Result",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/attempts/{attempt_id}/submit": {
+      "post": {
+        "description": "Opción múltiple por regla (`200`); con respuesta corta, `202` y `grading.short_answer`.",
+        "operationId": "submit_attempt_api_v1_me_attempts__attempt_id__submit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "title": "Attempt Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Calificando respuestas cortas"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Submit Attempt",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/badges": {
+      "get": {
+        "operationId": "my_badges_api_v1_me_badges_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BadgeSummary"
+                  },
+                  "title": "Response My Badges Api V1 Me Badges Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "My Badges",
+        "tags": [
+          "learner"
         ]
       }
     },
@@ -2977,6 +6797,997 @@
         ]
       }
     },
+    "/api/v1/me/enrollments": {
+      "get": {
+        "operationId": "list_enrollments_api_v1_me_enrollments_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_EnrollmentResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Enrollments",
+        "tags": [
+          "learner"
+        ]
+      },
+      "post": {
+        "description": "Inscribe al aprendiz en una ruta publicada (`403 CONSENT_REQUIRED` sin consentimiento).",
+        "operationId": "enroll_api_v1_me_enrollments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Enroll",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}": {
+      "get": {
+        "description": "La inscripción con su `next_action` (la app navega con ella; nunca deduce el estado).",
+        "operationId": "get_enrollment_api_v1_me_enrollments__enrollment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Enrollment",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/badge": {
+      "get": {
+        "operationId": "enrollment_badge_api_v1_me_enrollments__enrollment_id__badge_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadgeSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Enrollment Badge",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/diagnostic": {
+      "get": {
+        "operationId": "get_diagnostic_api_v1_me_enrollments__enrollment_id__diagnostic_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosticResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Diagnostic",
+        "tags": [
+          "learner"
+        ]
+      },
+      "post": {
+        "description": "Arma el diagnóstico desde el banco aprobado (sin LLM).",
+        "operationId": "start_diagnostic_api_v1_me_enrollments__enrollment_id__diagnostic_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosticResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Start Diagnostic",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/diagnostic/answers": {
+      "put": {
+        "description": "Guardado parcial (reemplaza por `item_id`).",
+        "operationId": "save_diagnostic_answers_api_v1_me_enrollments__enrollment_id__diagnostic_answers_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Save Diagnostic Answers",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/diagnostic/result": {
+      "get": {
+        "description": "Niveles por tema, clasificación y objetivo propuesto (E4).",
+        "operationId": "diagnostic_result_api_v1_me_enrollments__enrollment_id__diagnostic_result_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagnosticResultResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Diagnostic Result",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/diagnostic/submit": {
+      "post": {
+        "description": "Entrega el diagnóstico: `202` con el trabajo `diagnostic.finalize` (U1a).",
+        "operationId": "submit_diagnostic_api_v1_me_enrollments__enrollment_id__diagnostic_submit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Submit Diagnostic",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/final-attempts": {
+      "post": {
+        "description": "Intento de la final: solo con todos los pasos `passed` o `skipped` (E8).",
+        "operationId": "start_final_attempt_api_v1_me_enrollments__enrollment_id__final_attempts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Start Final Attempt",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/objective": {
+      "put": {
+        "description": "Objetivo en tres partes (E4, E4b): `path.sequence` (síncrono) crea los pasos.",
+        "operationId": "confirm_objective_api_v1_me_enrollments__enrollment_id__objective_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObjectiveUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Confirm Objective",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/path": {
+      "get": {
+        "description": "Pasos con estado y motivo, ahorro por temas omitidos y estado de la final (E5, E5b).",
+        "operationId": "get_path_api_v1_me_enrollments__enrollment_id__path_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Path",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/review-plan": {
+      "get": {
+        "description": "Temas débiles del último intento final (E9).",
+        "operationId": "review_plan_api_v1_me_enrollments__enrollment_id__review_plan_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewPlanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Review Plan",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/steps/{step_id}/attempts": {
+      "post": {
+        "description": "Intento del quiz con ítems no vistos; `202` solo si hay que generar más.",
+        "operationId": "start_attempt_api_v1_me_enrollments__enrollment_id__steps__step_id__attempts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "step_id",
+            "required": true,
+            "schema": {
+              "title": "Step Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Hay que generar más preguntas (U1b)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Start Attempt",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/steps/{step_id}/content": {
+      "get": {
+        "description": "Explicación aprobada, video en uso (o respaldo), reglas del quiz e intentos (E6).",
+        "operationId": "step_content_api_v1_me_enrollments__enrollment_id__steps__step_id__content_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "step_id",
+            "required": true,
+            "schema": {
+              "title": "Step Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StepContentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Step Content",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/enrollments/{enrollment_id}/surveys/final": {
+      "post": {
+        "description": "Encuesta final y SUS (E13a, E13b): calcula `sus_score`.",
+        "operationId": "final_survey_api_v1_me_enrollments__enrollment_id__surveys_final_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "title": "Enrollment Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SurveyBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SurveyResponseBody"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Final Survey",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
+    "/api/v1/me/events": {
+      "post": {
+        "description": "Lote de eventos para el tiempo en tarea (hasta 100).",
+        "operationId": "record_events_api_v1_me_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventsBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventsAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Record Events",
+        "tags": [
+          "learner"
+        ]
+      }
+    },
     "/api/v1/me/profile": {
       "get": {
         "operationId": "read_profile_api_v1_me_profile_get",
@@ -3051,6 +7862,67 @@
         "summary": "Update Profile",
         "tags": [
           "me"
+        ]
+      }
+    },
+    "/api/v1/path-steps/{step_id}/attempt-grants": {
+      "post": {
+        "description": "Intentos extra de un tema (D4c, CU-26); un paso agotado vuelve a `in_progress`.",
+        "operationId": "grant_step_attempts_api_v1_path_steps__step_id__attempt_grants_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "step_id",
+            "required": true,
+            "schema": {
+              "title": "Step Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptGrantCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptGrantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grant Step Attempts",
+        "tags": [
+          "learning-paths"
         ]
       }
     },

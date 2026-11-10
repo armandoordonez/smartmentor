@@ -1,6 +1,6 @@
-"""Contrato de `path.sequence` (`learning_path.v1`): espejo de `prompts/schemas/learning_path.v1.json`.
+"""Contrato de `path.sequence` (`learning_path.v1`), espejo de su JSON Schema en `prompts/schemas/`.
 
-La prueba de contrato compara la salida de `FakeAiService` con el JSON Schema real y con este modelo.
+La prueba de contrato compara la salida de `FakeAiService` con el JSON Schema y con este modelo.
 """
 
 from typing import Annotated, Literal

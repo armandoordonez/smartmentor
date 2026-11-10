@@ -7,8 +7,8 @@ Reglas (plan 5.3.4): el diagnóstico se arma desde el banco aprobado (sin LLM); 
 
 **Trabajos de `ai/` sin columna propia.** El esquema v2.0.0 no guarda el `job_id` en
 `diagnostics` ni en `attempt_answers`. Cada trabajo usa una `idempotency_key` determinista
-(`<tarea>:<entidad>:<id>:<versión>`) y una entrada que se puede reconstruir; para volver a obtener el
-`job_id` se repite el envío, que en `ai/` devuelve el mismo trabajo (ADR 0010). Ver `JobLocator`.
+(`<tarea>:<entidad>:<id>:<versión>`) y una entrada que se puede reconstruir; para volver a obtener
+el `job_id` se repite el envío, que en `ai/` devuelve el mismo trabajo (ADR 0010). Ver `JobLocator`.
 """
 
 import logging
@@ -28,6 +28,7 @@ from app.common.exceptions import (
     NotFoundError,
 )
 from app.common.unit_of_work import UnitOfWork
+from app.core.config import get_settings
 from app.domains.ai_gateway.entities import JobRef, JobRefs, JobStatus, PendingJob
 from app.domains.ai_gateway.exceptions import AiResultInvalidError, AiServiceUnavailableError
 from app.domains.ai_gateway.repository import AiServicePort
@@ -108,7 +109,7 @@ GRADING_SHORT_ANSWER = "grading.short_answer"
 QUIZ_BANK = "items.generate_quiz_bank"
 LEVELS_ESTIMATE = "levels.estimate"
 
-ITEMS_PER_ATTEMPT = 5  # quiz del tema (ADR 0015: 3 intentos × 5 ítems)
+ITEMS_PER_ATTEMPT = 5  # quiz del tema (ADR 0015: 3 intentos x 5 ítems)
 FINAL_ITEMS = 10
 DIAGNOSTIC_ITEMS_PER_TOPIC = 3
 REINFORCE_CUTOFF = 50.0
@@ -259,7 +260,9 @@ class _Base:
         if enrollment.user_id == user.id:
             return True
         path = await self._r.paths.get(enrollment.learning_path_id)
-        return path is not None and is_staff_owner(user, await self._r.reader.course(path.course_id))
+        return path is not None and is_staff_owner(
+            user, await self._r.reader.course(path.course_id)
+        )
 
     async def _final_counters(self, enrollment: Enrollment, path: LearningPath) -> tuple[int, int]:
         """(intentos de la final usados, máximo con los extra)."""
@@ -294,7 +297,9 @@ class LearnerProgress(_Base):
             status=enrollment.status,
             diagnostic_status=diagnostic.status if diagnostic is not None else None,
             diagnostic_job_id=diagnostic_job,
-            steps=tuple(StepState(require_id(s), s.topic_id, s.step_order, s.status) for s in steps),
+            steps=tuple(
+                StepState(require_id(s), s.topic_id, s.step_order, s.status) for s in steps
+            ),
             open_attempt_id=open_attempt.id if open_attempt else None,
             open_attempt_step_id=open_attempt.path_step_id if open_attempt else None,
             grading_attempt_id=grading.id if grading else None,
@@ -325,7 +330,9 @@ class LearnerProgress(_Base):
 
     async def history(self, enrollment_id: int) -> LearnerHistory:
         diagnostic = await self._r.diagnostics.by_enrollment(enrollment_id)
-        levels = list((diagnostic.level_by_topic or {}).get("level_by_topic", [])) if diagnostic else []
+        levels = (
+            list((diagnostic.level_by_topic or {}).get("level_by_topic", [])) if diagnostic else []
+        )
         attempts = await self._r.attempts.list_for_enrollment(enrollment_id)
         return LearnerHistory(
             level_by_topic=levels,
@@ -437,7 +444,9 @@ class DiagnosticService(_Base):
                 "text_answer": answer.text_answer,
             }
         status = "in_progress" if diagnostic.status == "created" else diagnostic.status
-        await self._r.diagnostics.update(require_id(diagnostic), {"answers": merged, "status": status})
+        await self._r.diagnostics.update(
+            require_id(diagnostic), {"answers": merged, "status": status}
+        )
         await self._uow.commit()
         return len(answers)
 
@@ -447,7 +456,10 @@ class DiagnosticService(_Base):
         diagnostic = await self._r.diagnostics.by_enrollment(enrollment_id, for_update=True)
         if diagnostic is None:
             raise NotFoundError("Diagnostic", enrollment_id)
-        if diagnostic.status not in OPEN_DIAGNOSTIC or enrollment.status != EnrollmentStatus.DIAGNOSING:
+        if (
+            diagnostic.status not in OPEN_DIAGNOSTIC
+            or enrollment.status != EnrollmentStatus.DIAGNOSING
+        ):
             raise ConflictError(
                 "The diagnostic was already submitted.", code="DIAGNOSTIC_ALREADY_SUBMITTED"
             )
@@ -542,7 +554,9 @@ class DiagnosticService(_Base):
         self, user: CurrentUser, enrollment_id: int, parts: dict[str, str | None]
     ) -> Enrollment:
         """Objetivo en tres partes (E4, E4b): llama a `path.sequence` y crea los pasos."""
-        missing = [k for k in ("bloom_verb", "content", "criterion") if not (parts.get(k) or "").strip()]
+        missing = [
+            k for k in ("bloom_verb", "content", "criterion") if not (parts.get(k) or "").strip()
+        ]
         if missing:
             raise BusinessRuleError(
                 "The objective needs a Bloom verb, a content and a measurable criterion.",
@@ -635,7 +649,9 @@ class DiagnosticService(_Base):
         if enrollment_id is not None:
             diagnostic = await self._r.diagnostics.by_enrollment(enrollment_id, for_update=True)
             if diagnostic is not None and diagnostic.status == "scoring":
-                await self._r.diagnostics.update(require_id(diagnostic), {"status": "scoring_failed"})
+                await self._r.diagnostics.update(
+                    require_id(diagnostic), {"status": "scoring_failed"}
+                )
         await self._uow.commit()
 
     async def pending_finalizations(self) -> list[PendingJob]:
@@ -696,7 +712,11 @@ class ProfileRecalculation(_Base):
         snapshot = enrollment.profile_snapshot or {}
         stored_input = snapshot.get("finalize_input")
         diagnostic = await self._r.diagnostics.by_enrollment(require_id(enrollment))
-        if not isinstance(stored_input, dict) or diagnostic is None or diagnostic.status != "scored":
+        if (
+            not isinstance(stored_input, dict)
+            or diagnostic is None
+            or diagnostic.status != "scored"
+        ):
             return False
         path = await self._path(enrollment)
         payload = {
@@ -704,7 +724,9 @@ class ProfileRecalculation(_Base):
             for k, v in stored_input.items()
             if k not in ("objective_mode", "path_objective", "path_objective_parts")
         }
-        payload["profile_text"] = profile.description if profile and profile.has_description else None
+        payload["profile_text"] = (
+            profile.description if profile and profile.has_description else None
+        )
         payload["resume_text"] = _resume_text(profile)
         payload["weights"] = path.weights
         try:
@@ -810,7 +832,9 @@ class AttemptService(_Base):
                 return node
         raise NotFoundError("Topic", topic_id, code="TOPIC_NOT_FOUND")
 
-    async def step_content(self, user: CurrentUser, enrollment_id: int, step_id: int) -> StepContentView:
+    async def step_content(
+        self, user: CurrentUser, enrollment_id: int, step_id: int
+    ) -> StepContentView:
         """Explicación aprobada, video en uso (o respaldo), reglas del quiz e intentos (E6)."""
         enrollment, step = await self._own_step(user, enrollment_id, step_id, for_update=True)
         if step.status in (
@@ -864,7 +888,9 @@ class AttemptService(_Base):
         ):
             raise path_errors.step_not_available(step.status)
         attempts = [
-            a for a in await self._r.attempts.list_for_enrollment(enrollment_id) if a.path_step_id == step_id
+            a
+            for a in await self._r.attempts.list_for_enrollment(enrollment_id)
+            if a.path_step_id == step_id
         ]
         open_attempt = self._open_attempt(attempts)
         if open_attempt is not None:
@@ -875,7 +901,9 @@ class AttemptService(_Base):
             raise path_errors.max_attempts_exceeded(step.attempts_used, maximum)
         seen = {i for a in attempts for i in (a.item_ids or [])}
         unseen = [
-            i for i in await self._r.items.approved([step.topic_id], "topic_quiz") if i.id not in seen
+            i
+            for i in await self._r.items.approved([step.topic_id], "topic_quiz")
+            if i.id not in seen
         ]
         if len(unseen) < ITEMS_PER_ATTEMPT:
             job = await self._request_quiz_bank(enrollment, path, step.topic_id)
@@ -916,7 +944,9 @@ class AttemptService(_Base):
                 "topic_id": str(topic_id),
                 "n_multiple_choice": ITEMS_PER_ATTEMPT - 1,
                 "n_short_answer": 1,
-                "previous_stems": (await self._r.items.stems_for_topic(topic_id, "topic_quiz"))[-200:],
+                "previous_stems": (await self._r.items.stems_for_topic(topic_id, "topic_quiz"))[
+                    -200:
+                ],
             },
             f"{QUIZ_BANK}:topic:{topic_id}:v{version}",
             JobRefs(
@@ -986,7 +1016,9 @@ class AttemptService(_Base):
     async def _view(self, attempt: AssessmentAttempt) -> AttemptView:
         items = await self._r.items.by_ids(list(attempt.item_ids or []))
         answers = await self._r.answers.list_for_attempt(require_id(attempt))
-        return AttemptView(attempt, [items[i] for i in attempt.item_ids or [] if i in items], answers)
+        return AttemptView(
+            attempt, [items[i] for i in attempt.item_ids or [] if i in items], answers
+        )
 
     async def get(self, user: CurrentUser, attempt_id: int) -> AttemptView:
         attempt, _ = await self._own_attempt(user, attempt_id)
@@ -1001,7 +1033,9 @@ class AttemptService(_Base):
                 "The attempt was already submitted.", code="ATTEMPT_ALREADY_SUBMITTED"
             )
         _check_items(answers, set(attempt.item_ids or []))
-        existing = {a.assessment_item_id: a for a in await self._r.answers.list_for_attempt(attempt_id)}
+        existing = {
+            a.assessment_item_id: a for a in await self._r.answers.list_for_attempt(attempt_id)
+        }
         for answer in answers:
             values = {
                 "selected_option": None
@@ -1016,7 +1050,9 @@ class AttemptService(_Base):
                     AttemptAnswer(
                         assessment_attempt_id=attempt_id,
                         assessment_item_id=answer.item_id,
-                        selected_option=values["selected_option"],
+                        selected_option=(
+                            None if answer.selected_option is None else str(answer.selected_option)
+                        ),
                         dont_know=answer.dont_know,
                         text_answer=answer.text_answer,
                     )
@@ -1041,7 +1077,9 @@ class AttemptService(_Base):
             raise path_errors.enrollment_closed()
         path = await self._path(enrollment)
         items = await self._r.items.by_ids(list(attempt.item_ids or []))
-        existing = {a.assessment_item_id: a for a in await self._r.answers.list_for_attempt(attempt_id)}
+        existing = {
+            a.assessment_item_id: a for a in await self._r.answers.list_for_attempt(attempt_id)
+        }
         for item_id in attempt.item_ids or []:
             if item_id not in existing:
                 existing[item_id] = await self._r.answers.add(
@@ -1121,9 +1159,7 @@ class AttemptService(_Base):
             else:
                 used, maximum = await self._final_counters(enrollment, path)
                 if used >= maximum:
-                    await self._progress.alert(
-                        path, AlertType.FINAL_ATTEMPTS_EXHAUSTED, enrollment
-                    )
+                    await self._progress.alert(path, AlertType.FINAL_ATTEMPTS_EXHAUSTED, enrollment)
         return graded
 
     async def _issue_badge(self, enrollment: Enrollment, path: LearningPath, score: float) -> Badge:
@@ -1144,8 +1180,6 @@ class AttemptService(_Base):
             )
             if p
         )
-        from app.core.config import get_settings  # noqa: PLC0415  (evita leer el entorno al importar)
-
         settings = get_settings()
         assertion = badges.build_assertion(
             public_id=public_id,
@@ -1171,7 +1205,9 @@ class AttemptService(_Base):
             )
         )
 
-    async def _result_view(self, attempt: AssessmentAttempt, path: LearningPath) -> AttemptResultView:
+    async def _result_view(
+        self, attempt: AssessmentAttempt, path: LearningPath
+    ) -> AttemptResultView:
         enrollment = await self._r.enrollments.get(attempt.enrollment_id)
         assert enrollment is not None  # noqa: S101
         answers = await self._r.answers.list_for_attempt(require_id(attempt))
@@ -1280,9 +1316,7 @@ class AttemptService(_Base):
 
     # --- ingesta de `grading.short_answer` --------------------------------------------------
 
-    async def _apply_grading(
-        self, answer: AttemptAnswer, result: GradingV1, ratio: float
-    ) -> None:
+    async def _apply_grading(self, answer: AttemptAnswer, result: GradingV1, ratio: float) -> None:
         correct = short_answer_is_correct(result.criteria_met, result.criteria_total, ratio)
         detail = result.model_dump(mode="json", exclude={"meta"}) | {
             "is_correct": correct,
@@ -1343,7 +1377,9 @@ class AttemptService(_Base):
                 status = await self._ai.get_job(ref.job_id)
                 if status.status == "succeeded":
                     try:
-                        await self._apply_grading(other, GradingV1.model_validate(status.result), ratio)
+                        await self._apply_grading(
+                            other, GradingV1.model_validate(status.result), ratio
+                        )
                         continue
                     except ValidationError:
                         logger.error("invalid grading result", extra={"job_id": ref.job_id})
@@ -1420,7 +1456,9 @@ class AttemptService(_Base):
                     difficulty=item.difficulty,
                     stem=item.stem,
                     options=item.options or None,
-                    correct_option=None if item.correct_option is None else str(item.correct_option),
+                    correct_option=None
+                    if item.correct_option is None
+                    else str(item.correct_option),
                     model_answer=item.model_answer or None,
                     rubric=[c.model_dump() for c in item.rubric] or None,
                     equivalence_group=item.equivalence_group,

@@ -1,4 +1,4 @@
-"""Entidades del dominio de rutas: ruta, inscripción, paso, intentos extra y alertas (Python puro)."""
+"""Entidades de rutas: ruta, inscripción, paso, intentos extra y alertas (Python puro)."""
 
 from dataclasses import dataclass, field
 from datetime import datetime
