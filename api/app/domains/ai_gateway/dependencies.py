@@ -14,6 +14,7 @@ from app.core.database import SessionDep
 from app.domains.ai_gateway.factory import AiServiceDep
 from app.domains.ai_gateway.repository import AiServicePort
 from app.domains.ai_gateway.service import IngestorRegistry, JobService
+from app.domains.assessments.dependencies import build_ingestors
 from app.domains.courses.ingestion import PublicationIngestor, SyllabusIngestor
 from app.domains.courses.repository_impl import (
     SqlAlchemyCourseRepository,
@@ -41,6 +42,7 @@ def build_job_service(session: AsyncSession, ai: AiServicePort) -> JobService:
                 uow,
             ),
             PublicationIngestor(courses, SqlAlchemyLearningPathRepository(session), ai, uow),
+            *build_ingestors(session, ai),
         ]
     )
     return JobService(ai, registry)
