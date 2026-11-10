@@ -268,6 +268,8 @@ class ExhaustedStep(ApiModel):
     best_score: float | None = None
     waiting_topic_names: list[str] = Field(default_factory=list)
     """Temas que quedan «En espera» hasta que se resuelva este paso."""
+    continue_topic_names: list[str] = Field(default_factory=list)
+    """Temas con los que el aprendiz puede seguir mientras tanto."""
 
 
 class LearnerDetail(ApiModel):

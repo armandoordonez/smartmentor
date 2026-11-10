@@ -93,6 +93,9 @@
       "waiting_topic_names": [
         "Regresión logística",
         "Evaluación de modelos"
+      ],
+      "continue_topic_names": [
+        "Árboles de decisión"
       ]
     }
   ]

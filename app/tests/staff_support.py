@@ -42,14 +42,33 @@ def staff_app(
     return at
 
 
+def with_state(at: AppTest, **values: int | str | None) -> AppTest:
+    """Fija el curso, la ruta o la inscripción elegidos, como si se vinieran de otra página."""
+    from core.staff_state import StaffState
+
+    at.session_state["staff_state"] = StaffState(**values)  # type: ignore[arg-type]
+    return at
+
+
 def assert_no_exception(at: AppTest) -> None:
     assert [e.value for e in at.exception] == []
 
 
-def assert_matches_figma(at: AppTest, screen: str, *, accepted: tuple[str, ...] = ()) -> None:
-    """Todos los textos del frame aparecen en orden, salvo los aceptados (con su motivo)."""
+def assert_matches_figma(
+    at: AppTest,
+    screen: str,
+    *,
+    accepted: tuple[str, ...] = (),
+    ignore: tuple[str, ...] = (),
+) -> None:
+    """Todos los textos del frame aparecen en orden, salvo los aceptados (con su motivo).
+
+    `ignore` quita del frame textos que el lector de `AppTest` no ve (las métricas) o que son tan
+    cortos que coincidirían con cualquier cosa (un «6» está dentro de «2026»).
+    """
     assert_no_exception(at)
-    missing = missing_in_order(figma_texts(screen), page_texts(at))
+    expected = [text for text in figma_texts(screen) if text not in ignore]
+    missing = missing_in_order(expected, page_texts(at))
     assert missing == list(accepted), f"{screen}: faltan o desordenados {missing}"
 
 
