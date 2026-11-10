@@ -36,6 +36,15 @@
         "admin"
       ],
       "active": true
+    },
+    {
+      "id": 13,
+      "email": "marta.gomez@universidad.edu.co",
+      "full_name": "Marta Gómez",
+      "roles": [
+        "instructor"
+      ],
+      "active": true
     }
   ],
   "total": 24,

@@ -9,7 +9,7 @@
       "learning_path": {
         "id": 11,
         "name": "Fundamentos de ML",
-        "group_label": "Grupo 2026-2"
+        "group_label": "2026-2"
       },
       "pilot_arm": "personalized",
       "consent_accepted": true,
@@ -25,7 +25,7 @@
       "learning_path": {
         "id": 11,
         "name": "Fundamentos de ML",
-        "group_label": "Grupo 2026-2"
+        "group_label": "2026-2"
       },
       "pilot_arm": "fixed",
       "consent_accepted": true,
@@ -41,7 +41,7 @@
       "learning_path": {
         "id": 11,
         "name": "Fundamentos de ML",
-        "group_label": "Grupo 2026-2"
+        "group_label": "2026-2"
       },
       "pilot_arm": "personalized",
       "consent_accepted": false,
@@ -57,7 +57,7 @@
       "learning_path": {
         "id": 11,
         "name": "Fundamentos de ML",
-        "group_label": "Grupo 2026-2"
+        "group_label": "2026-2"
       },
       "pilot_arm": "fixed",
       "consent_accepted": true,

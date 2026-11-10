@@ -3,7 +3,7 @@
     {
       "task": "Quiz del tema",
       "calls": 600,
-      "invalid_json_rate": 0.01,
+      "invalid_json_rate": 0.011,
       "latency_p50_ms": 6000,
       "latency_p95_ms": 8200,
       "cost_usd": 1.9
@@ -11,9 +11,9 @@
     {
       "task": "Explicación (RAG)",
       "calls": 484,
-      "invalid_json_rate": 0.01,
+      "invalid_json_rate": 0.011,
       "latency_p50_ms": 9000,
-      "latency_p95_ms": 12400,
+      "latency_p95_ms": 11800,
       "cost_usd": 2.0
     },
     {

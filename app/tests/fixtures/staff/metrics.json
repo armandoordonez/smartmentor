@@ -6,7 +6,7 @@
       "title": "Métricas del sistema",
       "metrics": [
         {
-          "code": "f1_topics",
+          "code": "m1",
           "name": "F1 de temas y prerrequisitos",
           "priority": "P3",
           "status": "meets",
@@ -17,7 +17,7 @@
           "detail": "n = 5 temas · anotación del instructor (D2)"
         },
         {
-          "code": "valid_items",
+          "code": "m2",
           "name": "Preguntas válidas",
           "priority": "P3",
           "status": "meets",
@@ -28,7 +28,7 @@
           "detail": "n = 60 · rúbrica de 2 expertos (D5b)"
         },
         {
-          "code": "kappa",
+          "code": "m3",
           "name": "Acuerdo entre expertos (κ)",
           "priority": "P3",
           "status": "meets",
@@ -39,7 +39,51 @@
           "detail": "n = 60 · D5b"
         },
         {
-          "code": "auc",
+          "code": "m4",
+          "name": "Discriminación de ítems",
+          "priority": "P1",
+          "status": "not_met",
+          "value": null,
+          "value_text": "0,18",
+          "unit": "text",
+          "goal": "≥ 0,2",
+          "detail": "n = 24 aprendices · piloto"
+        },
+        {
+          "code": "m5",
+          "name": "Fidelidad del RAG",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "0,83",
+          "unit": "text",
+          "goal": "≥ 0,8",
+          "detail": "n = 25 textos · RAGAS + revisión"
+        },
+        {
+          "code": "m6",
+          "name": "Precision@3 de videos",
+          "priority": "P2",
+          "status": "not_met",
+          "value": null,
+          "value_text": "0,67",
+          "unit": "text",
+          "goal": "≥ 0,7",
+          "detail": "n = 15 temas · juicio de expertos"
+        },
+        {
+          "code": "m7",
+          "name": "Acuerdo LLM vs. humano (QWK)",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "0,61",
+          "unit": "text",
+          "goal": "≥ 0,6",
+          "detail": "n = 30 · D5c"
+        },
+        {
+          "code": "m8",
           "name": "Validez del diagnóstico (AUC)",
           "priority": "P1",
           "status": "no_data",
@@ -50,7 +94,7 @@
           "detail": "Requiere datos del piloto"
         },
         {
-          "code": "latency",
+          "code": "m9",
           "name": "Latencia p95",
           "priority": "P3",
           "status": "meets",
@@ -59,6 +103,50 @@
           "unit": "text",
           "goal": "< 20 s",
           "detail": "n = 412 llamadas · Log LLM"
+        },
+        {
+          "code": "m10",
+          "name": "JSON inválido",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "1,2 %",
+          "unit": "text",
+          "goal": "< 2 %",
+          "detail": "n = 412 llamadas · Log LLM"
+        },
+        {
+          "code": "m11",
+          "name": "Costo por aprendiz-ruta",
+          "priority": "P3",
+          "status": "report",
+          "value": null,
+          "value_text": "USD 0,38",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "Log LLM (tokens × tarifa)"
+        },
+        {
+          "code": "m12",
+          "name": "Eficiencia de la personalización",
+          "priority": "P2",
+          "status": "report",
+          "value": null,
+          "value_text": "1,4 temas omitidos",
+          "unit": "text",
+          "goal": "Reportar frente a ruta fija",
+          "detail": "n = 24 · grupos del piloto"
+        },
+        {
+          "code": "m13",
+          "name": "Usabilidad (SUS)",
+          "priority": "P3",
+          "status": "no_data",
+          "value": null,
+          "value_text": "—",
+          "unit": "text",
+          "goal": "≥ 68",
+          "detail": "Encuesta final (E13)"
         }
       ]
     },
@@ -66,7 +154,40 @@
       "title": "Métricas de los aprendices",
       "metrics": [
         {
-          "code": "first_attempt",
+          "code": "m14",
+          "name": "Ganancia de Hake (media)",
+          "priority": "P2",
+          "status": "no_data",
+          "value": null,
+          "value_text": "—",
+          "unit": "text",
+          "goal": "g ≥ 0,3",
+          "detail": "Diagnóstico y evaluación final"
+        },
+        {
+          "code": "m15",
+          "name": "d de Cohen (IC 95 %)",
+          "priority": "P2",
+          "status": "no_data",
+          "value": null,
+          "value_text": "—",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "Ruta personalizada vs. ruta fija"
+        },
+        {
+          "code": "m16",
+          "name": "Dominio por tema",
+          "priority": "P1",
+          "status": "report",
+          "value": null,
+          "value_text": "3 de 5 temas",
+          "unit": "text",
+          "goal": "Reportar por tema",
+          "detail": "Pasos de ruta y quizzes (D3)"
+        },
+        {
+          "code": "m17",
           "name": "Aprobación al primer intento",
           "priority": "P2",
           "status": "not_met",
@@ -77,15 +198,48 @@
           "detail": "n = 31 quizzes"
         },
         {
-          "code": "hake",
-          "name": "Ganancia de Hake (media)",
+          "code": "m18",
+          "name": "Intentos por tema",
+          "priority": "P2",
+          "status": "meets",
+          "value": null,
+          "value_text": "1,6",
+          "unit": "text",
+          "goal": "≤ 1,8",
+          "detail": "n = 31 quizzes"
+        },
+        {
+          "code": "m19",
+          "name": "Finalización",
+          "priority": "P2",
+          "status": "not_met",
+          "value": null,
+          "value_text": "25 %",
+          "unit": "text",
+          "goal": "≥ 60 %",
+          "detail": "n = 4 inscritos · 1 badge"
+        },
+        {
+          "code": "m20",
+          "name": "Abandono",
+          "priority": "P2",
+          "status": "report",
+          "value": null,
+          "value_text": "Regresión lineal",
+          "unit": "text",
+          "goal": "Identificar temas críticos",
+          "detail": "Pasos de ruta (D3)"
+        },
+        {
+          "code": "m21",
+          "name": "Percepción",
           "priority": "P2",
           "status": "no_data",
           "value": null,
           "value_text": "—",
           "unit": "text",
-          "goal": "g ≥ 0,3",
-          "detail": "Diagnóstico y evaluación final"
+          "goal": "Media ≥ 4",
+          "detail": "Encuesta final (E13)"
         }
       ]
     },
@@ -93,7 +247,7 @@
       "title": "Otras métricas del brief",
       "metrics": [
         {
-          "code": "api_errors",
+          "code": "m22",
           "name": "Tasa de errores de la API",
           "priority": "P3",
           "status": "report",
@@ -102,6 +256,83 @@
           "unit": "text",
           "goal": "Reportar",
           "detail": "n = 1.204 solicitudes · logs de la API"
+        },
+        {
+          "code": "m23",
+          "name": "nDCG@3 de videos",
+          "priority": "P2",
+          "status": "report",
+          "value": null,
+          "value_text": "0,71",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "n = 15 temas · juicio de expertos (D5e)"
+        },
+        {
+          "code": "m24",
+          "name": "Índice de dificultad de ítems",
+          "priority": "P1",
+          "status": "report",
+          "value": null,
+          "value_text": "0,62",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "n = 24 aprendices · piloto"
+        },
+        {
+          "code": "m25",
+          "name": "Relevancia de la respuesta (RAGAS)",
+          "priority": "P3",
+          "status": "report",
+          "value": null,
+          "value_text": "0,88",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "n = 25 textos · RAGAS"
+        },
+        {
+          "code": "m26",
+          "name": "Precisión del contexto (RAGAS)",
+          "priority": "P3",
+          "status": "report",
+          "value": null,
+          "value_text": "0,79",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "n = 25 textos · RAGAS"
+        },
+        {
+          "code": "m27",
+          "name": "Tiempo en tarea",
+          "priority": "P2",
+          "status": "report",
+          "value": null,
+          "value_text": "38 min por tema",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "Eventos de la interfaz"
+        },
+        {
+          "code": "m28",
+          "name": "Certificación (badge)",
+          "priority": "P2",
+          "status": "report",
+          "value": null,
+          "value_text": "25 %",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "n = 4 inscritos · 1 badge"
+        },
+        {
+          "code": "m29",
+          "name": "Retención (post-test diferido)",
+          "priority": "P2",
+          "status": "no_data",
+          "value": null,
+          "value_text": "—",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "Opcional · E14"
         }
       ]
     }
