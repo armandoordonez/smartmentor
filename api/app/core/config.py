@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     # Cada cuántos segundos el barrido del lifespan ingiere trabajos terminados (0 lo desactiva).
     ai_sweep_interval_seconds: int = 60
 
+    # Emisor de los badges Open Badges 2.0 (E10). Las URL de la aserción «hosted» se arman con la
+    # dirección pública con la que se pide la aserción.
+    badge_issuer_name: str = "SmartMentor"
+    badge_issuer_url: str = "http://localhost:8501"
+
     # Límites de carga y de idempotencia (docs/contracts/api-v2.md, sección 1).
     syllabus_max_bytes: int = 10 * 1024 * 1024
     idempotency_ttl_seconds: int = 24 * 3600

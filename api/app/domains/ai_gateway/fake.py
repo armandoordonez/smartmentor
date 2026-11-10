@@ -15,6 +15,7 @@ from typing import Any
 
 from app.domains.ai_gateway.entities import AiJobError, JobRef, JobRefs, JobStatus
 from app.domains.ai_gateway.exceptions import AiJobNotFoundError, AiServiceUnavailableError
+from app.domains.ai_gateway.fake_learning import LEARNING_JOB_RESULTS, LEARNING_TASK_RESULTS
 
 ResultFactory = Callable[[dict[str, Any]], dict[str, Any]]
 
@@ -85,6 +86,7 @@ def fake_generate_content(_input: dict[str, Any]) -> dict[str, Any]:
 DEFAULT_RESULTS: dict[str, tuple[str | None, ResultFactory]] = {
     "syllabus.structure": (SYLLABUS_CONTRACT, fake_syllabus),
     "course.generate_content": (None, fake_generate_content),
+    **LEARNING_JOB_RESULTS,
 }
 
 
@@ -101,7 +103,7 @@ class FakeAiService:
         self.auto_complete = auto_complete
         self.jobs: dict[str, JobStatus] = {}
         self.submitted: list[SubmittedJob] = []
-        self.task_results: dict[str, ResultFactory] = {}
+        self.task_results: dict[str, ResultFactory] = dict(LEARNING_TASK_RESULTS)
         self.unavailable = False
         self._by_key: dict[str, str] = {}
         self._factories: dict[str, tuple[str | None, ResultFactory]] = dict(DEFAULT_RESULTS)

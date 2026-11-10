@@ -28,8 +28,6 @@ ROOT = Path(__file__).resolve().parents[1]
 # Variables documentadas que ningún servicio lee todavía, con la fase que las usará.
 FUTURE_VARIABLES = {
     "METRICS_DATABASE_URL": "Fase 9: conexión del notebook de métricas (la lee el cuaderno, no un servicio)",
-    "BADGE_ISSUER_NAME": "Fase 3: emisor de las insignias (Open Badges)",
-    "BADGE_ISSUER_URL": "Fase 3: URL del emisor de las insignias",
 }
 
 # Campos de Settings que se pueden sobreescribir pero no forman parte de la configuración documentada.
