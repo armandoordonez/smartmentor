@@ -335,8 +335,8 @@ def test_e1_open_path_with_existing_enrollment_does_not_duplicate_it() -> None:
     at.button(key="open-path-1").click().run()
     assert_no_exception(at)
     assert session_of(at).selected_enrollment_id == 7
-    # El `next_action` (E6) todavía no tiene página: la interfaz informa y no inventa un destino.
-    assert [i.value for i in at.info if "Te inscribiste" in i.value]
+    # El `next_action` (E6) ya tiene página (F07b): la interfaz navega al tema.
+    assert "QUIZ DEL TEMA" in page_texts(at)
 
 
 def test_e1_has_tags_as_eyebrows() -> None:

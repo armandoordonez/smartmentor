@@ -38,6 +38,7 @@ from clients.models import (
     StepContent,
     VideoRating,
 )
+from clients.models_learner import LearnerOps
 from clients.ops_staff_contract import StaffOps
 
 
@@ -67,7 +68,7 @@ class ApiError(Exception):
         self.extra: dict[str, Any] = extra or {}
 
 
-class SmartMentorClient(StaffOps, Protocol):
+class SmartMentorClient(LearnerOps, StaffOps, Protocol):
     """Operaciones que la interfaz pide a la API. El token lo pone cada implementación."""
 
     # --- Usuario actual, consentimientos y perfil (sección 2) ---

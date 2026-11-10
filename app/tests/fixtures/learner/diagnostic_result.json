@@ -1,0 +1,88 @@
+{
+  "status": "scored",
+  "level_by_topic": [
+    {
+      "topic_id": 10,
+      "name": "Introducción y tipos de aprendizaje",
+      "test_score": 92.0,
+      "profile_similarity": 0.5,
+      "profile_prior": 60.0,
+      "resume_prior": null,
+      "weights": {
+        "test": 0.9,
+        "profile": 0.1,
+        "resume": 0.0
+      },
+      "level": 92.0,
+      "classification": "mastered"
+    },
+    {
+      "topic_id": 11,
+      "name": "Regresión lineal",
+      "test_score": 64.0,
+      "profile_similarity": 0.5,
+      "profile_prior": 60.0,
+      "resume_prior": null,
+      "weights": {
+        "test": 0.9,
+        "profile": 0.1,
+        "resume": 0.0
+      },
+      "level": 64.0,
+      "classification": "to_reinforce"
+    },
+    {
+      "topic_id": 12,
+      "name": "Regresión logística",
+      "test_score": 38.0,
+      "profile_similarity": 0.5,
+      "profile_prior": 60.0,
+      "resume_prior": null,
+      "weights": {
+        "test": 0.9,
+        "profile": 0.1,
+        "resume": 0.0
+      },
+      "level": 38.0,
+      "classification": "to_learn"
+    },
+    {
+      "topic_id": 13,
+      "name": "Árboles de decisión",
+      "test_score": 25.0,
+      "profile_similarity": 0.5,
+      "profile_prior": 60.0,
+      "resume_prior": null,
+      "weights": {
+        "test": 0.9,
+        "profile": 0.1,
+        "resume": 0.0
+      },
+      "level": 25.0,
+      "classification": "to_learn"
+    },
+    {
+      "topic_id": 14,
+      "name": "Evaluación de modelos",
+      "test_score": 45.0,
+      "profile_similarity": 0.5,
+      "profile_prior": 60.0,
+      "resume_prior": null,
+      "weights": {
+        "test": 0.9,
+        "profile": 0.1,
+        "resume": 0.0
+      },
+      "level": 45.0,
+      "classification": "to_learn"
+    }
+  ],
+  "overall_score": 52.8,
+  "proposed_objective": {
+    "statement": "Aplicar regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa, logrando al menos 80 % en la evaluación final.",
+    "bloom_verb": "Aplicar",
+    "content": "regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa,",
+    "criterion": "logrando al menos 80 % en la evaluación final",
+    "origin": "llm_proposed"
+  }
+}

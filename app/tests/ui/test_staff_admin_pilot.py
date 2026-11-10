@@ -1,7 +1,12 @@
 """AD4, AD4b (piloto), AD5 (cursos e inscripciones) y C4 (catálogo de prompts)."""
 
 from apptest import page_texts
-from staff_support import assert_no_exception, click, staff_app
+from staff_support import (
+    assert_no_exception,
+    click,
+    staff_app,
+    staff_text_reader,  # noqa: F401
+)
 
 from services.staff_prompts import PROMPTS
 

@@ -1,0 +1,15 @@
+{
+  "job_id": "job-final-grading",
+  "job_type": "grading.short_answer",
+  "status": "succeeded",
+  "progress_label": null,
+  "ingested": true,
+  "next_action": {
+    "type": "view_attempt_result",
+    "step_id": null,
+    "attempt_id": 9100,
+    "job_id": null,
+    "screen": "E9"
+  },
+  "error": null
+}

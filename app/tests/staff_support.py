@@ -1,6 +1,7 @@
 """Ayudas de las pruebas de las páginas del instructor y del administrador."""
 
 import apptest
+import pytest
 from apptest import new_app, page_texts
 from figma_compare import figma_texts, missing_in_order
 from streamlit.testing.v1 import AppTest
@@ -19,7 +20,10 @@ def _with_status_boxes(element: object) -> list[str]:
     return result
 
 
-apptest._element_texts = _with_status_boxes
+@pytest.fixture(autouse=True)
+def staff_text_reader(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Las pruebas de estas páginas leen también los avisos; las demás no se ven afectadas."""
+    monkeypatch.setattr(apptest, "_element_texts", _with_status_boxes)
 
 
 def staff_app(

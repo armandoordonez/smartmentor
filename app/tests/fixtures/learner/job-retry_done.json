@@ -1,0 +1,15 @@
+{
+  "job_id": "job-retry",
+  "job_type": "items.generate_quiz_bank",
+  "status": "succeeded",
+  "progress_label": null,
+  "ingested": true,
+  "next_action": {
+    "type": "continue_attempt",
+    "step_id": 813,
+    "attempt_id": 9002,
+    "job_id": null,
+    "screen": "E6b"
+  },
+  "error": null
+}

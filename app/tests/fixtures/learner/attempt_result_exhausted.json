@@ -1,0 +1,134 @@
+{
+  "attempt_id": 9003,
+  "status": "graded",
+  "score": 40.0,
+  "passed": false,
+  "pass_threshold": 70,
+  "answers": [
+    {
+      "attempt_answer_id": 1001,
+      "item_id": 511,
+      "grading": {
+        "item_id": "511",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 0,
+        "is_correct": false,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": "La sensibilidad (recall): mide cuántos casos positivos reales detecta el modelo. La exactitud puede ser alta aunque el modelo no detecte casi ningún positivo."
+      },
+      "review_requested": false
+    },
+    {
+      "attempt_answer_id": 1002,
+      "item_id": 512,
+      "grading": {
+        "item_id": "512",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 0,
+        "is_correct": false,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": "La sensibilidad (recall): mide cuántos casos positivos reales detecta el modelo. La exactitud puede ser alta aunque el modelo no detecte casi ningún positivo."
+      },
+      "review_requested": false
+    },
+    {
+      "attempt_answer_id": 1003,
+      "item_id": 513,
+      "grading": {
+        "item_id": "513",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 100,
+        "is_correct": true,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": ""
+      },
+      "review_requested": false
+    },
+    {
+      "attempt_answer_id": 1004,
+      "item_id": 514,
+      "grading": {
+        "item_id": "514",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 100,
+        "is_correct": true,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": ""
+      },
+      "review_requested": false
+    },
+    {
+      "attempt_answer_id": 1005,
+      "item_id": 515,
+      "grading": {
+        "item_id": "515",
+        "item_type": "short_answer",
+        "grader": "llm_judge",
+        "approval_rule": "min_criteria_ratio",
+        "min_criteria_ratio": 0.6667,
+        "score": 33.3,
+        "is_correct": false,
+        "criteria_met": 1,
+        "criteria_total": 3,
+        "rubric_detail": [
+          {
+            "criterion": "Relaciona el umbral con el costo de no detectar un fraude.",
+            "met": true,
+            "points": 0.3333,
+            "points_awarded": 0.3333,
+            "evidence": ""
+          },
+          {
+            "criterion": "Nombra la sensibilidad (recall) como métrica para revisar.",
+            "met": false,
+            "points": 0.3333,
+            "points_awarded": 0.0,
+            "evidence": ""
+          },
+          {
+            "criterion": "No justifica el cambio con datos del caso, por ejemplo la proporción de fraudes.",
+            "met": false,
+            "points": 0.3333,
+            "points_awarded": 0.0,
+            "evidence": ""
+          }
+        ],
+        "feedback": ""
+      },
+      "review_requested": false
+    }
+  ],
+  "remedial_resource_id": 121,
+  "attempts": {
+    "used": 3,
+    "max": 3,
+    "remaining": 0
+  },
+  "next_action": {
+    "type": "wait_instructor",
+    "step_id": 813,
+    "attempt_id": null,
+    "job_id": null,
+    "screen": "E7c"
+  }
+}

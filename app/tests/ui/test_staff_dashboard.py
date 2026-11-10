@@ -6,6 +6,7 @@ from staff_support import (
     assert_no_exception,
     click,
     staff_app,
+    staff_text_reader,  # noqa: F401  (fixture autouse)
     with_state,
 )
 

@@ -1,7 +1,13 @@
 """AD1 a AD3: usuarios y roles, log del LLM y métricas globales."""
 
 from apptest import page_texts
-from staff_support import assert_matches_figma, assert_no_exception, click, staff_app
+from staff_support import (
+    assert_matches_figma,
+    assert_no_exception,
+    click,
+    staff_app,
+    staff_text_reader,  # noqa: F401
+)
 
 USERS = "pages/admin/users.py"
 LOGS = "pages/admin/llm_logs.py"

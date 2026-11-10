@@ -42,6 +42,7 @@ from clients.models import (
     StepContent,
     VideoRating,
 )
+from clients.ops_learner import LearnerApiOps
 from clients.ops_staff import StaffApiOps
 
 logger = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ def _json(response: httpx.Response) -> Any:
         raise ApiError(502, "INVALID_RESPONSE", "not JSON") from error
 
 
-class ApiClient(StaffApiOps):
+class ApiClient(LearnerApiOps, StaffApiOps):
     """Implementa `SmartMentorClient` sobre `httpx`."""
 
     def __init__(

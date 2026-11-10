@@ -1,0 +1,9 @@
+{
+  "job_id": "job-final-grading",
+  "job_type": "grading.short_answer",
+  "status": "running",
+  "progress_label": "Calificando la evaluación final",
+  "ingested": false,
+  "next_action": null,
+  "error": null
+}

@@ -1,7 +1,12 @@
 """D1 · Mis cursos."""
 
 from apptest import page_texts
-from staff_support import assert_matches_figma, assert_no_exception, staff_app
+from staff_support import (
+    assert_matches_figma,
+    assert_no_exception,
+    staff_app,
+    staff_text_reader,  # noqa: F401
+)
 
 COURSES = "pages/instructor/courses.py"
 

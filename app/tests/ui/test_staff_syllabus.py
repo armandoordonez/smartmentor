@@ -1,7 +1,13 @@
 """D1b a D1d (nuevo curso, extracción y error) y D2 a D2d (revisión del syllabus y grafo)."""
 
 from apptest import page_texts
-from staff_support import assert_matches_figma, assert_no_exception, click, staff_app
+from staff_support import (
+    assert_matches_figma,
+    assert_no_exception,
+    click,
+    staff_app,
+    staff_text_reader,  # noqa: F401
+)
 
 NEW_COURSE = "pages/instructor/new_course.py"
 SYLLABUS = "pages/instructor/syllabus_review.py"
