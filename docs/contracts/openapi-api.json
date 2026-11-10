@@ -13,6 +13,47 @@
         "title": "BloomLevel",
         "type": "string"
       },
+      "CitedSource": {
+        "additionalProperties": false,
+        "properties": {
+          "license": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License"
+          },
+          "n": {
+            "minimum": 1.0,
+            "title": "N",
+            "type": "integer"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n",
+          "source_id",
+          "title",
+          "url"
+        ],
+        "title": "CitedSource",
+        "type": "object"
+      },
       "ConsentCreate": {
         "additionalProperties": false,
         "properties": {
@@ -405,6 +446,27 @@
         "title": "ExperienceBand",
         "type": "string"
       },
+      "ExplanationSection": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "heading": {
+            "minLength": 1,
+            "title": "Heading",
+            "type": "string"
+          }
+        },
+        "required": [
+          "heading",
+          "body"
+        ],
+        "title": "ExplanationSection",
+        "type": "object"
+      },
       "ExtractionMetricsResponse": {
         "properties": {
           "corrections": {
@@ -510,6 +572,268 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ItemResponse": {
+        "properties": {
+          "auto_review": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Review"
+          },
+          "bloom_level": {
+            "title": "Bloom Level",
+            "type": "string"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "integer"
+          },
+          "equivalence_group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equivalence Group"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "item_type": {
+            "title": "Item Type",
+            "type": "string"
+          },
+          "learning_outcome_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Outcome Id"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "rubric": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rubric"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "learning_outcome_id",
+          "source",
+          "item_type",
+          "bloom_level",
+          "difficulty",
+          "stem",
+          "options",
+          "correct_option",
+          "model_answer",
+          "rubric",
+          "equivalence_group",
+          "review_status",
+          "auto_review",
+          "prompt_version",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ItemResponse",
+        "type": "object"
+      },
+      "ItemUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "correct_option": {
+            "anyOf": [
+              {
+                "maximum": 3.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "review_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "approved",
+                  "retired"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Status"
+          },
+          "rubric": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RubricCriterionIn"
+                },
+                "maxItems": 3,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rubric"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          }
+        },
+        "title": "ItemUpdate",
         "type": "object"
       },
       "JobAccepted": {
@@ -860,6 +1184,37 @@
         "title": "Page[CourseResponse]",
         "type": "object"
       },
+      "Page_ItemResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[ItemResponse]",
+        "type": "object"
+      },
       "Page_RoleResponse_": {
         "properties": {
           "items": {
@@ -1165,6 +1520,371 @@
         "title": "ProfileUpdate",
         "type": "object"
       },
+      "ResourceEditResponse": {
+        "properties": {
+          "audience": {
+            "title": "Audience",
+            "type": "string"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "edited_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited By User Id"
+          },
+          "faithfulness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faithfulness"
+          },
+          "faithfulness_job_id": {
+            "title": "Faithfulness Job Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "resource_type": {
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "sources": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sources"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "unsupported_claims": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unsupported Claims"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_label": {
+            "title": "Version Label",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Candidate Id"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "resource_type",
+          "kind",
+          "audience",
+          "version",
+          "version_label",
+          "review_status",
+          "url",
+          "content",
+          "faithfulness",
+          "unsupported_claims",
+          "sources",
+          "prompt_version",
+          "edited_by_user_id",
+          "video_candidate_id",
+          "created_at",
+          "updated_at",
+          "faithfulness_job_id"
+        ],
+        "title": "ResourceEditResponse",
+        "type": "object"
+      },
+      "ResourceResponse": {
+        "properties": {
+          "audience": {
+            "title": "Audience",
+            "type": "string"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "edited_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited By User Id"
+          },
+          "faithfulness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faithfulness"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "resource_type": {
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "sources": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sources"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "unsupported_claims": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unsupported Claims"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_label": {
+            "title": "Version Label",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Candidate Id"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "resource_type",
+          "kind",
+          "audience",
+          "version",
+          "version_label",
+          "review_status",
+          "url",
+          "content",
+          "faithfulness",
+          "unsupported_claims",
+          "sources",
+          "prompt_version",
+          "edited_by_user_id",
+          "video_candidate_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ResourceResponse",
+        "type": "object"
+      },
+      "ResourceReview": {
+        "additionalProperties": false,
+        "properties": {
+          "review_status": {
+            "enum": [
+              "approved",
+              "retired"
+            ],
+            "title": "Review Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_status"
+        ],
+        "title": "ResourceReview",
+        "type": "object"
+      },
       "ReviewCounts": {
         "properties": {
           "added": {
@@ -1314,6 +2034,29 @@
         "title": "RoleUpdate",
         "type": "object"
       },
+      "RubricCriterionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Criterion",
+            "type": "string"
+          },
+          "points": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+            "title": "Points",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterion",
+          "points"
+        ],
+        "title": "RubricCriterionIn",
+        "type": "object"
+      },
       "ScoreResponse": {
         "properties": {
           "f1": {
@@ -1356,6 +2099,64 @@
           "f1"
         ],
         "title": "ScoreResponse",
+        "type": "object"
+      },
+      "TopicExplanationBody": {
+        "additionalProperties": false,
+        "description": "Lo que el instructor edita en D5d: la explicación sin `meta` ni datos de revisión.",
+        "properties": {
+          "gaps_detected": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gaps Detected",
+            "type": "array"
+          },
+          "reflection_questions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reflection Questions",
+            "type": "array"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationSection"
+            },
+            "minItems": 1,
+            "title": "Sections",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/CitedSource"
+            },
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "worked_example": {
+            "title": "Worked Example",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "sections",
+          "worked_example",
+          "summary",
+          "sources"
+        ],
+        "title": "TopicExplanationBody",
         "type": "object"
       },
       "TopicGraphResponse": {
@@ -1905,6 +2706,467 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "VideoCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "pattern": "^[a-z]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "title": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "youtube_video_id": {
+            "pattern": "^[A-Za-z0-9_-]{11}$",
+            "title": "Youtube Video Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtube_video_id",
+          "title"
+        ],
+        "title": "VideoCreate",
+        "type": "object"
+      },
+      "VideoFeedbackCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "enrollment_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "rating": {
+            "enum": [
+              "useful",
+              "audio_issue",
+              "outdated",
+              "too_long"
+            ],
+            "title": "Rating",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Video Candidate Id",
+            "type": "integer"
+          },
+          "watched_fully": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watched Fully"
+          }
+        },
+        "required": [
+          "video_candidate_id",
+          "enrollment_id",
+          "rating"
+        ],
+        "title": "VideoFeedbackCreate",
+        "type": "object"
+      },
+      "VideoFeedbackResponse": {
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "created": {
+            "title": "Created",
+            "type": "boolean"
+          },
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "rating": {
+            "title": "Rating",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "title": "Video Candidate Id",
+            "type": "integer"
+          },
+          "watched_fully": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watched Fully"
+          }
+        },
+        "required": [
+          "video_candidate_id",
+          "enrollment_id",
+          "rating",
+          "comment",
+          "watched_fully",
+          "created"
+        ],
+        "title": "VideoFeedbackResponse",
+        "type": "object"
+      },
+      "VideoListResponse": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/VideoResponse"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "has_backup": {
+            "title": "Has Backup",
+            "type": "boolean"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic_id",
+          "has_backup",
+          "candidates"
+        ],
+        "title": "VideoListResponse",
+        "type": "object"
+      },
+      "VideoPatch": {
+        "additionalProperties": false,
+        "properties": {
+          "is_relevant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Relevant"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "in_use",
+                  "backup",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "title": "VideoPatch",
+        "type": "object"
+      },
+      "VideoQualityItem": {
+        "properties": {
+          "by_rating": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "By Rating",
+            "type": "object"
+          },
+          "measuring": {
+            "title": "Measuring",
+            "type": "boolean"
+          },
+          "quality_index": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Index"
+          },
+          "ratings": {
+            "title": "Ratings",
+            "type": "integer"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          },
+          "useful_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Useful Rate"
+          },
+          "video": {
+            "$ref": "#/components/schemas/VideoResponse"
+          },
+          "watched_fully": {
+            "title": "Watched Fully",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "video",
+          "topic_name",
+          "ratings",
+          "by_rating",
+          "watched_fully",
+          "useful_rate",
+          "quality_index",
+          "measuring"
+        ],
+        "title": "VideoQualityItem",
+        "type": "object"
+      },
+      "VideoQualityResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VideoQualityItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "learning_path_id": {
+            "title": "Learning Path Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "learning_path_id",
+          "items"
+        ],
+        "title": "VideoQualityResponse",
+        "type": "object"
+      },
+      "VideoResponse": {
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "characterization": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Characterization"
+          },
+          "characterization_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Characterization Source"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "has_captions": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Captions"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "relevance_judgment": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relevance Judgment"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "youtube_video_id": {
+            "title": "Youtube Video Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "youtube_video_id",
+          "url",
+          "title",
+          "channel",
+          "duration_seconds",
+          "language",
+          "has_captions",
+          "characterization",
+          "characterization_source",
+          "similarity",
+          "rank",
+          "status",
+          "origin",
+          "relevance_judgment"
+        ],
+        "title": "VideoResponse",
         "type": "object"
       }
     },
@@ -2706,6 +3968,67 @@
         ]
       }
     },
+    "/api/v1/items/{item_id}": {
+      "patch": {
+        "description": "Aprueba, retira o edita un ítem; editar lo devuelve a `pending_review` (`items.review`).",
+        "operationId": "update_item_api_v1_items__item_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Item",
+        "tags": [
+          "content"
+        ]
+      }
+    },
     "/api/v1/jobs/{job_id}": {
       "get": {
         "description": "Consulta el trabajo (la app lo hace cada 2 s, U1x).\n\nSi `ai/` terminó, la API valida el resultado y lo escribe en una transacción idempotente en\nesta misma petición. Un trabajo fallido responde `502 AI_TASK_FAILED` (con `retryable`) o\n`503 AI_BUDGET_EXCEEDED`. Un trabajo ajeno responde `404 JOB_NOT_FOUND`.",
@@ -2755,6 +4078,57 @@
         "summary": "Get Job",
         "tags": [
           "jobs"
+        ]
+      }
+    },
+    "/api/v1/learning-paths/{path_id}/video-quality": {
+      "get": {
+        "description": "Calidad de los videos de la ruta con las calificaciones de los aprendices (P2, D5f).",
+        "operationId": "video_quality_api_v1_learning_paths__path_id__video_quality_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path_id",
+            "required": true,
+            "schema": {
+              "title": "Path Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoQualityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Video Quality",
+        "tags": [
+          "content"
         ]
       }
     },
@@ -3051,6 +4425,247 @@
         "summary": "Update Profile",
         "tags": [
           "me"
+        ]
+      }
+    },
+    "/api/v1/me/video-feedback": {
+      "post": {
+        "description": "El aprendiz califica el video de su ruta; repetir la calificación la reemplaza (`200`).",
+        "operationId": "submit_video_feedback_api_v1_me_video_feedback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoFeedbackCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoFeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Submit Video Feedback",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/resources/{resource_id}/content": {
+      "put": {
+        "description": "La edición crea una versión nueva en `pending_review` y pide `content.check_faithfulness`.",
+        "operationId": "edit_resource_content_api_v1_resources__resource_id__content_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicExplanationBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceEditResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Edit Resource Content",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/resources/{resource_id}/regenerate": {
+      "post": {
+        "description": "Pide a `ai/` una explicación nueva del tema; llega como versión nueva en revisión.",
+        "operationId": "regenerate_resource_api_v1_resources__resource_id__regenerate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Regenerate Resource",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/resources/{resource_id}/review": {
+      "patch": {
+        "description": "Aprueba o retira un recurso; aprobar una versión retira la aprobada anterior.",
+        "operationId": "review_resource_api_v1_resources__resource_id__review_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceReview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Review Resource",
+        "tags": [
+          "content"
         ]
       }
     },
@@ -3509,6 +5124,277 @@
         "summary": "Deactivate Topic",
         "tags": [
           "courses"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/items": {
+      "get": {
+        "operationId": "list_items_api_v1_topics__topic_id__items_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(diagnostic|topic_quiz|final|retention)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source"
+            }
+          },
+          {
+            "in": "query",
+            "name": "review_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(auto_rejected|pending_review|approved|retired)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Review Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ItemResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Items",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/resources": {
+      "get": {
+        "description": "Todas las versiones de las explicaciones y videos del tema (D5).",
+        "operationId": "list_resources_api_v1_topics__topic_id__resources_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ResourceResponse"
+                  },
+                  "title": "Response List Resources Api V1 Topics  Topic Id  Resources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Resources",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/video-candidates": {
+      "get": {
+        "operationId": "list_video_candidates_api_v1_topics__topic_id__video_candidates_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Video Candidates",
+        "tags": [
+          "content"
+        ]
+      },
+      "post": {
+        "description": "Agrega un video a mano como respaldo (`origin=instructor`).",
+        "operationId": "add_video_candidate_api_v1_topics__topic_id__video_candidates_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Add Video Candidate",
+        "tags": [
+          "content"
         ]
       }
     },
@@ -4312,6 +6198,67 @@
         "summary": "Replace User Roles",
         "tags": [
           "users"
+        ]
+      }
+    },
+    "/api/v1/video-candidates/{video_id}": {
+      "patch": {
+        "description": "Juicio de pertinencia (P@3, nDCG@3), «usar este», respaldo o descarte (D5e).",
+        "operationId": "update_video_candidate_api_v1_video_candidates__video_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "video_id",
+            "required": true,
+            "schema": {
+              "title": "Video Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Video Candidate",
+        "tags": [
+          "content"
         ]
       }
     },
