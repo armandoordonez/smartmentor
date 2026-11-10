@@ -164,6 +164,9 @@ services:
       AI_SERVICE_TOKEN_URL: ${AI_SERVICE_TOKEN_URL:-http://keycloak:8080/realms/smartmentor/protocol/openid-connect/token}
       AI_SERVICE_TIMEOUT_SECONDS: ${AI_SERVICE_TIMEOUT_SECONDS:-10}
       AI_SWEEP_INTERVAL_SECONDS: ${AI_SWEEP_INTERVAL_SECONDS:-60}
+      # Emisor que aparece en la insignia Open Badges; vacío = los valores por defecto de la API.
+      BADGE_ISSUER_NAME: ${BADGE_ISSUER_NAME:-SmartMentor}
+      BADGE_ISSUER_URL: ${BADGE_ISSUER_URL:-http://localhost:8501}
     ports:
       - "${API_PORT:-8020}:8000"
     healthcheck:
