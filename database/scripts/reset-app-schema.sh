@@ -20,6 +20,7 @@
 #   POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD   obligatorias
 #   OWNER_/API_/AI_DATABASE_USER y _PASSWORD        roles de la aplicación (ver bootstrap)
 #   SEED_ADMIN_EMAIL                                correo del administrador inicial (puede ir vacío)
+#   SEED_INSTRUCTOR_EMAIL, SEED_LEARNER_EMAIL       correos de los usuarios de desarrollo (pueden ir vacíos)
 #   RESET_PG_CONTAINER      contenedor de PostgreSQL ajeno al compose (pruebas aisladas). Si se define,
 #                           también se usan RESET_DOCKER_NETWORK (red) y RESET_LIQUIBASE_IMAGE (imagen).
 set -euo pipefail
@@ -43,7 +44,7 @@ ROLE_VARS=(OWNER_DATABASE_USER OWNER_DATABASE_PASSWORD API_DATABASE_USER API_DAT
 
 # Las variables ya definidas en el entorno tienen prioridad sobre las de .env
 SAVED_ENV=()
-for _v in POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD SEED_ADMIN_EMAIL "${ROLE_VARS[@]}"; do
+for _v in POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD SEED_ADMIN_EMAIL SEED_INSTRUCTOR_EMAIL SEED_LEARNER_EMAIL "${ROLE_VARS[@]}"; do
   if [[ -n "${!_v+x}" ]]; then SAVED_ENV+=("$_v=${!_v}"); fi
 done
 if [[ -f "$ROOT_DIR/.env" ]]; then
@@ -106,11 +107,13 @@ run_liquibase() { # $1 = base de datos
       -e "LIQUIBASE_COMMAND_USERNAME=$lb_user" -e "LIQUIBASE_COMMAND_PASSWORD=$lb_password" \
       -e LIQUIBASE_COMMAND_CHANGELOG_FILE=db.changelog-master.xml \
       -e "SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-}" \
+      -e "SEED_INSTRUCTOR_EMAIL=${SEED_INSTRUCTOR_EMAIL:-}" -e "SEED_LEARNER_EMAIL=${SEED_LEARNER_EMAIL:-}" \
       "$RESET_LIQUIBASE_IMAGE" update
   else
     docker compose -f "$ROOT_DIR/docker-compose.yml" run --rm \
       -e "LIQUIBASE_COMMAND_URL=jdbc:postgresql://postgres:5432/$db" \
-      -e "SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-}" liquibase update
+      -e "SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-}" \
+      -e "SEED_INSTRUCTOR_EMAIL=${SEED_INSTRUCTOR_EMAIL:-}" -e "SEED_LEARNER_EMAIL=${SEED_LEARNER_EMAIL:-}" liquibase update
   fi
 }
 

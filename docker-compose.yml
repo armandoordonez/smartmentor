@@ -115,6 +115,9 @@ services:
       LIQUIBASE_COMMAND_PASSWORD: ${OWNER_DATABASE_PASSWORD:?Define OWNER_DATABASE_PASSWORD en .env (ver .env.example)}
       # Correo del administrador sembrado; vacío = no se siembra ninguno.
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      # Usuarios de desarrollo (instructor y aprendiz); vacíos = no se siembran. En producción, vacíos.
+      SEED_INSTRUCTOR_EMAIL: ${SEED_INSTRUCTOR_EMAIL:-}
+      SEED_LEARNER_EMAIL: ${SEED_LEARNER_EMAIL:-}
       LIQUIBASE_COMMAND_CHANGELOG_FILE: db.changelog-master.xml
       LIQUIBASE_LOG_LEVEL: info
     volumes:

@@ -50,6 +50,27 @@ def placeholder(variable: str) -> str:
     return "${" + variable + "}"
 
 
+UUID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+ID_FIELDS = ("id", "containerId")
+
+
+def strip_ids(node: object) -> None:
+    """Quita los identificadores internos (UUID) para que Keycloak genere los suyos al importar.
+
+    Sin esto, importar el realm en una base donde ya existe otro realm con los mismos identificadores
+    (por ejemplo uno renombrado) falla con «duplicate key». Las referencias del realm son por nombre.
+    """
+    if isinstance(node, dict):
+        for field in ID_FIELDS:
+            if isinstance(node.get(field), str) and UUID.match(node[field]):
+                del node[field]
+        for value in node.values():
+            strip_ids(value)
+    elif isinstance(node, list):
+        for item in node:
+            strip_ids(item)
+
+
 def sanitize(realm: dict) -> dict:
     realm.pop("users", None)
     realm.pop("federatedUsers", None)
@@ -64,6 +85,7 @@ def sanitize(realm: dict) -> dict:
         **{field: placeholder(variable) for field, variable in SMTP_VARIABLES.items()},
         **SMTP_FIXED,
     }
+    strip_ids(realm)
     return realm
 
 

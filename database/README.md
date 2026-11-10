@@ -107,6 +107,10 @@ En servicios gestionados, `CREATE EXTENSION vector`, `ALTER DATABASE ... SET tim
 | --- | --- | --- |
 | `v2.0.0-046-seed-roles` | Roles | `learner`, `instructor`, `admin` (ADR 0021). No hay rol `evaluator`: los evaluadores se asignan por curso en `course_evaluators`. |
 | `v2.0.0-047-seed-admin-user` | Usuario administrador | Nombre `Administrator`, rol `admin` y correo tomado de la propiedad de Liquibase `seed_admin_email`, que viene de la variable de entorno `SEED_ADMIN_EMAIL` (DEF-28, G-07). Sin contraseña y sin `identity_subject`: la API lo enlaza con Keycloak en el primer acceso, por el correo **verificado** ([ADR 0004](../docs/adr/0004-authentication-keycloak-bearer.md)). Si `SEED_ADMIN_EMAIL` está vacía, no crea ningún usuario. |
+| `v2.0.1-001-seed-instructor-user` | Usuario instructor de desarrollo | Nombre `Instructor`, rol `instructor` y correo de la propiedad `seed_instructor_email` (variable `SEED_INSTRUCTOR_EMAIL`). Vacía = no se siembra |
+| `v2.0.1-002-seed-learner-user` | Usuario aprendiz de desarrollo | Nombre `Learner`, rol `learner` y correo de la propiedad `seed_learner_email` (variable `SEED_LEARNER_EMAIL`). Vacía = no se siembra |
+
+Los dos usuarios de desarrollo (changelog `v2.0.1/001-seed-dev-users.xml`) funcionan igual que el administrador: sin `identity_subject`, se enlazan con Keycloak en el primer ingreso por el correo verificado, usan `validCheckSum ANY` y su rollback necesita las mismas variables. **En producción deja `SEED_INSTRUCTOR_EMAIL` y `SEED_LEARNER_EMAIL` vacías.** Para iniciar sesión también deben existir en Keycloak: `keycloak/scripts/seed-dev-users.sh`.
 
 Notas sobre el administrador sembrado:
 
