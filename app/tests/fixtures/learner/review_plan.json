@@ -1,0 +1,16 @@
+{
+  "weak_topics": [
+    {
+      "topic_id": 12,
+      "name": "Regresión logística",
+      "score": 55.0,
+      "resource_id": 121
+    },
+    {
+      "topic_id": 14,
+      "name": "Evaluación de modelos",
+      "score": 60.0,
+      "resource_id": 122
+    }
+  ]
+}

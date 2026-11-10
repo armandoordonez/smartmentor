@@ -1,0 +1,76 @@
+{
+  "attempt_id": 9100,
+  "status": "graded",
+  "score": 72.0,
+  "passed": false,
+  "pass_threshold": 80,
+  "answers": [
+    {
+      "attempt_answer_id": 2000,
+      "item_id": 601,
+      "grading": {
+        "item_id": "601",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 0,
+        "is_correct": false,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": "Repasa este concepto."
+      },
+      "review_requested": false
+    },
+    {
+      "attempt_answer_id": 2001,
+      "item_id": 602,
+      "grading": {
+        "item_id": "602",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 100,
+        "is_correct": true,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": "Repasa este concepto."
+      },
+      "review_requested": false
+    },
+    {
+      "attempt_answer_id": 2002,
+      "item_id": 603,
+      "grading": {
+        "item_id": "603",
+        "item_type": "multiple_choice",
+        "grader": "rule",
+        "approval_rule": "single_correct_option",
+        "min_criteria_ratio": null,
+        "score": 100,
+        "is_correct": true,
+        "criteria_met": 0,
+        "criteria_total": 0,
+        "rubric_detail": [],
+        "feedback": "Repasa este concepto."
+      },
+      "review_requested": false
+    }
+  ],
+  "remedial_resource_id": null,
+  "attempts": {
+    "used": 1,
+    "max": 3,
+    "remaining": 2
+  },
+  "next_action": {
+    "type": "take_final",
+    "step_id": null,
+    "attempt_id": null,
+    "job_id": null,
+    "screen": "E8"
+  }
+}

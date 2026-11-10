@@ -1,0 +1,17 @@
+{
+  "daily_minutes_goal": 30,
+  "daily_minutes_done": 20,
+  "monthly_topics_goal": 3,
+  "monthly_topics_done": 2,
+  "streak_days": 3,
+  "daily_options": [
+    15,
+    30,
+    45
+  ],
+  "monthly_options": [
+    2,
+    3,
+    4
+  ]
+}

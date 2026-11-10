@@ -49,6 +49,12 @@ from clients.models import (
     StepContent,
     VideoRating,
 )
+from clients.ops_learner import (
+    LEARNER_SCENARIOS,
+    LEARNER_SCENARIOS_BY_KEY,
+    LearnerFixtureOps,
+    LearnerScript,
+)
 
 DEFAULT_FIXTURES_DIR = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
 
@@ -120,6 +126,22 @@ SCENARIOS: tuple[Scenario, ...] = (
     ),
 )
 
+SCENARIOS = (
+    *SCENARIOS,
+    *(
+        Scenario(
+            s.key,
+            "learner",
+            s.label,
+            s.description,
+            "me_learner",
+            "profile",
+            "consents",
+            s.enrollments,
+        )
+        for s in LEARNER_SCENARIOS
+    ),
+)
 SCENARIOS_BY_KEY = {scenario.key: scenario for scenario in SCENARIOS}
 
 
@@ -131,12 +153,20 @@ def _read(directory: Path, name: str) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-class FixturesClient:
+class FixturesClient(LearnerFixtureOps):
     """Implementa `SmartMentorClient` con documentos fijos y un eco mínimo del estado."""
 
-    def __init__(self, scenario_key: str = "learner", *, directory: Path | None = None) -> None:
+    def __init__(
+        self,
+        scenario_key: str = "learner",
+        *,
+        directory: Path | None = None,
+        script: LearnerScript | None = None,
+    ) -> None:
         self._dir = directory or DEFAULT_FIXTURES_DIR
         self.scenario = SCENARIOS_BY_KEY[scenario_key]
+        spec = LEARNER_SCENARIOS_BY_KEY.get(scenario_key)
+        self._script = script or (spec.script if spec else LearnerScript())
         self._me = self._load(self.scenario.me, Me)
         self._profile = self._load(self.scenario.profile, Profile)
         self._consents = [
@@ -228,12 +258,14 @@ class FixturesClient:
         return created.model_copy(deep=True)
 
     def list_enrollments(self, *, limit: int = 20, offset: int = 0) -> Page[Enrollment]:
+        self.check_online()
         items = [e.model_copy(deep=True) for e in self._enrollments[offset : offset + limit]]
         return Page[Enrollment](
             items=items, total=len(self._enrollments), limit=limit, offset=offset
         )
 
     def get_enrollment(self, enrollment_id: int) -> Enrollment:
+        self.check_online()
         for enrollment in self._enrollments:
             if enrollment.id == enrollment_id:
                 return enrollment.model_copy(deep=True)
@@ -241,37 +273,40 @@ class FixturesClient:
 
     def create_diagnostic(self, enrollment_id: int) -> Diagnostic:
         del enrollment_id
-        return self._load("diagnostic", Diagnostic)
+        return self.doc("diagnostic", Diagnostic)
 
     def get_diagnostic(self, enrollment_id: int) -> Diagnostic:
         del enrollment_id
-        return self._load("diagnostic", Diagnostic)
+        return self.doc("diagnostic", Diagnostic)
 
     def save_diagnostic_answers(self, enrollment_id: int, answers: Sequence[LearnerAnswer]) -> int:
         del enrollment_id
+        self.check_online()
         return len(answers)
 
     def submit_diagnostic(self, enrollment_id: int, *, idempotency_key: str) -> JobAccepted:
         del enrollment_id, idempotency_key
-        return self._load("job_accepted", JobAccepted)
+        return self.accepted("diagnostic_submit")
 
     def get_diagnostic_result(self, enrollment_id: int) -> DiagnosticResult:
         del enrollment_id
-        return self._load("diagnostic_result", DiagnosticResult)
+        return self.doc("diagnostic_result", DiagnosticResult)
 
     def set_objective(self, enrollment_id: int, objective: Objective) -> Enrollment:
-        del objective
-        return self.get_enrollment(enrollment_id)
+        del enrollment_id, objective
+        updated = self.doc("set_objective", Enrollment)
+        self.echo_next_action(updated.next_action)
+        return updated
 
     # --- Aprendiz: ruta, tema, intentos y cierre ---
 
     def get_path(self, enrollment_id: int) -> PathDetail:
         del enrollment_id
-        return self._load("path", PathDetail)
+        return self.doc("path", PathDetail)
 
     def get_step_content(self, enrollment_id: int, step_id: int) -> StepContent:
         del enrollment_id, step_id
-        return self._load("step_content", StepContent)
+        return self.doc("step_content", StepContent)
 
     def create_attempt(
         self,
@@ -282,44 +317,50 @@ class FixturesClient:
         idempotency_key: str,
     ) -> Attempt | JobAccepted:
         del enrollment_id, step_id, assessment_type, idempotency_key
-        return self._load("attempt", Attempt)
+        if "poll_url" in self.doc_raw("create_attempt"):
+            return self.accepted("create_attempt")
+        return self.doc("create_attempt", Attempt)
 
     def get_attempt(self, attempt_id: int) -> Attempt:
         del attempt_id
-        return self._load("attempt", Attempt)
+        return self.doc("attempt", Attempt)
 
     def save_attempt_answers(self, attempt_id: int, answers: Sequence[LearnerAnswer]) -> int:
         del attempt_id
+        self.check_online()
         return len(answers)
 
     def submit_attempt(
         self, attempt_id: int, *, idempotency_key: str
     ) -> AttemptResult | JobAccepted:
         del attempt_id, idempotency_key
-        return self._load("attempt_result", AttemptResult)
+        if "poll_url" in self.doc_raw("submit_attempt"):
+            return self.accepted("submit_attempt")
+        return self.doc("submit_attempt", AttemptResult)
 
     def get_attempt_result(self, attempt_id: int) -> AttemptResult:
         del attempt_id
-        return self._load("attempt_result", AttemptResult)
+        return self.doc("attempt_result", AttemptResult)
 
     def request_answer_review(self, attempt_answer_id: int, comment: str) -> int:
         del attempt_answer_id, comment
+        self.check_online()
         return 1
 
     def create_final_attempt(self, enrollment_id: int, *, idempotency_key: str) -> Attempt:
         del enrollment_id, idempotency_key
-        return self._load("attempt", Attempt)
+        return self.doc("final_attempt", Attempt)
 
     def get_review_plan(self, enrollment_id: int) -> ReviewPlan:
         del enrollment_id
-        return self._load("review_plan", ReviewPlan)
+        return self.doc("review_plan", ReviewPlan)
 
     def list_badges(self) -> list[BadgeSummary]:
-        return [self._load("badge", BadgeSummary)]
+        return [self.doc("badge", BadgeSummary)]
 
     def get_badge(self, enrollment_id: int) -> BadgeSummary:
         del enrollment_id
-        return self._load("badge", BadgeSummary)
+        return self.doc("badge", BadgeSummary)
 
     def send_video_feedback(
         self,
@@ -331,6 +372,7 @@ class FixturesClient:
         watched_fully: bool,
     ) -> None:
         del video_candidate_id, enrollment_id, rating, comment, watched_fully
+        self.check_online()
 
     def submit_final_survey(
         self,
@@ -341,14 +383,11 @@ class FixturesClient:
         comment: str | None,
     ) -> float:
         del enrollment_id, likert, sus_items, comment
+        self.check_online()
         return 85.0
 
     # --- Trabajos de IA ---
 
     def get_job(self, job_id: str) -> Job:
-        """La primera consulta devuelve «en curso» y las siguientes «terminado»."""
-        polls = self._job_polls.get(job_id, 0)
-        self._job_polls[job_id] = polls + 1
-        job = self._load("job_running" if polls == 0 else "job_succeeded", Job)
-        job.job_id = job_id
-        return job
+        """La primera consulta devuelve «en curso» y las siguientes el resultado del escenario."""
+        return self.job_document(job_id)

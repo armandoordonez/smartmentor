@@ -1,0 +1,82 @@
+{
+  "id": 9001,
+  "assessment_type": "topic",
+  "status": "in_progress",
+  "step_id": 813,
+  "items": [
+    {
+      "item_id": 511,
+      "topic_id": 12,
+      "stem": "¿Qué tipo de problema resuelve la regresión logística?",
+      "item_type": "multiple_choice",
+      "options": [
+        "Clasificación",
+        "Regresión",
+        "Agrupamiento",
+        "Reducción"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Regresión logística",
+      "bloom_level": "remember"
+    },
+    {
+      "item_id": 512,
+      "topic_id": 12,
+      "stem": "Si bajas el umbral de 0,5 a 0,3, ¿qué pasa con los casos clasificados como positivos?",
+      "item_type": "multiple_choice",
+      "options": [
+        "Aumentan",
+        "Disminuyen",
+        "No cambian",
+        "Desaparecen"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Regresión logística",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 513,
+      "topic_id": 12,
+      "stem": "En detección de fraude, ¿qué métrica priorizas si no detectar un fraude es muy costoso?",
+      "item_type": "multiple_choice",
+      "options": [
+        "La exactitud",
+        "La sensibilidad (recall)",
+        "El R²",
+        "La precisión"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Regresión logística",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 514,
+      "topic_id": 12,
+      "stem": "Un coeficiente negativo, ¿qué indica sobre la probabilidad?",
+      "item_type": "multiple_choice",
+      "options": [
+        "La reduce",
+        "La aumenta",
+        "No indica nada",
+        "La duplica"
+      ],
+      "allows_dont_know": false,
+      "topic_name": "Regresión logística",
+      "bloom_level": "understand"
+    },
+    {
+      "item_id": 515,
+      "topic_id": 12,
+      "stem": "Explica por qué la regresión lineal no sirve para clasificar",
+      "item_type": "short_answer",
+      "options": [],
+      "allows_dont_know": false,
+      "topic_name": "Regresión logística",
+      "bloom_level": "apply",
+      "rubric_summary": "Se califica con una rúbrica de 3 criterios: (1) relaciona el umbral con el costo del error, (2) nombra una métrica adecuada y (3) justifica con el caso. Un instructor revisa una muestra de las respuestas."
+    }
+  ],
+  "answers": [],
+  "uses_extra_grant": false,
+  "created_at": "2026-10-04T15:00:00Z"
+}

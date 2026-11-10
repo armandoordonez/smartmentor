@@ -1,0 +1,37 @@
+{
+  "@context": "https://w3id.org/openbadges/v2",
+  "type": "Assertion",
+  "id": "/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/assertion.json",
+  "recipient": {
+    "type": "email",
+    "hashed": true,
+    "salt": "sal-de-ejemplo",
+    "identity": "sha256$ejemplo"
+  },
+  "badge": {
+    "type": "BadgeClass",
+    "id": "/api/v1/badges/classes/1",
+    "name": "Fundamentos de Machine Learning",
+    "description": "Aprobó la evaluación final con 88 %.",
+    "image": "/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/image.png",
+    "criteria": {
+      "narrative": "Aprobar todos los temas y la evaluación final con al menos 80 %."
+    },
+    "issuer": {
+      "type": "Issuer",
+      "id": "/api/v1/issuer",
+      "name": "SmartMentor",
+      "url": "https://example.org"
+    },
+    "tags": [
+      "machine-learning"
+    ]
+  },
+  "issuedOn": "2026-10-05T18:00:00Z",
+  "verification": {
+    "type": "hosted"
+  },
+  "evidence": {
+    "narrative": "Evaluación final: 88 %."
+  }
+}
