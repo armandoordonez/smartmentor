@@ -118,6 +118,27 @@
       "review_status": "added",
       "origin": "instructor",
       "embedding_status": "pending"
+    },
+    {
+      "id": 106,
+      "name": "Repaso de álgebra lineal",
+      "description": null,
+      "subtopics": [],
+      "position": 6,
+      "estimated_minutes": 120,
+      "is_mandatory": false,
+      "bloom_level": "understand",
+      "learning_outcomes": [
+        {
+          "id": 41,
+          "statement": "los conceptos de introducción y tipos de aprendizaje",
+          "bloom_level": "understand"
+        }
+      ],
+      "prerequisite_topic_ids": [],
+      "review_status": "deleted",
+      "origin": "llm",
+      "embedding_status": "generated"
     }
   ],
   "review_counts": {
