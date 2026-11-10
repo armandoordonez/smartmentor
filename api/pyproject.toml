@@ -62,3 +62,8 @@ asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]
 markers = ["integration: pruebas que requieren la base de datos smartmentor_test"]
+
+# SQLAlchemy asíncrono ejecuta el código de los repositorios dentro de greenlets: sin esto, la
+# cobertura no cuenta las líneas que siguen a cada `await` sobre la base.
+[tool.coverage.run]
+concurrency = ["greenlet", "thread"]

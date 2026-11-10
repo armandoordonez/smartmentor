@@ -58,6 +58,55 @@
   ],
   "item": [
     {
+      "name": "badges-public",
+      "item": [
+        {
+          "name": "GET /api/v1/badges/{public_id}/assertion.json",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/badges/{{public_id}}/assertion.json",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "badges",
+                "{{public_id}}",
+                "assertion.json"
+              ],
+              "query": []
+            },
+            "description": "Badge Assertion\n\nAserción `badge.v1` (Open Badges 2.0, verificación hosted)."
+          }
+        },
+        {
+          "name": "GET /api/v1/badges/{public_id}/image.png",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/badges/{{public_id}}/image.png",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "badges",
+                "{{public_id}}",
+                "image.png"
+              ],
+              "query": []
+            },
+            "description": "Badge Image\n\n"
+          }
+        }
+      ]
+    },
+    {
       "name": "courses",
       "item": [
         {
@@ -493,6 +542,158 @@
       ]
     },
     {
+      "name": "enrollments-admin",
+      "item": [
+        {
+          "name": "GET /api/v1/enrollments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/enrollments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrollments"
+              ],
+              "query": [
+                {
+                  "key": "learning_path_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Admin List Enrollments\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/enrollments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/enrollments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrollments"
+              ],
+              "query": []
+            },
+            "description": "Admin Enroll\n\nInscribe a un aprendiz (exige su consentimiento de datos: `403 CONSENT_REQUIRED`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"learning_path_id\": 1.0,\n  \"user_id\": 1.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/enrollments/{enrollment_id}/move",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/enrollments/{{enrollment_id}}/move",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrollments",
+                "{{enrollment_id}}",
+                "move"
+              ],
+              "query": []
+            },
+            "description": "Move Enrollment\n\nMueve al aprendiz a otra ruta: la inscripción nueva queda fuera del análisis.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"learning_path_id\": 1.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/enrollments/{enrollment_id}/withdraw",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/enrollments/{{enrollment_id}}/withdraw",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrollments",
+                "{{enrollment_id}}",
+                "withdraw"
+              ],
+              "query": []
+            },
+            "description": "Withdraw Enrollment\n\nRetira la inscripción (no se borra) y la saca del análisis.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "health",
       "item": [
         {
@@ -555,6 +756,927 @@
               "query": []
             },
             "description": "Get Job\n\nConsulta el trabajo (la app lo hace cada 2 s, U1x).\n\nSi `ai/` terminó, la API valida el resultado y lo escribe en una transacción idempotente en\nesta misma petición. Un trabajo fallido responde `502 AI_TASK_FAILED` (con `retryable`) o\n`503 AI_BUDGET_EXCEEDED`. Un trabajo ajeno responde `404 JOB_NOT_FOUND`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "learner",
+      "item": [
+        {
+          "name": "POST /api/v1/me/attempt-answers/{answer_id}/review-request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/attempt-answers/{{answer_id}}/review-request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "attempt-answers",
+                "{{answer_id}}",
+                "review-request"
+              ],
+              "query": []
+            },
+            "description": "Request Review\n\nPide la revisión humana de una respuesta corta (crea una alerta para el instructor).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/attempts/{attempt_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/attempts/{{attempt_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "attempts",
+                "{{attempt_id}}"
+              ],
+              "query": []
+            },
+            "description": "Get Attempt\n\nÍtems (sin solución) y respuestas guardadas."
+          }
+        },
+        {
+          "name": "PUT /api/v1/me/attempts/{attempt_id}/answers",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/attempts/{{attempt_id}}/answers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "attempts",
+                "{{attempt_id}}",
+                "answers"
+              ],
+              "query": []
+            },
+            "description": "Save Attempt Answers\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"item_id\": 1.0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/attempts/{attempt_id}/result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/attempts/{{attempt_id}}/result",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "attempts",
+                "{{attempt_id}}",
+                "result"
+              ],
+              "query": []
+            },
+            "description": "Attempt Result\n\nResultado, rúbrica, explicación alterna (si existe) y siguiente acción (E7, E9)."
+          }
+        },
+        {
+          "name": "POST /api/v1/me/attempts/{attempt_id}/submit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/attempts/{{attempt_id}}/submit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "attempts",
+                "{{attempt_id}}",
+                "submit"
+              ],
+              "query": []
+            },
+            "description": "Submit Attempt\n\nOpción múltiple por regla (`200`); con respuesta corta, `202` y `grading.short_answer`."
+          }
+        },
+        {
+          "name": "GET /api/v1/me/badges",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/badges",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "badges"
+              ],
+              "query": []
+            },
+            "description": "My Badges\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Enrollments\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/me/enrollments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments"
+              ],
+              "query": []
+            },
+            "description": "Enroll\n\nInscribe al aprendiz en una ruta publicada (`403 CONSENT_REQUIRED` sin consentimiento).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"learning_path_id\": 1.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}"
+              ],
+              "query": []
+            },
+            "description": "Get Enrollment\n\nLa inscripción con su `next_action` (la app navega con ella; nunca deduce el estado)."
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}/badge",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/badge",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "badge"
+              ],
+              "query": []
+            },
+            "description": "Enrollment Badge\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}/diagnostic",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/diagnostic",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "diagnostic"
+              ],
+              "query": []
+            },
+            "description": "Get Diagnostic\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/me/enrollments/{enrollment_id}/diagnostic",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/diagnostic",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "diagnostic"
+              ],
+              "query": []
+            },
+            "description": "Start Diagnostic\n\nArma el diagnóstico desde el banco aprobado (sin LLM)."
+          }
+        },
+        {
+          "name": "PUT /api/v1/me/enrollments/{enrollment_id}/diagnostic/answers",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/diagnostic/answers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "diagnostic",
+                "answers"
+              ],
+              "query": []
+            },
+            "description": "Save Diagnostic Answers\n\nGuardado parcial (reemplaza por `item_id`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    {\n      \"item_id\": 1.0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}/diagnostic/result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/diagnostic/result",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "diagnostic",
+                "result"
+              ],
+              "query": []
+            },
+            "description": "Diagnostic Result\n\nNiveles por tema, clasificación y objetivo propuesto (E4)."
+          }
+        },
+        {
+          "name": "POST /api/v1/me/enrollments/{enrollment_id}/diagnostic/submit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/diagnostic/submit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "diagnostic",
+                "submit"
+              ],
+              "query": []
+            },
+            "description": "Submit Diagnostic\n\nEntrega el diagnóstico: `202` con el trabajo `diagnostic.finalize` (U1a)."
+          }
+        },
+        {
+          "name": "POST /api/v1/me/enrollments/{enrollment_id}/final-attempts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/final-attempts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "final-attempts"
+              ],
+              "query": []
+            },
+            "description": "Start Final Attempt\n\nIntento de la final: solo con todos los pasos `passed` o `skipped` (E8)."
+          }
+        },
+        {
+          "name": "PUT /api/v1/me/enrollments/{enrollment_id}/objective",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/objective",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "objective"
+              ],
+              "query": []
+            },
+            "description": "Confirm Objective\n\nObjetivo en tres partes (E4, E4b): `path.sequence` (síncrono) crea los pasos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}/path",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/path",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "path"
+              ],
+              "query": []
+            },
+            "description": "Get Path\n\nPasos con estado y motivo, ahorro por temas omitidos y estado de la final (E5, E5b)."
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}/review-plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/review-plan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "review-plan"
+              ],
+              "query": []
+            },
+            "description": "Review Plan\n\nTemas débiles del último intento final (E9)."
+          }
+        },
+        {
+          "name": "POST /api/v1/me/enrollments/{enrollment_id}/steps/{step_id}/attempts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/steps/{{step_id}}/attempts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "steps",
+                "{{step_id}}",
+                "attempts"
+              ],
+              "query": []
+            },
+            "description": "Start Attempt\n\nIntento del quiz con ítems no vistos; `202` solo si hay que generar más.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/me/enrollments/{enrollment_id}/steps/{step_id}/content",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/steps/{{step_id}}/content",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "steps",
+                "{{step_id}}",
+                "content"
+              ],
+              "query": []
+            },
+            "description": "Step Content\n\nExplicación aprobada, video en uso (o respaldo), reglas del quiz e intentos (E6)."
+          }
+        },
+        {
+          "name": "POST /api/v1/me/enrollments/{enrollment_id}/surveys/final",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/enrollments/{{enrollment_id}}/surveys/final",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "enrollments",
+                "{{enrollment_id}}",
+                "surveys",
+                "final"
+              ],
+              "query": []
+            },
+            "description": "Final Survey\n\nEncuesta final y SUS (E13a, E13b): calcula `sus_score`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sus_items\": [\n    1.0\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/me/events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/events",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "events"
+              ],
+              "query": []
+            },
+            "description": "Record Events\n\nLote de eventos para el tiempo en tarea (hasta 100).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"events\": [\n    {\n      \"enrollment_id\": 1.0,\n      \"event_type\": \"texto\",\n      \"occurred_at\": \"texto\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "learning-paths",
+      "item": [
+        {
+          "name": "GET /api/v1/alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/alerts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "unread",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Alerts\n\nAlertas del instructor (D3, D4): intentos agotados y revisiones pedidas."
+          }
+        },
+        {
+          "name": "PATCH /api/v1/alerts/{alert_id}/read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/alerts/{{alert_id}}/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "alerts",
+                "{{alert_id}}",
+                "read"
+              ],
+              "query": []
+            },
+            "description": "Mark Alert Read\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/enrollments/{enrollment_id}/final-attempt-grants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/enrollments/{{enrollment_id}}/final-attempt-grants",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "enrollments",
+                "{{enrollment_id}}",
+                "final-attempt-grants"
+              ],
+              "query": []
+            },
+            "description": "Grant Final Attempts\n\nIntentos extra de la evaluación final (D4c).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/learning-paths",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/learning-paths",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "learning-paths"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Learning Paths\n\nCatálogo (E1): solo rutas publicadas, con sus temas y minutos estimados."
+          }
+        },
+        {
+          "name": "GET /api/v1/learning-paths/{learning_path_id}/dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/learning-paths/{{learning_path_id}}/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "learning-paths",
+                "{{learning_path_id}}",
+                "dashboard"
+              ],
+              "query": []
+            },
+            "description": "Dashboard\n\nTablero de la ruta (D3): KPI, aprendices, matriz de dominio y temas críticos."
+          }
+        },
+        {
+          "name": "GET /api/v1/learning-paths/{learning_path_id}/learners/{enrollment_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/learning-paths/{{learning_path_id}}/learners/{{enrollment_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "learning-paths",
+                "{{learning_path_id}}",
+                "learners",
+                "{{enrollment_id}}"
+              ],
+              "query": []
+            },
+            "description": "Learner Detail\n\nDetalle del aprendiz (D4, D4b): perfil reducido, niveles, pasos e intentos."
+          }
+        },
+        {
+          "name": "PATCH /api/v1/learning-paths/{learning_path_id}/settings",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/learning-paths/{{learning_path_id}}/settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "learning-paths",
+                "{{learning_path_id}}",
+                "settings"
+              ],
+              "query": []
+            },
+            "description": "Update Settings\n\nUmbrales y objetivo por defecto (D3b). `409 PILOT_RUNNING` sin `confirm_pilot_change`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/path-steps/{step_id}/attempt-grants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/path-steps/{{step_id}}/attempt-grants",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "path-steps",
+                "{{step_id}}",
+                "attempt-grants"
+              ],
+              "query": []
+            },
+            "description": "Grant Step Attempts\n\nIntentos extra de un tema (D4c, CU-26); un paso agotado vuelve a `in_progress`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
           }
         }
       ]
