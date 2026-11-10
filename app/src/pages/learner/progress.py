@@ -9,6 +9,7 @@ import streamlit as st
 
 from clients.base import ApiError
 from clients.models import Enrollment, PathDetail
+from clients.models_learner import StudyGoals, StudyGoalsUpdate
 from components.formatting import decimal, duration, short_date
 from components.layout import render_notice, render_page_header
 from components.stat_tiles import render_stat_tiles
@@ -17,10 +18,10 @@ from core.errors import show_action_error
 from core.identity import current_me, label_for, refresh_me
 from core.learner_flow import current_enrollment, go_to_action
 from core.session import get_session
-from clients.models_learner import StudyGoals, StudyGoalsUpdate
 from services.learning import step_name
 
 DATA_RIGHTS_PAGE = "pages/common/data_rights.py"
+RETENTION_PAGE = "pages/learner/retention_test.py"
 ARM_LABEL = {"personalized": "ruta personalizada", "fixed": "ruta fija"}
 LEAVE_PILOT = "Salir del piloto"
 REVOKE_ALL = "Revocar la autorización y borrar mis datos"
@@ -38,9 +39,7 @@ except ApiError as error:
     st.stop()
 
 role_label = label_for("learner")
-render_notice(
-    f"Tu rol: {role_label} · Solo ves tu propio avance, nunca el de otros aprendices."
-)
+render_notice(f"Tu rol: {role_label} · Solo ves tu propio avance, nunca el de otros aprendices.")
 render_page_header("Mi progreso")
 
 tried = [s.attempts_used for s in path.steps if s.attempts_used > 0]
@@ -61,6 +60,17 @@ with st.container(key="card-progress-route"):
         st.caption(f"Siguiente paso: {next_name}")
     if st.button("Continuar mi ruta", type="primary", key="progress-continue"):
         go_to_action(enrollment.next_action)
+
+
+if enrollment.status == "completed":
+    with st.container(key="card-retention"):
+        st.markdown("**Prueba de retención disponible · opcional**")
+        st.caption(
+            "10 preguntas · unos 10 minutos. Nos ayuda a medir cuánto recuerdas semanas después "
+            "de terminar la ruta."
+        )
+        if st.button("Empezar prueba", key="progress-retention"):
+            st.switch_page(RETENTION_PAGE)
 
 
 def _goals(current: StudyGoals) -> None:

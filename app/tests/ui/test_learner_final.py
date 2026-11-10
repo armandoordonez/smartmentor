@@ -22,11 +22,7 @@ def test_e8_follows_figma() -> None:
     matches_figma(
         at,
         "E8",
-        accepted=(
-            # El nombre del curso va completo; la demostración no se construye.
-            "Fundamentos de ML · Pregunta 3 de 10 · Intento 1 de 3",
-            "(Demo del prototipo) Ver resultado menor a 80 %",
-        ),
+        accepted=("(Demo del prototipo) Ver resultado menor a 80 %",),
     )
 
 
@@ -65,7 +61,14 @@ def test_e8_last_question_submits_and_shows_the_result() -> None:
 
 
 def test_u1d_waits_for_grading_and_keeps_the_answers_on_error() -> None:
-    script = LearnerScript({**GRADE, "job_outcome": "failed", "path": "learner/path_all_passed"})
+    script = LearnerScript(
+        {
+            **GRADE,
+            "job_outcome": "failed",
+            "path": "learner/path_all_passed",
+            "attempt": "learner/attempt_final",
+        }
+    )
     at = learner_app("learner_final_ready", FINAL, script=script)
     for _ in range(8):
         at.radio[0].set_value(at.radio[0].options[0]).run()
@@ -90,7 +93,9 @@ def test_e8_locked_final_is_a_friendly_error() -> None:
 def test_e9_follows_figma() -> None:
     at = learner_app("learner_final_failed", FINAL_RESULT)
     matches_figma(
-        at, "E9", accepted=("Demo: ver el estado con los 3 intentos de la evaluación final agotados",)
+        at,
+        "E9",
+        accepted=("Demo: ver el estado con los 3 intentos de la evaluación final agotados",),
     )
 
 

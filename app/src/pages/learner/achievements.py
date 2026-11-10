@@ -1,7 +1,7 @@
 """E12 · Logros: los badges obtenidos y las rutas que aún los bloquean.
 
-Los badges salen de `GET /me/badges`; «Ver badge» abre E10 con la verificación pública. Las rutas sin
-badge se muestran bloqueadas con lo que falta.
+Los badges salen de `GET /me/badges`; «Ver badge» abre E10 con la verificación pública. Las rutas
+sin badge se muestran bloqueadas con lo que falta.
 """
 
 import streamlit as st
@@ -19,9 +19,7 @@ BADGE_PAGE = "pages/learner/badge.py"
 client = get_client()
 session = get_session()
 
-render_page_header(
-    "Logros", caption="Tus badges digitales: imagen PNG + archivo JSON Open Badges."
-)
+render_page_header("Logros", caption="Tus badges digitales: imagen PNG + archivo JSON Open Badges.")
 
 try:
     badges = client.list_badges()

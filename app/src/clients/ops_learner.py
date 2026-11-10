@@ -319,10 +319,12 @@ class LearnerFixtureOps:
         return TINY_PNG
 
     def get_study_goals(self) -> StudyGoals | None:
-        return self.doc("goals", StudyGoals)
+        saved: StudyGoals | None = getattr(self, "_saved_goals", None)
+        return saved.model_copy() if saved else self.doc("goals", StudyGoals)
 
     def set_study_goals(self, update: StudyGoalsUpdate) -> StudyGoals:
         goals = self.doc("goals", StudyGoals)
         goals.daily_minutes_goal = update.daily_minutes_goal
         goals.monthly_topics_goal = update.monthly_topics_goal
+        self._saved_goals = goals  # eco del estado de la sesión de demostración
         return goals

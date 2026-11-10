@@ -119,7 +119,8 @@ st.caption(
 if st.button("Reintentar evaluación final", type="primary", key="final-retry"):
     try:
         created = client.create_final_attempt(
-            enrollment.id, idempotency_key=idempotency_key(f"final-{enrollment.id}-retry", fresh=True)
+            enrollment.id,
+            idempotency_key=idempotency_key(f"final-{enrollment.id}-retry", fresh=True),
         )
     except ApiError as error:
         show_action_error(error)

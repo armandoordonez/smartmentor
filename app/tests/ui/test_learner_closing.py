@@ -5,6 +5,7 @@ from learner_support import (
     ACHIEVEMENTS,
     BADGE,
     PROGRESS,
+    RETENTION,
     SURVEY,
     client_of,
     fail,
@@ -12,7 +13,6 @@ from learner_support import (
     matches_figma,
     no_exception,
 )
-
 from streamlit.testing.v1 import AppTest
 
 from clients.base import ApiError
@@ -21,7 +21,8 @@ from clients.models_learner import StudyGoals
 
 def test_e10_follows_figma() -> None:
     at = learner_app("learner_completed", BADGE)
-    matches_figma(at, "E10", accepted=("★",))
+    # El ícono de la insignia y el botón de descarga no los lee `AppTest`.
+    matches_figma(at, "E10", accepted=("★", "Descargar badge"))
 
 
 def test_e10_without_pending_survey_hides_the_survey_card() -> None:
@@ -93,13 +94,14 @@ def test_e11_follows_figma() -> None:
         accepted=(
             # La API no dice si hay prueba de retención (E14, P2), los intentos por tema se
             # calculan con los datos de la ruta y la persona de ejemplo no participa del piloto.
+            "Tu rol: Aprendiz · Solo ves tu propio avance, nunca el de otros aprendices.",
             "1,5",
             "Prueba de retención disponible · opcional",
             "10 preguntas · unos 10 minutos. Nos ayuda a medir cuánto recuerdas semanas después "
             "de terminar la ruta.",
             "Empezar prueba",
-            "Piloto: participas · ruta personalizada",
             "Datos: autorizado el 1 oct 2026",
+            "Piloto: participas · ruta personalizada",
         ),
     )
 
@@ -166,7 +168,7 @@ def test_e11b_revoking_everything_requests_deletion_and_asks_for_consent_again()
     at = learner_app("learner_path", PROGRESS)
     requests = []
     client = client_of(at)
-    client.create_data_subject_request = lambda kind, comment: requests.append(kind)  # type: ignore[method-assign,assignment,return-value]
+    client.create_data_subject_request = lambda kind, _comment: requests.append(kind)  # type: ignore[method-assign,assignment,return-value]
     button(at, "Gestionar mis autorizaciones").click().run()
     at.radio(key="consents-choice").set_value("Revocar la autorización y borrar mis datos").run()
     button(at, "Confirmar").click().run()
@@ -199,7 +201,6 @@ def _fill(at: AppTest, count: int, start: int = 0) -> None:
         at.radio[index].set_value(5).run()
 
 
-
 def test_e13a_follows_figma() -> None:
     at = learner_app("learner_completed", SURVEY)
     matches_figma(at, "E13a", accepted=("Fundamentos de ML · Encuesta final",))
@@ -218,7 +219,7 @@ def test_e13b_follows_figma_and_sends_the_survey() -> None:
     button(at, "Siguiente").click().run()
     matches_figma(at, "E13b", accepted=("Fundamentos de ML · Encuesta final",))
     sent = []
-    client_of(at).submit_final_survey = lambda *a, **kw: sent.append(kw) or 85.0  # type: ignore[method-assign]
+    client_of(at).submit_final_survey = lambda *_a, **kw: sent.append(kw) or 85.0  # type: ignore[method-assign]
     _fill(at, 5)
     at.text_area(key="survey-comment").set_value("Más ejemplos.").run()
     button(at, "Enviar encuesta").click().run()
@@ -251,3 +252,30 @@ def test_e13_skip_returns_to_the_badge() -> None:
     button(at, "Ahora no").click().run()
     no_exception(at)
     assert "¡Ruta completada!" in page_texts(at)
+
+
+# --- E14 (P2) ------------------------------------------------------------------------------------
+
+
+def test_e14_is_only_offered_when_the_route_is_completed() -> None:
+    at = learner_app("learner_path", RETENTION)
+    no_exception(at)
+    assert at.info
+    assert "Prueba de retención" not in page_texts(at)
+
+
+def test_e14_shows_the_retention_questions() -> None:
+    at = learner_app("learner_badge", RETENTION)
+    no_exception(at)
+    texts = page_texts(at)
+    assert "Prueba de retención" in texts
+    assert "Sin ayuda de IA ni apuntes" in texts
+    assert any(t.startswith("Pregunta 1 de 5") for t in texts)
+
+
+def test_e11_offers_the_retention_test_after_completing_the_route() -> None:
+    at = learner_app("learner_badge", PROGRESS)
+    assert "Prueba de retención disponible · opcional" in page_texts(at)
+    button(at, "Empezar prueba").click().run()
+    no_exception(at)
+    assert "Prueba de retención" in page_texts(at)

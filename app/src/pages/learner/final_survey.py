@@ -92,7 +92,9 @@ else:
         placeholder="¿Qué mejorarías?",
         key="survey-comment",
     )
-    st.caption("¡Gracias! Tus respuestas nos ayudan a mejorar SmartMentor. Al enviar vuelves a tu badge.")
+    st.caption(
+        "¡Gracias! Tus respuestas nos ayudan a mejorar SmartMentor. Al enviar vuelves a tu badge."
+    )
     complete = all(i in state.survey_sus for i in range(6, 11))
     with st.container(horizontal=True):
         if st.button("Anterior", key="survey-back"):
