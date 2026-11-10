@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/003-learning-paths-defaults.xml">
+
+    <changeSet id="v2.0.1-003-short-answer-min-ratio" author="eduar.troyano">
+        <comment>La API usa short_answer_min_ratio como la proporción mínima de criterios de la rúbrica que debe cumplir una respuesta corta para aprobarse (DEF-21: 2 de 3 = 0.667), no como proporción de ítems. El valor por defecto de v2.0.0 (0.200) no coincidía con el de la API. Se corrige el valor por defecto y la descripción, y se actualizan solo las filas que conservan el valor por defecto antiguo.</comment>
+        <sql>ALTER TABLE learning_paths ALTER COLUMN short_answer_min_ratio SET DEFAULT 0.667</sql>
+        <sql>UPDATE learning_paths SET short_answer_min_ratio = 0.667 WHERE short_answer_min_ratio = 0.200</sql>
+        <sql>COMMENT ON COLUMN learning_paths.short_answer_min_ratio IS 'Minimum share of rubric criteria a short answer must meet to pass (2 of 3 = 0.667)'</sql>
+        <rollback>
+            <sql>COMMENT ON COLUMN learning_paths.short_answer_min_ratio IS 'Minimum share of short-answer items in assessments (0 to 1)'</sql>
+            <sql>ALTER TABLE learning_paths ALTER COLUMN short_answer_min_ratio SET DEFAULT 0.200</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2.0.1-003-level-weights-comment" author="eduar.troyano">
+        <comment>level_weights se guarda en porcentaje (80/10/10) y la API los normaliza a fracciones antes de llamar a ai/. Solo se aclara la descripción de la columna.</comment>
+        <sql>COMMENT ON COLUMN learning_paths.level_weights IS 'Weights of the diagnostic level (test, resume, profile) as percentages, 80/10/10 by default; the API normalizes them to fractions'</sql>
+        <rollback>
+            <sql>COMMENT ON COLUMN learning_paths.level_weights IS 'Weights of the diagnostic level (test, resume, profile), 80/10/10 by default'</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

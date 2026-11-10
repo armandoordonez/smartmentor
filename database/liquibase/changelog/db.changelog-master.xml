@@ -29,4 +29,7 @@
     <!-- v2.0.1: función purge_user_audit(bigint) para la supresión de datos (ADR 0018). -->
     <include file="v2.0.1/002-purge-user-audit.xml" relativeToChangelogFile="true"/>
 
+    <!-- v2.0.1-003: valores por defecto de learning_paths alineados con la API. -->
+    <include file="v2.0.1/003-learning-paths-defaults.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

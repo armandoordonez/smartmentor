@@ -111,6 +111,8 @@ En servicios gestionados, `CREATE EXTENSION vector`, `ALTER DATABASE ... SET tim
 | `v2.0.1-002-seed-learner-user` | Usuario aprendiz de desarrollo | Nombre `Learner`, rol `learner` y correo de la propiedad `seed_learner_email` (variable `SEED_LEARNER_EMAIL`). Vacía = no se siembra |
 
 Los dos usuarios de desarrollo (changelog `v2.0.1/001-seed-dev-users.xml`) funcionan igual que el administrador: sin `identity_subject`, se enlazan con Keycloak en el primer ingreso por el correo verificado, usan `validCheckSum ANY` y su rollback necesita las mismas variables. **En producción deja `SEED_INSTRUCTOR_EMAIL` y `SEED_LEARNER_EMAIL` vacías.** Para iniciar sesión también deben existir en Keycloak: `keycloak/scripts/seed-dev-users.sh`.
+| `v2.0.1-003-short-answer-min-ratio` | Valor por defecto de `learning_paths.short_answer_min_ratio` | 0,667 (2 de 3 criterios, DEF-21) en lugar de 0,200, y descripción corregida: es la proporción mínima de criterios de la rúbrica, no de ítems |
+| `v2.0.1-003-level-weights-comment` | Descripción de `learning_paths.level_weights` | Se guardan en porcentaje (80/10/10) y la API los normaliza a fracciones antes de llamar a `ai/` |
 
 Notas sobre el administrador sembrado:
 
