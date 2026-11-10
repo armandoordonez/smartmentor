@@ -58,6 +58,360 @@
   ],
   "item": [
     {
+      "name": "content",
+      "item": [
+        {
+          "name": "PATCH /api/v1/items/{item_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/items/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "items",
+                "{{item_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Item\n\nAprueba, retira o edita un ítem; editar lo devuelve a `pending_review` (`items.review`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/learning-paths/{path_id}/video-quality",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/learning-paths/{{path_id}}/video-quality",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "learning-paths",
+                "{{path_id}}",
+                "video-quality"
+              ],
+              "query": []
+            },
+            "description": "Video Quality\n\nCalidad de los videos de la ruta con las calificaciones de los aprendices (P2, D5f)."
+          }
+        },
+        {
+          "name": "POST /api/v1/me/video-feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/me/video-feedback",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "me",
+                "video-feedback"
+              ],
+              "query": []
+            },
+            "description": "Submit Video Feedback\n\nEl aprendiz califica el video de su ruta; repetir la calificación la reemplaza (`200`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enrollment_id\": 1,\n  \"rating\": \"useful\",\n  \"video_candidate_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT /api/v1/resources/{resource_id}/content",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/resources/{{resource_id}}/content",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "resources",
+                "{{resource_id}}",
+                "content"
+              ],
+              "query": []
+            },
+            "description": "Edit Resource Content\n\nLa edición crea una versión nueva en `pending_review` y pide `content.check_faithfulness`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sections\": [\n    {\n      \"body\": \"texto\",\n      \"heading\": \"texto\"\n    }\n  ],\n  \"sources\": [\n    {\n      \"n\": 1.0,\n      \"source_id\": \"texto\",\n      \"title\": \"texto\",\n      \"url\": \"texto\"\n    }\n  ],\n  \"summary\": \"texto\",\n  \"title\": \"texto\",\n  \"worked_example\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/resources/{resource_id}/regenerate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/resources/{{resource_id}}/regenerate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "resources",
+                "{{resource_id}}",
+                "regenerate"
+              ],
+              "query": []
+            },
+            "description": "Regenerate Resource\n\nPide a `ai/` una explicación nueva del tema; llega como versión nueva en revisión."
+          }
+        },
+        {
+          "name": "PATCH /api/v1/resources/{resource_id}/review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/resources/{{resource_id}}/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "resources",
+                "{{resource_id}}",
+                "review"
+              ],
+              "query": []
+            },
+            "description": "Review Resource\n\nAprueba o retira un recurso; aprobar una versión retira la aprobada anterior.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"review_status\": \"approved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/topics/{topic_id}/items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics/{{topic_id}}/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics",
+                "{{topic_id}}",
+                "items"
+              ],
+              "query": [
+                {
+                  "key": "source",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "review_status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Items\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/topics/{topic_id}/resources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics/{{topic_id}}/resources",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics",
+                "{{topic_id}}",
+                "resources"
+              ],
+              "query": []
+            },
+            "description": "List Resources\n\nTodas las versiones de las explicaciones y videos del tema (D5)."
+          }
+        },
+        {
+          "name": "GET /api/v1/topics/{topic_id}/video-candidates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics/{{topic_id}}/video-candidates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics",
+                "{{topic_id}}",
+                "video-candidates"
+              ],
+              "query": []
+            },
+            "description": "List Video Candidates\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/topics/{topic_id}/video-candidates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/topics/{{topic_id}}/video-candidates",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "topics",
+                "{{topic_id}}",
+                "video-candidates"
+              ],
+              "query": []
+            },
+            "description": "Add Video Candidate\n\nAgrega un video a mano como respaldo (`origin=instructor`).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"texto\",\n  \"youtube_video_id\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/video-candidates/{video_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/video-candidates/{{video_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "video-candidates",
+                "{{video_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Video Candidate\n\nJuicio de pertinencia (P@3, nDCG@3), «usar este», respaldo o descarte (D5e).",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "courses",
       "item": [
         {
@@ -493,6 +847,323 @@
       ]
     },
     {
+      "name": "data-subject-requests",
+      "item": [
+        {
+          "name": "GET /api/v1/data-subject-requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/data-subject-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "data-subject-requests"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "request_type",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Data Subject Requests\n\n"
+          }
+        },
+        {
+          "name": "PATCH /api/v1/data-subject-requests/{request_id}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/data-subject-requests/{{request_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "data-subject-requests",
+                "{{request_id}}"
+              ],
+              "query": []
+            },
+            "description": "Resolve Data Subject Request\n\nPasa la solicitud a `in_progress`, `resolved` o `rejected`.\n\nResolver una supresión seudonimiza al titular y purga su `_audit`; exige que la base tenga el\nprocedimiento `purge_user_audit(bigint)` (si no, `503` y no cambia nada).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "evaluation",
+      "item": [
+        {
+          "name": "POST /api/v1/attempt-answers/{answer_id}/human-gradings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/attempt-answers/{{answer_id}}/human-gradings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attempt-answers",
+                "{{answer_id}}",
+                "human-gradings"
+              ],
+              "query": []
+            },
+            "description": "Grade Answer\n\nGuarda la calificación humana y recién entonces devuelve la nota del LLM para comparar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criteria\": [\n    {\n      \"criterion\": \"texto\",\n      \"met\": false,\n      \"points_awarded\": 1\n    }\n  ],\n  \"sample_type\": \"random\",\n  \"score\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/course-evaluators/{evaluator_id}/deactivate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/course-evaluators/{{evaluator_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "course-evaluators",
+                "{{evaluator_id}}",
+                "deactivate"
+              ],
+              "query": []
+            },
+            "description": "Remove Evaluator\n\n"
+          }
+        },
+        {
+          "name": "GET /api/v1/courses/{course_id}/evaluators",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/evaluators",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "evaluators"
+              ],
+              "query": []
+            },
+            "description": "List Evaluators\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/courses/{course_id}/evaluators",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/evaluators",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "evaluators"
+              ],
+              "query": []
+            },
+            "description": "Assign Evaluator\n\nAsigna un instructor (que no es el dueño) como evaluador del curso (DEF-24).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/evaluation/annotation-queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evaluation/annotation-queue",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "evaluation",
+                "annotation-queue"
+              ],
+              "query": [
+                {
+                  "key": "course_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "done",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Annotation Queue\n\nÍtems por anotar. La anotación del otro evaluador nunca se devuelve (anotación ciega)."
+          }
+        },
+        {
+          "name": "GET /api/v1/evaluation/grading-queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evaluation/grading-queue",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "evaluation",
+                "grading-queue"
+              ],
+              "query": [
+                {
+                  "key": "sample",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Grading Queue\n\nRespuestas cortas por calificar a mano. La nota del LLM no se devuelve aquí."
+          }
+        },
+        {
+          "name": "POST /api/v1/items/{item_id}/annotations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/items/{{item_id}}/annotations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "items",
+                "{{item_id}}",
+                "annotations"
+              ],
+              "query": []
+            },
+            "description": "Annotate Item\n\n",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verdict\": \"valid\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "health",
       "item": [
         {
@@ -750,6 +1421,345 @@
                 }
               }
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "observability",
+      "item": [
+        {
+          "name": "GET /api/v1/llm-call-logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/llm-call-logs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "llm-call-logs"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "task",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "model",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "prompt_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Llm Call Logs\n\nLlamadas al LLM, de la más reciente a la más antigua (AD2); filtra por tarea y modelo."
+          }
+        },
+        {
+          "name": "GET /api/v1/llm-call-logs/summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/llm-call-logs/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "llm-call-logs",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "task",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "model",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "prompt_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Llm Call Logs Summary\n\nPor tarea: llamadas, JSON inválido, latencia p50 y p95 y costo; más el costo por curso."
+          }
+        },
+        {
+          "name": "GET /api/v1/metrics/evaluation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/metrics/evaluation",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "metrics",
+                "evaluation"
+              ],
+              "query": [
+                {
+                  "key": "learning_path_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Evaluation Metrics\n\nMétricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas."
+          }
+        }
+      ]
+    },
+    {
+      "name": "pilot",
+      "item": [
+        {
+          "name": "GET /api/v1/pilots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "List Pilots\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/pilots",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots"
+              ],
+              "query": []
+            },
+            "description": "Create Pilot\n\nCrea el piloto de una ruta en borrador (solo uno sin cerrar por ruta).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ends_on\": \"texto\",\n  \"learning_path_id\": 1,\n  \"starts_on\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/pilots/{pilot_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots/{{pilot_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots",
+                "{{pilot_id}}"
+              ],
+              "query": []
+            },
+            "description": "Get Pilot\n\n"
+          }
+        },
+        {
+          "name": "PUT /api/v1/pilots/{pilot_id}",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots/{{pilot_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots",
+                "{{pilot_id}}"
+              ],
+              "query": []
+            },
+            "description": "Update Pilot\n\nCambia la configuración; `409 PILOT_ALREADY_STARTED` una vez iniciado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ends_on\": \"texto\",\n  \"learning_path_id\": 1,\n  \"starts_on\": \"texto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/pilots/{pilot_id}/fixed-path-preview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots/{{pilot_id}}/fixed-path-preview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots",
+                "{{pilot_id}}",
+                "fixed-path-preview"
+              ],
+              "query": []
+            },
+            "description": "Fixed Path Preview\n\nVista previa de la ruta fija (`learning_path.v1` con `pilot_arm=fixed`)."
+          }
+        },
+        {
+          "name": "POST /api/v1/pilots/{pilot_id}/randomize",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots/{{pilot_id}}/randomize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots",
+                "{{pilot_id}}",
+                "randomize"
+              ],
+              "query": []
+            },
+            "description": "Randomize Pilot\n\nSorteo con semilla entre quienes aceptaron `pilot_research`; solo antes de iniciar."
+          }
+        },
+        {
+          "name": "GET /api/v1/pilots/{pilot_id}/readiness",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots/{{pilot_id}}/readiness",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots",
+                "{{pilot_id}}",
+                "readiness"
+              ],
+              "query": []
+            },
+            "description": "Pilot Readiness\n\n"
+          }
+        },
+        {
+          "name": "POST /api/v1/pilots/{pilot_id}/start",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/pilots/{{pilot_id}}/start",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "pilots",
+                "{{pilot_id}}",
+                "start"
+              ],
+              "query": []
+            },
+            "description": "Start Pilot\n\n"
           }
         }
       ]

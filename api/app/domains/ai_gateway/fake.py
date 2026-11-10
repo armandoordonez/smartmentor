@@ -15,6 +15,7 @@ from typing import Any
 
 from app.domains.ai_gateway.entities import AiJobError, JobRef, JobRefs, JobStatus
 from app.domains.ai_gateway.exceptions import AiJobNotFoundError, AiServiceUnavailableError
+from app.domains.content.fake_results import CONTENT_RESULTS
 
 ResultFactory = Callable[[dict[str, Any]], dict[str, Any]]
 
@@ -86,6 +87,9 @@ DEFAULT_RESULTS: dict[str, tuple[str | None, ResultFactory]] = {
     "syllabus.structure": (SYLLABUS_CONTRACT, fake_syllabus),
     "course.generate_content": (None, fake_generate_content),
 }
+
+# Las salidas de los trabajos de contenido las define el dominio `content`.
+DEFAULT_RESULTS.update(CONTENT_RESULTS)
 
 
 @dataclass(frozen=True)

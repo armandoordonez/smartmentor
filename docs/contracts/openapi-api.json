@@ -1,6 +1,198 @@
 {
   "components": {
     "schemas": {
+      "AnnotationCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "bloom_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Ok"
+          },
+          "clear_stem": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clear Stem"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "plausible_distractors": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plausible Distractors"
+          },
+          "single_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Single Correct"
+          },
+          "verdict": {
+            "enum": [
+              "valid",
+              "invalid"
+            ],
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "verdict"
+        ],
+        "title": "AnnotationCreate",
+        "type": "object"
+      },
+      "AnnotationResponse": {
+        "properties": {
+          "assessment_item_id": {
+            "title": "Assessment Item Id",
+            "type": "integer"
+          },
+          "bloom_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bloom Ok"
+          },
+          "clear_stem": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clear Stem"
+          },
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "evaluator_slot": {
+            "title": "Evaluator Slot",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "plausible_distractors": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plausible Distractors"
+          },
+          "single_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Single Correct"
+          },
+          "verdict": {
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "assessment_item_id",
+          "evaluator_slot",
+          "single_correct",
+          "clear_stem",
+          "bloom_ok",
+          "plausible_distractors",
+          "verdict",
+          "comment",
+          "created_at"
+        ],
+        "title": "AnnotationResponse",
+        "type": "object"
+      },
+      "ArmCounts": {
+        "properties": {
+          "fixed": {
+            "title": "Fixed",
+            "type": "integer"
+          },
+          "personalized": {
+            "title": "Personalized",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "personalized",
+          "fixed"
+        ],
+        "title": "ArmCounts",
+        "type": "object"
+      },
       "BloomLevel": {
         "enum": [
           "remember",
@@ -12,6 +204,47 @@
         ],
         "title": "BloomLevel",
         "type": "string"
+      },
+      "CitedSource": {
+        "additionalProperties": false,
+        "properties": {
+          "license": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License"
+          },
+          "n": {
+            "minimum": 1.0,
+            "title": "N",
+            "type": "integer"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n",
+          "source_id",
+          "title",
+          "url"
+        ],
+        "title": "CitedSource",
+        "type": "object"
       },
       "ConsentCreate": {
         "additionalProperties": false,
@@ -129,6 +362,36 @@
         ],
         "title": "ConsentType",
         "type": "string"
+      },
+      "CourseCostResponse": {
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "cost_usd": {
+            "title": "Cost Usd",
+            "type": "number"
+          },
+          "course_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Course Id"
+          }
+        },
+        "required": [
+          "course_id",
+          "calls",
+          "cost_usd"
+        ],
+        "title": "CourseCostResponse",
+        "type": "object"
       },
       "CourseCreate": {
         "additionalProperties": false,
@@ -325,6 +588,110 @@
         "title": "CourseUpdate",
         "type": "object"
       },
+      "CriterionGrade": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Criterion",
+            "type": "string"
+          },
+          "met": {
+            "title": "Met",
+            "type": "boolean"
+          },
+          "points_awarded": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Points Awarded",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterion",
+          "met",
+          "points_awarded"
+        ],
+        "title": "CriterionGrade",
+        "type": "object"
+      },
+      "DataSubjectRequestAdminResponse": {
+        "properties": {
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "request_type": {
+            "title": "Request Type",
+            "type": "string"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "resolved_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By User Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "request_type",
+          "status",
+          "details",
+          "created_at",
+          "resolved_at",
+          "resolved_by_user_id"
+        ],
+        "title": "DataSubjectRequestAdminResponse",
+        "type": "object"
+      },
       "DataSubjectRequestCreate": {
         "additionalProperties": false,
         "properties": {
@@ -348,6 +715,93 @@
           "request_type"
         ],
         "title": "DataSubjectRequestCreate",
+        "type": "object"
+      },
+      "DataSubjectRequestResolved": {
+        "properties": {
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "erasure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErasureResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "request_type": {
+            "title": "Request Type",
+            "type": "string"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "resolved_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By User Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "request_type",
+          "status",
+          "details",
+          "created_at",
+          "resolved_at",
+          "resolved_by_user_id",
+          "erasure"
+        ],
+        "title": "DataSubjectRequestResolved",
         "type": "object"
       },
       "DataSubjectRequestResponse": {
@@ -382,6 +836,37 @@
         "title": "DataSubjectRequestType",
         "type": "string"
       },
+      "DataSubjectRequestUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "status": {
+            "enum": [
+              "in_progress",
+              "resolved",
+              "rejected"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "DataSubjectRequestUpdate",
+        "type": "object"
+      },
       "EducationLevel": {
         "enum": [
           "secondary",
@@ -394,6 +879,84 @@
         "title": "EducationLevel",
         "type": "string"
       },
+      "ErasureResponse": {
+        "properties": {
+          "audit_purged": {
+            "title": "Audit Purged",
+            "type": "boolean"
+          },
+          "identity_provider_action_required": {
+            "title": "Identity Provider Action Required",
+            "type": "boolean"
+          },
+          "pseudonymized": {
+            "title": "Pseudonymized",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pseudonymized",
+          "audit_purged",
+          "identity_provider_action_required"
+        ],
+        "title": "ErasureResponse",
+        "type": "object"
+      },
+      "EvaluatorCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "user_id"
+        ],
+        "title": "EvaluatorCreate",
+        "type": "object"
+      },
+      "EvaluatorResponse": {
+        "properties": {
+          "assigned_by_user_id": {
+            "title": "Assigned By User Id",
+            "type": "integer"
+          },
+          "course_id": {
+            "title": "Course Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "course_id",
+          "user_id",
+          "assigned_by_user_id",
+          "created_at"
+        ],
+        "title": "EvaluatorResponse",
+        "type": "object"
+      },
       "ExperienceBand": {
         "enum": [
           "none",
@@ -404,6 +967,27 @@
         ],
         "title": "ExperienceBand",
         "type": "string"
+      },
+      "ExplanationSection": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "heading": {
+            "minLength": 1,
+            "title": "Heading",
+            "type": "string"
+          }
+        },
+        "required": [
+          "heading",
+          "body"
+        ],
+        "title": "ExplanationSection",
+        "type": "object"
       },
       "ExtractionMetricsResponse": {
         "properties": {
@@ -450,6 +1034,77 @@
           }
         },
         "title": "ExtractionRequest",
+        "type": "object"
+      },
+      "GradingQueueEntry": {
+        "description": "Una respuesta corta por calificar: sin la nota del LLM ni la identidad del aprendiz.",
+        "properties": {
+          "attempt_answer_id": {
+            "title": "Attempt Answer Id",
+            "type": "integer"
+          },
+          "item_id": {
+            "title": "Item Id",
+            "type": "integer"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "review_requested_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Requested At"
+          },
+          "rubric": {
+            "items": {},
+            "title": "Rubric",
+            "type": "array"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "text_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text Answer"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "attempt_answer_id",
+          "item_id",
+          "topic_id",
+          "stem",
+          "model_answer",
+          "rubric",
+          "text_answer",
+          "review_requested_at"
+        ],
+        "title": "GradingQueueEntry",
         "type": "object"
       },
       "GraphEdge": {
@@ -510,6 +1165,360 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HumanGradingCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "criteria": {
+            "items": {
+              "$ref": "#/components/schemas/CriterionGrade"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Criteria",
+            "type": "array"
+          },
+          "sample_type": {
+            "enum": [
+              "random",
+              "learner_request"
+            ],
+            "title": "Sample Type",
+            "type": "string"
+          },
+          "score": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criteria",
+          "score",
+          "sample_type"
+        ],
+        "title": "HumanGradingCreate",
+        "type": "object"
+      },
+      "HumanGradingResponse": {
+        "properties": {
+          "attempt_answer_id": {
+            "title": "Attempt Answer Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "criteria": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criteria"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "llm_grading": {
+            "$ref": "#/components/schemas/LlmGradeResponse"
+          },
+          "sample_type": {
+            "title": "Sample Type",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "attempt_answer_id",
+          "sample_type",
+          "criteria",
+          "score",
+          "llm_grading",
+          "created_at"
+        ],
+        "title": "HumanGradingResponse",
+        "type": "object"
+      },
+      "ItemResponse": {
+        "properties": {
+          "auto_review": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Review"
+          },
+          "bloom_level": {
+            "title": "Bloom Level",
+            "type": "string"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "integer"
+          },
+          "equivalence_group": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equivalence Group"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "item_type": {
+            "title": "Item Type",
+            "type": "string"
+          },
+          "learning_outcome_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Outcome Id"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "rubric": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rubric"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "learning_outcome_id",
+          "source",
+          "item_type",
+          "bloom_level",
+          "difficulty",
+          "stem",
+          "options",
+          "correct_option",
+          "model_answer",
+          "rubric",
+          "equivalence_group",
+          "review_status",
+          "auto_review",
+          "prompt_version",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ItemResponse",
+        "type": "object"
+      },
+      "ItemUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "correct_option": {
+            "anyOf": [
+              {
+                "maximum": 3.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 4,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "review_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "approved",
+                  "retired"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Status"
+          },
+          "rubric": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RubricCriterionIn"
+                },
+                "maxItems": 3,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rubric"
+          },
+          "stem": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
+          }
+        },
+        "title": "ItemUpdate",
         "type": "object"
       },
       "JobAccepted": {
@@ -680,6 +1689,285 @@
           "status"
         ],
         "title": "LearningPathSummary",
+        "type": "object"
+      },
+      "LlmCallLogResponse": {
+        "description": "Una llamada al LLM. Guarda el `input_sha256`, nunca el texto enviado (ADR 0018).",
+        "properties": {
+          "ai_job_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Job Id"
+          },
+          "call_attempt": {
+            "title": "Call Attempt",
+            "type": "integer"
+          },
+          "cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "enrollment_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enrollment Id"
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "from_cache": {
+            "title": "From Cache",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "input_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Sha256"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Tokens"
+          },
+          "json_valid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Json Valid"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Tokens"
+          },
+          "prompt_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Id"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "task": {
+            "title": "Task",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ai_job_id",
+          "enrollment_id",
+          "provider",
+          "task",
+          "model",
+          "prompt_id",
+          "prompt_version",
+          "input_sha256",
+          "json_valid",
+          "call_attempt",
+          "from_cache",
+          "input_tokens",
+          "output_tokens",
+          "cost_usd",
+          "latency_ms",
+          "status",
+          "error_message",
+          "created_at"
+        ],
+        "title": "LlmCallLogResponse",
+        "type": "object"
+      },
+      "LlmGradeResponse": {
+        "properties": {
+          "feedback": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback"
+          },
+          "is_correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Correct"
+          },
+          "rubric_detail": {
+            "title": "Rubric Detail"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "required": [
+          "score",
+          "is_correct",
+          "rubric_detail",
+          "feedback"
+        ],
+        "title": "LlmGradeResponse",
+        "type": "object"
+      },
+      "LogSummaryResponse": {
+        "properties": {
+          "by_course": {
+            "items": {
+              "$ref": "#/components/schemas/CourseCostResponse"
+            },
+            "title": "By Course",
+            "type": "array"
+          },
+          "by_task": {
+            "items": {
+              "$ref": "#/components/schemas/TaskSummaryResponse"
+            },
+            "title": "By Task",
+            "type": "array"
+          },
+          "total_cost_usd": {
+            "title": "Total Cost Usd",
+            "type": "number"
+          }
+        },
+        "required": [
+          "by_task",
+          "by_course",
+          "total_cost_usd"
+        ],
+        "title": "LogSummaryResponse",
         "type": "object"
       },
       "MeResponse": {
@@ -860,6 +2148,192 @@
         "title": "Page[CourseResponse]",
         "type": "object"
       },
+      "Page_DataSubjectRequestAdminResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DataSubjectRequestAdminResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[DataSubjectRequestAdminResponse]",
+        "type": "object"
+      },
+      "Page_GradingQueueEntry_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GradingQueueEntry"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[GradingQueueEntry]",
+        "type": "object"
+      },
+      "Page_ItemResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[ItemResponse]",
+        "type": "object"
+      },
+      "Page_LlmCallLogResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LlmCallLogResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[LlmCallLogResponse]",
+        "type": "object"
+      },
+      "Page_PilotResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PilotResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[PilotResponse]",
+        "type": "object"
+      },
+      "Page_QueueItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QueueItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "Page[QueueItem]",
+        "type": "object"
+      },
       "Page_RoleResponse_": {
         "properties": {
           "items": {
@@ -951,6 +2425,146 @@
           "offset"
         ],
         "title": "Page[UserRoleResponse]",
+        "type": "object"
+      },
+      "PilotResponse": {
+        "properties": {
+          "arms": {
+            "$ref": "#/components/schemas/ArmCounts"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "delayed_posttest_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delayed Posttest On"
+          },
+          "ends_on": {
+            "format": "date",
+            "title": "Ends On",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "learning_path_id": {
+            "title": "Learning Path Id",
+            "type": "integer"
+          },
+          "random_seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Random Seed"
+          },
+          "starts_on": {
+            "format": "date",
+            "title": "Starts On",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "learning_path_id",
+          "starts_on",
+          "ends_on",
+          "delayed_posttest_on",
+          "random_seed",
+          "status",
+          "arms",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "PilotResponse",
+        "type": "object"
+      },
+      "PilotWrite": {
+        "additionalProperties": false,
+        "properties": {
+          "delayed_posttest_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delayed Posttest On"
+          },
+          "ends_on": {
+            "format": "date",
+            "title": "Ends On",
+            "type": "string"
+          },
+          "learning_path_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Learning Path Id",
+            "type": "integer"
+          },
+          "random_seed": {
+            "anyOf": [
+              {
+                "maximum": 4.611686018427388e+18,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Random Seed"
+          },
+          "starts_on": {
+            "format": "date",
+            "title": "Starts On",
+            "type": "string"
+          }
+        },
+        "required": [
+          "learning_path_id",
+          "starts_on",
+          "ends_on"
+        ],
+        "title": "PilotWrite",
         "type": "object"
       },
       "ProfileCompletenessResponse": {
@@ -1165,6 +2779,542 @@
         "title": "ProfileUpdate",
         "type": "object"
       },
+      "QueueItem": {
+        "description": "Un ítem por anotar: con la clave y la rúbrica, nunca la anotación de otro evaluador.",
+        "properties": {
+          "bloom_level": {
+            "title": "Bloom Level",
+            "type": "string"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "item_type": {
+            "title": "Item Type",
+            "type": "string"
+          },
+          "learning_outcome_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Learning Outcome Id"
+          },
+          "model_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Answer"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Options"
+          },
+          "own_annotation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnnotationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "rubric": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rubric"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "learning_outcome_id",
+          "source",
+          "item_type",
+          "bloom_level",
+          "difficulty",
+          "stem",
+          "options",
+          "correct_option",
+          "model_answer",
+          "rubric",
+          "review_status",
+          "own_annotation"
+        ],
+        "title": "QueueItem",
+        "type": "object"
+      },
+      "RandomizeResponse": {
+        "properties": {
+          "fixed": {
+            "title": "Fixed",
+            "type": "integer"
+          },
+          "personalized": {
+            "title": "Personalized",
+            "type": "integer"
+          },
+          "random_seed": {
+            "title": "Random Seed",
+            "type": "integer"
+          },
+          "skipped_without_consent": {
+            "title": "Skipped Without Consent",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "personalized",
+          "fixed",
+          "skipped_without_consent",
+          "random_seed"
+        ],
+        "title": "RandomizeResponse",
+        "type": "object"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "missing": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready",
+          "missing"
+        ],
+        "title": "ReadinessResponse",
+        "type": "object"
+      },
+      "ResourceEditResponse": {
+        "properties": {
+          "audience": {
+            "title": "Audience",
+            "type": "string"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "edited_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited By User Id"
+          },
+          "faithfulness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faithfulness"
+          },
+          "faithfulness_job_id": {
+            "title": "Faithfulness Job Id",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "resource_type": {
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "sources": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sources"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "unsupported_claims": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unsupported Claims"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_label": {
+            "title": "Version Label",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Candidate Id"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "resource_type",
+          "kind",
+          "audience",
+          "version",
+          "version_label",
+          "review_status",
+          "url",
+          "content",
+          "faithfulness",
+          "unsupported_claims",
+          "sources",
+          "prompt_version",
+          "edited_by_user_id",
+          "video_candidate_id",
+          "created_at",
+          "updated_at",
+          "faithfulness_job_id"
+        ],
+        "title": "ResourceEditResponse",
+        "type": "object"
+      },
+      "ResourceResponse": {
+        "properties": {
+          "audience": {
+            "title": "Audience",
+            "type": "string"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "edited_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited By User Id"
+          },
+          "faithfulness": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faithfulness"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "resource_type": {
+            "title": "Resource Type",
+            "type": "string"
+          },
+          "review_status": {
+            "title": "Review Status",
+            "type": "string"
+          },
+          "sources": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sources"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "unsupported_claims": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unsupported Claims"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_label": {
+            "title": "Version Label",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Video Candidate Id"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "resource_type",
+          "kind",
+          "audience",
+          "version",
+          "version_label",
+          "review_status",
+          "url",
+          "content",
+          "faithfulness",
+          "unsupported_claims",
+          "sources",
+          "prompt_version",
+          "edited_by_user_id",
+          "video_candidate_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ResourceResponse",
+        "type": "object"
+      },
+      "ResourceReview": {
+        "additionalProperties": false,
+        "properties": {
+          "review_status": {
+            "enum": [
+              "approved",
+              "retired"
+            ],
+            "title": "Review Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_status"
+        ],
+        "title": "ResourceReview",
+        "type": "object"
+      },
       "ReviewCounts": {
         "properties": {
           "added": {
@@ -1314,6 +3464,29 @@
         "title": "RoleUpdate",
         "type": "object"
       },
+      "RubricCriterionIn": {
+        "additionalProperties": false,
+        "properties": {
+          "criterion": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Criterion",
+            "type": "string"
+          },
+          "points": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+            "title": "Points",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterion",
+          "points"
+        ],
+        "title": "RubricCriterionIn",
+        "type": "object"
+      },
       "ScoreResponse": {
         "properties": {
           "f1": {
@@ -1356,6 +3529,116 @@
           "f1"
         ],
         "title": "ScoreResponse",
+        "type": "object"
+      },
+      "TaskSummaryResponse": {
+        "properties": {
+          "calls": {
+            "title": "Calls",
+            "type": "integer"
+          },
+          "cost_usd": {
+            "title": "Cost Usd",
+            "type": "number"
+          },
+          "invalid_json_rate": {
+            "title": "Invalid Json Rate",
+            "type": "number"
+          },
+          "latency_p50_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency P50 Ms"
+          },
+          "latency_p95_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency P95 Ms"
+          },
+          "task": {
+            "title": "Task",
+            "type": "string"
+          }
+        },
+        "required": [
+          "task",
+          "calls",
+          "invalid_json_rate",
+          "latency_p50_ms",
+          "latency_p95_ms",
+          "cost_usd"
+        ],
+        "title": "TaskSummaryResponse",
+        "type": "object"
+      },
+      "TopicExplanationBody": {
+        "additionalProperties": false,
+        "description": "Lo que el instructor edita en D5d: la explicación sin `meta` ni datos de revisión.",
+        "properties": {
+          "gaps_detected": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gaps Detected",
+            "type": "array"
+          },
+          "reflection_questions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reflection Questions",
+            "type": "array"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationSection"
+            },
+            "minItems": 1,
+            "title": "Sections",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/CitedSource"
+            },
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "worked_example": {
+            "title": "Worked Example",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "sections",
+          "worked_example",
+          "summary",
+          "sources"
+        ],
+        "title": "TopicExplanationBody",
         "type": "object"
       },
       "TopicGraphResponse": {
@@ -1906,6 +4189,467 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "VideoCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "pattern": "^[a-z]{2}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "title": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "youtube_video_id": {
+            "pattern": "^[A-Za-z0-9_-]{11}$",
+            "title": "Youtube Video Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "youtube_video_id",
+          "title"
+        ],
+        "title": "VideoCreate",
+        "type": "object"
+      },
+      "VideoFeedbackCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "enrollment_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "rating": {
+            "enum": [
+              "useful",
+              "audio_issue",
+              "outdated",
+              "too_long"
+            ],
+            "title": "Rating",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Video Candidate Id",
+            "type": "integer"
+          },
+          "watched_fully": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watched Fully"
+          }
+        },
+        "required": [
+          "video_candidate_id",
+          "enrollment_id",
+          "rating"
+        ],
+        "title": "VideoFeedbackCreate",
+        "type": "object"
+      },
+      "VideoFeedbackResponse": {
+        "properties": {
+          "comment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comment"
+          },
+          "created": {
+            "title": "Created",
+            "type": "boolean"
+          },
+          "enrollment_id": {
+            "title": "Enrollment Id",
+            "type": "integer"
+          },
+          "rating": {
+            "title": "Rating",
+            "type": "string"
+          },
+          "video_candidate_id": {
+            "title": "Video Candidate Id",
+            "type": "integer"
+          },
+          "watched_fully": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Watched Fully"
+          }
+        },
+        "required": [
+          "video_candidate_id",
+          "enrollment_id",
+          "rating",
+          "comment",
+          "watched_fully",
+          "created"
+        ],
+        "title": "VideoFeedbackResponse",
+        "type": "object"
+      },
+      "VideoListResponse": {
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/VideoResponse"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "has_backup": {
+            "title": "Has Backup",
+            "type": "boolean"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic_id",
+          "has_backup",
+          "candidates"
+        ],
+        "title": "VideoListResponse",
+        "type": "object"
+      },
+      "VideoPatch": {
+        "additionalProperties": false,
+        "properties": {
+          "is_relevant": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Relevant"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "in_use",
+                  "backup",
+                  "rejected"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "title": "VideoPatch",
+        "type": "object"
+      },
+      "VideoQualityItem": {
+        "properties": {
+          "by_rating": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "By Rating",
+            "type": "object"
+          },
+          "measuring": {
+            "title": "Measuring",
+            "type": "boolean"
+          },
+          "quality_index": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Index"
+          },
+          "ratings": {
+            "title": "Ratings",
+            "type": "integer"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
+          },
+          "useful_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Useful Rate"
+          },
+          "video": {
+            "$ref": "#/components/schemas/VideoResponse"
+          },
+          "watched_fully": {
+            "title": "Watched Fully",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "video",
+          "topic_name",
+          "ratings",
+          "by_rating",
+          "watched_fully",
+          "useful_rate",
+          "quality_index",
+          "measuring"
+        ],
+        "title": "VideoQualityItem",
+        "type": "object"
+      },
+      "VideoQualityResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VideoQualityItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "learning_path_id": {
+            "title": "Learning Path Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "learning_path_id",
+          "items"
+        ],
+        "title": "VideoQualityResponse",
+        "type": "object"
+      },
+      "VideoResponse": {
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "characterization": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Characterization"
+          },
+          "characterization_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Characterization Source"
+          },
+          "duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Seconds"
+          },
+          "has_captions": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Has Captions"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank"
+          },
+          "relevance_judgment": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relevance Judgment"
+          },
+          "similarity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "topic_id": {
+            "title": "Topic Id",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "youtube_video_id": {
+            "title": "Youtube Video Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "topic_id",
+          "youtube_video_id",
+          "url",
+          "title",
+          "channel",
+          "duration_seconds",
+          "language",
+          "has_captions",
+          "characterization",
+          "characterization_source",
+          "similarity",
+          "rank",
+          "status",
+          "origin",
+          "relevance_judgment"
+        ],
+        "title": "VideoResponse",
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -1937,6 +4681,117 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/attempt-answers/{answer_id}/human-gradings": {
+      "post": {
+        "description": "Guarda la calificación humana y recién entonces devuelve la nota del LLM para comparar.",
+        "operationId": "grade_answer_api_v1_attempt_answers__answer_id__human_gradings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "answer_id",
+            "required": true,
+            "schema": {
+              "title": "Answer Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanGradingCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanGradingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grade Answer",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/api/v1/course-evaluators/{evaluator_id}/deactivate": {
+      "patch": {
+        "operationId": "remove_evaluator_api_v1_course_evaluators__evaluator_id__deactivate_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "evaluator_id",
+            "required": true,
+            "schema": {
+              "title": "Evaluator Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluatorResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Remove Evaluator",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
     "/api/v1/courses": {
       "get": {
         "operationId": "list_courses_api_v1_courses_get",
@@ -2181,6 +5036,119 @@
         "summary": "Update Course",
         "tags": [
           "courses"
+        ]
+      }
+    },
+    "/api/v1/courses/{course_id}/evaluators": {
+      "get": {
+        "operationId": "list_evaluators_api_v1_courses__course_id__evaluators_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EvaluatorResponse"
+                  },
+                  "title": "Response List Evaluators Api V1 Courses  Course Id  Evaluators Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Evaluators",
+        "tags": [
+          "evaluation"
+        ]
+      },
+      "post": {
+        "description": "Asigna un instructor (que no es el dueño) como evaluador del curso (DEF-24).",
+        "operationId": "assign_evaluator_api_v1_courses__course_id__evaluators_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluatorCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluatorResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Assign Evaluator",
+        "tags": [
+          "evaluation"
         ]
       }
     },
@@ -2706,6 +5674,459 @@
         ]
       }
     },
+    "/api/v1/data-subject-requests": {
+      "get": {
+        "operationId": "list_data_subject_requests_api_v1_data_subject_requests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(pending|in_progress|resolved|rejected)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "request_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(deletion|access|rectification)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Request Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_DataSubjectRequestAdminResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Data Subject Requests",
+        "tags": [
+          "data-subject-requests"
+        ]
+      }
+    },
+    "/api/v1/data-subject-requests/{request_id}": {
+      "patch": {
+        "description": "Pasa la solicitud a `in_progress`, `resolved` o `rejected`.\n\nResolver una supresión seudonimiza al titular y purga su `_audit`; exige que la base tenga el\nprocedimiento `purge_user_audit(bigint)` (si no, `503` y no cambia nada).",
+        "operationId": "resolve_data_subject_request_api_v1_data_subject_requests__request_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataSubjectRequestUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSubjectRequestResolved"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Resolve Data Subject Request",
+        "tags": [
+          "data-subject-requests"
+        ]
+      }
+    },
+    "/api/v1/evaluation/annotation-queue": {
+      "get": {
+        "description": "Ítems por anotar. La anotación del otro evaluador nunca se devuelve (anotación ciega).",
+        "operationId": "annotation_queue_api_v1_evaluation_annotation_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "course_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Course Id"
+            }
+          },
+          {
+            "description": "Los ya anotados por mí (solo mi anotación)",
+            "in": "query",
+            "name": "done",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Los ya anotados por mí (solo mi anotación)",
+              "title": "Done",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_QueueItem_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Annotation Queue",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/api/v1/evaluation/grading-queue": {
+      "get": {
+        "description": "Respuestas cortas por calificar a mano. La nota del LLM no se devuelve aquí.",
+        "operationId": "grading_queue_api_v1_evaluation_grading_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sample",
+            "required": false,
+            "schema": {
+              "default": "random",
+              "enum": [
+                "random",
+                "learner_request"
+              ],
+              "title": "Sample",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_GradingQueueEntry_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Grading Queue",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
+    "/api/v1/items/{item_id}": {
+      "patch": {
+        "description": "Aprueba, retira o edita un ítem; editar lo devuelve a `pending_review` (`items.review`).",
+        "operationId": "update_item_api_v1_items__item_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Item",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/items/{item_id}/annotations": {
+      "post": {
+        "operationId": "annotate_item_api_v1_items__item_id__annotations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnotationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Annotate Item",
+        "tags": [
+          "evaluation"
+        ]
+      }
+    },
     "/api/v1/jobs/{job_id}": {
       "get": {
         "description": "Consulta el trabajo (la app lo hace cada 2 s, U1x).\n\nSi `ai/` terminó, la API valida el resultado y lo escribe en una transacción idempotente en\nesta misma petición. Un trabajo fallido responde `502 AI_TASK_FAILED` (con `retryable`) o\n`503 AI_BUDGET_EXCEEDED`. Un trabajo ajeno responde `404 JOB_NOT_FOUND`.",
@@ -2755,6 +6176,298 @@
         "summary": "Get Job",
         "tags": [
           "jobs"
+        ]
+      }
+    },
+    "/api/v1/learning-paths/{path_id}/video-quality": {
+      "get": {
+        "description": "Calidad de los videos de la ruta con las calificaciones de los aprendices (P2, D5f).",
+        "operationId": "video_quality_api_v1_learning_paths__path_id__video_quality_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path_id",
+            "required": true,
+            "schema": {
+              "title": "Path Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoQualityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Video Quality",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/llm-call-logs": {
+      "get": {
+        "description": "Llamadas al LLM, de la más reciente a la más antigua (AD2); filtra por tarea y modelo.",
+        "operationId": "list_llm_call_logs_api_v1_llm_call_logs_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Tarea (`items.generate_quiz_bank`...)",
+            "in": "query",
+            "name": "task",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Tarea (`items.generate_quiz_bank`...)",
+              "title": "Task"
+            }
+          },
+          {
+            "in": "query",
+            "name": "model",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            }
+          },
+          {
+            "in": "query",
+            "name": "prompt_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prompt Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(success|error|invalid_output|budget_exceeded)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_LlmCallLogResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Llm Call Logs",
+        "tags": [
+          "observability"
+        ]
+      }
+    },
+    "/api/v1/llm-call-logs/summary": {
+      "get": {
+        "description": "Por tarea: llamadas, JSON inválido, latencia p50 y p95 y costo; más el costo por curso.",
+        "operationId": "llm_call_logs_summary_api_v1_llm_call_logs_summary_get",
+        "parameters": [
+          {
+            "description": "Tarea (`items.generate_quiz_bank`...)",
+            "in": "query",
+            "name": "task",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Tarea (`items.generate_quiz_bank`...)",
+              "title": "Task"
+            }
+          },
+          {
+            "in": "query",
+            "name": "model",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model"
+            }
+          },
+          {
+            "in": "query",
+            "name": "prompt_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prompt Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(success|error|invalid_output|budget_exceeded)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogSummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Llm Call Logs Summary",
+        "tags": [
+          "observability"
         ]
       }
     },
@@ -3051,6 +6764,733 @@
         "summary": "Update Profile",
         "tags": [
           "me"
+        ]
+      }
+    },
+    "/api/v1/me/video-feedback": {
+      "post": {
+        "description": "El aprendiz califica el video de su ruta; repetir la calificación la reemplaza (`200`).",
+        "operationId": "submit_video_feedback_api_v1_me_video_feedback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoFeedbackCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoFeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Submit Video Feedback",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/metrics/evaluation": {
+      "get": {
+        "description": "Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas.",
+        "operationId": "evaluation_metrics_api_v1_metrics_evaluation_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "learning_path_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Learning Path Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Evaluation Metrics Api V1 Metrics Evaluation Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Evaluation Metrics",
+        "tags": [
+          "observability"
+        ]
+      }
+    },
+    "/api/v1/pilots": {
+      "get": {
+        "operationId": "list_pilots_api_v1_pilots_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_PilotResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Pilots",
+        "tags": [
+          "pilot"
+        ]
+      },
+      "post": {
+        "description": "Crea el piloto de una ruta en borrador (solo uno sin cerrar por ruta).",
+        "operationId": "create_pilot_api_v1_pilots_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Create Pilot",
+        "tags": [
+          "pilot"
+        ]
+      }
+    },
+    "/api/v1/pilots/{pilot_id}": {
+      "get": {
+        "operationId": "get_pilot_api_v1_pilots__pilot_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pilot_id",
+            "required": true,
+            "schema": {
+              "title": "Pilot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Get Pilot",
+        "tags": [
+          "pilot"
+        ]
+      },
+      "put": {
+        "description": "Cambia la configuración; `409 PILOT_ALREADY_STARTED` una vez iniciado.",
+        "operationId": "update_pilot_api_v1_pilots__pilot_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pilot_id",
+            "required": true,
+            "schema": {
+              "title": "Pilot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PilotWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Pilot",
+        "tags": [
+          "pilot"
+        ]
+      }
+    },
+    "/api/v1/pilots/{pilot_id}/fixed-path-preview": {
+      "get": {
+        "description": "Vista previa de la ruta fija (`learning_path.v1` con `pilot_arm=fixed`).",
+        "operationId": "fixed_path_preview_api_v1_pilots__pilot_id__fixed_path_preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pilot_id",
+            "required": true,
+            "schema": {
+              "title": "Pilot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Fixed Path Preview Api V1 Pilots  Pilot Id  Fixed Path Preview Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Fixed Path Preview",
+        "tags": [
+          "pilot"
+        ]
+      }
+    },
+    "/api/v1/pilots/{pilot_id}/randomize": {
+      "post": {
+        "description": "Sorteo con semilla entre quienes aceptaron `pilot_research`; solo antes de iniciar.",
+        "operationId": "randomize_pilot_api_v1_pilots__pilot_id__randomize_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pilot_id",
+            "required": true,
+            "schema": {
+              "title": "Pilot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RandomizeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Randomize Pilot",
+        "tags": [
+          "pilot"
+        ]
+      }
+    },
+    "/api/v1/pilots/{pilot_id}/readiness": {
+      "get": {
+        "operationId": "pilot_readiness_api_v1_pilots__pilot_id__readiness_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pilot_id",
+            "required": true,
+            "schema": {
+              "title": "Pilot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Pilot Readiness",
+        "tags": [
+          "pilot"
+        ]
+      }
+    },
+    "/api/v1/pilots/{pilot_id}/start": {
+      "post": {
+        "operationId": "start_pilot_api_v1_pilots__pilot_id__start_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pilot_id",
+            "required": true,
+            "schema": {
+              "title": "Pilot Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Start Pilot",
+        "tags": [
+          "pilot"
+        ]
+      }
+    },
+    "/api/v1/resources/{resource_id}/content": {
+      "put": {
+        "description": "La edición crea una versión nueva en `pending_review` y pide `content.check_faithfulness`.",
+        "operationId": "edit_resource_content_api_v1_resources__resource_id__content_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicExplanationBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceEditResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Edit Resource Content",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/resources/{resource_id}/regenerate": {
+      "post": {
+        "description": "Pide a `ai/` una explicación nueva del tema; llega como versión nueva en revisión.",
+        "operationId": "regenerate_resource_api_v1_resources__resource_id__regenerate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "UUID que identifica la operación.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que identifica la operación.",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Regenerate Resource",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/resources/{resource_id}/review": {
+      "patch": {
+        "description": "Aprueba o retira un recurso; aprobar una versión retira la aprobada anterior.",
+        "operationId": "review_resource_api_v1_resources__resource_id__review_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resource_id",
+            "required": true,
+            "schema": {
+              "title": "Resource Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourceReview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Review Resource",
+        "tags": [
+          "content"
         ]
       }
     },
@@ -3509,6 +7949,277 @@
         "summary": "Deactivate Topic",
         "tags": [
           "courses"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/items": {
+      "get": {
+        "operationId": "list_items_api_v1_topics__topic_id__items_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(diagnostic|topic_quiz|final|retention)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source"
+            }
+          },
+          {
+            "in": "query",
+            "name": "review_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(auto_rejected|pending_review|approved|retired)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Review Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_ItemResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Items",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/resources": {
+      "get": {
+        "description": "Todas las versiones de las explicaciones y videos del tema (D5).",
+        "operationId": "list_resources_api_v1_topics__topic_id__resources_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ResourceResponse"
+                  },
+                  "title": "Response List Resources Api V1 Topics  Topic Id  Resources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Resources",
+        "tags": [
+          "content"
+        ]
+      }
+    },
+    "/api/v1/topics/{topic_id}/video-candidates": {
+      "get": {
+        "operationId": "list_video_candidates_api_v1_topics__topic_id__video_candidates_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "List Video Candidates",
+        "tags": [
+          "content"
+        ]
+      },
+      "post": {
+        "description": "Agrega un video a mano como respaldo (`origin=instructor`).",
+        "operationId": "add_video_candidate_api_v1_topics__topic_id__video_candidates_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic_id",
+            "required": true,
+            "schema": {
+              "title": "Topic Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Add Video Candidate",
+        "tags": [
+          "content"
         ]
       }
     },
@@ -4312,6 +9023,67 @@
         "summary": "Replace User Roles",
         "tags": [
           "users"
+        ]
+      }
+    },
+    "/api/v1/video-candidates/{video_id}": {
+      "patch": {
+        "description": "Juicio de pertinencia (P@3, nDCG@3), «usar este», respaldo o descarte (D5e).",
+        "operationId": "update_video_candidate_api_v1_video_candidates__video_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "video_id",
+            "required": true,
+            "schema": {
+              "title": "Video Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Update Video Candidate",
+        "tags": [
+          "content"
         ]
       }
     },
