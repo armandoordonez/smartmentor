@@ -16,6 +16,7 @@
 # Uso:
 #   keycloak/scripts/seed-dev-users.sh                # instructor y aprendiz
 #   keycloak/scripts/seed-dev-users.sh --with-admin   # además el administrador
+#   keycloak/scripts/seed-dev-users.sh --reset-passwords   # vuelve a poner SEED_USERS_PASSWORD a los que ya existen
 #
 # Credenciales de la consola: por defecto las del arranque (KC_BOOTSTRAP_ADMIN_*). Si cambiaste la
 # contraseña en la consola, exporta KCADM_USER y KCADM_PASSWORD antes de ejecutarlo.
@@ -25,10 +26,12 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REALM="${REALM:-smartmentor}"
 WITH_ADMIN=0
+RESET_PASSWORDS=0
 for arg in "$@"; do
   case "$arg" in
     --with-admin) WITH_ADMIN=1 ;;
-    -h|--help) sed -n '2,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --reset-passwords) RESET_PASSWORDS=1 ;;
+    -h|--help) sed -n '2,23p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Argumento desconocido: $arg" >&2; exit 2 ;;
   esac
 done
@@ -55,7 +58,7 @@ else
   KC_EXEC_CMD=(docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T keycloak)
 fi
 
-"${KC_EXEC_CMD[@]}" env "TARGET_REALM=$REALM" "WITH_ADMIN=$WITH_ADMIN" \
+"${KC_EXEC_CMD[@]}" env "TARGET_REALM=$REALM" "WITH_ADMIN=$WITH_ADMIN" "RESET_PASSWORDS=$RESET_PASSWORDS" \
   "SEED_INSTRUCTOR_EMAIL=${SEED_INSTRUCTOR_EMAIL:-}" "SEED_LEARNER_EMAIL=${SEED_LEARNER_EMAIL:-}" \
   "SEED_ADMIN_EMAIL=${SEED_ADMIN_EMAIL:-}" "SEED_USERS_PASSWORD=$SEED_USERS_PASSWORD" \
   ${KCADM_USER:+"KCADM_USER=$KCADM_USER"} ${KCADM_PASSWORD:+"KCADM_PASSWORD=$KCADM_PASSWORD"} \
@@ -79,7 +82,16 @@ seed_user() {  # seed_user CORREO ROL NOMBRE
   local found
   found="$(kc get users -r "$TARGET_REALM" -q "email=$email" -q exact=true --fields id | grep -c '"id"' || true)"
   if [ "$found" != "0" ]; then
-    echo "  ya existe: $email ($role) — sin cambios"
+    if [ "$RESET_PASSWORDS" = "1" ]; then
+      if kc set-password -r "$TARGET_REALM" --username "$email" --new-password "$SEED_USERS_PASSWORD" 2>/dev/null; then
+        echo "  ya existe: $email ($role) — contraseña sincronizada con SEED_USERS_PASSWORD"
+      else
+        echo "  ERROR: Keycloak rechazó la contraseña de SEED_USERS_PASSWORD (política del realm): $email" >&2
+        return 1
+      fi
+    else
+      echo "  ya existe: $email ($role) — sin cambios"
+    fi
     return 0
   fi
   kc create users -r "$TARGET_REALM" \
