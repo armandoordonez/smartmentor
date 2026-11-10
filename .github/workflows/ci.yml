@@ -227,6 +227,22 @@ jobs:
       - name: pytest
         # El repositorio completo está en el espacio de trabajo: las pruebas leen ../prompts.
         run: uv run pytest
+      - name: La imagen de producción importa todos los módulos
+        # Las pruebas corren con las dependencias de desarrollo; la imagen solo trae las de ejecución. Si una
+        # dependencia se declara solo en el grupo dev, la imagen no arranca (ya pasó con httpx).
+        working-directory: .
+        run: |
+          docker build -f ai/Dockerfile -t smartmentor-ai:ci .
+          docker run --rm --entrypoint python smartmentor-ai:ci -c "
+          import importlib, pkgutil, app
+          bad = []
+          for m in pkgutil.walk_packages(app.__path__, 'app.'):
+              try:
+                  importlib.import_module(m.name)
+              except Exception as e:
+                  bad.append((m.name, type(e).__name__, str(e)[:80]))
+          print('módulos con error de importación:', bad or 'ninguno')
+          raise SystemExit(1 if bad else 0)"
 
   prompts:
     name: prompts (hashes y esquemas exportados)
