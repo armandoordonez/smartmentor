@@ -1,0 +1,129 @@
+{
+  "topics": [
+    {
+      "id": 101,
+      "name": "Introducción y tipos de aprendizaje",
+      "description": null,
+      "subtopics": [],
+      "position": 1,
+      "estimated_minutes": 120,
+      "is_mandatory": false,
+      "bloom_level": "understand",
+      "learning_outcomes": [
+        {
+          "id": 41,
+          "statement": "los conceptos de introducción y tipos de aprendizaje",
+          "bloom_level": "understand"
+        }
+      ],
+      "prerequisite_topic_ids": [],
+      "review_status": "unchanged",
+      "origin": "llm",
+      "embedding_status": "generated"
+    },
+    {
+      "id": 102,
+      "name": "Regresión lineal",
+      "description": null,
+      "subtopics": [],
+      "position": 2,
+      "estimated_minutes": 120,
+      "is_mandatory": false,
+      "bloom_level": "apply",
+      "learning_outcomes": [
+        {
+          "id": 42,
+          "statement": "los conceptos de regresión lineal",
+          "bloom_level": "apply"
+        }
+      ],
+      "prerequisite_topic_ids": [
+        101
+      ],
+      "review_status": "unchanged",
+      "origin": "llm",
+      "embedding_status": "generated"
+    },
+    {
+      "id": 103,
+      "name": "Regresión logística",
+      "description": null,
+      "subtopics": [
+        "Función sigmoide",
+        "Umbral de decisión",
+        "Métricas de clasificación"
+      ],
+      "position": 3,
+      "estimated_minutes": 120,
+      "is_mandatory": false,
+      "bloom_level": "apply",
+      "learning_outcomes": [
+        {
+          "id": 43,
+          "statement": "un modelo de regresión logística a un problema de clasificación binaria",
+          "bloom_level": "apply"
+        }
+      ],
+      "prerequisite_topic_ids": [
+        102
+      ],
+      "review_status": "corrected",
+      "origin": "llm",
+      "embedding_status": "generated"
+    },
+    {
+      "id": 104,
+      "name": "Árboles de decisión",
+      "description": null,
+      "subtopics": [],
+      "position": 4,
+      "estimated_minutes": 120,
+      "is_mandatory": false,
+      "bloom_level": "apply",
+      "learning_outcomes": [
+        {
+          "id": 44,
+          "statement": "los conceptos de árboles de decisión",
+          "bloom_level": "apply"
+        }
+      ],
+      "prerequisite_topic_ids": [
+        101
+      ],
+      "review_status": "unchanged",
+      "origin": "llm",
+      "embedding_status": "generated"
+    },
+    {
+      "id": 105,
+      "name": "Evaluación de modelos",
+      "description": null,
+      "subtopics": [],
+      "position": 5,
+      "estimated_minutes": 120,
+      "is_mandatory": false,
+      "bloom_level": "analyze",
+      "learning_outcomes": [
+        {
+          "id": 45,
+          "statement": "los conceptos de evaluación de modelos",
+          "bloom_level": "analyze"
+        }
+      ],
+      "prerequisite_topic_ids": [
+        102,
+        103,
+        104
+      ],
+      "review_status": "added",
+      "origin": "instructor",
+      "embedding_status": "pending"
+    }
+  ],
+  "review_counts": {
+    "unchanged": 3,
+    "corrected": 1,
+    "added": 1,
+    "deleted": 1
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "cohort": "cohorte 2026-2",
+  "is_sample_data": true,
+  "groups": [
+    {
+      "title": "Métricas del sistema",
+      "metrics": [
+        {
+          "code": "f1_topics",
+          "name": "F1 de temas y prerrequisitos",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "0,88",
+          "unit": "text",
+          "goal": "≥ 0,85",
+          "detail": "n = 5 temas · anotación del instructor (D2)"
+        },
+        {
+          "code": "valid_items",
+          "name": "Preguntas válidas",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "84 %",
+          "unit": "text",
+          "goal": "≥ 80 %",
+          "detail": "n = 60 · rúbrica de 2 expertos (D5b)"
+        },
+        {
+          "code": "kappa",
+          "name": "Acuerdo entre expertos (κ)",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "0,64",
+          "unit": "text",
+          "goal": "≥ 0,6",
+          "detail": "n = 60 · D5b"
+        },
+        {
+          "code": "auc",
+          "name": "Validez del diagnóstico (AUC)",
+          "priority": "P1",
+          "status": "no_data",
+          "value": null,
+          "value_text": "—",
+          "unit": "text",
+          "goal": "≥ 0,7",
+          "detail": "Requiere datos del piloto"
+        },
+        {
+          "code": "latency",
+          "name": "Latencia p95",
+          "priority": "P3",
+          "status": "meets",
+          "value": null,
+          "value_text": "14,2 s",
+          "unit": "text",
+          "goal": "< 20 s",
+          "detail": "n = 412 llamadas · Log LLM"
+        }
+      ]
+    },
+    {
+      "title": "Métricas de los aprendices",
+      "metrics": [
+        {
+          "code": "first_attempt",
+          "name": "Aprobación al primer intento",
+          "priority": "P2",
+          "status": "not_met",
+          "value": null,
+          "value_text": "58 %",
+          "unit": "text",
+          "goal": "Entre 60 % y 85 %",
+          "detail": "n = 31 quizzes"
+        },
+        {
+          "code": "hake",
+          "name": "Ganancia de Hake (media)",
+          "priority": "P2",
+          "status": "no_data",
+          "value": null,
+          "value_text": "—",
+          "unit": "text",
+          "goal": "g ≥ 0,3",
+          "detail": "Diagnóstico y evaluación final"
+        }
+      ]
+    },
+    {
+      "title": "Otras métricas del brief",
+      "metrics": [
+        {
+          "code": "api_errors",
+          "name": "Tasa de errores de la API",
+          "priority": "P3",
+          "status": "report",
+          "value": null,
+          "value_text": "0,8 %",
+          "unit": "text",
+          "goal": "Reportar",
+          "detail": "n = 1.204 solicitudes · logs de la API"
+        }
+      ]
+    }
+  ]
+}

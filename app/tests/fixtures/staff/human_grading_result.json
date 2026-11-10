@@ -1,0 +1,8 @@
+{
+  "id": 1,
+  "llm_criteria_met": 2,
+  "llm_criteria_total": 3,
+  "llm_rationale": "Relaciona el umbral con el costo y nombra la sensibilidad, pero no usa datos del caso.",
+  "prompt_version": "calificar_respuesta_corta v1",
+  "agrees": true
+}

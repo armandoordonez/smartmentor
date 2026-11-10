@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "id": 101,
+      "name": "Introducción y tipos de aprendizaje",
+      "position": 1
+    },
+    {
+      "id": 102,
+      "name": "Regresión lineal",
+      "position": 2
+    },
+    {
+      "id": 103,
+      "name": "Regresión logística",
+      "position": 3
+    },
+    {
+      "id": 104,
+      "name": "Árboles de decisión",
+      "position": 4
+    },
+    {
+      "id": 105,
+      "name": "Evaluación de modelos",
+      "position": 5
+    }
+  ],
+  "edges": [
+    {
+      "from": 101,
+      "to": 102,
+      "origin": "llm"
+    },
+    {
+      "from": 102,
+      "to": 103,
+      "origin": "llm"
+    },
+    {
+      "from": 101,
+      "to": 104,
+      "origin": "llm"
+    },
+    {
+      "from": 102,
+      "to": 105,
+      "origin": "llm"
+    },
+    {
+      "from": 103,
+      "to": 105,
+      "origin": "llm"
+    },
+    {
+      "from": 104,
+      "to": 105,
+      "origin": "llm"
+    }
+  ]
+}

@@ -492,7 +492,7 @@ class AdminUser(ApiModel):
 class UserCreate(ApiModel):
     email: str
     full_name: str
-    roles: list[Role] = Field(default_factory=lambda: ["learner"])
+    roles: list[Role] = Field(default_factory=lambda: list[Role](["learner"]))
 
 
 class LlmTaskSummary(ApiModel):
@@ -622,4 +622,3 @@ class AdminEnrollment(ApiModel):
     consent_accepted: bool
     status: EnrollmentStatus
     analysis_included: bool = True
-

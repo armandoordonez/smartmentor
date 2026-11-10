@@ -49,6 +49,7 @@ from clients.models import (
     StepContent,
     VideoRating,
 )
+from clients.ops_staff import StaffFixturesOps
 
 DEFAULT_FIXTURES_DIR = Path(__file__).resolve().parents[2] / "tests" / "fixtures"
 
@@ -131,7 +132,7 @@ def _read(directory: Path, name: str) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-class FixturesClient:
+class FixturesClient(StaffFixturesOps):
     """Implementa `SmartMentorClient` con documentos fijos y un eco mínimo del estado."""
 
     def __init__(self, scenario_key: str = "learner", *, directory: Path | None = None) -> None:

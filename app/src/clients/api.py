@@ -42,6 +42,7 @@ from clients.models import (
     StepContent,
     VideoRating,
 )
+from clients.ops_staff import StaffApiOps
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def _json(response: httpx.Response) -> Any:
         raise ApiError(502, "INVALID_RESPONSE", "not JSON") from error
 
 
-class ApiClient:
+class ApiClient(StaffApiOps):
     """Implementa `SmartMentorClient` sobre `httpx`."""
 
     def __init__(
@@ -136,6 +137,23 @@ class ApiClient:
                 problem.request_id,
             )
             raise problem
+        return response
+
+    def _multipart(
+        self, path: str, files: dict[str, tuple[str, bytes, str]], idempotency_key: str
+    ) -> httpx.Response:
+        """POST `multipart/form-data` (carga del syllabus, D1b)."""
+        headers = {
+            "Authorization": f"Bearer {self._token_provider()}",
+            "X-Request-ID": str(uuid.uuid4()),
+            "Idempotency-Key": idempotency_key,
+        }
+        try:
+            response = self._http.post(f"{API_PREFIX}{path}", files=files, headers=headers)
+        except httpx.HTTPError as error:
+            raise ApiError(503, "SERVICE_UNAVAILABLE", "API unreachable") from error
+        if response.is_error:
+            raise _problem(response)
         return response
 
     @staticmethod

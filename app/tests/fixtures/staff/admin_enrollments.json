@@ -1,0 +1,71 @@
+{
+  "items": [
+    {
+      "id": 501,
+      "user": {
+        "id": 301,
+        "full_name": "Laura Martínez"
+      },
+      "learning_path": {
+        "id": 11,
+        "name": "Fundamentos de ML",
+        "group_label": "Grupo 2026-2"
+      },
+      "pilot_arm": "personalized",
+      "consent_accepted": true,
+      "status": "in_path",
+      "analysis_included": true
+    },
+    {
+      "id": 502,
+      "user": {
+        "id": 302,
+        "full_name": "Andrés Gómez"
+      },
+      "learning_path": {
+        "id": 11,
+        "name": "Fundamentos de ML",
+        "group_label": "Grupo 2026-2"
+      },
+      "pilot_arm": "fixed",
+      "consent_accepted": true,
+      "status": "completed",
+      "analysis_included": true
+    },
+    {
+      "id": 503,
+      "user": {
+        "id": 303,
+        "full_name": "Camila Rojas"
+      },
+      "learning_path": {
+        "id": 11,
+        "name": "Fundamentos de ML",
+        "group_label": "Grupo 2026-2"
+      },
+      "pilot_arm": "personalized",
+      "consent_accepted": false,
+      "status": "in_path",
+      "analysis_included": true
+    },
+    {
+      "id": 504,
+      "user": {
+        "id": 304,
+        "full_name": "Julián Pérez"
+      },
+      "learning_path": {
+        "id": 11,
+        "name": "Fundamentos de ML",
+        "group_label": "Grupo 2026-2"
+      },
+      "pilot_arm": "fixed",
+      "consent_accepted": true,
+      "status": "abandoned",
+      "analysis_included": true
+    }
+  ],
+  "total": 4,
+  "limit": 100,
+  "offset": 0
+}

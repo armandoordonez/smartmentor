@@ -1,0 +1,55 @@
+[
+  {
+    "id": 1,
+    "topic_id": 103,
+    "kind": "explanation",
+    "title": "Texto: explicación v1.3",
+    "version": "1.3",
+    "prompt_version": "v1",
+    "sources": [
+      "Apuntes unidad 3",
+      "ISLR cap. 4"
+    ],
+    "faithfulness": 0.86,
+    "relevance": null,
+    "review_status": "approved",
+    "edited_by_user_id": null,
+    "content": {
+      "explanation": "La regresión logística estima la probabilidad de que un caso pertenezca a una clase [1]."
+    }
+  },
+  {
+    "id": 2,
+    "topic_id": 103,
+    "kind": "alternate_explanation",
+    "title": "Texto: explicación alterna",
+    "version": "1.0",
+    "prompt_version": "v1",
+    "sources": [
+      "Apuntes unidad 3"
+    ],
+    "faithfulness": 0.81,
+    "relevance": null,
+    "review_status": "pending_review",
+    "edited_by_user_id": null,
+    "content": {
+      "explanation": "Otra explicación del tema."
+    }
+  },
+  {
+    "id": 3,
+    "topic_id": 103,
+    "kind": "video",
+    "title": "Video: Regresión logística (11 min)",
+    "version": "1.0",
+    "prompt_version": null,
+    "sources": [
+      "YouTube"
+    ],
+    "faithfulness": null,
+    "relevance": 0.94,
+    "review_status": "pending_review",
+    "edited_by_user_id": null,
+    "content": null
+  }
+]

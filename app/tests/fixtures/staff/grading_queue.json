@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "attempt_answer_id": 417,
+      "code": "A-0417",
+      "topic_name": "Regresión logística",
+      "prompt": "Un banco usa regresión logística para detectar fraudes. Explica por qué podría bajar el umbral de 0,5 a 0,3 y qué métrica revisarías.",
+      "answer": "Bajaría el umbral porque es peor no detectar un fraude que revisar una transacción normal. Así aumenta la sensibilidad, aunque baje la precisión.",
+      "criteria": [
+        "Relaciona el umbral con el costo del error",
+        "Nombra una métrica adecuada",
+        "Justifica con datos del caso"
+      ]
+    }
+  ],
+  "sample_done": 12,
+  "sample_total": 30,
+  "learner_requests": 2,
+  "sample_type": "random"
+}

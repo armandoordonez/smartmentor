@@ -1,0 +1,99 @@
+{
+  "enrollment_id": 204,
+  "user": {
+    "id": 504,
+    "full_name": "Julián Pérez"
+  },
+  "learning_path": {
+    "id": 11,
+    "name": "Fundamentos de ML",
+    "group_label": "Grupo 2026-2"
+  },
+  "status": "in_path",
+  "profile_summary": "Economista, trabaja en análisis de crédito. Ha usado Excel, pero nunca un modelo de machine learning.",
+  "resume_summary": "Excel · sin completar herramientas e idiomas",
+  "objective": {
+    "statement": "Aplicar regresión logística y árboles de decisión para predecir la demanda, ≥ 80 % en la final.",
+    "bloom_verb": "Aplicar",
+    "content": "regresión logística y árboles de decisión para predecir la demanda",
+    "criterion": "≥ 80 % en la final",
+    "origin": "llm_proposed"
+  },
+  "topic_levels": [
+    {
+      "topic_id": 101,
+      "name": "Introducción",
+      "level": 0.92,
+      "classification": "mastered"
+    },
+    {
+      "topic_id": 102,
+      "name": "Regresión lineal",
+      "level": 0.64,
+      "classification": "to_reinforce"
+    },
+    {
+      "topic_id": 103,
+      "name": "Regresión logística",
+      "level": 0.38,
+      "classification": "to_learn"
+    },
+    {
+      "topic_id": 104,
+      "name": "Árboles de decisión",
+      "level": 0.25,
+      "classification": "to_learn"
+    },
+    {
+      "topic_id": 105,
+      "name": "Evaluación de modelos",
+      "level": 0.45,
+      "classification": "to_learn"
+    }
+  ],
+  "attempts": [
+    {
+      "attempt_id": 900,
+      "step_id": 500,
+      "topic_name": "Regresión lineal",
+      "attempt_number": 1,
+      "score": 45,
+      "passed": false,
+      "submitted_at": "2026-10-01T15:00:00Z",
+      "extra_grant": false
+    },
+    {
+      "attempt_id": 901,
+      "step_id": 501,
+      "topic_name": "Regresión lineal",
+      "attempt_number": 2,
+      "score": 50,
+      "passed": false,
+      "submitted_at": "2026-10-03T15:00:00Z",
+      "extra_grant": false
+    },
+    {
+      "attempt_id": 902,
+      "step_id": 502,
+      "topic_name": "Regresión lineal",
+      "attempt_number": 3,
+      "score": 40,
+      "passed": false,
+      "submitted_at": "2026-10-07T15:00:00Z",
+      "extra_grant": false
+    }
+  ],
+  "exhausted_steps": [
+    {
+      "step_id": 502,
+      "topic_name": "Regresión lineal",
+      "attempts_used": 3,
+      "max_attempts": 3,
+      "best_score": 50,
+      "waiting_topic_names": [
+        "Regresión logística",
+        "Evaluación de modelos"
+      ]
+    }
+  ]
+}

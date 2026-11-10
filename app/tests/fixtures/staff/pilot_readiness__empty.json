@@ -1,0 +1,7 @@
+{
+  "ready": false,
+  "missing": [
+    "min_consents",
+    "item_bank"
+  ]
+}
