@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/002-purge-user-audit.xml">
+
+    <!-- ADR 0018 (supresión = seudonimizar y purgar) y ADR 0019 (la API no tiene permisos sobre las tablas _audit).
+         La función es SECURITY DEFINER: corre con los permisos de su dueño (quien aplica Liquibase, smartmentor_owner),
+         que es dueño de las tablas _audit, y solo la puede ejecutar smartmentor_api. -->
+    <changeSet id="v2.0.1-002-purge-user-audit" author="eduar.troyano">
+        <comment>Crea purge_user_audit(bigint): purga de las tablas _audit las filas del titular y las que contienen sus datos personales. Borra (1) users_audit del usuario, (2) las filas de cualquier _audit cuyo user_id sea el titular, (3) las de las tablas colgadas de sus inscripciones y de sus intentos (enrollment_id, assessment_attempt_id, attempt_answer_id) y (4) cualquier otra fila de _audit que contenga alguno de sus correos (actuales o históricos). No toca las filas de otros usuarios ni las que solo lo mencionan como actor por id (owner_user_id, annotator_user_id, etc.), que tras la seudonimización no lo identifican. Devuelve el número de filas borradas y deja una traza en el registro del servidor. SECURITY DEFINER con search_path fijo; EXECUTE solo para smartmentor_api.</comment>
+        <sql splitStatements="false">
+            CREATE OR REPLACE FUNCTION purge_user_audit(p_user_id bigint)
+            RETURNS bigint
+            LANGUAGE plpgsql
+            SECURITY DEFINER
+            SET search_path = public, pg_temp
+            AS $fn$
+            DECLARE
+                v_emails text[];
+                v_enrollments bigint[];
+                v_attempts bigint[];
+                v_answers bigint[];
+                v_table text;
+                v_count bigint;
+                v_total bigint := 0;
+            BEGIN
+                IF p_user_id IS NULL THEN
+                    RAISE EXCEPTION 'p_user_id is required' USING ERRCODE = 'null_value_not_allowed';
+                END IF;
+
+                -- Correos del titular: el actual y los que quedaron en la auditoría (se leen antes de borrar)
+                SELECT coalesce(array_agg(DISTINCT lower(e)) FILTER (WHERE e IS NOT NULL AND e &lt;&gt; ''), '{}')
+                  INTO v_emails
+                  FROM (SELECT email AS e FROM users WHERE id = p_user_id
+                        UNION
+                        SELECT new_data ->> 'email' FROM users_audit WHERE record_id = p_user_id
+                        UNION
+                        SELECT old_data ->> 'email' FROM users_audit WHERE record_id = p_user_id) s;
+
+                -- Inscripciones, intentos y respuestas del titular (de las tablas vivas y de la auditoría)
+                SELECT coalesce(array_agg(DISTINCT i), '{}') INTO v_enrollments
+                  FROM (SELECT id AS i FROM enrollments WHERE user_id = p_user_id
+                        UNION
+                        SELECT record_id FROM enrollments_audit
+                         WHERE coalesce(new_data, old_data) ->> 'user_id' = p_user_id::text) s;
+                SELECT coalesce(array_agg(DISTINCT i), '{}') INTO v_attempts
+                  FROM (SELECT id AS i FROM assessment_attempts WHERE enrollment_id = ANY (v_enrollments)
+                        UNION
+                        SELECT record_id FROM assessment_attempts_audit
+                         WHERE (coalesce(new_data, old_data) ->> 'enrollment_id')::bigint = ANY (v_enrollments)) s;
+                SELECT coalesce(array_agg(DISTINCT i), '{}') INTO v_answers
+                  FROM (SELECT id AS i FROM attempt_answers WHERE assessment_attempt_id = ANY (v_attempts)
+                        UNION
+                        SELECT record_id FROM attempt_answers_audit
+                         WHERE (coalesce(new_data, old_data) ->> 'assessment_attempt_id')::bigint = ANY (v_attempts)) s;
+
+                -- (1) users_audit del titular
+                DELETE FROM users_audit WHERE record_id = p_user_id;
+                GET DIAGNOSTICS v_count = ROW_COUNT;
+                v_total := v_total + v_count;
+
+                -- (2) Filas con user_id del titular, en cualquier tabla _audit
+                -- (3) Filas colgadas de sus inscripciones, intentos y respuestas
+                FOR v_table IN
+                    SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+                     WHERE n.nspname = 'public' AND c.relkind = 'r' AND c.relname LIKE '%\_audit' ESCAPE '\'
+                       AND c.relname &lt;&gt; 'users_audit'
+                LOOP
+                    EXECUTE format(
+                        'DELETE FROM %I WHERE '
+                        '   coalesce(new_data, old_data) ->> ''user_id'' = $1::text '
+                        'OR coalesce(new_data, old_data) ->> ''recipient_user_id'' = $1::text '
+                        'OR coalesce(new_data, old_data) ->> ''enrollment_id'' = ANY ($2) '
+                        'OR coalesce(new_data, old_data) ->> ''assessment_attempt_id'' = ANY ($3) '
+                        'OR coalesce(new_data, old_data) ->> ''attempt_answer_id'' = ANY ($4) '
+                        'OR (%L = ''enrollments_audit'' AND record_id::text = ANY ($2)) '
+                        'OR (%L = ''assessment_attempts_audit'' AND record_id::text = ANY ($3)) '
+                        'OR (%L = ''attempt_answers_audit'' AND record_id::text = ANY ($4))',
+                        v_table, v_table, v_table, v_table)
+                    USING p_user_id, v_enrollments::text[], v_attempts::text[], v_answers::text[];
+                    GET DIAGNOSTICS v_count = ROW_COUNT;
+                    v_total := v_total + v_count;
+                END LOOP;
+
+                -- (4) Red de seguridad: cualquier fila de cualquier _audit que contenga un correo del titular
+                IF cardinality(v_emails) &gt; 0 THEN
+                    FOR v_table IN
+                        SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+                         WHERE n.nspname = 'public' AND c.relkind = 'r' AND c.relname LIKE '%\_audit' ESCAPE '\'
+                    LOOP
+                        EXECUTE format(
+                            'DELETE FROM %I WHERE EXISTS (SELECT 1 FROM unnest($1) AS e '
+                            'WHERE strpos(lower(coalesce(old_data::text, '''') || coalesce(new_data::text, '''')), e) &gt; 0)',
+                            v_table)
+                        USING v_emails;
+                        GET DIAGNOSTICS v_count = ROW_COUNT;
+                        v_total := v_total + v_count;
+                    END LOOP;
+                END IF;
+
+                -- La purga es la única excepción a «la auditoría no se toca» (ADR 0018): deja su traza sin datos personales
+                RAISE LOG 'purge_user_audit: user_id=% rows_deleted=% invoked_by=%', p_user_id, v_total, session_user;
+                RETURN v_total;
+            END
+            $fn$;
+        </sql>
+        <sql>REVOKE ALL ON FUNCTION purge_user_audit(bigint) FROM PUBLIC</sql>
+        <sql splitStatements="false">
+            DO $g$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_api') THEN
+                    GRANT EXECUTE ON FUNCTION purge_user_audit(bigint) TO smartmentor_api;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_api does not exist: EXECUTE on purge_user_audit not granted';
+                END IF;
+            END
+            $g$;
+        </sql>
+        <rollback>
+            <sql>DROP FUNCTION IF EXISTS purge_user_audit(bigint)</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

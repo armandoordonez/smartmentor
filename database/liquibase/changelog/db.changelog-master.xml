@@ -26,4 +26,7 @@
     <!-- v2.0.1: usuarios de desarrollo (instructor y aprendiz) sembrados desde variables de entorno. -->
     <include file="v2.0.1/001-seed-dev-users.xml" relativeToChangelogFile="true"/>
 
+    <!-- v2.0.1: función purge_user_audit(bigint) para la supresión de datos (ADR 0018). -->
+    <include file="v2.0.1/002-purge-user-audit.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

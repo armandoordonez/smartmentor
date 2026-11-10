@@ -118,6 +118,22 @@ Notas sobre el administrador sembrado:
 - El changeset usa `validCheckSum ANY`: cambiar `SEED_ADMIN_EMAIL` después no rompe `liquibase update`, pero tampoco cambia el administrador ya creado (eso se hace desde la gestión de usuarios).
 - El **rollback** de ese changeset necesita la misma `SEED_ADMIN_EMAIL` que se usó al aplicarlo.
 
+## Supresión de datos: `purge_user_audit(bigint)` (v2.0.1, ADR 0018)
+
+Suprimir a un titular es seudonimizar sus filas de negocio (lo hace la API) **y** purgar sus filas de `<tabla>_audit`, donde quedan el nombre y el correo anteriores en `old_data` y `new_data`. La API no tiene permisos sobre las tablas `_audit` (ADR 0019), así que la purga es una función de la base: changeset `v2.0.1-002-purge-user-audit`.
+
+| Aspecto | Detalle |
+| --- | --- |
+| Firma | `purge_user_audit(p_user_id bigint) RETURNS bigint` (número de filas borradas) |
+| Seguridad | `SECURITY DEFINER`, `search_path = public, pg_temp`; corre con el dueño de las tablas `_audit` (quien aplica Liquibase, `smartmentor_owner`). `EXECUTE` solo para `smartmentor_api`; revocado a `PUBLIC` (ni `smartmentor_ai` ni `smartmentor_metrics` pueden ejecutarla) |
+| Orden de uso | La API seudonimiza primero y purga después: así también desaparecen las filas de `users_audit` que el propio `UPDATE` de seudonimización acaba de crear con los datos viejos |
+| Qué borra | (1) `users_audit` del usuario (`record_id`); (2) en cualquier `_audit`, las filas con `user_id` o `recipient_user_id` del titular; (3) las colgadas de sus inscripciones (`enrollment_id`; `enrollments_audit` por `record_id`), de sus intentos (`assessment_attempt_id`) y de sus respuestas (`attempt_answer_id`), lo que cubre textos libres como `profile_description`, `text_answer` o comentarios de encuesta; (4) red de seguridad: cualquier fila de cualquier `_audit` que contenga un correo del titular, actual o histórico |
+| Qué no toca | Las filas de otros usuarios y las que solo mencionan al titular como actor por id (`owner_user_id`, `annotator_user_id`, `granted_by_user_id`...), que tras la seudonimización no lo identifican |
+| Límite conocido | El **nombre** se purga por completo en `users_audit`; en otras tablas solo desaparece si la fila pertenece al titular por los criterios (2) y (3). Un nombre escrito a mano en el texto libre de otro usuario no se detecta (los correos sí, por (4)) |
+| Traza | `RAISE LOG` con el id, el número de filas y `session_user` (sin datos personales). Es la única excepción a «la auditoría no se toca» |
+
+Uso desde la API: `SELECT purge_user_audit(:user_id)`. Probado en una base desechable: tras la función no queda correo ni nombre en ninguna `_audit`, las filas de otro aprendiz y del instructor quedan intactas y el trigger de auditoría sigue registrando.
+
 ## Base de datos de pruebas
 
 La API prueba contra `smartmentor_test`, una base aparte que se vacía entre pruebas. Se crea y migra con `reset-app-schema.sh` (o `reset-app-schema.sh --db smartmentor_test`) y, para la API, con `api/scripts/dev.sh prepare-test-db`. No toca `smartmentor` ni `keycloak`.
