@@ -36,6 +36,7 @@ class LearnerState:
     diagnostic_job_id: str | None = None
     quiz_job_id: str | None = None
     quiz_job_kind: str = "grade"
+    final_attempt_id: int | None = None
     sheet: AnswerSheet = field(default_factory=AnswerSheet)
     finished_jobs: dict[str, Job] = field(default_factory=dict)
     job_polls: dict[str, int] = field(default_factory=dict)

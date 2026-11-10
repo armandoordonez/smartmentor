@@ -44,6 +44,9 @@ class LearnerApiOps:
         response = self._request("GET", f"/me/enrollments/{enrollment_id}/{where}/attempts")
         return [AttemptSummary.model_validate(item) for item in response.json()]
 
+    def get_badge_image(self, public_id: str) -> bytes:
+        return self._request("GET", f"/badges/{public_id}/image.png").content
+
     def get_study_goals(self) -> StudyGoals | None:
         """Ruta propuesta (no está en el contrato): un 404 significa «sin metas»."""
         try:
@@ -175,7 +178,14 @@ LEARNER_SCENARIOS: tuple[LearnerScenarioSpec, ...] = (
         "Evaluación final disponible (E8)",
         "Todos los temas aprobados; falta la evaluación final.",
         _E + "final_ready",
-        LearnerScript({"path": "learner/path_all_passed", "attempt": "learner/attempt_final"}),
+        LearnerScript(
+            {
+                "path": "learner/path_all_passed",
+                "attempt": "learner/attempt_final",
+                "submit_attempt": "learner/attempt_result_final_failed",
+                "attempt_result": "learner/attempt_result_final_failed",
+            }
+        ),
     ),
     LearnerScenarioSpec(
         "learner_final_failed",
@@ -206,14 +216,18 @@ LEARNER_SCENARIOS: tuple[LearnerScenarioSpec, ...] = (
         "Ruta completada (E13a, E10)",
         "Badge emitido; falta la encuesta final.",
         _E + "completed",
-        LearnerScript({"path": "learner/path_all_passed"}),
+        LearnerScript(
+            {"path": "learner/path_all_passed", "history_final": "learner/history_final_passed"}
+        ),
     ),
     LearnerScenarioSpec(
         "learner_badge",
         "Badge obtenido (E10, E12)",
         "Ruta completada con badge y encuesta respondida.",
         _E + "badge",
-        LearnerScript({"path": "learner/path_all_passed"}),
+        LearnerScript(
+            {"path": "learner/path_all_passed", "history_final": "learner/history_final_passed"}
+        ),
     ),
     LearnerScenarioSpec(
         "learner_offline",
@@ -225,6 +239,13 @@ LEARNER_SCENARIOS: tuple[LearnerScenarioSpec, ...] = (
 )
 
 LEARNER_SCENARIOS_BY_KEY = {spec.key: spec for spec in LEARNER_SCENARIOS}
+
+
+# PNG de 1 x 1 píxel para la descarga del badge en el modo `fixtures`.
+TINY_PNG = bytes.fromhex(
+    "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d49444154789c63"
+    "6060606000000005000150a1a3a60000000049454e44ae426082"
+)
 
 
 @cache
@@ -291,6 +312,11 @@ class LearnerFixtureOps:
         self.check_online()
         name = self._script.doc("history_final" if step_id is None else "history")
         return [AttemptSummary.model_validate(item) for item in read_fixture(self._dir, name)]
+
+    def get_badge_image(self, public_id: str) -> bytes:
+        del public_id
+        self.check_online()
+        return TINY_PNG
 
     def get_study_goals(self) -> StudyGoals | None:
         return self.doc("goals", StudyGoals)
