@@ -41,6 +41,7 @@ SECRET_VARIABLES=(
   APP_COOKIE_SECRET:48
   OIDC_UI_CLIENT_SECRET:40
   AI_CLIENT_SECRET:40
+  SEED_USERS_PASSWORD:24
 )
 # Variables obligatorias que el script NO genera: las define el dueño.
 MANUAL_VARIABLES=(

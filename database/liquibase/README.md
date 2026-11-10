@@ -54,6 +54,9 @@ changelog/
     ├── 046-seed-roles.xml           # learner, instructor, admin
     ├── 047-seed-admin-user.xml      # administrador con la propiedad seed_admin_email
     └── 048-tag-v2.0.0.xml
+
+v2.0.1/
+└── 001-seed-dev-users.xml           # instructor y aprendiz de desarrollo (seed_instructor_email, seed_learner_email)
 ```
 
 | Elemento | Convención |

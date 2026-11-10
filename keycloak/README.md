@@ -118,6 +118,17 @@ Cómo se enlaza con la base: en el primer acceso la API busca al usuario por el 
 
 Cualquier otra persona se registra sola desde la pantalla de login (rol `learner`). Un instructor se registra igual y un administrador le asigna `instructor` desde la plataforma; la API refleja el rol en Keycloak y, desde ese momento, se le exige el OTP.
 
+## Usuarios de desarrollo (instructor y aprendiz)
+
+Liquibase siembra en la base de la aplicación un instructor y un aprendiz de desarrollo (`SEED_INSTRUCTOR_EMAIL` y `SEED_LEARNER_EMAIL`, changelog `v2.0.1`; ver `database/README.md`). Para poder iniciar sesión también deben existir en Keycloak con el mismo correo, verificado:
+
+```bash
+keycloak/scripts/seed-dev-users.sh                # instructor y aprendiz
+keycloak/scripts/seed-dev-users.sh --with-admin   # además el administrador (SEED_ADMIN_EMAIL)
+```
+
+El script es idempotente (no toca los usuarios que ya existen), asigna el rol de realm correspondiente y usa la contraseña `SEED_USERS_PASSWORD` del `.env` (la genera `scripts/gen-secrets.sh`; debe cumplir la política del realm). El instructor y el administrador configuran su OTP en el primer ingreso. **Solo desarrollo:** en producción deja esas variables vacías y no ejecutes el script.
+
 ## Rotar secretos
 
 Un secreto que se publicó, se filtró o simplemente cumplió su ciclo se rota así:

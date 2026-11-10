@@ -23,4 +23,7 @@
          que se retiraron de este maestro; su último estado está en git con la etiqueta schema-v1-final. -->
     <include file="v2.0.0/db.changelog-v2.0.0.xml" relativeToChangelogFile="true"/>
 
+    <!-- v2.0.1: usuarios de desarrollo (instructor y aprendiz) sembrados desde variables de entorno. -->
+    <include file="v2.0.1/001-seed-dev-users.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

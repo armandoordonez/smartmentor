@@ -16,7 +16,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REALM="${REALM:-smartmentor}"
-read -r -a KC_EXEC_CMD <<< "${KC_EXEC:-docker compose -f $ROOT_DIR/docker-compose.yml exec -T keycloak}"
+# El comando se arma como arreglo para que las rutas con espacios (este repositorio puede estar en una
+# carpeta con espacios) no se partan; KC_EXEC, si existe, se separa por espacios.
+if [ -n "${KC_EXEC:-}" ]; then
+  read -r -a KC_EXEC_CMD <<< "$KC_EXEC"
+else
+  KC_EXEC_CMD=(docker compose -f "$ROOT_DIR/docker-compose.yml" exec -T keycloak)
+fi
 
 "${KC_EXEC_CMD[@]}" env "TARGET_REALM=$REALM" \
   ${KCADM_USER:+"KCADM_USER=$KCADM_USER"} ${KCADM_PASSWORD:+"KCADM_PASSWORD=$KCADM_PASSWORD"} \
