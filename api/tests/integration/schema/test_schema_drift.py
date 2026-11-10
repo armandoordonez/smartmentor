@@ -13,6 +13,7 @@ import app.domains.courses.models
 import app.domains.evaluation.models
 import app.domains.identity.models
 import app.domains.learning_paths.models  # noqa: F401  (registra los modelos en Base.metadata)
+import app.domains.pilot.models
 from app.common.models import Base
 
 pytestmark = pytest.mark.integration
