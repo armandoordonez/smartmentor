@@ -7,9 +7,10 @@ Un PDF sin texto extraíble (escaneado, solo imágenes) o un texto vacío se rec
 import asyncio
 import hashlib
 import io
+import re
 from dataclasses import dataclass
 
-from pypdf import PdfReader
+from pypdf import PageObject, PdfReader
 from pypdf.errors import PyPdfError
 
 from app.common.constants import SyllabusSourceType
@@ -20,6 +21,11 @@ from app.common.exceptions import (
 )
 
 PDF_MAGIC = b"%PDF"
+# Con menos de estas palabras por línea el texto está «fragmentado» (algunos PDF devuelven una
+# palabra por línea): el modo por defecto de pypdf destruye los párrafos y el LLM pierde la
+# estructura del syllabus.
+MIN_WORDS_PER_LINE = 3.0
+_SPACE_RUNS = re.compile(r"[ \t]{2,}")
 # Un syllabus real no llega a esto; evita guardar un volcado enorme como «texto».
 MAX_TEXT_CHARACTERS = 200_000
 
@@ -45,6 +51,36 @@ def _count_characters(text: str) -> int:
     return len("".join(text.split()))
 
 
+def words_per_line(text: str) -> float:
+    """Promedio de palabras por línea con texto (0 si no hay ninguna)."""
+    lines = [line for line in text.splitlines() if line.strip()]
+    if not lines:
+        return 0.0
+    return sum(len(line.split()) for line in lines) / len(lines)
+
+
+def squeeze_spaces(text: str) -> str:
+    """El modo `layout` rellena con espacios para imitar columnas: se colapsan."""
+    return "\n".join(_SPACE_RUNS.sub(" ", line).rstrip() for line in text.splitlines())
+
+
+def choose_page_text(default_text: str, layout_text: str) -> str:
+    """Texto por defecto, salvo que esté fragmentado y el modo `layout` lo mejore."""
+    if words_per_line(default_text) >= MIN_WORDS_PER_LINE:
+        return default_text
+    squeezed = squeeze_spaces(layout_text)
+    if words_per_line(squeezed) > words_per_line(default_text):
+        return squeezed
+    return default_text
+
+
+def _page_text(page: PageObject) -> str:
+    default_text = page.extract_text() or ""
+    if words_per_line(default_text) >= MIN_WORDS_PER_LINE or not default_text.strip():
+        return default_text
+    return choose_page_text(default_text, page.extract_text(extraction_mode="layout") or "")
+
+
 def _read_pdf(data: bytes) -> tuple[str, int]:
     try:
         reader = PdfReader(io.BytesIO(data))
@@ -52,7 +88,7 @@ def _read_pdf(data: bytes) -> tuple[str, int]:
             raise UnsupportedMediaTypeError(
                 "The PDF is password protected.", code="SYLLABUS_UNSUPPORTED_TYPE"
             )
-        pages = [page.extract_text() or "" for page in reader.pages]
+        pages = [_page_text(page) for page in reader.pages]
     except (PyPdfError, ValueError, OSError, KeyError) as exc:
         raise UnsupportedMediaTypeError(
             "The file is not a readable PDF.", code="SYLLABUS_UNSUPPORTED_TYPE"

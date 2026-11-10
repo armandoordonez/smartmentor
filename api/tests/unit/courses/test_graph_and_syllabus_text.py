@@ -110,3 +110,30 @@ def test_a_huge_text_is_too_large() -> None:
 
 def test_the_nul_character_is_removed_because_postgres_cannot_store_it() -> None:
     assert extract_from_text("Tema\x00 uno").text == "Tema uno"
+
+
+def test_fragmented_pdf_text_falls_back_to_layout_mode() -> None:
+    from app.domains.courses.syllabus_text import choose_page_text, squeeze_spaces, words_per_line
+
+    sentence = "Este curso tiene como propósito formar al estudiante"
+    one_word_per_line = "\n".join(sentence.split())
+    layout = "Este   curso  tiene como\npropósito    formar al   estudiante"
+    assert words_per_line(one_word_per_line) == 1.0
+    chosen = choose_page_text(one_word_per_line, layout)
+    assert chosen == "Este curso tiene como\npropósito formar al estudiante"
+    assert words_per_line(chosen) > 3
+    assert squeeze_spaces("a   b\t\tc  ") == "a b c"
+
+
+def test_normal_pdf_text_is_kept_as_is() -> None:
+    from app.domains.courses.syllabus_text import choose_page_text
+
+    normal = "Introducción al curso de bases de datos\nObjetivos del curso y evaluación"
+    assert choose_page_text(normal, "otro   texto") == normal
+
+
+def test_fragmented_text_stays_if_layout_is_not_better() -> None:
+    from app.domains.courses.syllabus_text import choose_page_text
+
+    fragmented = "uno\ndos\ntres"
+    assert choose_page_text(fragmented, "uno\ndos") == fragmented
