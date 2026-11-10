@@ -675,6 +675,14 @@ class PublicationService:
         if path is None:
             raise InvalidStateTransitionError("The course has no learning path.")
         digest = _content_digest(topics, outcomes, edges)
+        # El banco del diagnóstico lo encola la API (el orquestador de `ai/` no lo incluye por
+        # defecto); lo ingiere el dominio de contenido, que deja los ítems `pending_review`.
+        await self._ai.submit_job(
+            JobType.DIAGNOSTIC_GENERATE_ITEMS,
+            {"course_id": course_id},
+            f"{JobType.DIAGNOSTIC_GENERATE_ITEMS}:course:{course_id}:{digest}",
+            JobRefs(course_id=course_id),
+        )
         job = await self._ai.submit_job(
             JobType.COURSE_GENERATE_CONTENT,
             {

@@ -15,7 +15,13 @@ APP_DIR = ROOT / "api" / "app"
 OPENAPI_FILE = ROOT / "docs" / "contracts" / "openapi-api.json"
 ERROR_CATALOG = ROOT / "docs" / "contracts" / "error-codes.md"
 
-PUBLIC_PATHS = {"/health", "/ready"}
+PUBLIC_PATHS = {
+    "/health",
+    "/ready",
+    # Verificación «hosted» de Open Badges: pública por diseño (E10), por `public_id`.
+    "/api/v1/badges/{public_id}/assertion.json",
+    "/api/v1/badges/{public_id}/image.png",
+}
 
 
 def test_the_published_openapi_matches_the_code() -> None:

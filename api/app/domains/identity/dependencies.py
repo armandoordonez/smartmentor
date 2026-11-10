@@ -7,6 +7,8 @@ from fastapi import Depends, Request
 from app.common.repository_impl import SqlAlchemyUnitOfWork
 from app.core.config import get_settings
 from app.core.database import SessionDep
+from app.domains.ai_gateway.factory import AiServiceDep
+from app.domains.assessments.dependencies import build_profile_listener
 from app.domains.identity.repository_impl import (
     SqlAlchemyConsentRepository,
     SqlAlchemyDataSubjectRequestRepository,
@@ -63,8 +65,13 @@ def get_user_roles_admin_service(
     )
 
 
-def get_profile_service(session: SessionDep) -> ProfileService:
-    return ProfileService(SqlAlchemyProfileRepository(session), SqlAlchemyUnitOfWork(session))
+def get_profile_service(session: SessionDep, ai: AiServiceDep) -> ProfileService:
+    """Con el recálculo de niveles y pasos pendientes al cambiar el perfil (E15)."""
+    return ProfileService(
+        SqlAlchemyProfileRepository(session),
+        SqlAlchemyUnitOfWork(session),
+        listener=build_profile_listener(session, ai),
+    )
 
 
 def get_consent_service(session: SessionDep) -> ConsentService:
@@ -79,7 +86,7 @@ def get_data_subject_request_service(session: SessionDep) -> DataSubjectRequestS
 
 def get_me_service(session: SessionDep) -> MeService:
     return MeService(
-        get_profile_service(session),
+        ProfileService(SqlAlchemyProfileRepository(session), SqlAlchemyUnitOfWork(session)),
         get_consent_service(session),
         context=get_settings().app_context_profile,
     )

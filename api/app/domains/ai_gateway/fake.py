@@ -15,6 +15,7 @@ from typing import Any
 
 from app.domains.ai_gateway.entities import AiJobError, JobRef, JobRefs, JobStatus
 from app.domains.ai_gateway.exceptions import AiJobNotFoundError, AiServiceUnavailableError
+from app.domains.ai_gateway.fake_learning import LEARNING_JOB_RESULTS, LEARNING_TASK_RESULTS
 from app.domains.content.fake_results import CONTENT_RESULTS
 
 ResultFactory = Callable[[dict[str, Any]], dict[str, Any]]
@@ -86,6 +87,7 @@ def fake_generate_content(_input: dict[str, Any]) -> dict[str, Any]:
 DEFAULT_RESULTS: dict[str, tuple[str | None, ResultFactory]] = {
     "syllabus.structure": (SYLLABUS_CONTRACT, fake_syllabus),
     "course.generate_content": (None, fake_generate_content),
+    **LEARNING_JOB_RESULTS,
 }
 
 # Las salidas de los trabajos de contenido las define el dominio `content`.
@@ -105,7 +107,7 @@ class FakeAiService:
         self.auto_complete = auto_complete
         self.jobs: dict[str, JobStatus] = {}
         self.submitted: list[SubmittedJob] = []
-        self.task_results: dict[str, ResultFactory] = {}
+        self.task_results: dict[str, ResultFactory] = dict(LEARNING_TASK_RESULTS)
         self.unavailable = False
         self._by_key: dict[str, str] = {}
         self._factories: dict[str, tuple[str | None, ResultFactory]] = dict(DEFAULT_RESULTS)
@@ -129,6 +131,18 @@ class FakeAiService:
         """Termina un trabajo que quedó en `running` (con `auto_complete=False`)."""
         job = self.jobs[job_id]
         failure = self._failures.pop(job.job_type, None)
+        if (
+            failure is None
+            and job.job_type == "diagnostic.generate_items"
+            and not self._inputs[job_id].get("topic_ids")
+        ):
+            # El fake no lee la base: con solo `course_id` (el contrato) no puede armar el banco
+            # del diagnóstico. Termina como `ai/` ante una referencia que no conoce.
+            failure = AiJobError(
+                code="INPUT_REFERENCE_NOT_FOUND",
+                message="The fake AI service cannot read the course topics.",
+                retryable=False,
+            )
         now = datetime.now(UTC)
         if failure is not None:
             done = replace(

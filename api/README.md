@@ -125,14 +125,16 @@ En Swagger: **Authorize → Token (pegar)** y pega el access token **sin** la pa
 
 ## Dominios y rutas
 
-Esta parte de la Fase 3 entrega `identity`, `courses` y `ai_gateway`. Las rutas de aprendizaje, evaluaciones, contenido, evaluación humana y piloto las agregan los agentes siguientes. El contrato completo está en [`docs/contracts/api-v2.md`](../docs/contracts/api-v2.md) y el OpenAPI generado en [`docs/contracts/openapi-api.json`](../docs/contracts/openapi-api.json) (una prueba falla si el código cambia sin actualizarlo: `api/scripts/dev.sh openapi`). Los ids de las rutas son enteros; los trabajos usan el `job_id` UUID de `ai/`.
+La Fase 3 entrega `identity`, `courses` y `ai_gateway` (F03a), `learning_paths`, `assessments` y `learner` (F03b) y `content`, `evaluation`, `pilot` y `observability` (F03c). El contrato completo está en [`docs/contracts/api-v2.md`](../docs/contracts/api-v2.md) y el OpenAPI generado en [`docs/contracts/openapi-api.json`](../docs/contracts/openapi-api.json) (una prueba falla si el código cambia sin actualizarlo: `api/scripts/dev.sh openapi`). Los ids de las rutas son enteros; los trabajos usan el `job_id` UUID de `ai/`.
 
 | Dominio | Rutas (prefijo `/api/v1`) | Reglas de negocio |
 | --- | --- | --- |
 | `identity` | `GET /me`; `GET`, `PUT /me/profile`; `GET`, `POST /me/consents`; `PATCH /me/consents/{type}/revoke`; `POST /me/data-subject-requests`; CRUD de `roles`, `users` y `user-roles`; `GET`, `PUT /users/{id}/roles` | El primer `GET /me` crea el usuario y el rol `learner` (CU-34). Correo único sin distinguir mayúsculas. El administrador reemplaza los roles de un usuario (varios por usuario) y **nunca puede dejar la plataforma sin administrador** (`409 LAST_ADMIN`). Cada cambio queda en la auditoría. |
 | `courses` | `POST`, `GET /courses`; `GET`, `PATCH /courses/{id}`; `PATCH /courses/{id}/owner`; `POST /courses/{id}/syllabus`; `POST /courses/{id}/extractions`; `GET /courses/{id}/topics`, `/topic-graph`, `/extraction-metrics`; `POST /courses/{id}/topics`; `PUT /topics/{id}`; `PATCH /topics/{id}/deactivate`; `POST /courses/{id}/publish` | El instructor solo ve sus cursos; el administrador, todos. El syllabus (PDF de hasta 10 MB o texto) se extrae con `pypdf`; sin texto, `422 SYLLABUS_NO_TEXT`. Los prerrequisitos forman un DAG: un ciclo responde `422 PREREQUISITE_CYCLE` con el camino en `cycle`. Publicar exige revisión completa. |
 | `ai_gateway` | `GET /jobs/{job_id}` | Estado de un trabajo de `ai/`; si terminó, la API lo ingiere en la misma petición. |
-| `learning_paths` | (solo el modelo y la entidad de `learning_paths`) | `POST /courses` crea la ruta del curso. El resto lo implementa el agente de rutas. |
+| `learning_paths` | `GET /learning-paths`; `PATCH /learning-paths/{id}/settings`; `GET /learning-paths/{id}/dashboard`, `/learners/{enrollment_id}`; `POST /path-steps/{id}/attempt-grants`; `POST /enrollments/{id}/final-attempt-grants`; `GET /alerts`; `PATCH /alerts/{id}/read`; AD5: `GET`, `POST /enrollments`, `PATCH /enrollments/{id}/withdraw`, `/move` | Máquinas de estados de la inscripción, el paso (con `on_hold`) y el intento en `states.py` (funciones puras). `path.sequence` síncrono crea los pasos. Intentos extra fuera del conteo de la regla. Ajustes con el piloto en curso: `409 PILOT_RUNNING` sin confirmación. Mover o retirar saca del análisis. |
+| `assessments` | `GET /badges/{public_id}/assertion.json`, `/image.png` (públicas) | Diagnóstico desde el banco aprobado y `diagnostic.finalize`; intentos con ítems no vistos (`202` e `items.generate_quiz_bank` si se agota el banco); opción múltiple por regla y respuesta corta por criterios (`grading.short_answer`, 2 de 3); final con todos los pasos `passed` o `skipped`; badge Open Badges «hosted» con el receptor con hash y sal. Recalcula niveles y pasos pendientes al cambiar el perfil (`ProfileChangeListener`). |
+| `learner` | `POST`, `GET /me/enrollments`; `GET /me/enrollments/{id}` y sus rutas de diagnóstico, objetivo, ruta, contenido del paso, intentos, final, repaso, badge y encuesta; `GET`, `PUT /me/attempts/{id}`…; `POST /me/attempt-answers/{id}/review-request`; `GET /me/badges`; `POST /me/events`; `GET`, `PUT /me/study-goals`; historial de intentos | Toda respuesta de inscripción trae `next_action`. Consentimiento de datos obligatorio (`403 CONSENT_REQUIRED`). Encuesta final con `sus_score`. |
 
 ### Estados del curso
 
@@ -154,7 +156,7 @@ Esta parte de la Fase 3 entrega `identity`, `courses` y `ai_gateway`. Las rutas 
 | Errores | RFC 9457 (`application/problem+json`) con `type`, `title`, `status`, `detail`, `instance`, `code` y `request_id`. Los `code` salen de [`docs/contracts/error-codes.md`](../docs/contracts/error-codes.md); una prueba falla si el código usa uno que no está allí. |
 | Objetos ajenos | `404` del recurso, nunca `403` (matriz de pruebas de propiedad en `tests/integration/ownership/`). |
 | `X-Request-ID` | Se acepta (solo `[A-Za-z0-9._-]`, hasta 128), se genera si falta, se devuelve, va en los logs y en cada error, y se reenvía a `ai/`. |
-| `Idempotency-Key` | UUID obligatorio en `syllabus`, `extractions` y `publish` (y en las que agreguen los agentes siguientes). Misma clave y mismo cuerpo, misma respuesta durante 24 h; otro cuerpo, `422 IDEMPOTENCY_KEY_REUSED`; sin clave, `428`. La tienda es en memoria (un proceso); ver la bitácora. |
+| `Idempotency-Key` | UUID obligatorio en `syllabus`, `extractions`, `publish`, `…/diagnostic/submit`, `…/attempts`, `…/final-attempts` y `/me/attempts/{id}/submit` (y en las del contenido). Misma clave y mismo cuerpo, misma respuesta durante 24 h; otro cuerpo, `422 IDEMPOTENCY_KEY_REUSED`; sin clave, `428`. La tienda es en memoria (un proceso); ver la bitácora. |
 | Fechas | `timestamptz` en la base; la API devuelve ISO 8601 en UTC con sufijo `Z`. La app muestra en `America/Bogota`. |
 | Paginación | `?limit=20&offset=0` (máximo 100); respuesta `{items, total, limit, offset}`. |
 
@@ -196,7 +198,9 @@ api/
 │       ├── identity/      # usuarios, roles, perfil, consentimientos, solicitudes de derechos
 │       ├── courses/       # cursos, syllabus, temas, prerrequisitos, publicación, ingestores
 │       ├── ai_gateway/    # puerto AiServicePort, FakeAiService, HttpAiService, trabajos, barrido
-│       └── learning_paths/# (solo modelo y entidad por ahora)
+│       ├── learning_paths/# rutas, inscripciones, pasos, estados, intentos extra, alertas, tablero
+│       ├── assessments/   # banco, diagnóstico, intentos, calificación, final, badge, ingestores
+│       └── learner/       # rutas /me del aprendiz, encuesta, eventos, metas
 ├── tests/
 │   ├── unit/              # reglas con repositorios en memoria y FakeAiService; contrato contra prompts/schemas
 │   └── integration/       # flujos HTTP contra smartmentor_test; matriz de propiedad; alineación modelos-esquema

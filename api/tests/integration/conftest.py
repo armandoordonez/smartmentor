@@ -6,11 +6,13 @@ Por defecto `client` está autenticado como un administrador. Para otros roles o
 `client_for(...)` y `bare_client`.
 """
 
+import os
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import httpx
 import pytest
+from pydantic import SecretStr
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -24,6 +26,16 @@ from tests.auth_helpers import AUDIENCE, ISSUER, KeyPair, StaticKeyResolver, mak
 
 # Tablas de negocio que las pruebas vacían (con su `_audit`). `roles` es un catálogo sembrado.
 _BUSINESS_TABLES = [
+    "alerts",
+    "survey_responses",
+    "badges",
+    "attempt_answers",
+    "assessment_attempts",
+    "attempt_grants",
+    "path_steps",
+    "diagnostics",
+    "enrollments",
+    "assessment_items",
     "syllabus_extractions",
     "syllabus_documents",
     "learning_outcomes",
@@ -87,12 +99,33 @@ async def insert_user(
     return int(user_id)
 
 
+@pytest.fixture(scope="session")
+async def setup_engine(engine: AsyncEngine) -> AsyncIterator[AsyncEngine]:
+    """Motor para vaciar la base. Con `TEST_SETUP_DATABASE_USER` la API corre con el usuario de
+    mínimo privilegio (`smartmentor_api`, sin TRUNCATE) y la limpieza usa ese otro usuario.
+    """
+    user = os.environ.get("TEST_SETUP_DATABASE_USER")
+    if not user:
+        yield engine
+        return
+    settings = get_settings().model_copy(
+        update={
+            "database_user": user,
+            "database_password": SecretStr(os.environ.get("TEST_SETUP_DATABASE_PASSWORD", "")),
+        }
+    )
+    setup = create_engine(settings)
+    yield setup
+    await setup.dispose()
+
+
 @pytest.fixture(autouse=True)
-async def clean_database(engine: AsyncEngine) -> None:
+async def clean_database(engine: AsyncEngine, setup_engine: AsyncEngine) -> None:
     app.state.ai_service = FakeAiService()
     app.state.idempotency_store = InMemoryIdempotencyStore()
-    tables = ", ".join(f"{t}, {t}_audit" for t in _BUSINESS_TABLES)
-    async with engine.begin() as conn:
+    # `interaction_events` es de solo inserción: no tiene `_audit`.
+    tables = ", ".join([*(f"{t}, {t}_audit" for t in _BUSINESS_TABLES), "interaction_events"])
+    async with setup_engine.begin() as conn:
         await conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     await insert_user(
         engine, email=ADMIN_EMAIL, role="admin", sub=ADMIN_SUB, name="Admin de prueba"

@@ -18,6 +18,7 @@ from app.domains.evaluation.service import (
     EvaluatorAdminService,
     GradingService,
 )
+from app.domains.learning_paths.repository_impl import SqlAlchemyAlertRepository
 
 
 def get_evaluator_admin_service(session: SessionDep) -> EvaluatorAdminService:
@@ -44,4 +45,5 @@ def get_grading_service(session: SessionDep) -> GradingService:
         EvaluatorAccess(SqlAlchemyEvaluatorRepository(session)),
         SqlAlchemyGradingRepository(session),
         SqlAlchemyUnitOfWork(session),
+        review_alerts=SqlAlchemyAlertRepository(session),
     )

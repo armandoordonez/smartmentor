@@ -14,6 +14,7 @@ from app.core.database import SessionDep
 from app.domains.ai_gateway.factory import AiServiceDep
 from app.domains.ai_gateway.repository import AiServicePort
 from app.domains.ai_gateway.service import IngestorRegistry, JobIngestor, JobService
+from app.domains.assessments.dependencies import build_ingestors
 from app.domains.content.constants import ContentJobType
 from app.domains.content.ingestion import (
     ExplanationIngestor,
@@ -63,6 +64,7 @@ def build_job_service(session: AsyncSession, ai: AiServicePort) -> JobService:
     """Arma el servicio sobre una sesión (la usan la ruta `GET /jobs/{id}` y el barrido)."""
     uow = SqlAlchemyUnitOfWork(session)
     courses = SqlAlchemyCourseRepository(session)
+    content = _content_ingestors(session, ai)
     registry = IngestorRegistry(
         [
             SyllabusIngestor(
@@ -75,7 +77,10 @@ def build_job_service(session: AsyncSession, ai: AiServicePort) -> JobService:
                 uow,
             ),
             PublicationIngestor(courses, SqlAlchemyLearningPathRepository(session), ai, uow),
-            *_content_ingestors(session, ai),
+            *content,
+            # Van después: el banco del quiz pedido por un aprendiz (U1b) lo ingiere `assessments`
+            # y delega en el de contenido los bancos generados al publicar el curso.
+            *build_ingestors(session, ai, content),
         ]
     )
     return JobService(ai, registry)

@@ -9,7 +9,7 @@ Reglas (DEF-15, DEF-24, D5b, D5c):
 """
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 
 from app.common.constants import RoleCode
 from app.common.entities import require_id
@@ -244,16 +244,24 @@ class GradingResult:
     llm: LlmGrade
 
 
+class ReviewAlerts(Protocol):
+    """Lo implementa el dominio de rutas: cierra la alerta `review_requested` ya atendida."""
+
+    async def mark_review_read_for_answer(self, attempt_answer_id: int) -> None: ...
+
+
 class GradingService:
     def __init__(
         self,
         access: EvaluatorAccess,
         gradings: GradingRepository,
         uow: UnitOfWork,
+        review_alerts: ReviewAlerts | None = None,
     ) -> None:
         self._access = access
         self._gradings = gradings
         self._uow = uow
+        self._review_alerts = review_alerts
 
     async def queue(
         self, user: CurrentUser, *, sample: str, limit: int, offset: int
@@ -298,5 +306,7 @@ class GradingService:
                 score=data.score,
             )
         )
+        if data.sample_type == "learner_request" and self._review_alerts is not None:
+            await self._review_alerts.mark_review_read_for_answer(answer_id)
         await self._uow.commit()
         return GradingResult(created, found.llm)
