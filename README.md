@@ -27,6 +27,10 @@ Seguimiento: [`PLAN_IMPLEMENTACION_V3.md`](PLAN_IMPLEMENTACION_V3.md) (fuente vi
 
 ## Puesta en marcha (menos de 10 minutos)
 
+Atajo, si ya tienes tu `.env` completo: `scripts/local-up.sh` hace todo lo de abajo (comprueba requisitos y puertos, levanta el stack, espera a que esté sano y crea los usuarios en Keycloak). Opciones: `--no-ai`, `--no-mail`, `--with-admin`, `--gen-secrets`, `--no-build`, `--down`.
+
+Paso a paso:
+
 ```bash
 cp .env.example .env            # luego completa los valores: cada variable está comentada
 scripts/gen-secrets.sh          # genera contraseñas locales para lo que esté vacío
