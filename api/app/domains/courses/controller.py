@@ -267,6 +267,14 @@ async def update_course(
     return _course_response(await service.update(user, course_id, changes))
 
 
+@router.post("/courses/{course_id}/archive", response_model=CourseResponse)
+async def archive_course(
+    course_id: int, user: StaffUser, service: CourseServiceDep
+) -> CourseResponse:
+    """Archiva un curso en borrador o publicado (D1, AD5): se desactiva, nunca se elimina."""
+    return _course_response(await service.archive(user, course_id))
+
+
 @router.patch("/courses/{course_id}/owner", response_model=CourseResponse)
 async def assign_owner(
     course_id: int, payload: CourseOwnerUpdate, user: AdminUser, service: CourseServiceDep
