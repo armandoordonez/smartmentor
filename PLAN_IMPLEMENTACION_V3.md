@@ -1811,10 +1811,10 @@ Se actualiza cada vez que un agente termina o se consolida una rama. Estados: �
 
 | ID | Fase | Tarea | Estado |
 | --- | --- | --- | --- |
-| 3b | F3 | API v2: rutas, evaluaciones e intentos | ☐ |
-| 3c | F3 | API v2: contenido, evaluación humana, piloto y observabilidad | ☐ |
-| 7b | F7 | App v3: páginas del aprendiz, del instructor y del administrador | ☐ |
-| 6 | F6 | Integración de punta a punta con el LLM real (hito) | ☐ |
+| 3b | F3 | API v2: rutas, evaluaciones e intentos | ✔ en `dev`: rutas, diagnóstico, intentos, final, badge y encuesta; 641 pruebas, cobertura 96 % |
+| 3c | F3 | API v2: contenido, evaluación humana, piloto y observabilidad | ✔ en `dev`: contenido, evaluación humana, piloto, observabilidad y supresión de datos (`purge_user_audit`); 370 pruebas |
+| 7b | F7 | App v3: páginas del aprendiz, del instructor y del administrador | ✔ en `dev`: 13 páginas del aprendiz, 13 del instructor y 6 del administrador; 553 pruebas de la app. Sin revisión visual en navegador |
+| 6 | F6 | Integración de punta a punta con el LLM real (hito) | ◐ En curso (2026-11-10): PDF del syllabus real → API → servicio de IA → Gemini → temas, verificado (3 temas, 9 resultados, 0,009 USD). La generación de contenido quedó detenida por el tope de gasto del proyecto en Google AI Studio (HTTP 429); falta subirlo |
 | 9b | F9 | Anotación de expertos, usabilidad, piloto y datos reales | ☐ (depende de personas y fechas) |
 | 10 | F10 | Revisión final, pruebas de despliegue y brief v2 | ☐ (fuera de este lanzamiento) |
 | 11 | F11 | Cierre y traspaso | ☐ (fuera de este lanzamiento) |
@@ -1828,7 +1828,8 @@ Se actualiza cada vez que un agente termina o se consolida una rama. Estados: �
 | Pedir la protección de `stage` y `main` al administrador del repositorio | ☐ |
 | Verificar modelos, tarifas y dimensión del embedding (P-05) | ✔ 2026-11-10: `gemini-3.8-flash` (0,75 y 3,75 USD), `gemini-3.5-flash-lite` (0,30 y 2,50) y `gemini-embedding-001` a 768 (0,15); tarifas en `ai/config/prices.yaml`. Falta confirmar el código exacto de `gemini-3.5-flash-lite` en AI Studio |
 | Actualizar `ai/config/prices.yaml` el 2027-01-01: `gemini-3.8-flash` pasa a 1,50 y 7,50 USD | ☐ |
-| Clave `GEMINI_API_KEY` con Cloud Billing activo (nivel de pago: el gratuito usa los datos para mejorar productos de Google) | ☐ |
+| Clave `GEMINI_API_KEY` | ✔ puesta en el `.env` |
+| Subir el tope mensual de gasto del proyecto en https://ai.studio/spend (hoy responde 429 «monthly spending cap»; se sugieren 20 USD) y confirmar el nivel de pago (el gratuito usa los datos para mejorar productos de Google) | ☐ |
 | Syllabus real de Carlos Villada (antes de la Fase 6) | ☐ |
 | Revisar los ADR 0014, 0018, 0019 y 0020 antes de aceptarlos | ☐ |
 | Contraseña de aplicación de Google para el correo de Keycloak (Fase 8) | ☐ |
