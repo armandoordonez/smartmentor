@@ -146,9 +146,15 @@ def test_d5c_human_grading_hides_the_llm_grade_until_saved() -> None:
     assert "Tu nota: 3 de 3" in page_texts(at)
     at = click(at, "Guardar y siguiente")
     texts = page_texts(at)
+    # Como la API, la cola ya no trae la respuesta calificada; la pantalla la sigue mostrando
+    # con la nota del LLM hasta «Siguiente».
+    assert "Respuesta #A-0417 · Regresión logística" in texts
+    assert "Muestra aleatoria · 13 de 30" in " ".join(texts)
     assert "Coincide con tu nota" in texts
     assert any("Relaciona el umbral con el costo" in t for t in texts)
     assert "Siguiente" in [b.label for b in at.button]
+    at = click(at, "Siguiente")
+    assert any("No hay respuestas pendientes" in t for t in page_texts(at))
 
 
 def test_d5c_empty_queue() -> None:

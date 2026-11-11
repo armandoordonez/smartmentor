@@ -632,11 +632,23 @@ class StaffFixturesOps:
     def get_grading_queue(self, sample: SampleType) -> GradingQueue:
         queue = self._model(GradingQueue, "grading_queue")
         queue.sample_type = sample
+        # Como la API: lo que ya califiqué no vuelve a la cola y suma a lo hecho de la muestra.
+        graded = self._graded_answer_ids()
+        queue.items = [i for i in queue.items if i.attempt_answer_id not in graded]
+        if sample == "random":
+            queue.sample_done += len(graded)
         return queue
 
     def grade_answer(self, attempt_answer_id: int, body: HumanGradingBody) -> HumanGradingResult:
-        del attempt_answer_id, body
+        del body
+        self._graded_answer_ids().add(attempt_answer_id)
         return self._model(HumanGradingResult, "human_grading_result")
+
+    def _graded_answer_ids(self) -> set[int]:
+        """Eco mínimo de «Guardar»: las respuestas calificadas en esta sesión de fixtures."""
+        if not hasattr(self, "_graded"):
+            self._graded: set[int] = set()
+        return self._graded
 
     # Administrador
 
