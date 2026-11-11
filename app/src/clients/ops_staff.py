@@ -19,6 +19,7 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from clients.base import ApiError
+from clients.content_adapter import item_from_api, item_patch_for_api, resource_from_api
 from clients.dashboard_adapter import dashboard_from_api, is_api_dashboard
 from clients.models import Job, JobAccepted, Page, Role
 from clients.models_staff import (
@@ -237,14 +238,16 @@ class StaffApiOps:
 
     def list_topic_resources(self, topic_id: int) -> list[Resource]:
         data = _json(self._request("GET", f"/topics/{topic_id}/resources"))
-        return [_parse(Resource, item) for item in data]
+        return [_parse(Resource, resource_from_api(item)) for item in data]
 
     def review_resource(self, resource_id: int, review_status: str) -> Resource:
         body = {"review_status": review_status}
-        return self._send(Resource, "PATCH", f"/resources/{resource_id}/review", body)
+        response = self._request("PATCH", f"/resources/{resource_id}/review", json=body)
+        return _parse(Resource, resource_from_api(_json(response)))
 
     def update_resource_content(self, resource_id: int, content: dict[str, Any]) -> Resource:
-        return self._send(Resource, "PUT", f"/resources/{resource_id}/content", content)
+        response = self._request("PUT", f"/resources/{resource_id}/content", json=content)
+        return _parse(Resource, resource_from_api(_json(response)))
 
     def regenerate_resource(self, resource_id: int, *, idempotency_key: str) -> JobAccepted:
         return self._send(
@@ -253,11 +256,15 @@ class StaffApiOps:
 
     def list_topic_items(self, topic_id: int) -> Page[ReviewItem]:
         response = self._request("GET", f"/topics/{topic_id}/items", params={"limit": 100})
-        return _page(ReviewItem, _json(response))
+        page = _json(response)
+        if isinstance(page, dict):
+            page = {**page, "items": [item_from_api(i) for i in page.get("items") or []]}
+        return _page(ReviewItem, page)
 
     def update_item(self, item_id: int, patch: ItemPatch) -> ReviewItem:
-        body = patch.model_dump(mode="json", exclude_none=True)
-        return self._send(ReviewItem, "PATCH", f"/items/{item_id}", body)
+        body = item_patch_for_api(patch.model_dump(mode="json", exclude_none=True))
+        response = self._request("PATCH", f"/items/{item_id}", json=body)
+        return _parse(ReviewItem, item_from_api(_json(response)))
 
     def list_video_candidates(self, topic_id: int) -> TopicVideos:
         return self._get(TopicVideos, f"/topics/{topic_id}/video-candidates")
