@@ -114,6 +114,15 @@ def test_api_explanation_becomes_a_screen_resource() -> None:
     assert resource.content["sections"][0]["heading"] == "Idea"
 
 
+def test_fragments_of_the_same_document_are_listed_once() -> None:
+    cited = [{**EXPLANATION["sources"][0], "n": n, "source_id": str(n)} for n in (1, 2, 3)]
+    other = {"n": 4, "source_id": "9", "title": "Apuntes", "url": "", "license": None}
+    resource = Resource.model_validate(
+        resource_from_api({**EXPLANATION, "sources": [*cited, other]})
+    )
+    assert resource.sources == ["Syllabus del curso (s.pdf)", "Apuntes"]
+
+
 def test_remedial_and_video_kinds() -> None:
     remedial = Resource.model_validate(resource_from_api({**EXPLANATION, "kind": "remedial"}))
     assert remedial.kind == "alternate_explanation"

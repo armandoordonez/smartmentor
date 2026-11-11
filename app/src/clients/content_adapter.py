@@ -34,10 +34,15 @@ def resource_from_api(data: dict[str, Any]) -> dict[str, Any]:
         kind, fallback = "explanation", "Explicación del tema"
     else:
         kind, fallback = "alternate_explanation", "Explicación alternativa"
-    sources = [
-        str(s.get("title") or s.get("url") or s.get("source_id")) if isinstance(s, dict) else str(s)
-        for s in data.get("sources") or []
-    ]
+    # Cada fragmento citado es una fuente; los del mismo documento se muestran una vez.
+    sources = list(
+        dict.fromkeys(
+            str(s.get("title") or s.get("url") or s.get("source_id"))
+            if isinstance(s, dict)
+            else str(s)
+            for s in data.get("sources") or []
+        )
+    )
     status = data.get("review_status")
     return {
         "id": data["id"],
