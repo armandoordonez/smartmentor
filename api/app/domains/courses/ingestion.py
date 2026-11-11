@@ -4,6 +4,8 @@ Cada ingestor es idempotente: mira el estado de su propia entidad (con bloqueo d
 si ya ingirió el trabajo, de modo que dos consultas simultáneas o el barrido no duplican nada.
 """
 
+import hashlib
+
 from pydantic import BaseModel
 
 from app.common.constants import (
@@ -111,7 +113,7 @@ class SyllabusIngestor:
             topic = await self._topics.add(
                 Topic(
                     course_id=course_id,
-                    name=item.name,
+                    name=item.name[:MAX_TOPIC_NAME],
                     description=item.description,
                     subtopics=list(item.subtopics),
                     position=position,
@@ -120,7 +122,7 @@ class SyllabusIngestor:
                     bloom_level=item.bloom_level,
                     origin=TopicOrigin.LLM,
                     review_status=TopicReviewStatus.UNCHANGED,
-                    extraction_key=item.id,
+                    extraction_key=fit_to_length(item.id, MAX_EXTRACTION_KEY),
                 )
             )
             created[item.id] = topic
@@ -128,7 +130,7 @@ class SyllabusIngestor:
                 await self._outcomes.add(
                     LearningOutcome(
                         topic_id=require_id(topic),
-                        code=outcome.id,
+                        code=fit_to_length(outcome.id, MAX_OUTCOME_CODE),
                         statement=outcome.statement,
                         bloom_level=outcome.bloom_level,
                     )
@@ -172,6 +174,21 @@ class SyllabusIngestor:
             if job is not None:
                 pending.append(PendingJob(job_id=job.job_id, job_type=self.job_type))
         return pending
+
+
+# Anchos de las columnas que reciben texto generado por el LLM (esquema v2.0.0). El modelo no los
+# respeta: con el syllabus real devolvió códigos de resultado de más de 50 caracteres.
+MAX_OUTCOME_CODE = 50
+MAX_EXTRACTION_KEY = 100
+MAX_TOPIC_NAME = 200
+
+
+def fit_to_length(value: str, limit: int) -> str:
+    """Acorta `value` a `limit` caracteres con un sufijo de hash que conserva la unicidad."""
+    if len(value) <= limit:
+        return value
+    digest = hashlib.sha1(value.encode(), usedforsecurity=False).hexdigest()[:8]
+    return f"{value[: limit - 9]}_{digest}"
 
 
 def _check_syllabus_graph(job_id: str, syllabus: SyllabusV1) -> None:

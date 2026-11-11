@@ -137,3 +137,15 @@ def test_fragmented_text_stays_if_layout_is_not_better() -> None:
 
     fragmented = "uno\ndos\ntres"
     assert choose_page_text(fragmented, "uno\ndos") == fragmented
+
+
+def test_fit_to_length_keeps_short_values_and_shortens_long_ones_uniquely() -> None:
+    from app.domains.courses.ingestion import fit_to_length
+
+    assert fit_to_length("lo_corto_1", 50) == "lo_corto_1"
+    base = "lo_arquitecturas_y_modelos_de_almacenamiento_de_datos_"
+    first, second = fit_to_length(base + "1", 50), fit_to_length(base + "2", 50)
+    assert len(first) == 50
+    assert len(second) == 50
+    assert first != second  # el sufijo de hash conserva la unicidad
+    assert fit_to_length(base + "1", 50) == first  # determinista
