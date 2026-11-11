@@ -1,8 +1,8 @@
 """Ingestores de los trabajos de contenido que llegan de `ai/` (modelo pull, plan 5.3.3).
 
 Cada ingestor es idempotente sin tabla propia: decide si ya ingirió el trabajo mirando el estado de
-su entidad con el tema bloqueado (`SELECT ... FOR UPDATE`), de modo que dos consultas simultáneas,
-o una consulta y el barrido, no duplican nada:
+su entidad con el tema bloqueado (`SELECT ... FOR NO KEY UPDATE`), de modo que dos consultas
+simultáneas, o una consulta y el barrido, no duplican nada:
 
 - explicaciones: un texto principal creado en o después del `created_at` del trabajo ya lo ingiere;
 - calidad de la explicación (`content.check_faithfulness`): solo si la versión aún no tiene medida;

@@ -8,7 +8,9 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.domains.ai_gateway.fake import FakeAiService
+from app.main import app
 from tests.integration.conftest import ClientFactory
+from tests.integration.row_writing_ai import RowWritingAi
 from tests.integration.world_content import (
     API,
     Course,
@@ -86,6 +88,19 @@ async def test_a_regenerated_explanation_is_a_new_version_and_ingesting_twice_do
     )
     after = await resources(course, topic)
     assert [r["review_status"] for r in after] == ["retired", "approved"]
+
+
+async def test_editing_does_not_block_the_topic_row_the_faithfulness_job_points_to(
+    course: Course, ai: FakeAiService, setup_engine: AsyncEngine
+) -> None:
+    """Regresión: con el tema en FOR UPDATE, `ai/` no podía guardar el trabajo (503 a los 10 s)."""
+    topic = course.topic_ids[0]
+    await ingest_explanation(ai, course, topic)
+    first = (await resources(course, topic))[0]
+    body = {**first["content"], "title": "Título editado"}
+    app.state.ai_service = RowWritingAi(setup_engine)
+    edited = await course.owner.put(f"{API}/resources/{first['id']}/content", json=body)
+    assert edited.status_code == 200, edited.text
 
 
 async def test_editing_creates_a_new_version_and_the_faithfulness_job_fills_its_measure(
