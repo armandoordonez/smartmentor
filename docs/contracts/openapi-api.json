@@ -2420,12 +2420,17 @@
           "topic_id": {
             "title": "Topic Id",
             "type": "integer"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
           }
         },
         "required": [
           "attempt_answer_id",
           "item_id",
           "topic_id",
+          "topic_name",
           "stem",
           "model_answer",
           "rubric",
@@ -2433,6 +2438,44 @@
           "review_requested_at"
         ],
         "title": "GradingQueueEntry",
+        "type": "object"
+      },
+      "GradingQueuePage": {
+        "description": "La cola más cuántas respuestas de esa muestra ya calificó el evaluador.",
+        "properties": {
+          "graded": {
+            "description": "Respuestas de esta muestra que el evaluador ya calificó",
+            "title": "Graded",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GradingQueueEntry"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "graded"
+        ],
+        "title": "GradingQueuePage",
         "type": "object"
       },
       "GraphEdge": {
@@ -4189,37 +4232,6 @@
           "offset"
         ],
         "title": "Page[EnrollmentResponse]",
-        "type": "object"
-      },
-      "Page_GradingQueueEntry_": {
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/GradingQueueEntry"
-            },
-            "title": "Items",
-            "type": "array"
-          },
-          "limit": {
-            "title": "Limit",
-            "type": "integer"
-          },
-          "offset": {
-            "title": "Offset",
-            "type": "integer"
-          },
-          "total": {
-            "title": "Total",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "items",
-          "total",
-          "limit",
-          "offset"
-        ],
-        "title": "Page[GradingQueueEntry]",
         "type": "object"
       },
       "Page_ItemResponse_": {
@@ -7250,10 +7262,15 @@
           "topic_id": {
             "title": "Topic Id",
             "type": "integer"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
           }
         },
         "required": [
           "topic_id",
+          "topic_name",
           "has_backup",
           "candidates"
         ],
@@ -9508,7 +9525,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Page_GradingQueueEntry_"
+                  "$ref": "#/components/schemas/GradingQueuePage"
                 }
               }
             },

@@ -21,6 +21,12 @@ from pydantic import BaseModel, ValidationError
 from clients.base import ApiError
 from clients.content_adapter import item_from_api, item_patch_for_api, resource_from_api
 from clients.dashboard_adapter import dashboard_from_api, is_api_dashboard
+from clients.evaluation_adapter import (
+    grading_queue_from_api,
+    grading_result_from_api,
+    topic_videos_from_api,
+    video_from_api,
+)
 from clients.models import Job, JobAccepted, Page, Role
 from clients.models_staff import (
     AdminEnrollment,
@@ -267,7 +273,8 @@ class StaffApiOps:
         return _parse(ReviewItem, item_from_api(_json(response)))
 
     def list_video_candidates(self, topic_id: int) -> TopicVideos:
-        return self._get(TopicVideos, f"/topics/{topic_id}/video-candidates")
+        data = _json(self._request("GET", f"/topics/{topic_id}/video-candidates"))
+        return _parse(TopicVideos, topic_videos_from_api(data))
 
     def update_video_candidate(
         self, candidate_id: int, *, status: VideoStatus | None, is_relevant: bool | None
@@ -275,13 +282,15 @@ class StaffApiOps:
         body = {
             k: v for k, v in {"status": status, "is_relevant": is_relevant}.items() if v is not None
         }
-        return self._send(VideoCandidate, "PATCH", f"/video-candidates/{candidate_id}", body)
+        response = self._request("PATCH", f"/video-candidates/{candidate_id}", json=body)
+        return _parse(VideoCandidate, video_from_api(_json(response)))
 
     def add_video_candidate(
         self, topic_id: int, youtube_video_id: str, title: str
     ) -> VideoCandidate:
         body = {"youtube_video_id": youtube_video_id, "title": title}
-        return self._send(VideoCandidate, "POST", f"/topics/{topic_id}/video-candidates", body)
+        response = self._request("POST", f"/topics/{topic_id}/video-candidates", json=body)
+        return _parse(VideoCandidate, video_from_api(_json(response)))
 
     def get_video_quality(self, path_id: int) -> VideoQuality:
         return self._get(VideoQuality, f"/learning-paths/{path_id}/video-quality")
@@ -293,11 +302,13 @@ class StaffApiOps:
         self._request("POST", f"/items/{item_id}/annotations", json=body.model_dump(mode="json"))
 
     def get_grading_queue(self, sample: SampleType) -> GradingQueue:
-        return self._get(GradingQueue, "/evaluation/grading-queue", sample=sample)
+        response = self._request("GET", "/evaluation/grading-queue", params={"sample": sample})
+        return _parse(GradingQueue, grading_queue_from_api(_json(response), sample))
 
     def grade_answer(self, attempt_answer_id: int, body: HumanGradingBody) -> HumanGradingResult:
         path = f"/attempt-answers/{attempt_answer_id}/human-gradings"
-        return self._send(HumanGradingResult, "POST", path, body.model_dump(mode="json"))
+        response = self._request("POST", path, json=body.model_dump(mode="json"))
+        return _parse(HumanGradingResult, grading_result_from_api(_json(response)))
 
     # Administrador
 

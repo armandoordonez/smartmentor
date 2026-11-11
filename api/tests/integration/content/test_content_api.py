@@ -259,6 +259,7 @@ async def test_video_candidates_are_curated_by_the_instructor(
     await ingest_videos(ai, course, topic)
     listed = (await course.owner.get(f"{API}/topics/{topic}/video-candidates")).json()
     assert listed["has_backup"] is True
+    assert listed["topic_name"]
     statuses = [c["status"] for c in listed["candidates"]]
     assert statuses == ["in_use", "backup", "backup"]
     first, second = listed["candidates"][0], listed["candidates"][1]

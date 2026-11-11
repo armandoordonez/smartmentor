@@ -427,6 +427,9 @@ class VideoService:
         judged = await self._videos.judgments_of(user.id, [require_id(v) for v in videos])
         return [VideoView(v, judged.get(require_id(v))) for v in videos]
 
+    async def topic_name(self, user: CurrentUser, topic_id: int) -> str:
+        return (await load_topic(self._topics, self._courses, user, topic_id)).name
+
     async def _load(self, user: CurrentUser, video_id: int) -> tuple[VideoCandidate, Topic]:
         video = await self._videos.get(video_id)
         if video is None or not video.active:

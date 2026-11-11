@@ -4,7 +4,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from app.common.schemas import RequestSchema, UtcDatetime
+from app.common.schemas import Page, RequestSchema, UtcDatetime
 
 
 class EvaluatorCreate(RequestSchema):
@@ -78,11 +78,18 @@ class GradingQueueEntry(BaseModel):
     attempt_answer_id: int
     item_id: int
     topic_id: int
+    topic_name: str
     stem: str
     model_answer: str | None
     rubric: list[Any]
     text_answer: str | None
     review_requested_at: UtcDatetime | None
+
+
+class GradingQueuePage(Page[GradingQueueEntry]):
+    """La cola más cuántas respuestas de esa muestra ya calificó el evaluador."""
+
+    graded: int = Field(description="Respuestas de esta muestra que el evaluador ya calificó")
 
 
 class LlmGradeResponse(BaseModel):

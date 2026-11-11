@@ -229,6 +229,8 @@ async def test_the_llm_grade_is_returned_only_after_the_human_grade_is_saved(
     assert random_queue.status_code == 200
     assert random_queue.json()["total"] == 2
     entry = random_queue.json()["items"][0]
+    assert entry["topic_name"]
+    assert random_queue.json()["graded"] == 0
     for forbidden in ("score", "feedback", "is_correct", "rubric_detail", "llm"):
         assert forbidden not in entry
     assert "66.67" not in random_queue.text
@@ -250,8 +252,9 @@ async def test_the_llm_grade_is_returned_only_after_the_human_grade_is_saved(
     again = await first.post(f"{API}/attempt-answers/{plain}/human-gradings", json=body)
     assert again.status_code == 409
     assert again.json()["code"] == "HUMAN_GRADING_ALREADY_EXISTS"
-    # Ya calificada por mí: sale de mi cola; el segundo evaluador sigue viéndola.
-    assert (await first.get(f"{API}/evaluation/grading-queue")).json()["total"] == 1
+    # Ya calificada por mí: sale de mi cola y cuenta como hecha; el segundo aún la ve.
+    mine = (await first.get(f"{API}/evaluation/grading-queue")).json()
+    assert (mine["total"], mine["graded"]) == (1, 1)
     assert (await second.get(f"{API}/evaluation/grading-queue")).json()["total"] == 2
     # Una muestra «a solicitud» exige que el aprendiz la haya pedido.
     wrong = await second.post(

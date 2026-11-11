@@ -265,8 +265,9 @@ class SqlAlchemyGradingRepository(SqlAlchemyCrudRepository[HumanGradingModel, Hu
             else "aa.review_requested_at, aa.id"
         )
         select_sql = text(
-            "SELECT aa.id AS answer_id, t.course_id, t.id AS topic_id, i.id AS item_id, "
-            "i.stem, i.model_answer, i.rubric, aa.text_answer, aa.review_requested_at "
+            "SELECT aa.id AS answer_id, t.course_id, t.id AS topic_id, t.name AS topic_name, "
+            "i.id AS item_id, i.stem, i.model_answer, i.rubric, aa.text_answer, "
+            "aa.review_requested_at "
             + _QUEUE_FROM
             + f" ORDER BY {order} LIMIT :limit OFFSET :offset"
         ).bindparams(bindparam("courses", expanding=True))
@@ -274,6 +275,21 @@ class SqlAlchemyGradingRepository(SqlAlchemyCrudRepository[HumanGradingModel, Hu
             await self._session.execute(select_sql, {**params, "limit": limit, "offset": offset})
         ).mappings()
         return [_answer(r) for r in rows], int(total)
+
+    async def graded_count(self, *, course_ids: list[int], grader_user_id: int, sample: str) -> int:
+        """Respuestas que el evaluador ya calificó en esa muestra (el «X de Y» de la pantalla)."""
+        if not course_ids:
+            return 0
+        query = text(
+            "SELECT count(*) FROM human_gradings h "
+            "JOIN attempt_answers aa ON aa.id = h.attempt_answer_id "
+            "JOIN assessment_items i ON i.id = aa.assessment_item_id "
+            "JOIN topics t ON t.id = i.topic_id "
+            "WHERE h.active AND h.grader_user_id = :me AND h.sample_type = :sample "
+            "AND t.course_id IN :courses"
+        ).bindparams(bindparam("courses", expanding=True))
+        params = {"me": grader_user_id, "sample": sample, "courses": course_ids}
+        return int((await self._session.execute(query, params)).scalar_one())
 
     async def answer(self, answer_id: int) -> GradableAnswer | None:
         row = (
@@ -320,4 +336,5 @@ def _answer(row: Any) -> AnswerForGrading:
         rubric=list(row["rubric"] or []),
         text_answer=row["text_answer"],
         review_requested_at=row["review_requested_at"],
+        topic_name=row.get("topic_name") or "",
     )
