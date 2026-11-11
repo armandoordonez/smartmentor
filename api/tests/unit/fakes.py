@@ -8,6 +8,7 @@ from typing import Any
 from app.common.entities import BaseEntity, require_id
 from app.domains.courses.entities import (
     Course,
+    CourseCounts,
     LearningOutcome,
     SyllabusDocument,
     SyllabusExtraction,
@@ -221,6 +222,10 @@ class InMemoryCourses(InMemoryRepository[Course]):
 
     async def list_by_status(self, status: str) -> list[Course]:
         return [c for c in self.items.values() if c.status == status and c.active]
+
+    async def counts(self, course_ids: list[int]) -> dict[int, CourseCounts]:
+        del course_ids  # la memoria no cruza temas ni inscripciones: todo cuenta 0
+        return {}
 
 
 class InMemoryPaths(InMemoryRepository[LearningPath]):

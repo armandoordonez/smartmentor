@@ -19,6 +19,7 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from clients.base import ApiError
+from clients.dashboard_adapter import dashboard_from_api, is_api_dashboard
 from clients.models import Job, JobAccepted, Page, Role
 from clients.models_staff import (
     AdminEnrollment,
@@ -205,7 +206,10 @@ class StaffApiOps:
     # Instructor: ruta, avance y aprendices
 
     def get_dashboard(self, path_id: int) -> Dashboard:
-        return self._get(Dashboard, f"/learning-paths/{path_id}/dashboard")
+        data = _json(self._request("GET", f"/learning-paths/{path_id}/dashboard"))
+        if is_api_dashboard(data):
+            data = dashboard_from_api(data)
+        return _parse(Dashboard, data)
 
     def update_path_settings(self, path_id: int, body: PathSettingsModel) -> PathSettingsModel:
         return self._send(

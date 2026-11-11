@@ -17,6 +17,14 @@ class Course(BaseEntity):
     updated_at: datetime | None = None
 
 
+@dataclass(frozen=True)
+class CourseCounts:
+    """Temas vigentes y aprendices inscritos (sin los retirados) de un curso (D1)."""
+
+    topics: int = 0
+    enrolled: int = 0
+
+
 @dataclass(kw_only=True)
 class SyllabusDocument(BaseEntity):
     course_id: int

@@ -83,6 +83,14 @@ async def test_dashboard_and_learner_detail(
     assert body["learners"][0]["full_name"]
     assert len(body["mastery_matrix"][0]["cells"]) == 3
     assert body["critical_topics"][0]["topic_id"] == path.fundamentals
+    # Lo que la pantalla D3 necesita sin otra llamada: curso, ruta, umbrales e indicadores.
+    assert body["course_id"] == path.course_id
+    assert body["learning_path"]["id"] == path.path_id
+    assert body["learning_path"]["status"] == "published"
+    assert body["settings"]["learning_path_id"] == path.path_id
+    assert body["pilot_running"] is False
+    assert body["kpi"]["attempts_per_topic"] == 1.0
+    assert [s["topic_id"] for s in body["topic_stats"]] == [t["id"] for t in body["topics"]]
     detail = await instructor.get(
         f"{API}/learning-paths/{path.path_id}/learners/{progressed['enrollment']}"
     )

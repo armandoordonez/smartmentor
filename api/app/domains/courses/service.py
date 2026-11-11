@@ -32,6 +32,7 @@ from app.domains.ai_gateway.repository import AiServicePort, latest_job
 from app.domains.courses import graph
 from app.domains.courses.entities import (
     Course,
+    CourseCounts,
     LearningOutcome,
     SyllabusDocument,
     Topic,
@@ -91,6 +92,7 @@ class CourseView:
     course: Course
     learning_path: LearningPath | None
     extraction_job_id: str | None = None
+    counts: CourseCounts = field(default_factory=CourseCounts)
 
 
 class CourseService:
@@ -137,7 +139,8 @@ class CourseService:
     async def get(self, user: CurrentUser, course_id: int) -> CourseView:
         course = await load_course(self._courses, user, course_id)
         path = await self._paths.get_by_course(course_id)
-        return CourseView(course, path, await self._running_job_id(course))
+        counts = (await self._courses.counts([course_id])).get(course_id, CourseCounts())
+        return CourseView(course, path, await self._running_job_id(course), counts)
 
     async def _running_job_id(self, course: Course) -> str | None:
         """El trabajo en curso, para que la pantalla de carga lo consulte (mejor esfuerzo)."""
@@ -172,8 +175,15 @@ class CourseService:
         courses, total = await self._courses.search(
             filters=filters, active=True, limit=limit, offset=offset
         )
-        paths = await self._paths.by_course_ids([require_id(c) for c in courses])
-        return [CourseView(c, paths.get(require_id(c))) for c in courses], total
+        ids = [require_id(c) for c in courses]
+        paths = await self._paths.by_course_ids(ids)
+        counts = await self._courses.counts(ids)
+        return [
+            CourseView(
+                c, paths.get(require_id(c)), counts=counts.get(require_id(c), CourseCounts())
+            )
+            for c in courses
+        ], total
 
     async def update(
         self, user: CurrentUser, course_id: int, changes: dict[str, Any]

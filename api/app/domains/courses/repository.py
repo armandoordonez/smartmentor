@@ -5,6 +5,7 @@ from typing import Any, Protocol
 from app.common.repository import CrudRepository
 from app.domains.courses.entities import (
     Course,
+    CourseCounts,
     LearningOutcome,
     SyllabusDocument,
     SyllabusExtraction,
@@ -20,6 +21,10 @@ class CourseRepository(CrudRepository[Course], Protocol):
         ...
 
     async def list_by_status(self, status: str) -> list[Course]: ...
+
+    async def counts(self, course_ids: list[int]) -> dict[int, CourseCounts]:
+        """Temas activos e inscripciones vigentes por curso; los cursos sin nada no aparecen."""
+        ...
 
 
 class LearningPathRepository(Protocol):

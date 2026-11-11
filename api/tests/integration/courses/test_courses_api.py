@@ -83,6 +83,22 @@ async def test_listing_is_scoped_to_the_instructor_and_filterable(
     assert (await client.get(f"{API}/courses", params={"limit": 101})).status_code == 422
 
 
+async def test_courses_report_their_active_topics(instructor: httpx.AsyncClient) -> None:
+    draft = await create_course(instructor, "Vacío")
+    assert (draft["topics_count"], draft["enrolled_count"]) == (0, 0)
+
+    course_id = await review_ready_course(instructor)
+    topics = (await instructor.get(f"{API}/courses/{course_id}/topics")).json()["topics"]
+    assert topics
+    fetched = (await instructor.get(f"{API}/courses/{course_id}")).json()
+    assert (fetched["topics_count"], fetched["enrolled_count"]) == (len(topics), 0)
+
+    removed = await instructor.patch(f"{API}/topics/{topics[0]['id']}/deactivate")
+    assert removed.status_code == 200, removed.text
+    listed = (await instructor.get(f"{API}/courses")).json()["items"]
+    assert next(c for c in listed if c["id"] == course_id)["topics_count"] == len(topics) - 1
+
+
 async def test_the_owner_archives_a_draft_and_it_stays_listed_as_archived(
     instructor: httpx.AsyncClient, other_instructor: httpx.AsyncClient
 ) -> None:

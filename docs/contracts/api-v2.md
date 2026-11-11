@@ -297,7 +297,7 @@ Los ítems de `Diagnostic` y `Attempt` traen además `topic_name`, `bloom_level`
 | --- | --- | --- | --- | --- | --- |
 | `POST /courses` | instructor, admin | `{"name", "description", "learning_path": {"name", "group_label"}}` | `201 Course` | `422` | D1 |
 | `GET /courses?mine=true&status=` | instructor, admin | — | `200` paginado (`mine` forzado para instructor) | — | D1, AD5 |
-| `GET /courses/{id}`, `PATCH /courses/{id}` | instructor, admin | `{"name"?, "description"?}` | `200 Course` | `404 COURSE_NOT_FOUND` | D1 |
+| `GET /courses/{id}`, `PATCH /courses/{id}` | instructor, admin | `{"name"?, "description"?}` | `200 Course` (incluye `topics_count`, temas activos, y `enrolled_count`, inscritos sin los retirados) | `404 COURSE_NOT_FOUND` | D1 |
 | `POST /courses/{id}/archive` | instructor dueño, admin | — | `200 Course` con `status=archived`; sale del catálogo y no acepta inscripciones nuevas (`422 LEARNING_PATH_NOT_PUBLISHED`); los datos se conservan. Archivar de nuevo responde igual | `409 INVALID_STATE_TRANSITION` (solo desde `draft` o `published`), `404 COURSE_NOT_FOUND` | D1, AD5 |
 | `PATCH /courses/{id}/owner` | admin | `{"owner_user_id": 12}` o `null` | `200 Course` | `422 OWNER_NOT_FOUND` | AD5 |
 | `POST /courses/{id}/syllabus` | instructor, admin | `multipart/form-data` (`file` PDF ≤ 10 MB) o JSON `{"text": "…"}` | `202 JobAccepted` (`syllabus.structure`); el curso pasa a `extracting` | `422 SYLLABUS_NO_TEXT`, `413 SYLLABUS_TOO_LARGE`, `415 SYLLABUS_UNSUPPORTED_TYPE`, `409 EXTRACTION_IN_PROGRESS` | D1b, D1c, D1d |
@@ -310,7 +310,7 @@ Los ítems de `Diagnostic` y `Attempt` traen además `topic_name`, `bloom_level`
 | `POST /courses/{id}/publish` | instructor, admin | — (`Idempotency-Key`) | `202 JobAccepted` (`course.generate_content`); el curso pasa a `generating_content` y luego a `published` | `422 PREREQUISITE_CYCLE`, `COURSE_REVIEW_INCOMPLETE`, `409 INVALID_STATE_TRANSITION` | D2 |
 | `GET /courses/{id}/extraction-metrics` | instructor, admin | — | `200 {"topics": {precision, recall, f1}, "prerequisites": {precision, recall, f1}, "corrections": n}` | `404` | D2, AD3 |
 | `PATCH /learning-paths/{id}/settings` | instructor, admin | `PathSettings` | `200 PathSettings` | `409 PILOT_RUNNING` sin `confirm_pilot_change=true` | D3b |
-| `GET /learning-paths/{id}/dashboard` | instructor, admin | — | `200 Dashboard` (KPI, aprendices, matriz de dominio, temas críticos) | `404` | D3 |
+| `GET /learning-paths/{id}/dashboard` | instructor, admin | — | `200 Dashboard`: `course_id`, `learning_path` (id, nombre, grupo, estado), `settings` (como `PathSettings`), `pilot_running`, `kpi` (tasas en porcentaje, 0 a 100; `attempts_per_topic`), `learners`, `topics`, `mastery_matrix`, `critical_topics` y `topic_stats` (todos los temas, en el orden de `topics`). Forma exacta: `DashboardResponse` en `openapi-api.json` | `404` | D3 |
 | `GET /learning-paths/{id}/learners/{enrollment_id}` | instructor, admin | — | `200` perfil reducido (A3c), niveles e intentos | `404` | D4, D4b |
 | `POST /path-steps/{id}/attempt-grants` | instructor, admin | `{"attempts": 1, "note": "…"}` | `201 AttemptGrant` | `422` | D4c |
 | `POST /enrollments/{id}/final-attempt-grants` | instructor, admin | `{"attempts": 1, "note": "…"}` | `201 AttemptGrant` | `422` | D4c |

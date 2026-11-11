@@ -113,6 +113,8 @@ def _course_response(view: CourseView) -> CourseResponse:
             if path is not None
             else None
         ),
+        topics_count=view.counts.topics,
+        enrolled_count=view.counts.enrolled,
         created_at=course.created_at,
         updated_at=course.updated_at,
     )

@@ -1112,6 +1112,11 @@
             ],
             "title": "Description"
           },
+          "enrolled_count": {
+            "description": "Aprendices inscritos, sin los retirados",
+            "title": "Enrolled Count",
+            "type": "integer"
+          },
           "extraction_error_code": {
             "anyOf": [
               {
@@ -1167,6 +1172,11 @@
             "title": "Status",
             "type": "string"
           },
+          "topics_count": {
+            "description": "Temas activos del curso",
+            "title": "Topics Count",
+            "type": "integer"
+          },
           "updated_at": {
             "anyOf": [
               {
@@ -1188,6 +1198,8 @@
           "extraction_error_code",
           "extraction_job_id",
           "learning_path",
+          "topics_count",
+          "enrolled_count",
           "created_at",
           "updated_at"
         ],
@@ -1337,6 +1349,18 @@
             "title": "Active",
             "type": "integer"
           },
+          "attempts_per_topic": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Intentos promedio por tema entre los temas ya intentados",
+            "title": "Attempts Per Topic"
+          },
           "average_progress": {
             "title": "Average Progress",
             "type": "number"
@@ -1446,8 +1470,47 @@
         "title": "DashboardLearner",
         "type": "object"
       },
+      "DashboardPath": {
+        "properties": {
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "group_label",
+          "status"
+        ],
+        "title": "DashboardPath",
+        "type": "object"
+      },
       "DashboardResponse": {
         "properties": {
+          "course_id": {
+            "title": "Course Id",
+            "type": "integer"
+          },
           "critical_topics": {
             "items": {
               "$ref": "#/components/schemas/CriticalTopic"
@@ -1465,6 +1528,9 @@
             "title": "Learners",
             "type": "array"
           },
+          "learning_path": {
+            "$ref": "#/components/schemas/DashboardPath"
+          },
           "learning_path_id": {
             "title": "Learning Path Id",
             "type": "integer"
@@ -1474,6 +1540,21 @@
               "$ref": "#/components/schemas/MasteryRow"
             },
             "title": "Mastery Matrix",
+            "type": "array"
+          },
+          "pilot_running": {
+            "title": "Pilot Running",
+            "type": "boolean"
+          },
+          "settings": {
+            "$ref": "#/components/schemas/PathSettingsResponse"
+          },
+          "topic_stats": {
+            "description": "Indicadores de todos los temas, en el orden de `topics`",
+            "items": {
+              "$ref": "#/components/schemas/CriticalTopic"
+            },
+            "title": "Topic Stats",
             "type": "array"
           },
           "topics": {
@@ -1486,11 +1567,16 @@
         },
         "required": [
           "learning_path_id",
+          "course_id",
+          "learning_path",
+          "settings",
+          "pilot_running",
           "kpi",
           "learners",
           "topics",
           "mastery_matrix",
-          "critical_topics"
+          "critical_topics",
+          "topic_stats"
         ],
         "title": "DashboardResponse",
         "type": "object"

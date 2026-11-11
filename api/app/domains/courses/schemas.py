@@ -42,6 +42,8 @@ class CourseResponse(BaseModel):
     extraction_error_code: str | None
     extraction_job_id: str | None
     learning_path: LearningPathSummary | None
+    topics_count: int = Field(description="Temas activos del curso")
+    enrolled_count: int = Field(description="Aprendices inscritos, sin los retirados")
     created_at: UtcDatetime | None
     updated_at: UtcDatetime | None
 
