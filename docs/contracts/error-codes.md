@@ -170,6 +170,7 @@ No son respuestas HTTP: van en `GET /v1/jobs/{id}` → `error.code`, y la API lo
 | --- | :---: | --- |
 | `INVALID_OUTPUT` | sí | El LLM no devolvió una salida válida tras 2 reintentos (esquema o validaciones de código); queda `status=invalid_output` en `llm_call_logs` |
 | `LLM_PROVIDER_ERROR` | sí | Error del proveedor (5xx, red) tras los reintentos |
+| `LLM_QUOTA_EXHAUSTED` | sí (cuando se suba el tope) | El proveedor rechazó por cuota o tope de gasto agotado (por ejemplo, el *project spend cap* de Google AI Studio). No se reintenta solo: hay que subir el tope y pedir el reintento |
 | `LLM_PROVIDER_TIMEOUT` | sí | El proveedor no respondió a tiempo |
 | `LLM_CONTENT_BLOCKED` | no | El proveedor bloqueó la respuesta por sus filtros |
 | `BUDGET_EXCEEDED` | no | Se superó `AI_DAILY_BUDGET_USD`, `AI_COURSE_BUDGET_USD` o `AI_ENROLLMENT_BUDGET_USD`; queda una alerta para el admin |

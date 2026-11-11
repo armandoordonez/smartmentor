@@ -13,6 +13,7 @@ RETRYABLE: Final[dict[str, bool]] = {
     "INVALID_OUTPUT": True,
     "LLM_PROVIDER_ERROR": True,
     "LLM_PROVIDER_TIMEOUT": True,
+    "LLM_QUOTA_EXHAUSTED": True,
     "LLM_CONTENT_BLOCKED": False,
     "BUDGET_EXCEEDED": False,
     "PRICE_NOT_CONFIGURED": False,

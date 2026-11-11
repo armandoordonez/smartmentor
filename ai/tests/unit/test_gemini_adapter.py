@@ -9,7 +9,7 @@ import pytest
 from google.genai import errors as genai_errors
 
 from app.adapters.gemini import GeminiEmbeddingProvider, GeminiProvider, inline_schema
-from app.ports.llm import LlmContentBlockedError, LlmProviderError, LlmRequest
+from app.ports.llm import LlmContentBlockedError, LlmProviderError, LlmQuotaError, LlmRequest
 from tests.support import SCHEMAS_DIR, load_json
 
 
@@ -94,3 +94,23 @@ async def test_embeddings_are_normalised() -> None:
     result = await provider.embed(["a", "b"], "similarity")
     assert result.vectors == [[0.6, 0.8], [0.0, 1.0]]
     assert models.kwargs["config"].task_type == "SEMANTIC_SIMILARITY"
+
+
+async def test_spending_cap_429_is_a_quota_error_with_googles_message() -> None:
+    message = "Your project has exceeded its monthly spending cap."
+    error = genai_errors.ClientError(
+        429, {"error": {"message": message, "status": "RESOURCE_EXHAUSTED"}}
+    )
+    provider = GeminiProvider(_client(_Models(error=error)), timeout_seconds=5)
+    with pytest.raises(LlmQuotaError, match="spending cap"):
+        await provider.generate_structured(REQUEST)
+
+
+async def test_rate_limit_429_stays_a_retryable_provider_error() -> None:
+    error = genai_errors.ClientError(
+        429, {"error": {"message": "Resource has been exhausted (rate)."}}
+    )
+    provider = GeminiProvider(_client(_Models(error=error)), timeout_seconds=5)
+    with pytest.raises(LlmProviderError) as raised:
+        await provider.generate_structured(REQUEST)
+    assert not isinstance(raised.value, LlmQuotaError)

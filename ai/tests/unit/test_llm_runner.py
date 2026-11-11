@@ -16,7 +16,12 @@ from app.domain.contracts.syllabus import SyllabusLLM
 from app.domain.contracts.validation import check_syllabus
 from app.domain.errors import TaskError
 from app.ports.budget import BudgetScope
-from app.ports.llm import LlmContentBlockedError, LlmProviderError, LlmTimeoutError
+from app.ports.llm import (
+    LlmContentBlockedError,
+    LlmProviderError,
+    LlmQuotaError,
+    LlmTimeoutError,
+)
 from tests.conftest import example_llm, make_container, make_settings
 
 CTX = CallContext(task="syllabus.structure", scope=BudgetScope(course_id=3))
@@ -147,3 +152,14 @@ async def test_real_provider_without_price_fails_before_calling() -> None:
         await _run(container)
     assert error.value.code == "PRICE_NOT_CONFIGURED"
     assert fake.requests == []
+
+
+async def test_quota_exhausted_is_not_retried(
+    container: Container, fake_llm: FakeLlmProvider, call_logs: InMemoryCallLogRepository
+) -> None:
+    fake_llm.script("syllabus_structuring", LlmQuotaError("monthly spending cap"))
+    with pytest.raises(TaskError) as error:
+        await _run(container)
+    assert error.value.code == "LLM_QUOTA_EXHAUSTED"
+    assert [r.status for r in call_logs.rows] == ["error"]  # un solo intento: reintentar no sirve
+    assert "spending cap" in (call_logs.rows[0].error_message or "")

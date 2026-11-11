@@ -35,6 +35,7 @@ from app.ports.llm import (
     LlmContentBlockedError,
     LlmProvider,
     LlmProviderError,
+    LlmQuotaError,
     LlmRequest,
     LlmResponse,
     LlmTimeoutError,
@@ -239,6 +240,9 @@ class LlmRunner:
             except LlmContentBlockedError as exc:
                 await self._log_failure(ctx, request, template, key, attempt, started, exc)
                 raise TaskError("LLM_CONTENT_BLOCKED", "the provider blocked the answer") from exc
+            except LlmQuotaError as exc:
+                await self._log_failure(ctx, request, template, key, attempt, started, exc)
+                raise TaskError("LLM_QUOTA_EXHAUSTED", f"provider quota exhausted: {exc}") from exc
             except LlmProviderError as exc:
                 await self._log_failure(ctx, request, template, key, attempt, started, exc)
                 if provider_try == self._provider_retries:
@@ -463,12 +467,14 @@ class EmbeddingRunner:
             result = await self._provider.embed(texts, purpose)
         except LlmProviderError as exc:
             latency = int((time.perf_counter() - started) * 1000)
-            await self._add(ctx, model, "error", latency, 0, None, exc.__class__.__name__)
-            code = (
-                "LLM_PROVIDER_TIMEOUT"
-                if isinstance(exc, LlmTimeoutError)
-                else ("LLM_PROVIDER_ERROR")
-            )
+            error = f"{exc.__class__.__name__}: {exc}"
+            await self._add(ctx, model, "error", latency, 0, None, error)
+            if isinstance(exc, LlmQuotaError):
+                code = "LLM_QUOTA_EXHAUSTED"
+            elif isinstance(exc, LlmTimeoutError):
+                code = "LLM_PROVIDER_TIMEOUT"
+            else:
+                code = "LLM_PROVIDER_ERROR"
             raise TaskError(code, f"embedding provider failed: {exc.__class__.__name__}") from exc
         latency = int((time.perf_counter() - started) * 1000)
         cost = price.cost(result.input_tokens, 0) if price else Decimal(0)

@@ -41,6 +41,11 @@ class LlmProviderError(Exception):
     """Provider failure (5xx, network, quota): retried, then ``LLM_PROVIDER_ERROR``."""
 
 
+class LlmQuotaError(LlmProviderError):
+    """Quota or spending cap exhausted: retrying is useless until someone raises it
+    (``LLM_QUOTA_EXHAUSTED``, retryable on request)."""
+
+
 class LlmTimeoutError(LlmProviderError):
     """No answer in time: ``LLM_PROVIDER_TIMEOUT``."""
 

@@ -26,6 +26,7 @@ from app.ports.embedding import EmbeddingPurpose, EmbeddingResult
 from app.ports.llm import (
     LlmContentBlockedError,
     LlmProviderError,
+    LlmQuotaError,
     LlmRequest,
     LlmResponse,
     LlmTimeoutError,
@@ -64,6 +65,20 @@ def _name(value: Any) -> str:
     return str(getattr(value, "name", value) or "")
 
 
+# Frases con las que Google informa de una cuota o tope de gasto agotado (no de un límite por min).
+_QUOTA_PHRASES = ("spending cap", "billing", "current quota")
+
+
+def _api_error(exc: genai_errors.APIError, what: str) -> LlmProviderError:
+    """Error de la API con el mensaje de Google (sin claves)."""
+    message = " ".join(str(getattr(exc, "message", "") or "").split())[:200]
+    detail = f"{what} API error {exc.code}" + (f": {message}" if message else "")
+    exhausted = any(phrase in message.lower() for phrase in _QUOTA_PHRASES)
+    if exc.code == 429 and exhausted:
+        return LlmQuotaError(detail)
+    return LlmProviderError(detail)
+
+
 class GeminiProvider:
     def __init__(self, client: Any, *, timeout_seconds: float) -> None:
         self._client = client
@@ -94,7 +109,7 @@ class GeminiProvider:
         except TimeoutError as exc:
             raise LlmTimeoutError("gemini did not answer in time") from exc
         except genai_errors.APIError as exc:
-            raise LlmProviderError(f"gemini API error {exc.code}") from exc
+            raise _api_error(exc, "gemini") from exc
         except (OSError, ConnectionError) as exc:
             raise LlmProviderError("gemini network error") from exc
 
@@ -163,7 +178,7 @@ class GeminiEmbeddingProvider:
             except TimeoutError as exc:
                 raise LlmTimeoutError("gemini embeddings did not answer in time") from exc
             except genai_errors.APIError as exc:
-                raise LlmProviderError(f"gemini embeddings API error {exc.code}") from exc
+                raise _api_error(exc, "gemini embeddings") from exc
             for embedding in response.embeddings or []:
                 values = [float(v) for v in embedding.values or []]
                 norm = math.sqrt(math.fsum(v * v for v in values))
