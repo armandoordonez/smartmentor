@@ -20,7 +20,11 @@ from app.adapters.memory_knowledge import InMemoryKnowledgeStore
 from app.adapters.metadata_transcripts import MetadataTranscriptProvider
 from app.adapters.youtube import YouTubeSearchProvider
 from app.application.content.registry import ContentDeps, ContentServices, build_content_services
-from app.application.embeddings.sources import DirectorySourceReader
+from app.application.embeddings.sources import (
+    CombinedSourceReader,
+    DirectorySourceReader,
+    SourceMaterialReader,
+)
 from app.application.embeddings.store import KnowledgeStore
 from app.application.llm_runner import EmbeddingRunner, LlmRunner
 from app.core.config import AI_ROOT
@@ -40,24 +44,31 @@ def build_content_for_container(
     clock: Callable[[], datetime],
     engine: AsyncEngine | None,
 ) -> ContentServices:
+    sources_dir = Path(os.environ.get("AI_SOURCES_DIR") or AI_ROOT / "sources")
     knowledge: KnowledgeStore
+    sources: SourceMaterialReader
     if engine is not None:
         from app.adapters.pg_knowledge import PgKnowledgeStore
+        from app.adapters.postgres.syllabus_sources import PostgresSyllabusSourceReader
 
         knowledge = PgKnowledgeStore(engine)
+        # El syllabus del curso es la fuente mínima del RAG; la carpeta agrega apuntes (DEF-08).
+        sources = CombinedSourceReader(
+            PostgresSyllabusSourceReader(engine), DirectorySourceReader(sources_dir)
+        )
     else:
         knowledge = InMemoryKnowledgeStore()
+        sources = DirectorySourceReader(sources_dir)
     search: VideoSearchProvider | None = None
     if key := os.environ.get("YOUTUBE_API_KEY", "").strip():
         search = YouTubeSearchProvider(key, httpx.AsyncClient(timeout=YOUTUBE_TIMEOUT_SECONDS))
-    sources_dir = Path(os.environ.get("AI_SOURCES_DIR") or AI_ROOT / "sources")
     return build_content_services(
         ContentDeps(
             runner=runner,
             embeddings=embedding_runner,
             catalog=catalog,
             knowledge=knowledge,
-            sources=DirectorySourceReader(sources_dir),
+            sources=sources,
             jobs=jobs,
             transcripts=MetadataTranscriptProvider(),
             clock=clock,

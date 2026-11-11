@@ -4,6 +4,11 @@ The contract of ``embeddings.index_course`` only carries ``course_id``, so the d
 through a port. ``DirectorySourceReader`` reads ``<root>/<course_id>/sources.yaml`` (a list of
 ``{file, title, url, license}``) with the text files next to it; it serves local runs and the
 evaluation harness until the owner decides where instructors upload their notes.
+
+With a database, the service also reads the text of the course syllabus
+(``PostgresSyllabusSourceReader``): every course then has at least one source and the RAG of
+``content.explain_topic`` does not end in ``NO_SOURCE_FRAGMENTS``. ``CombinedSourceReader`` joins
+both readers.
 """
 
 from __future__ import annotations
@@ -53,4 +58,17 @@ class DirectorySourceReader:
                     license=entry.get("license"),
                 )
             )
+        return materials
+
+
+class CombinedSourceReader:
+    """The materials of several readers, in order (the syllabus first, then the folder)."""
+
+    def __init__(self, *readers: SourceMaterialReader) -> None:
+        self._readers = readers
+
+    async def sources(self, course_id: int) -> list[SourceMaterial]:
+        materials: list[SourceMaterial] = []
+        for reader in self._readers:
+            materials.extend(await reader.sources(course_id))
         return materials
