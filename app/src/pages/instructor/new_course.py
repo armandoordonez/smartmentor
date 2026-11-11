@@ -27,6 +27,7 @@ from core.staff_state import (
 from services.staff_courses import extraction_steps
 
 MAX_BYTES = 10 * 1024 * 1024
+MAX_DESCRIPTION_CHARS = 4000  # igual que `description` en la API de cursos
 UPLOAD, PASTE = "Subir PDF", "Pegar texto"
 BREADCRUMB = "Mis cursos › Nuevo curso"
 
@@ -105,8 +106,13 @@ def _form() -> None:
         st.subheader("Datos del curso", anchor=False)
         draft.name = st.text_input("Nombre del curso", value=draft.name, key="nc-name")
         draft.group = st.text_input("Grupo o periodo", value=draft.group, key="nc-group")
+        # El límite es el de la API (4000): con uno menor, Streamlit rechaza el pegado completo.
         draft.description = st.text_area(
-            "Descripción corta", value=draft.description, max_chars=500, key="nc-description"
+            "Descripción corta",
+            value=draft.description,
+            max_chars=MAX_DESCRIPTION_CHARS,
+            height=120,
+            key="nc-description",
         )
         st.markdown("**Syllabus**")
         draft.mode = (
