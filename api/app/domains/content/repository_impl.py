@@ -136,8 +136,11 @@ class SqlAlchemyResourceRepository(SqlAlchemyCrudRepository[ResourceModel, Resou
         return None if row is None else self._to_entity(row)
 
     async def lock_topic(self, topic_id: int) -> None:
+        # FOR NO KEY UPDATE (y no FOR UPDATE): serializa los cambios de la fila igual, pero deja que
+        # `ai/` valide la llave foránea de `ai_jobs` desde su conexión mientras la API espera su
+        # respuesta. Con FOR UPDATE se bloquean entre sí y la API responde 503 a los 10 s.
         await self._session.execute(
-            text("SELECT id FROM topics WHERE id = :id FOR UPDATE"), {"id": topic_id}
+            text("SELECT id FROM topics WHERE id = :id FOR NO KEY UPDATE"), {"id": topic_id}
         )
 
 
@@ -221,8 +224,11 @@ class SqlAlchemyItemRepository(SqlAlchemyCrudRepository[AssessmentItemModel, Ass
         return None if found is None else int(found)
 
     async def lock_topic(self, topic_id: int) -> None:
+        # FOR NO KEY UPDATE (y no FOR UPDATE): serializa los cambios de la fila igual, pero deja que
+        # `ai/` valide la llave foránea de `ai_jobs` desde su conexión mientras la API espera su
+        # respuesta. Con FOR UPDATE se bloquean entre sí y la API responde 503 a los 10 s.
         await self._session.execute(
-            text("SELECT id FROM topics WHERE id = :id FOR UPDATE"), {"id": topic_id}
+            text("SELECT id FROM topics WHERE id = :id FOR NO KEY UPDATE"), {"id": topic_id}
         )
 
     async def exists(self, topic_id: int, source: str, stem: str) -> bool:
