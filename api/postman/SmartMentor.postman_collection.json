@@ -595,6 +595,28 @@
           }
         },
         {
+          "name": "POST /api/v1/courses/{course_id}/archive",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/courses/{{course_id}}/archive",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "courses",
+                "{{course_id}}",
+                "archive"
+              ],
+              "query": []
+            },
+            "description": "Archive Course\n\nArchiva un curso en borrador o publicado (D1, AD5): se desactiva, nunca se elimina."
+          }
+        },
+        {
           "name": "GET /api/v1/courses/{course_id}/extraction-metrics",
           "request": {
             "method": "GET",

@@ -42,6 +42,15 @@ Todo sale de variables de entorno (raíz `.env.example`); **el código no trae p
 | `AI_PROMPTS_DIR`, `AI_PRICES_FILE` | Rutas (la imagen las fija en `/app/prompts` y `/app/config/prices.yaml`) |
 | `AI_LLM_TIMEOUT_SECONDS`, `AI_WORKER_POLL_SECONDS`, `AI_JOB_LOCK_SECONDS`, `AI_JOB_MAX_ATTEMPTS`, `AI_JOB_RETRY_BACKOFF_SECONDS` | Ajustes con valor por defecto (120, 2, 900, 3, 30) |
 
+## Fuentes del RAG (DEF-08)
+
+`content.explain_topic` redacta cada explicación a partir de fragmentos de las fuentes del curso (`source_documents` y `document_chunks`, ADR 0013). Si el curso no tiene fuentes, el trabajo termina en `NO_SOURCE_FRAGMENTS`. Las fuentes salen de dos lugares, en este orden:
+
+1. **El syllabus del curso:** el último `syllabus_documents` activo con texto (`app/adapters/postgres/syllabus_sources.py`). Así todo curso tiene al menos una fuente; la explicación queda limitada a lo que diga el syllabus.
+2. **La carpeta de apuntes:** `AI_SOURCES_DIR/<course_id>/sources.yaml` (por defecto `ai/sources`), una lista de `{file, title, url, license}` con los archivos de texto al lado. La imagen no trae esa carpeta: hay que montarla.
+
+Pendiente: que el instructor suba apuntes y libros abiertos desde la interfaz.
+
 ## Comandos
 
 ```bash

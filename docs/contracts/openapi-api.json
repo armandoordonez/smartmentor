@@ -8108,6 +8108,57 @@
         ]
       }
     },
+    "/api/v1/courses/{course_id}/archive": {
+      "post": {
+        "description": "Archiva un curso en borrador o publicado (D1, AD5): se desactiva, nunca se elimina.",
+        "operationId": "archive_course_api_v1_courses__course_id__archive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "course_id",
+            "required": true,
+            "schema": {
+              "title": "Course Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "Token (pegar)": []
+          },
+          {
+            "Login (usuario y contraseña)": []
+          }
+        ],
+        "summary": "Archive Course",
+        "tags": [
+          "courses"
+        ]
+      }
+    },
     "/api/v1/courses/{course_id}/evaluators": {
       "get": {
         "operationId": "list_evaluators_api_v1_courses__course_id__evaluators_get",
