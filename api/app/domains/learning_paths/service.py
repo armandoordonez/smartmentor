@@ -12,7 +12,7 @@ from typing import Any, Protocol
 
 from pydantic import ValidationError
 
-from app.common.constants import ConsentType, RoleCode
+from app.common.constants import ConsentType, CourseStatus, RoleCode
 from app.common.entities import require_id
 from app.common.exceptions import (
     BusinessRuleError,
@@ -391,6 +391,9 @@ class EnrollmentService:
             raise errors.consent_required()
         path = await self._paths.get(learning_path_id)
         if path is None or not path.active or path.status != "published":
+            raise errors.path_not_published()
+        course = await self._reader.course(path.course_id)
+        if course is None or not course.active or course.status == CourseStatus.ARCHIVED:
             raise errors.path_not_published()
         if await self._enrollments.find(user_id, learning_path_id) is not None:
             raise ConflictError(

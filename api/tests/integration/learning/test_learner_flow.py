@@ -388,6 +388,23 @@ async def test_only_published_paths_accept_enrollments(
     assert catalog["total"] == 0
 
 
+async def test_an_archived_course_leaves_the_catalog_and_refuses_enrollments(
+    instructor: httpx.AsyncClient, learner: httpx.AsyncClient, path: PublishedPath
+) -> None:
+    before = (await learner.get(f"{API}/learning-paths")).json()
+    assert path.path_id in [c["id"] for c in before["items"]]
+
+    archived = await instructor.post(f"{API}/courses/{path.course_id}/archive")
+    assert archived.status_code == 200, archived.text
+    assert archived.json()["status"] == "archived"
+
+    after = (await learner.get(f"{API}/learning-paths")).json()
+    assert path.path_id not in [c["id"] for c in after["items"]]
+    assert after["total"] == before["total"] - 1
+    refused = await learner.post(f"{API}/me/enrollments", json={"learning_path_id": path.path_id})
+    assert (refused.status_code, refused.json()["code"]) == (422, "LEARNING_PATH_NOT_PUBLISHED")
+
+
 async def test_profile_completion_and_recalculation(
     client_for: ClientFactory, engine: AsyncEngine, path: PublishedPath
 ) -> None:

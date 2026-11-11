@@ -5,9 +5,10 @@ from typing import Any, ClassVar
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.common.constants import CourseStatus
 from app.common.repository_impl import SqlAlchemyCrudRepository
 from app.domains.courses.entities import Course, Topic
-from app.domains.courses.models import TopicPrerequisiteModel
+from app.domains.courses.models import CourseModel, TopicPrerequisiteModel
 from app.domains.courses.repository_impl import (
     SqlAlchemyCourseRepository,
     SqlAlchemyLearningPathRepository,
@@ -38,7 +39,16 @@ from app.domains.learning_paths.models import (
 
 class SqlAlchemyPathRepository(SqlAlchemyLearningPathRepository):
     async def list_published(self, *, limit: int, offset: int) -> tuple[list[LearningPath], int]:
-        conditions = [LearningPathModel.status == "published", LearningPathModel.active.is_(True)]
+        # Un curso archivado sale del catálogo aunque su ruta siga publicada (estados.md).
+        conditions = [
+            LearningPathModel.status == "published",
+            LearningPathModel.active.is_(True),
+            LearningPathModel.course_id.in_(
+                select(CourseModel.id).where(
+                    CourseModel.status != CourseStatus.ARCHIVED, CourseModel.active.is_(True)
+                )
+            ),
+        ]
         total = (
             await self._session.execute(
                 select(func.count()).select_from(LearningPathModel).where(*conditions)

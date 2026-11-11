@@ -83,6 +83,40 @@ async def test_listing_is_scoped_to_the_instructor_and_filterable(
     assert (await client.get(f"{API}/courses", params={"limit": 101})).status_code == 422
 
 
+async def test_the_owner_archives_a_draft_and_it_stays_listed_as_archived(
+    instructor: httpx.AsyncClient, other_instructor: httpx.AsyncClient
+) -> None:
+    course = await create_course(instructor, "Prueba")
+    stranger = await other_instructor.post(f"{API}/courses/{course['id']}/archive")
+    assert (stranger.status_code, stranger.json()["code"]) == (404, "COURSE_NOT_FOUND")
+
+    archived = await instructor.post(f"{API}/courses/{course['id']}/archive")
+    assert archived.status_code == 200, archived.text
+    assert archived.json()["status"] == "archived"
+    again = await instructor.post(f"{API}/courses/{course['id']}/archive")  # idempotente
+    assert (again.status_code, again.json()["status"]) == (200, "archived")
+
+    listed = (await instructor.get(f"{API}/courses", params={"status": "archived"})).json()
+    assert [c["id"] for c in listed["items"]] == [course["id"]]
+
+
+async def test_only_draft_or_published_courses_can_be_archived(
+    instructor: httpx.AsyncClient,
+) -> None:
+    course_id = await review_ready_course(instructor)
+    refused = await instructor.post(f"{API}/courses/{course_id}/archive")
+    assert (refused.status_code, refused.json()["code"]) == (409, "INVALID_STATE_TRANSITION")
+    assert (await instructor.get(f"{API}/courses/{course_id}")).json()["status"] == "in_review"
+
+
+async def test_an_admin_archives_any_course(
+    instructor: httpx.AsyncClient, client: httpx.AsyncClient
+) -> None:
+    course = await create_course(instructor, "De otro")
+    archived = await client.post(f"{API}/courses/{course['id']}/archive")
+    assert (archived.status_code, archived.json()["status"]) == (200, "archived")
+
+
 async def test_admin_assigns_and_unassigns_the_owner(
     client: httpx.AsyncClient, instructor: httpx.AsyncClient, engine: AsyncEngine
 ) -> None:

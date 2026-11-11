@@ -53,6 +53,8 @@ from app.domains.learning_paths.entities import LearningPath
 EDITABLE_STATUSES = frozenset(
     {CourseStatus.DRAFT, CourseStatus.IN_REVIEW, CourseStatus.EXTRACTION_FAILED}
 )
+# Transiciones a `archived` (design/01-flujo-y-casos-de-uso/estados.md).
+ARCHIVABLE_STATUSES = frozenset({CourseStatus.DRAFT, CourseStatus.PUBLISHED})
 QUIZ_ITEMS_PER_TOPIC = 23
 FINAL_VERSIONS = 2
 
@@ -196,6 +198,22 @@ class CourseService:
                 )
         await self._courses.update(course_id, {"owner_user_id": owner_user_id})
         await self._uow.commit()
+        return await self.get(user, course_id)
+
+    async def archive(self, user: CurrentUser, course_id: int) -> CourseView:
+        """Archiva el curso (D1, AD5): se desactiva y nunca se elimina (estados.md).
+
+        Solo desde `draft` o `published`. Un curso archivado sale del catálogo del aprendiz y no
+        acepta inscripciones nuevas; sus datos se conservan. Archivar dos veces no es un error.
+        """
+        course = await load_course(self._courses, user, course_id)
+        if course.status != CourseStatus.ARCHIVED:
+            if course.status not in ARCHIVABLE_STATUSES:
+                raise InvalidStateTransitionError(
+                    f"Only a draft or published course can be archived (it is {course.status})."
+                )
+            await self._courses.update(course_id, {"status": CourseStatus.ARCHIVED})
+            await self._uow.commit()
         return await self.get(user, course_id)
 
 

@@ -199,6 +199,9 @@ class StaffApiOps:
         body = {"owner_user_id": owner_user_id}
         return self._send(Course, "PATCH", f"/courses/{course_id}/owner", body)
 
+    def archive_course(self, course_id: int) -> Course:
+        return self._send(Course, "POST", f"/courses/{course_id}/archive")
+
     # Instructor: ruta, avance y aprendices
 
     def get_dashboard(self, path_id: int) -> Dashboard:
@@ -393,10 +396,20 @@ class StaffFixturesOps:
     def list_courses(
         self, *, mine: bool = True, status: str | None = None, limit: int = 50, offset: int = 0
     ) -> Page[Course]:
-        del status
         page = self._model(Page[Course], "courses" if mine else "admin_courses")
-        items = page.items[offset : offset + limit]
-        return Page[Course](items=items, total=page.total, limit=limit, offset=offset)
+        archived = self._archived_course_ids()
+        for course in page.items:
+            if course.id in archived:
+                course.status = "archived"
+        everything = [c for c in page.items if status is None or c.status == status]
+        items = everything[offset : offset + limit]
+        return Page[Course](items=items, total=len(everything), limit=limit, offset=offset)
+
+    def _archived_course_ids(self) -> set[int]:
+        """Eco mínimo de «Archivar»: los cursos archivados en esta sesión de fixtures."""
+        if not hasattr(self, "_archived"):
+            self._archived: set[int] = set()
+        return self._archived
 
     def create_course(self, body: CourseCreate) -> Course:
         course = self._model(Course, "course_new")
@@ -480,6 +493,21 @@ class StaffFixturesOps:
     def set_course_owner(self, course_id: int, owner_user_id: int | None) -> Course:
         del owner_user_id
         return self.get_course(course_id)
+
+    def archive_course(self, course_id: int) -> Course:
+        course = next(
+            (c for c in self.list_courses(mine=True).items if c.id == course_id),
+            None,
+        ) or self.get_course(course_id)
+        if course.status not in ("draft", "published", "archived"):
+            raise ApiError(
+                409,
+                "INVALID_STATE_TRANSITION",
+                f"Only a draft or published course can be archived (it is {course.status}).",
+            )
+        self._archived_course_ids().add(course_id)
+        course.status = "archived"
+        return course
 
     # Instructor: ruta, avance y aprendices
 
