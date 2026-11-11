@@ -1829,7 +1829,7 @@ Se actualiza cada vez que un agente termina o se consolida una rama. Estados: �
 | Verificar modelos, tarifas y dimensión del embedding (P-05) | ✔ 2026-11-10: `gemini-3.8-flash` (0,75 y 3,75 USD), `gemini-3.5-flash-lite` (0,30 y 2,50) y `gemini-embedding-001` a 768 (0,15); tarifas en `ai/config/prices.yaml`. Falta confirmar el código exacto de `gemini-3.5-flash-lite` en AI Studio |
 | Actualizar `ai/config/prices.yaml` el 2027-01-01: `gemini-3.8-flash` pasa a 1,50 y 7,50 USD | ☐ |
 | Clave `GEMINI_API_KEY` | ✔ puesta en el `.env` |
-| Subir el tope mensual de gasto del proyecto en https://ai.studio/spend (hoy responde 429 «monthly spending cap»; se sugieren 20 USD) y confirmar el nivel de pago (el gratuito usa los datos para mejorar productos de Google) | ☐ |
+| Subir el tope mensual de gasto del proyecto en <https://ai.studio/spend> (hoy responde 429 «monthly spending cap»; se sugieren 20 USD) y confirmar el nivel de pago (el gratuito usa los datos para mejorar productos de Google) | ☐ |
 | Syllabus real de Carlos Villada (antes de la Fase 6) | ☐ |
 | Revisar los ADR 0014, 0018, 0019 y 0020 antes de aceptarlos | ☐ |
 | Contraseña de aplicación de Google para el correo de Keycloak (Fase 8) | ☐ |
