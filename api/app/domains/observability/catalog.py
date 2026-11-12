@@ -2,8 +2,8 @@
 
 Decidir si una métrica «cumple» es una regla de evaluación, así que vive en la API (ADR 0017) y no
 en la interfaz. Las metas salen de `docs/evaluation/metrics.md` y las métricas, de la pantalla
-AD3 de Figma. Lo que la API todavía no calcula en SQL (lo del notebook, la encuesta o el piloto) sale como
-`no_data`: sin muestra no hay valor.
+AD3 de Figma. Lo que la API todavía no calcula en SQL (lo del notebook, la encuesta o el
+piloto) sale como `no_data`: sin muestra no hay valor.
 
 Cada métrica: `code`, `name`, `priority` (P1 a P3, la del brief), `status` (`meets`, `not_met`,
 `report` o `no_data`), `value` (número o `None`), `unit` (cómo la muestra la interfaz), `goal`

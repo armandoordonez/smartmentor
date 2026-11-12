@@ -403,9 +403,7 @@ class StaffApiOps:
 
     def create_user(self, body: UserCreate) -> AdminUser:
         user = _json(
-            self._request(
-                "POST", "/users", json={"email": body.email, "full_name": body.full_name}
-            )
+            self._request("POST", "/users", json={"email": body.email, "full_name": body.full_name})
         )
         roles = self.set_user_roles(int(user["id"]), body.roles) if body.roles else []
         return _parse(AdminUser, admin_user_from_api(user, roles))
