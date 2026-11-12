@@ -209,7 +209,8 @@ async def test_the_fixed_preview_sends_every_topic_with_the_fixed_arm(world: Wor
     service, _, _ = build(world, [])
     created = await service.create(CONFIG)
     pilot_id = created.pilot.id or 0
-    assert created.path is not None and created.path.name == "Datos"
+    assert created.path is not None
+    assert created.path.name == "Datos"
     preview = await service.fixed_path_preview(pilot_id)
     # Aditivo para AD4b: el nombre del tema y el umbral de la final.
     assert preview["steps"][0]["name"] == first.name

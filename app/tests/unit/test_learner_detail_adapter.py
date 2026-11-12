@@ -19,7 +19,9 @@ from clients.models_staff import LearnerDetail
 OPENAPI = REPO_ROOT / "docs" / "contracts" / "openapi-api.json"
 
 
-def _step(step_id: int, order: int, topic_id: int, name: str, status: str, **extra: Any) -> dict[str, Any]:
+def _step(
+    step_id: int, order: int, topic_id: int, name: str, status: str, **extra: Any
+) -> dict[str, Any]:
     base = {
         "step_id": step_id,
         "step_order": order,

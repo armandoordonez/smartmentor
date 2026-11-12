@@ -31,7 +31,6 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-
 DEFAULT_PILOT_ID = 1
 """El piloto de los fixtures (hay uno por cohorte)."""
 _PILOT_STATUSES = frozenset({"draft", "randomized", "running", "closed"})

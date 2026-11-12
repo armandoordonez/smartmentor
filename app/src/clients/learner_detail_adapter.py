@@ -90,10 +90,7 @@ def _attempts(data: dict[str, Any], step_names: dict[int, str]) -> list[dict[str
         if raw.get("score") is None or raw.get("passed") is None or not raw.get("submitted_at"):
             continue
         step_id = _int(raw.get("step_id"))
-        if step_id is None:
-            topic_name = FINAL_ASSESSMENT_NAME
-        else:
-            topic_name = step_names.get(step_id, "")
+        topic_name = FINAL_ASSESSMENT_NAME if step_id is None else step_names.get(step_id, "")
         attempts.append(
             {
                 "attempt_id": int(raw["id"]),

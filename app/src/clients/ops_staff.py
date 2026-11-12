@@ -18,7 +18,6 @@ from typing import Any
 import httpx
 from pydantic import BaseModel, ValidationError
 
-from clients.base import ApiError
 from clients.admin_adapter import (
     DEFAULT_PILOT_ID,
     admin_enrollment_from_api,
@@ -32,6 +31,7 @@ from clients.admin_adapter import (
     pilot_from_api,
     pilot_to_show,
 )
+from clients.base import ApiError
 from clients.content_adapter import item_from_api, item_patch_for_api, resource_from_api
 from clients.dashboard_adapter import dashboard_from_api, is_api_dashboard
 from clients.evaluation_adapter import (
