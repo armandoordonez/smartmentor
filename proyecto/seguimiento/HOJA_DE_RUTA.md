@@ -2,7 +2,7 @@
 
 Lo que falta para llegar al hito del brief (el flujo corre de punta a punta con el LLM real) y al piloto. Arranca del estado de `dev` en `d8de841` (2026-11-12). Estados e IDs en el [README](README.md#estados). Las fases F0–F11 son las del [plan v3](../../PLAN_IMPLEMENTACION_V3.md#7-plan-fase-a-fase).
 
-**Última actualización:** 2026-11-12 14:03
+**Última actualización:** 2026-11-12 14:59
 
 ## Dónde estamos (2026-11-12)
 
@@ -13,6 +13,29 @@ Lo que falta para llegar al hito del brief (el flujo corre de punta a punta con 
 | Interfaz: las 96 pantallas de Figma tienen su página en Streamlit | ✔ En `dev` |
 | Interfaz que lee la **API real** | ◐ Solo Mis cursos, Rutas y avance, Revisión de contenido, Videos y Calificación (PR 3). Las demás solo funcionan con datos de ejemplo |
 | Revisión visual en un navegador | ☐ Nunca se hizo |
+
+## Estado por fase (F0 a F11)
+
+**Fase actual: F6 (integración de punta a punta, el hito del brief), en paralelo con lo que le queda a F7 (la interfaz con la API real).** Revisado el 2026-11-12 14:59.
+
+Fuentes: el [tablero del plan](../../PLAN_IMPLEMENTACION_V3.md#21-tablero-de-avance-del-plan) (actualizado el 2026-11-07 y el 2026-11-10), cuyos commits de evidencia se comprobaron con `git merge-base --is-ancestor` y **todos están en `dev`**; los PR 1 a 5; y este seguimiento. «Sin verificar» quiere decir que no se ejecutó ni se encontró una evidencia escrita.
+
+| Fase | Qué es | Estado | Evidencia | Lo que falta | Tareas |
+| --- | --- | --- | --- | --- | --- |
+| F0 | Decisiones, línea base en `dev` y alcance congelado | ✔ Lo técnico · aprobación sin verificar | `eb84c97` (línea base), `726fc16` (estándares y CI mínima) | Aprobación del plan por el director (pide la salida verificable de F0; no hay registro). Prueba de usabilidad de la Fase 0 del brief | — |
+| F1 | Diseño y contratos | ✔ Lo técnico · aprobación sin verificar | `e709dd4` (casos de uso), `3e23ac3` (ADR 0007 a 0021), `f81d49d` (contratos y prompts), `37f44e8` (v3 como única fuente) | Aprobación del director en `design/01-flujo-y-casos-de-uso/README.md`. Revisar los ADR 0014, 0018, 0019 y 0020, que siguen propuestos | — |
+| F2 | Base de datos `v2.0.0` | ✔ En `dev` | `995dbd9`: 51 changesets, 39 tablas y rollback | — | — |
+| F3 | API v2 sin IA | ✔ En `dev` · se amplía | `995dbd9` y siguientes; 641 pruebas (tablero) y 651 (PR 3) | Cambios aditivos de T-012 a T-015 (sin commit). Pruebas sin correr en esta sesión | T-012 a T-015 |
+| F4 | `ai/` base: trabajos, syllabus y diagnóstico | ✔ En `dev` | `9000895`; syllabus real → Gemini → temas verificado el 2026-11-10 (tablero) | — | — |
+| F5 | `ai/`: contenido, evaluación y videos | ✔ En `dev` · falta el LLM real | `9000895`: 400 pruebas con simulaciones | Corrida con el LLM real (la frenó el tope de gasto: HTTP 429) | T-030, T-032 |
+| F6 | Integración de punta a punta (**hito**) | ◐ **En curso** | Syllabus real a temas (2026-11-10). PR 3 y PR 4 (bloqueo API ↔ `ai/`) | Llevar a `dev` el arreglo del PR 4 ([B-001](BUGS.md)). Subir el tope de gasto. Syllabus real. Corrida de punta a punta con costo y latencia | T-002, T-030, T-031, T-032 |
+| F7 | Interfaz v3 | ◐ **En curso** | Las 96 pantallas tienen página en `dev`; 577 pruebas de la UI (PR 3) | Que todas las pantallas lean la API real (PR 5 en borrador; T-011, T-015f, T-016, T-017). Estados que Figma no dibuja (T-020 a T-023). **Comparación visual con Figma, nunca hecha** (T-034) | T-010 a T-024, T-033, T-034 |
+| F8 | Keycloak, infraestructura y CI | ✔ En `dev` · salida sin verificar | `995dbd9`: realm v3, compose y `.github/workflows/ci.yml` | `docker compose up` en un PC limpio en menos de 10 minutos (sin verificar). Contraseña SMTP de Keycloak (P-19). Endurecimiento antes de datos reales | T-050 |
+| F9 | Evaluación y piloto | ◐ Herramientas hechas · faltan personas | `97ffd44`: métricas y notebook. AD3 ya muestra el catálogo de métricas (T-015c, sin commit) | Anotación de expertos, calificación humana, usabilidad (SUS) y piloto con personas reales. Textos legales | T-040 a T-043 |
+| F10 | Revisión final, despliegue y brief v2 | ☐ Pendiente | — | Todo; empieza después de F9. Incluye poner al día el checklist y el HANDOFF ([B-002](BUGS.md)) | T-003, T-051 |
+| F11 | Cierre y traspaso | ☐ Pendiente | — | Etiqueta `v1.0-cohorte1`, release y traspaso | T-052 |
+
+Resumen: **hechas 6** (F0 a F5 en lo técnico; F0 y F1 esperan la aprobación del director y F5 la corrida con el LLM real), **en curso 3** (F6, F7 y F9) y **pendientes 2** (F10 y F11). Casi todo lo que bloquea F6 lo tiene que resolver el dueño: el tope de gasto de Gemini y el syllabus real.
 
 ## Etapa 0 · Trazabilidad y puesta al día
 
@@ -30,11 +53,17 @@ Se sigue el patrón del PR 3: cambios **aditivos** en la API, un adaptador por p
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | T-010 | Flujo del aprendiz: revisar y terminar el PR 5 (catálogo, perfil, quiz y ruta) y sacarlo de borrador | E1–E7c, E15 | T-002 | ◐ PR 5 en borrador | 2026-11-11 | | `fix/flujo-aprendiz` · PR 5 |
 | T-011 | Resto del aprendiz con la API real: diagnóstico, final, badge, progreso, logros, encuesta y retención | E3–E4b, E8–E14, U1a–U1d | T-010 | ☐ | | | |
-| T-012 | Detalle del aprendiz e intentos extra | D4, D4b, D4c | — | ☐ | | | |
-| T-013 | Cola de anotación de preguntas | D5b | — | ☐ | | | |
-| T-014 | Calidad de los videos según los aprendices | D5f | — | ☐ | | | |
-| T-015 | Pantallas del administrador | AD1, AD2, AD3, AD4, AD5, C4 | — | ☐ | | | |
-| T-016 | Vista previa de la ruta fija | AD4b, E5b | T-015 | ☐ | | | |
+| T-012 | Detalle del aprendiz e intentos extra | D4, D4b, D4c | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:0x (aprox.) | 2026-11-12 14:11 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-013 | Cola de anotación de preguntas | D5b | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:13 | 2026-11-12 14:16 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-014 | Calidad de los videos según los aprendices | D5f | F-012 | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:17 | 2026-11-12 14:22 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-015 | Pantallas del administrador (dividida en T-015a a T-015f) | AD1–AD5, C4 | — | ◐ | 2026-11-12 14:22 | | |
+| T-015a | Usuarios y roles: roles desde `/roles` y `/user-roles`, activos e inactivos, alta y activación con las rutas reales ([B-003 a B-005](BUGS.md)) | AD1 | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:22 | 2026-11-12 14:27 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-015b | Log del LLM y resumen: tokens, campos vacíos, latencias y nombre de la tarea | AD2 | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:22 | 2026-11-12 14:27 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-015c | Métricas globales: catálogo de 29 métricas con meta y estado calculados en la API (decisión del dueño) | AD3 | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:51 | 2026-11-12 14:56 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-015d | Piloto y vista previa de la ruta fija: el piloto se busca con `GET /pilots` ([B-006](BUGS.md)), y se agregan la ruta, los consentimientos, los temas con ítems y la vista previa con nombres | AD4, AD4b | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:28 | 2026-11-12 14:33 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-015e | Cursos, rutas e inscripciones: nombre del aprendiz y consentimiento al piloto en la API; dueño del curso desde `owner_user_id` | AD5 | — | ⏳ Sin commit, pruebas sin correr | 2026-11-12 14:38 | 2026-11-12 14:42 | `feature/seguimiento-trazabilidad` (sin commit) |
+| T-015f | Catálogo de prompts: revisar si lee la API o `prompts/catalog.yaml` | C4 | — | ☐ | | | |
+| T-016 | Vista previa de la ruta fija | AD4b, E5b | T-015 | ◐ AD4b hecho en T-015d; falta revisar E5b (vista del aprendiz) | 2026-11-12 14:28 | | |
 | T-017 | Revisar si las demás pantallas del instructor ya leen la API real: nuevo curso, syllabus, grafo y panel de ruta | D1b–D2d, D3b | — | ☐ | | | |
 
 ## Etapa 2 · Estados que Figma no dibuja
