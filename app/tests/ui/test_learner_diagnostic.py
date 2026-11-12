@@ -207,6 +207,8 @@ def test_e5_follows_figma() -> None:
         at,
         "E5",
         accepted=(
+            # Un tema omitido no se repasa desde la ruta: la API no entrega su contenido (409).
+            "Puedes repasarlo cuando quieras",
             # El API no dice de qué tema es prerrequisito, ni el último puntaje (solo el mejor).
             "Incluido como prerrequisito débil de Regresión logística (64 % en el diagnóstico)",
             "Intento 2 de 3 · último puntaje 60 %",
@@ -214,6 +216,15 @@ def test_e5_follows_figma() -> None:
             "Demo: ver la variante de ruta fija (grupo de comparación)",
         ),
     )
+
+
+def test_e5_passed_and_skipped_topics_do_not_open() -> None:
+    """La API responde `409 STEP_NOT_AVAILABLE` al contenido de un tema aprobado u omitido."""
+    at = learner_app("learner_path", PATH)
+    keys = {b.key for b in at.button}
+    assert "open-step-811" not in keys  # omitido
+    assert "open-step-812" not in keys  # aprobado
+    assert "open-step-813" in keys  # en curso
 
 
 def test_e5_open_step_goes_to_the_topic() -> None:

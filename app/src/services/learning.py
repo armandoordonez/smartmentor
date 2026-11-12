@@ -8,6 +8,10 @@ from clients.models import AssessmentItem, BloomLevel, Enrollment, PathDetail, P
 from components.formatting import approx_duration, duration, percent_points
 from components.path_rows import PathRow
 
+# Pasos que no se abren: la API no entrega su contenido (`409 STEP_NOT_AVAILABLE`). Un tema
+# aprobado u omitido no se repasa desde la ruta (decisión del 11-nov-2026: seguir a la API).
+CLOSED_STEPS = frozenset({"blocked", "on_hold", "passed", "skipped"})
+
 
 def reason_line(step: PathStep) -> str:
     level = percent_points(step.diagnostic_level) if step.diagnostic_level is not None else None
@@ -37,7 +41,7 @@ def detail_line(step: PathStep) -> str | None:
     best = percent_points(step.best_score) if step.best_score is not None else None
     match step.status:
         case "skipped":
-            return "Puedes repasarlo cuando quieras"
+            return None  # el motivo ya dice «Omitido por tu diagnóstico»
         case "passed":
             if best is None:
                 return "Aprobado"
@@ -49,7 +53,11 @@ def detail_line(step: PathStep) -> str | None:
             return f"Aprobado {when} · {best}"
         case "in_progress" | "attempts_exhausted":
             total = step.max_attempts + step.extra_attempts_granted
-            line = f"Intento {min(step.attempts_used + 1, total)} de {total}"
+            line = (
+                f"Usaste los {total} intentos"
+                if step.status == "attempts_exhausted"
+                else f"Intento {min(step.attempts_used + 1, total)} de {total}"
+            )
             return f"{line} · mejor puntaje {best}" if best else line
         case "pending":
             if step.estimated_minutes is None:
@@ -69,7 +77,7 @@ def path_rows(path: PathDetail, *, fixed: bool) -> list[PathRow]:
             status=step.status,
             reason=reason_line(step),
             detail=None if fixed else detail_line(step),
-            openable=step.status not in ("blocked", "on_hold"),
+            openable=step.status not in CLOSED_STEPS,
         )
         for step in path.steps
     ]
