@@ -7,7 +7,7 @@ from support import FIXTURES_DIR
 
 from clients.base import ApiError
 from clients.fixtures import FixturesClient
-from clients.models import LearningPathCard
+from clients.models import CourseSummary, LearningPathCard, Page
 from components.formatting import approx_duration, duration, initials, percent, percent_points
 from services.assessment import rubric_view
 from services.catalog import card_view, load_catalog, open_path
@@ -36,9 +36,53 @@ def test_catalog_groups_the_cards_in_two_sections_with_figma_meta() -> None:
 
 
 def test_card_without_tags_has_no_eyebrow() -> None:
-    card = LearningPathCard(id=9, name="X", topics_count=1, estimated_minutes=30, level="advanced")
+    card = LearningPathCard(
+        id=9,
+        name="X",
+        course=CourseSummary(id=1, name="X"),
+        topic_count=1,
+        estimated_minutes=30,
+        level="advanced",
+    )
     assert card_view(card).tag_text is None
-    assert card_view(card).meta == "1 temas · ~30 min · Avanzado"
+    assert card_view(card).meta == "1 tema · ~30 min · Avanzado"
+
+
+# Tarjeta tal como la devuelve la API real (`GET /learning-paths`, 11-nov-2026): sin nivel, sin
+# secciones ni etiquetas, la descripción dentro de `course` y 0 minutos si los temas no los tienen.
+API_CARD = {
+    "id": 2,
+    "name": "Extraccion Y Almacenamiento De Datos",
+    "group_label": "2026-2",
+    "course": {"id": 2, "name": "Extraccion Y Almacenamiento De Datos", "description": "Curso."},
+    "topics": [
+        {"id": 4, "name": "Arquitecturas", "estimated_minutes": None, "is_mandatory": False},
+        {"id": 5, "name": "ETL/ELT", "estimated_minutes": None, "is_mandatory": False},
+        {"id": 6, "name": "Extracción web", "estimated_minutes": None, "is_mandatory": False},
+    ],
+    "topic_count": 3,
+    "estimated_minutes": 0,
+    "enrolled": True,
+}
+
+
+def test_card_from_the_real_api_omits_what_the_api_does_not_send() -> None:
+    view = card_view(LearningPathCard.model_validate(API_CARD))
+    assert view.meta == "3 temas"
+    assert view.description == "Curso."
+    assert view.tag_text is None
+    assert view.cta_label == "Continuar ruta"
+
+
+def test_catalog_from_the_real_api_goes_in_paths() -> None:
+    page = Page[LearningPathCard].model_validate(
+        {"items": [API_CARD], "total": 1, "limit": 100, "offset": 0}
+    )
+    client = FixturesClient("learner")
+    client.list_learning_paths = lambda **_: page  # type: ignore[method-assign]
+    view = load_catalog(client)
+    assert [c.name for c in view.paths] == [API_CARD["name"]]
+    assert view.applied_ai == []
 
 
 def test_open_path_returns_the_existing_enrollment_on_conflict() -> None:

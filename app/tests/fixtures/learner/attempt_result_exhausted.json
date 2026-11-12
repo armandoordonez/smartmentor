@@ -1,5 +1,6 @@
 {
   "attempt_id": 9003,
+  "assessment_type": "topic",
   "status": "graded",
   "score": 40.0,
   "passed": false,

@@ -21,6 +21,7 @@
         "percent": 100
       },
       "pilot_arm": "personalized",
+      "analysis_included": true,
       "next_action": {
         "type": "take_final",
         "step_id": null,

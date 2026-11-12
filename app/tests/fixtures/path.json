@@ -13,7 +13,8 @@
       "attempts_used": 0,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": null
+      "best_score": null,
+      "last_score": null
     },
     {
       "step_id": 812,
@@ -27,7 +28,8 @@
       "attempts_used": 0,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": null
+      "best_score": null,
+      "last_score": null
     }
   ],
   "savings": {

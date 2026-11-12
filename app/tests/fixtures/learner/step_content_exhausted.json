@@ -1,5 +1,6 @@
 {
   "step_id": 813,
+  "status": "attempts_exhausted",
   "topic": {
     "id": 12,
     "name": "Regresión logística",

@@ -2,7 +2,7 @@
   "job_id": "job-grading",
   "job_type": "grading.short_answer",
   "status": "failed",
-  "progress_label": null,
+  "progress_label": "No se pudo terminar",
   "ingested": false,
   "next_action": null,
   "error": {

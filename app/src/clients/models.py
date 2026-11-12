@@ -11,7 +11,7 @@ las pruebas validan fixtures y ejemplos del contrato con `extra="forbid"` para d
 from datetime import datetime
 from typing import Any, Generic, Literal, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 Role = Literal["learner", "instructor", "admin"]
 ROLES: tuple[Role, ...] = ("learner", "instructor", "admin")
@@ -152,6 +152,12 @@ class Profile(ApiModel):
     languages: list[Language] = Field(default_factory=list)
     resume_completed_at: datetime | None = None
     recalculated_enrollment_ids: list[int] = Field(default_factory=list)
+    """La API manda `null` en `GET /me/profile`; solo `PUT` dice qué inscripciones recalculó."""
+
+    @field_validator("recalculated_enrollment_ids", mode="before")
+    @classmethod
+    def _null_is_empty(cls, value: object) -> object:
+        return [] if value is None else value
 
 
 class ProfileUpdate(ApiModel):
@@ -167,8 +173,9 @@ class ProfileUpdate(ApiModel):
 
 
 class Consent(ApiModel):
-    """Propuesta: el contrato solo dice `Consent` sin detallar sus campos."""
+    """`ConsentResponse` del OpenAPI."""
 
+    id: int | None = None
     consent_type: ConsentType
     granted: bool
     document_version: str | None = None
@@ -185,18 +192,37 @@ class DataSubjectRequest(ApiModel):
 # --- Catálogo e inscripción (secciones 3 y 4) ------------------------------------------------
 
 
-class LearningPathCard(ApiModel):
-    """Propuesta: el contrato dice «`LearningPathCard`» sin detallar sus campos (E1)."""
-
+class CourseSummary(ApiModel):
     id: int
     name: str
     description: str | None = None
+
+
+class TopicSummary(ApiModel):
+    id: int
+    name: str
+    estimated_minutes: int | None = None
+    is_mandatory: bool = False
+
+
+class LearningPathCard(ApiModel):
+    """Tarjeta del catálogo (E1), con la forma de `LearningPathCard` del OpenAPI.
+
+    La descripción es la del curso. `section`, `tags` y `level` son propuestas del diseño que la
+    API todavía no manda: si faltan, la tarjeta va en «Rutas», sin antetítulo y sin nivel.
+    """
+
+    id: int
+    name: str
     group_label: str | None = None
+    course: CourseSummary
+    topics: list[TopicSummary] = Field(default_factory=list)
+    topic_count: int
+    estimated_minutes: int
+    enrolled: bool = False
     section: PathSection = "paths"
     tags: list[PathTag] = Field(default_factory=list)
-    topics_count: int
-    estimated_minutes: int
-    level: PathLevel
+    level: PathLevel | None = None
 
 
 class LearningPathRef(ApiModel):
@@ -210,7 +236,7 @@ class Objective(ApiModel):
     bloom_verb: str
     content: str
     criterion: str
-    origin: ObjectiveOrigin
+    origin: ObjectiveOrigin | None = None
 
 
 class Progress(ApiModel):
@@ -236,6 +262,7 @@ class Enrollment(ApiModel):
     objective: Objective | None = None
     progress: Progress
     pilot_arm: PilotArm | None = None
+    analysis_included: bool = False
     next_action: NextAction
     created_at: datetime
     completed_at: datetime | None = None
@@ -294,7 +321,7 @@ class LearnerAnswer(ApiModel):
 
 class Diagnostic(ApiModel):
     id: int
-    status: Literal["created", "in_progress", "submitted", "scored"]
+    status: Literal["created", "in_progress", "submitted", "scoring", "scored", "scoring_failed"]
     items: list[AssessmentItem]
     answers: list[LearnerAnswer] = Field(default_factory=list)
     submitted_at: datetime | None = None
@@ -322,7 +349,7 @@ class DiagnosticResult(ApiModel):
     status: Literal["scored"]
     level_by_topic: list[TopicLevel]
     overall_score: float
-    proposed_objective: Objective
+    proposed_objective: Objective | None = None
 
 
 class PathStep(ApiModel):
@@ -331,13 +358,14 @@ class PathStep(ApiModel):
     topic_id: int
     name: str
     status: StepStatus
-    inclusion_reason: InclusionReason
+    inclusion_reason: InclusionReason | None = None
     diagnostic_level: float | None = None
     estimated_minutes: int | None = None
     attempts_used: int
     max_attempts: int
     extra_attempts_granted: int
     best_score: float | None = None
+    last_score: float | None = None
 
 
 class PathSavings(ApiModel):
@@ -362,7 +390,7 @@ class PathDetail(ApiModel):
 class LearningOutcome(ApiModel):
     id: int
     statement: str
-    bloom_level: BloomLevel
+    bloom_level: BloomLevel | None = None
 
 
 class StepTopic(ApiModel):
@@ -402,6 +430,7 @@ class AttemptsCounter(ApiModel):
 
 class StepContent(ApiModel):
     step_id: int
+    status: StepStatus | None = None
     topic: StepTopic
     explanation: StepExplanation | None = None
     personal_example: dict[str, Any] | None = None
@@ -415,6 +444,7 @@ class Attempt(ApiModel):
     assessment_type: AssessmentType
     status: AttemptStatus
     step_id: int | None = None
+    attempt_number: int | None = None
     items: list[AssessmentItem]
     answers: list[LearnerAnswer] = Field(default_factory=list)
     uses_extra_grant: bool = False
@@ -424,9 +454,14 @@ class Attempt(ApiModel):
 class AnswerResult(ApiModel):
     attempt_answer_id: int
     item_id: int
-    grading: dict[str, Any]
-    """`grading.v1` sin `meta` (esquema en `prompts/schemas/`)."""
+    grading: dict[str, Any] = Field(default_factory=dict)
+    """`grading.v1` sin `meta` (esquema en `prompts/schemas/`); vacío si la API manda `null`."""
     review_requested: bool = False
+
+    @field_validator("grading", mode="before")
+    @classmethod
+    def _null_is_empty(cls, value: object) -> object:
+        return {} if value is None else value
 
 
 class AttemptsSummary(ApiModel):
@@ -437,6 +472,7 @@ class AttemptsSummary(ApiModel):
 
 class AttemptResult(ApiModel):
     attempt_id: int
+    assessment_type: AssessmentType | None = None
     status: AttemptStatus
     score: float
     passed: bool
@@ -459,11 +495,13 @@ class ReviewPlan(ApiModel):
 
 
 class BadgeSummary(ApiModel):
-    """Propuesta: el contrato dice «`BadgeSummary`» sin detallar sus campos (E10, E12)."""
+    """`BadgeSummary` del OpenAPI (E10, E12)."""
 
     public_id: str
     enrollment_id: int
+    name: str | None = None
+    course_name: str | None = None
     learning_path_name: str
-    issued_at: datetime
+    issued_at: datetime | None = None
     assertion_url: str
     image_url: str

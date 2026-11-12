@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "consent_type": "data_processing",
     "granted": true,
     "document_version": "1.0",

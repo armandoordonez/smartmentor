@@ -3,79 +3,289 @@
     {
       "id": 1,
       "name": "Fundamentos de Machine Learning",
-      "description": null,
       "group_label": "Piloto 2026-2",
+      "course": {
+        "id": 101,
+        "name": "Fundamentos de Machine Learning",
+        "description": null
+      },
+      "topics": [
+        {
+          "id": 1010,
+          "name": "Tema 1",
+          "estimated_minutes": 96,
+          "is_mandatory": false
+        },
+        {
+          "id": 1011,
+          "name": "Tema 2",
+          "estimated_minutes": 96,
+          "is_mandatory": false
+        },
+        {
+          "id": 1012,
+          "name": "Tema 3",
+          "estimated_minutes": 96,
+          "is_mandatory": false
+        },
+        {
+          "id": 1013,
+          "name": "Tema 4",
+          "estimated_minutes": 96,
+          "is_mandatory": false
+        },
+        {
+          "id": 1014,
+          "name": "Tema 5",
+          "estimated_minutes": 96,
+          "is_mandatory": false
+        }
+      ],
+      "topic_count": 5,
+      "estimated_minutes": 480,
+      "enrolled": false,
       "section": "paths",
       "tags": [
         "recommended"
       ],
-      "topics_count": 5,
-      "estimated_minutes": 480,
       "level": "intermediate"
     },
     {
       "id": 2,
       "name": "Estadística para ciencia de datos",
-      "description": null,
       "group_label": "Piloto 2026-2",
+      "course": {
+        "id": 102,
+        "name": "Estadística para ciencia de datos",
+        "description": null
+      },
+      "topics": [
+        {
+          "id": 1020,
+          "name": "Tema 1",
+          "estimated_minutes": 72,
+          "is_mandatory": false
+        },
+        {
+          "id": 1021,
+          "name": "Tema 2",
+          "estimated_minutes": 72,
+          "is_mandatory": false
+        },
+        {
+          "id": 1022,
+          "name": "Tema 3",
+          "estimated_minutes": 72,
+          "is_mandatory": false
+        },
+        {
+          "id": 1023,
+          "name": "Tema 4",
+          "estimated_minutes": 72,
+          "is_mandatory": false
+        },
+        {
+          "id": 1024,
+          "name": "Tema 5",
+          "estimated_minutes": 72,
+          "is_mandatory": false
+        }
+      ],
+      "topic_count": 5,
+      "estimated_minutes": 360,
+      "enrolled": false,
       "section": "paths",
       "tags": [
         "new"
       ],
-      "topics_count": 5,
-      "estimated_minutes": 360,
       "level": "basic"
     },
     {
       "id": 3,
       "name": "Python para análisis de datos",
-      "description": null,
       "group_label": "Piloto 2026-2",
+      "course": {
+        "id": 103,
+        "name": "Python para análisis de datos",
+        "description": null
+      },
+      "topics": [
+        {
+          "id": 1030,
+          "name": "Tema 1",
+          "estimated_minutes": 75,
+          "is_mandatory": false
+        },
+        {
+          "id": 1031,
+          "name": "Tema 2",
+          "estimated_minutes": 75,
+          "is_mandatory": false
+        },
+        {
+          "id": 1032,
+          "name": "Tema 3",
+          "estimated_minutes": 75,
+          "is_mandatory": false
+        },
+        {
+          "id": 1033,
+          "name": "Tema 4",
+          "estimated_minutes": 75,
+          "is_mandatory": false
+        }
+      ],
+      "topic_count": 4,
+      "estimated_minutes": 300,
+      "enrolled": false,
       "section": "paths",
       "tags": [
         "popular"
       ],
-      "topics_count": 4,
-      "estimated_minutes": 300,
       "level": "basic"
     },
     {
       "id": 4,
       "name": "Claude Ventas",
-      "description": "Usa un asistente de IA para prospectar, preparar reuniones y responder objeciones, cuidando los datos del cliente.",
       "group_label": "Piloto 2026-2",
+      "course": {
+        "id": 104,
+        "name": "Claude Ventas",
+        "description": "Usa un asistente de IA para prospectar, preparar reuniones y responder objeciones, cuidando los datos del cliente."
+      },
+      "topics": [
+        {
+          "id": 1040,
+          "name": "Tema 1",
+          "estimated_minutes": 43,
+          "is_mandatory": false
+        },
+        {
+          "id": 1041,
+          "name": "Tema 2",
+          "estimated_minutes": 43,
+          "is_mandatory": false
+        },
+        {
+          "id": 1042,
+          "name": "Tema 3",
+          "estimated_minutes": 43,
+          "is_mandatory": false
+        },
+        {
+          "id": 1043,
+          "name": "Tema 4",
+          "estimated_minutes": 43,
+          "is_mandatory": false
+        },
+        {
+          "id": 1044,
+          "name": "Tema 5",
+          "estimated_minutes": 43,
+          "is_mandatory": false
+        }
+      ],
+      "topic_count": 5,
+      "estimated_minutes": 215,
+      "enrolled": false,
       "section": "applied_ai",
       "tags": [
         "new_anthropic"
       ],
-      "topics_count": 5,
-      "estimated_minutes": 215,
       "level": "basic"
     },
     {
       "id": 5,
       "name": "Claude Marketing",
-      "description": "Briefs, voz de marca, contenido por canal y revisión con un asistente de IA.",
       "group_label": "Piloto 2026-2",
+      "course": {
+        "id": 105,
+        "name": "Claude Marketing",
+        "description": "Briefs, voz de marca, contenido por canal y revisión con un asistente de IA."
+      },
+      "topics": [
+        {
+          "id": 1050,
+          "name": "Tema 1",
+          "estimated_minutes": 42,
+          "is_mandatory": false
+        },
+        {
+          "id": 1051,
+          "name": "Tema 2",
+          "estimated_minutes": 42,
+          "is_mandatory": false
+        },
+        {
+          "id": 1052,
+          "name": "Tema 3",
+          "estimated_minutes": 42,
+          "is_mandatory": false
+        },
+        {
+          "id": 1053,
+          "name": "Tema 4",
+          "estimated_minutes": 42,
+          "is_mandatory": false
+        },
+        {
+          "id": 1054,
+          "name": "Tema 5",
+          "estimated_minutes": 42,
+          "is_mandatory": false
+        }
+      ],
+      "topic_count": 5,
+      "estimated_minutes": 210,
+      "enrolled": false,
       "section": "applied_ai",
       "tags": [
         "new_anthropic"
       ],
-      "topics_count": 5,
-      "estimated_minutes": 210,
       "level": "basic"
     },
     {
       "id": 6,
       "name": "Google IA Estudio",
-      "description": "Instrucciones, pruebas y un prototipo de IA para tu área de trabajo.",
       "group_label": "Piloto 2026-2",
+      "course": {
+        "id": 106,
+        "name": "Google IA Estudio",
+        "description": "Instrucciones, pruebas y un prototipo de IA para tu área de trabajo."
+      },
+      "topics": [
+        {
+          "id": 1060,
+          "name": "Tema 1",
+          "estimated_minutes": 45,
+          "is_mandatory": false
+        },
+        {
+          "id": 1061,
+          "name": "Tema 2",
+          "estimated_minutes": 45,
+          "is_mandatory": false
+        },
+        {
+          "id": 1062,
+          "name": "Tema 3",
+          "estimated_minutes": 45,
+          "is_mandatory": false
+        },
+        {
+          "id": 1063,
+          "name": "Tema 4",
+          "estimated_minutes": 45,
+          "is_mandatory": false
+        }
+      ],
+      "topic_count": 4,
+      "estimated_minutes": 180,
+      "enrolled": false,
       "section": "applied_ai",
       "tags": [
         "new_google"
       ],
-      "topics_count": 4,
-      "estimated_minutes": 180,
       "level": "basic"
     }
   ],

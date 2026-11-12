@@ -21,6 +21,7 @@
         "percent": 33
       },
       "pilot_arm": "personalized",
+      "analysis_included": true,
       "next_action": {
         "type": "study_topic",
         "step_id": 812,

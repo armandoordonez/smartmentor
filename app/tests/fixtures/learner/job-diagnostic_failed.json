@@ -2,7 +2,7 @@
   "job_id": "job-diagnostic",
   "job_type": "diagnostic.finalize",
   "status": "failed",
-  "progress_label": null,
+  "progress_label": "No se pudo terminar",
   "ingested": false,
   "next_action": null,
   "error": {

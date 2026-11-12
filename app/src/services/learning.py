@@ -29,6 +29,8 @@ def reason_line(step: PathStep) -> str:
             return f"Obligatorio{suffix}"
         case "fixed_path":
             return "Incluido · ruta fija"
+        case None:
+            return ""
 
 
 def detail_line(step: PathStep) -> str | None:

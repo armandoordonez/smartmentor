@@ -2,7 +2,7 @@
   "job_id": "job-grading",
   "job_type": "grading.short_answer",
   "status": "succeeded",
-  "progress_label": null,
+  "progress_label": "Listo",
   "ingested": true,
   "next_action": {
     "type": "view_attempt_result",

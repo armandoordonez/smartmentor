@@ -13,7 +13,8 @@
       "attempts_used": 1,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": 90.0
+      "best_score": 90.0,
+      "last_score": 90.0
     },
     {
       "step_id": 812,
@@ -27,7 +28,8 @@
       "attempts_used": 1,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": 85.0
+      "best_score": 85.0,
+      "last_score": 85.0
     },
     {
       "step_id": 813,
@@ -41,7 +43,8 @@
       "attempts_used": 1,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": 60.0
+      "best_score": 60.0,
+      "last_score": 60.0
     },
     {
       "step_id": 814,
@@ -55,7 +58,8 @@
       "attempts_used": 0,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": null
+      "best_score": null,
+      "last_score": null
     },
     {
       "step_id": 815,
@@ -69,7 +73,8 @@
       "attempts_used": 0,
       "max_attempts": 3,
       "extra_attempts_granted": 0,
-      "best_score": null
+      "best_score": null,
+      "last_score": null
     }
   ],
   "savings": {

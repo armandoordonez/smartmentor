@@ -21,6 +21,7 @@
         "percent": 40
       },
       "pilot_arm": "personalized",
+      "analysis_included": true,
       "next_action": {
         "type": "view_attempt_result",
         "step_id": 813,

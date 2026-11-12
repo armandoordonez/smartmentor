@@ -95,7 +95,8 @@ with st.expander("Verificación pública"):
     st.markdown(f"**{assertion.badge.name}**")
     st.caption(assertion.badge.description)
     st.markdown(
-        f"Emitido por **{assertion.badge.issuer.name}** el {short_date(badge.issued_at.date())}."
+        f"Emitido por **{assertion.badge.issuer.name}**"
+        + (f" el {short_date(badge.issued_at.date())}." if badge.issued_at else ".")
     )
     if assertion.evidence.narrative:
         st.caption(assertion.evidence.narrative)

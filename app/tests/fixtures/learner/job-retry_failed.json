@@ -2,7 +2,7 @@
   "job_id": "job-retry",
   "job_type": "items.generate_quiz_bank",
   "status": "failed",
-  "progress_label": null,
+  "progress_label": "No se pudo terminar",
   "ingested": false,
   "next_action": null,
   "error": {

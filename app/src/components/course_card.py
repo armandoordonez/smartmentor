@@ -16,9 +16,11 @@ class PathCardView:
     tag_text: str | None = None
     """Antetítulo («RECOMENDADA PARA TI»)."""
     description: str | None = None
+    cta_label: str = "Ver ruta"
+    """«Ver ruta», o «Continuar ruta» si la persona ya está inscrita."""
 
 
-def render_path_card(card: PathCardView, *, cta_label: str = "Ver ruta") -> bool:
+def render_path_card(card: PathCardView, *, cta_label: str | None = None) -> bool:
     """Dibuja la tarjeta y devuelve True si se pulsó el botón."""
     with st.container(key=f"path-card-{card.path_id}", border=False):
         if card.tag_text:
@@ -27,4 +29,6 @@ def render_path_card(card: PathCardView, *, cta_label: str = "Ver ruta") -> bool
         if card.description:
             st.caption(card.description)
         st.caption(card.meta)
-        return st.button(cta_label, type="primary", key=f"open-path-{card.path_id}")
+        return st.button(
+            cta_label or card.cta_label, type="primary", key=f"open-path-{card.path_id}"
+        )
