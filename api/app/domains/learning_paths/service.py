@@ -558,6 +558,7 @@ class Dashboard:
     path: LearningPath
     topics: list[TopicNode]
     rows: list[DashboardRow]
+    pilot_running: bool = False
 
 
 @dataclass(frozen=True)
@@ -654,7 +655,12 @@ class PathStaffService:
                     by_enrollment.get(require_id(enrollment), []),
                 )
             )
-        return Dashboard(path, await self._reader.topic_nodes(path.course_id), rows)
+        return Dashboard(
+            path,
+            await self._reader.topic_nodes(path.course_id),
+            rows,
+            pilot_running=await self._reader.pilot_running(path_id),
+        )
 
     async def _owned_enrollment(
         self, user: CurrentUser, path_id: int, enrollment_id: int

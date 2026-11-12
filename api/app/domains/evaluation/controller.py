@@ -20,6 +20,7 @@ from app.domains.evaluation.schemas import (
     EvaluatorCreate,
     EvaluatorResponse,
     GradingQueueEntry,
+    GradingQueuePage,
     HumanGradingCreate,
     HumanGradingResponse,
     LlmGradeResponse,
@@ -140,22 +141,24 @@ async def annotate_item(
     return _annotation(created)
 
 
-@router.get("/evaluation/grading-queue", response_model=Page[GradingQueueEntry])
+@router.get("/evaluation/grading-queue", response_model=GradingQueuePage)
 async def grading_queue(
     user: InstructorUser,
     service: GradingServiceDep,
     sample: Annotated[Literal["random", "learner_request"], Query()] = "random",
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
-) -> Page[GradingQueueEntry]:
+) -> GradingQueuePage:
     """Respuestas cortas por calificar a mano. La nota del LLM no se devuelve aquí."""
     answers, total = await service.queue(user, sample=sample, limit=limit, offset=offset)
-    return Page[GradingQueueEntry](
+    return GradingQueuePage(
+        graded=await service.graded_count(user, sample=sample),
         items=[
             GradingQueueEntry(
                 attempt_answer_id=a.answer_id,
                 item_id=a.item_id,
                 topic_id=a.topic_id,
+                topic_name=a.topic_name,
                 stem=a.stem,
                 model_answer=a.model_answer,
                 rubric=a.rubric,

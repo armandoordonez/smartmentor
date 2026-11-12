@@ -388,6 +388,18 @@ async def test_only_published_paths_accept_enrollments(
     assert catalog["total"] == 0
 
 
+async def test_the_course_counts_its_enrolled_learners(
+    instructor: httpx.AsyncClient, learner: httpx.AsyncClient, path: PublishedPath
+) -> None:
+    before = (await instructor.get(f"{API}/courses/{path.course_id}")).json()
+    assert before["enrolled_count"] == 0
+    assert before["topics_count"] == len(path.topics)
+    created = await learner.post(f"{API}/me/enrollments", json={"learning_path_id": path.path_id})
+    assert created.status_code == 201, created.text
+    after = (await instructor.get(f"{API}/courses/{path.course_id}")).json()
+    assert after["enrolled_count"] == 1
+
+
 async def test_an_archived_course_leaves_the_catalog_and_refuses_enrollments(
     instructor: httpx.AsyncClient, learner: httpx.AsyncClient, path: PublishedPath
 ) -> None:

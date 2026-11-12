@@ -123,6 +123,14 @@ class InMemoryGradings(InMemoryRepository[HumanGrading]):
         ]
         return found[offset : offset + limit], len(found)
 
+    async def graded_count(self, *, course_ids: list[int], grader_user_id: int, sample: str) -> int:
+        del course_ids
+        return sum(
+            1
+            for g in self.items.values()
+            if g.grader_user_id == grader_user_id and g.sample_type == sample
+        )
+
     async def answer(self, answer_id: int) -> GradableAnswer | None:
         return self.answers.get(answer_id)
 

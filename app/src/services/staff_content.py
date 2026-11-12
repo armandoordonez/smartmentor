@@ -3,6 +3,7 @@
 Sin reglas de negocio: la fidelidad, el estado de revisión y la versión nueva los decide la API.
 """
 
+import re
 from copy import deepcopy
 from typing import Any
 
@@ -45,3 +46,42 @@ def edited_content(
 
 def video_minutes(seconds: int) -> str:
     return f"{max(1, round(seconds / 60))} min"
+
+
+_YOUTUBE_VIDEO_ID = re.compile(r"[A-Za-z0-9_-]{11}")
+_MARKDOWN_LINK_TEXT = re.compile(r"([\\\[\]])")
+
+
+def youtube_watch_url(video_id: str) -> str | None:
+    """Enlace al video en YouTube; None si el identificador no tiene la forma de YouTube."""
+    if not _YOUTUBE_VIDEO_ID.fullmatch(video_id):
+        return None
+    return f"https://www.youtube.com/watch?v={video_id}"
+
+
+def youtube_thumbnail_url(video_id: str) -> str | None:
+    """Portada (320 x 180) que YouTube publica de cada video; None si el id no sirve."""
+    if not _YOUTUBE_VIDEO_ID.fullmatch(video_id):
+        return None
+    return f"https://i.ytimg.com/vi/{video_id}/mqdefault.jpg"
+
+
+def video_link_markdown(title: str, video_id: str) -> str:
+    """El título como enlace a YouTube en Markdown (sin HTML); sin enlace si el id no sirve.
+
+    El título viene de YouTube o del instructor: se escapan los corchetes y la barra invertida
+    para que no rompa el enlace.
+    """
+    url = youtube_watch_url(video_id)
+    if url is None:
+        return title
+    text = _MARKDOWN_LINK_TEXT.sub(r"\\\1", title)
+    return f"[{text}]({url})"
+
+
+def video_thumbnail_markdown(video_id: str) -> str | None:
+    """La portada del video como imagen enlazada a YouTube, en Markdown (sin HTML)."""
+    url, thumbnail = youtube_watch_url(video_id), youtube_thumbnail_url(video_id)
+    if url is None or thumbnail is None:
+        return None
+    return f"[![Portada del video en YouTube]({thumbnail})]({url})"

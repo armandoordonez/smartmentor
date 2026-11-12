@@ -19,6 +19,14 @@ import httpx
 from pydantic import BaseModel, ValidationError
 
 from clients.base import ApiError
+from clients.content_adapter import item_from_api, item_patch_for_api, resource_from_api
+from clients.dashboard_adapter import dashboard_from_api, is_api_dashboard
+from clients.evaluation_adapter import (
+    grading_queue_from_api,
+    grading_result_from_api,
+    topic_videos_from_api,
+    video_from_api,
+)
 from clients.models import Job, JobAccepted, Page, Role
 from clients.models_staff import (
     AdminEnrollment,
@@ -205,7 +213,10 @@ class StaffApiOps:
     # Instructor: ruta, avance y aprendices
 
     def get_dashboard(self, path_id: int) -> Dashboard:
-        return self._get(Dashboard, f"/learning-paths/{path_id}/dashboard")
+        data = _json(self._request("GET", f"/learning-paths/{path_id}/dashboard"))
+        if is_api_dashboard(data):
+            data = dashboard_from_api(data)
+        return _parse(Dashboard, data)
 
     def update_path_settings(self, path_id: int, body: PathSettingsModel) -> PathSettingsModel:
         return self._send(
@@ -233,14 +244,16 @@ class StaffApiOps:
 
     def list_topic_resources(self, topic_id: int) -> list[Resource]:
         data = _json(self._request("GET", f"/topics/{topic_id}/resources"))
-        return [_parse(Resource, item) for item in data]
+        return [_parse(Resource, resource_from_api(item)) for item in data]
 
     def review_resource(self, resource_id: int, review_status: str) -> Resource:
         body = {"review_status": review_status}
-        return self._send(Resource, "PATCH", f"/resources/{resource_id}/review", body)
+        response = self._request("PATCH", f"/resources/{resource_id}/review", json=body)
+        return _parse(Resource, resource_from_api(_json(response)))
 
     def update_resource_content(self, resource_id: int, content: dict[str, Any]) -> Resource:
-        return self._send(Resource, "PUT", f"/resources/{resource_id}/content", content)
+        response = self._request("PUT", f"/resources/{resource_id}/content", json=content)
+        return _parse(Resource, resource_from_api(_json(response)))
 
     def regenerate_resource(self, resource_id: int, *, idempotency_key: str) -> JobAccepted:
         return self._send(
@@ -249,14 +262,19 @@ class StaffApiOps:
 
     def list_topic_items(self, topic_id: int) -> Page[ReviewItem]:
         response = self._request("GET", f"/topics/{topic_id}/items", params={"limit": 100})
-        return _page(ReviewItem, _json(response))
+        page = _json(response)
+        if isinstance(page, dict):
+            page = {**page, "items": [item_from_api(i) for i in page.get("items") or []]}
+        return _page(ReviewItem, page)
 
     def update_item(self, item_id: int, patch: ItemPatch) -> ReviewItem:
-        body = patch.model_dump(mode="json", exclude_none=True)
-        return self._send(ReviewItem, "PATCH", f"/items/{item_id}", body)
+        body = item_patch_for_api(patch.model_dump(mode="json", exclude_none=True))
+        response = self._request("PATCH", f"/items/{item_id}", json=body)
+        return _parse(ReviewItem, item_from_api(_json(response)))
 
     def list_video_candidates(self, topic_id: int) -> TopicVideos:
-        return self._get(TopicVideos, f"/topics/{topic_id}/video-candidates")
+        data = _json(self._request("GET", f"/topics/{topic_id}/video-candidates"))
+        return _parse(TopicVideos, topic_videos_from_api(data))
 
     def update_video_candidate(
         self, candidate_id: int, *, status: VideoStatus | None, is_relevant: bool | None
@@ -264,13 +282,15 @@ class StaffApiOps:
         body = {
             k: v for k, v in {"status": status, "is_relevant": is_relevant}.items() if v is not None
         }
-        return self._send(VideoCandidate, "PATCH", f"/video-candidates/{candidate_id}", body)
+        response = self._request("PATCH", f"/video-candidates/{candidate_id}", json=body)
+        return _parse(VideoCandidate, video_from_api(_json(response)))
 
     def add_video_candidate(
         self, topic_id: int, youtube_video_id: str, title: str
     ) -> VideoCandidate:
         body = {"youtube_video_id": youtube_video_id, "title": title}
-        return self._send(VideoCandidate, "POST", f"/topics/{topic_id}/video-candidates", body)
+        response = self._request("POST", f"/topics/{topic_id}/video-candidates", json=body)
+        return _parse(VideoCandidate, video_from_api(_json(response)))
 
     def get_video_quality(self, path_id: int) -> VideoQuality:
         return self._get(VideoQuality, f"/learning-paths/{path_id}/video-quality")
@@ -282,11 +302,13 @@ class StaffApiOps:
         self._request("POST", f"/items/{item_id}/annotations", json=body.model_dump(mode="json"))
 
     def get_grading_queue(self, sample: SampleType) -> GradingQueue:
-        return self._get(GradingQueue, "/evaluation/grading-queue", sample=sample)
+        response = self._request("GET", "/evaluation/grading-queue", params={"sample": sample})
+        return _parse(GradingQueue, grading_queue_from_api(_json(response), sample))
 
     def grade_answer(self, attempt_answer_id: int, body: HumanGradingBody) -> HumanGradingResult:
         path = f"/attempt-answers/{attempt_answer_id}/human-gradings"
-        return self._send(HumanGradingResult, "POST", path, body.model_dump(mode="json"))
+        response = self._request("POST", path, json=body.model_dump(mode="json"))
+        return _parse(HumanGradingResult, grading_result_from_api(_json(response)))
 
     # Administrador
 
@@ -610,11 +632,23 @@ class StaffFixturesOps:
     def get_grading_queue(self, sample: SampleType) -> GradingQueue:
         queue = self._model(GradingQueue, "grading_queue")
         queue.sample_type = sample
+        # Como la API: lo que ya califiqué no vuelve a la cola y suma a lo hecho de la muestra.
+        graded = self._graded_answer_ids()
+        queue.items = [i for i in queue.items if i.attempt_answer_id not in graded]
+        if sample == "random":
+            queue.sample_done += len(graded)
         return queue
 
     def grade_answer(self, attempt_answer_id: int, body: HumanGradingBody) -> HumanGradingResult:
-        del attempt_answer_id, body
+        del body
+        self._graded_answer_ids().add(attempt_answer_id)
         return self._model(HumanGradingResult, "human_grading_result")
+
+    def _graded_answer_ids(self) -> set[int]:
+        """Eco mínimo de «Guardar»: las respuestas calificadas en esta sesión de fixtures."""
+        if not hasattr(self, "_graded"):
+            self._graded: set[int] = set()
+        return self._graded
 
     # Administrador
 

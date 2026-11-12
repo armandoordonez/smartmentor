@@ -3,7 +3,7 @@
 import uuid
 from typing import ClassVar
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,6 +11,7 @@ from app.common.repository_impl import SqlAlchemyCrudRepository
 from app.domains.ai_gateway.models import AiJobModel
 from app.domains.courses.entities import (
     Course,
+    CourseCounts,
     LearningOutcome,
     SyllabusDocument,
     SyllabusExtraction,
@@ -26,7 +27,8 @@ from app.domains.courses.models import (
     TopicPrerequisiteModel,
 )
 from app.domains.learning_paths.entities import LearningPath
-from app.domains.learning_paths.models import LearningPathModel
+from app.domains.learning_paths.models import EnrollmentModel, LearningPathModel
+from app.domains.learning_paths.states import EnrollmentStatus
 
 
 class SqlAlchemyCourseRepository(SqlAlchemyCrudRepository[CourseModel, Course]):
@@ -47,6 +49,36 @@ class SqlAlchemyCourseRepository(SqlAlchemyCrudRepository[CourseModel, Course]):
             )
         ).scalar_one_or_none()
         return None if row is None else self._to_entity(row)
+
+    async def counts(self, course_ids: list[int]) -> dict[int, CourseCounts]:
+        if not course_ids:
+            return {}
+        topics = (
+            await self._session.execute(
+                select(TopicModel.course_id, func.count())
+                .where(TopicModel.course_id.in_(course_ids), TopicModel.active.is_(True))
+                .group_by(TopicModel.course_id)
+            )
+        ).all()
+        enrolled = (
+            await self._session.execute(
+                select(LearningPathModel.course_id, func.count(EnrollmentModel.id))
+                .join(EnrollmentModel, EnrollmentModel.learning_path_id == LearningPathModel.id)
+                .where(
+                    LearningPathModel.course_id.in_(course_ids),
+                    LearningPathModel.active.is_(True),
+                    EnrollmentModel.active.is_(True),
+                    EnrollmentModel.status != EnrollmentStatus.WITHDRAWN,
+                )
+                .group_by(LearningPathModel.course_id)
+            )
+        ).all()
+        by_topics = {int(course_id): int(n) for course_id, n in topics}
+        by_enrolled = {int(course_id): int(n) for course_id, n in enrolled}
+        return {
+            course_id: CourseCounts(by_topics.get(course_id, 0), by_enrolled.get(course_id, 0))
+            for course_id in by_topics.keys() | by_enrolled.keys()
+        }
 
     async def list_by_status(self, status: str) -> list[Course]:
         rows = (

@@ -146,9 +146,15 @@ def test_d5c_human_grading_hides_the_llm_grade_until_saved() -> None:
     assert "Tu nota: 3 de 3" in page_texts(at)
     at = click(at, "Guardar y siguiente")
     texts = page_texts(at)
+    # Como la API, la cola ya no trae la respuesta calificada; la pantalla la sigue mostrando
+    # con la nota del LLM hasta «Siguiente».
+    assert "Respuesta #A-0417 · Regresión logística" in texts
+    assert "Muestra aleatoria · 13 de 30" in " ".join(texts)
     assert "Coincide con tu nota" in texts
     assert any("Relaciona el umbral con el costo" in t for t in texts)
     assert "Siguiente" in [b.label for b in at.button]
+    at = click(at, "Siguiente")
+    assert any("No hay respuestas pendientes" in t for t in page_texts(at))
 
 
 def test_d5c_empty_queue() -> None:
@@ -164,6 +170,20 @@ def test_d5e_matches_figma() -> None:
         # El triángulo de «reproducir» es un ícono de Material, no texto.
         accepted=("▶", "▶", "▶"),
     )
+
+
+def test_d5e_videos_open_on_youtube_with_their_thumbnail() -> None:
+    at = _open(VIDEOS)
+    assert_no_exception(at)
+    texts = " ".join(m.value for m in at.markdown)
+    # Candidato en uso: portada y título enlazados a YouTube.
+    assert "https://i.ytimg.com/vi/EXAMPLE0001/mqdefault.jpg" in texts
+    assert (
+        "[Regresión logística explicada paso a paso](https://www.youtube.com/watch?v=EXAMPLE0001)"
+        in texts
+    )
+    # Video de respaldo: el título también abre el video.
+    assert "(https://www.youtube.com/watch?v=EXAMPLE0004)" in texts
 
 
 def test_d5e_use_this_video_and_pertinence() -> None:

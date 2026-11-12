@@ -108,6 +108,7 @@ class VideoResponse(BaseModel):
 
 class VideoListResponse(BaseModel):
     topic_id: int
+    topic_name: str
     has_backup: bool
     candidates: list[VideoResponse]
 

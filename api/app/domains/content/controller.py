@@ -235,6 +235,7 @@ async def list_video_candidates(
     views = await service.list_for_topic(user, topic_id)
     return VideoListResponse(
         topic_id=topic_id,
+        topic_name=await service.topic_name(user, topic_id),
         has_backup=any(v.video.status == "backup" for v in views),
         candidates=[_video(v) for v in views],
     )

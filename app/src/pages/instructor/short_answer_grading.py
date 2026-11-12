@@ -8,7 +8,13 @@ aprendices van en otra cola porque no son una muestra aleatoria.
 import streamlit as st
 
 from clients.base import ApiError
-from clients.models_staff import HumanCriterion, HumanGradingBody, HumanGradingResult, SampleType
+from clients.models_staff import (
+    GradingItem,
+    HumanCriterion,
+    HumanGradingBody,
+    HumanGradingResult,
+    SampleType,
+)
 from components.layout import render_page_header
 from core.container import get_client
 from core.staff_errors import show_staff_error
@@ -54,14 +60,25 @@ st.caption(
     "son aleatorias."
 )
 
-if not queue.items:
+# Lo recién guardado sigue en pantalla (con la nota del LLM) hasta «Siguiente», aunque la API ya
+# no lo devuelva en la cola: lo que el evaluador calificó sale de su cola.
+just_graded: tuple[SampleType, GradingItem, HumanGradingResult] | None = st.session_state.get(
+    "dg-result"
+)
+if just_graded is not None and just_graded[0] != sample:
+    st.session_state.pop("dg-result", None)
+    just_graded = None
+
+saved: HumanGradingResult | None
+if just_graded is not None:
+    _, answer, saved = just_graded
+elif queue.items:
+    answer, saved = queue.items[0], None
+else:
     st.success("No hay respuestas pendientes en esta cola.")
     if st.button("Volver", key="dg-back-empty"):
         st.switch_page(CONTENT_REVIEW)
     st.stop()
-
-answer = queue.items[0]
-saved: HumanGradingResult | None = st.session_state.get("dg-result")
 with st.container(border=True, key="panel-grading"):
     st.markdown(f"**Respuesta #{answer.code} · {answer.topic_name}**")
     st.markdown(answer.prompt)
@@ -112,10 +129,11 @@ with st.container(horizontal=True):
                 sample_type=sample,
             )
             try:
-                st.session_state["dg-result"] = client.grade_answer(answer.attempt_answer_id, body)
+                result = client.grade_answer(answer.attempt_answer_id, body)
             except ApiError as error:
                 show_staff_error(error)
             else:
+                st.session_state["dg-result"] = (sample, answer, result)
                 st.rerun()
     elif st.button("Siguiente", type="primary", key="dg-next"):
         st.session_state.pop("dg-result", None)

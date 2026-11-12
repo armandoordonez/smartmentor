@@ -17,7 +17,7 @@ from components.layout import render_page_header
 from core.container import get_client
 from core.staff_errors import show_staff_error
 from core.staff_state import CONTENT_REVIEW, VIDEO_QUALITY, get_staff_state
-from services.staff_content import video_minutes
+from services.staff_content import video_link_markdown, video_minutes, video_thumbnail_markdown
 from services.staff_courses import course_for
 
 YOUTUBE_ID = re.compile(r"(?:v=|youtu\.be/|embed/)?([A-Za-z0-9_-]{11})(?:[&?#].*)?$")
@@ -83,12 +83,15 @@ def _meta(video: VideoCandidate) -> str:
 def _candidate(rank: int, video: VideoCandidate) -> None:
     with st.container(border=True, key=f"video-candidate-{video.id}"):
         rank_col, play_col, body_col, action_col = st.columns(
-            [1, 1, 8, 2], vertical_alignment="center"
+            [1, 3, 7, 2], vertical_alignment="center"
         )
         rank_col.markdown(f"**{rank}**")
-        play_col.markdown(":material/play_circle:")
+        # La portada de YouTube abre el video para que el instructor lo vea antes de juzgarlo.
+        play_col.markdown(
+            video_thumbnail_markdown(video.youtube_video_id) or ":material/play_circle:"
+        )
         with body_col:
-            st.markdown(f"**{video.title}**")
+            st.markdown(f"**{video_link_markdown(video.title, video.youtube_video_id)}**")
             st.caption(_meta(video))
             if video.relevance is not None:
                 st.caption(f"Relevancia {percent(video.relevance)} · solo la ve el instructor")
@@ -133,7 +136,8 @@ if not backups:
     st.caption("Todavía no hay videos de respaldo.")
 for position, backup in enumerate(backups, start=1):
     text_col, button_col = st.columns([8, 2], vertical_alignment="center")
-    text_col.markdown(f"{position}.  {backup.title} · {video_minutes(backup.duration_seconds)}")
+    link = video_link_markdown(backup.title, backup.youtube_video_id)
+    text_col.markdown(f"{position}.  {link} · {video_minutes(backup.duration_seconds)}")
     if button_col.button("Quitar", key=f"vid-del-{backup.id}", type="tertiary"):
         _act(client.update_video_candidate, backup.id, status="rejected", is_relevant=None)
 

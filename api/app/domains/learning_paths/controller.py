@@ -23,6 +23,7 @@ from app.domains.learning_paths.schemas import (
     CriticalTopic,
     DashboardKpi,
     DashboardLearner,
+    DashboardPath,
     DashboardResponse,
     LearnerDetailResponse,
     LearningPathCard,
@@ -290,10 +291,18 @@ async def dashboard(
                 ),
             )
         )
+    stats = list(critical)
     critical.sort(key=lambda c: (-c.attempts_exhausted, -(c.average_attempts or 0)))
     counted = [s for s in statuses if s != "withdrawn"]
+    path = data.path
     return DashboardResponse(
         learning_path_id=learning_path_id,
+        course_id=path.course_id,
+        learning_path=DashboardPath(
+            id=require_id(path), name=path.name, group_label=path.group_label, status=path.status
+        ),
+        settings=_settings(path),
+        pilot_running=data.pilot_running,
         kpi=DashboardKpi(
             learners=len(counted),
             active=sum(1 for s in counted if s not in ("completed", "abandoned")),
@@ -305,6 +314,9 @@ async def dashboard(
             ),
             first_attempt_pass_rate=_rate(first_pass, len(attempted)),
             exhausted_steps=sum(c.attempts_exhausted for c in critical),
+            attempts_per_topic=(
+                round(sum(used for _, used in attempted) / len(attempted), 2) if attempted else None
+            ),
         ),
         learners=learners,
         topics=[
@@ -318,6 +330,7 @@ async def dashboard(
         ],
         mastery_matrix=matrix,
         critical_topics=[c for c in critical if c.attempts_exhausted or c.average_attempts],
+        topic_stats=stats,
     )
 
 

@@ -175,6 +175,9 @@ class DashboardKpi(BaseModel):
     average_progress: float
     first_attempt_pass_rate: float | None
     exhausted_steps: int
+    attempts_per_topic: float | None = Field(
+        default=None, description="Intentos promedio por tema entre los temas ya intentados"
+    )
 
 
 class DashboardLearner(BaseModel):
@@ -209,13 +212,27 @@ class CriticalTopic(BaseModel):
     first_attempt_pass_rate: float | None
 
 
+class DashboardPath(BaseModel):
+    id: int
+    name: str
+    group_label: str | None
+    status: str
+
+
 class DashboardResponse(BaseModel):
     learning_path_id: int
+    course_id: int
+    learning_path: DashboardPath
+    settings: PathSettingsResponse
+    pilot_running: bool
     kpi: DashboardKpi
     learners: list[DashboardLearner]
     topics: list[TopicSummary]
     mastery_matrix: list[MasteryRow]
     critical_topics: list[CriticalTopic]
+    topic_stats: list[CriticalTopic] = Field(
+        description="Indicadores de todos los temas, en el orden de `topics`"
+    )
 
 
 class AttemptSummaryResponse(BaseModel):

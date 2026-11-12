@@ -271,6 +271,12 @@ class GradingService:
             course_ids=courses, grader_user_id=user.id, sample=sample, limit=limit, offset=offset
         )
 
+    async def graded_count(self, user: CurrentUser, *, sample: str) -> int:
+        courses = await self._access.courses_of(user)
+        return await self._gradings.graded_count(
+            course_ids=courses, grader_user_id=user.id, sample=sample
+        )
+
     async def grade(self, user: CurrentUser, answer_id: int, data: GradingInput) -> GradingResult:
         try:
             courses = await self._access.courses_of(user)

@@ -49,6 +49,7 @@ class AnswerForGrading:
     rubric: list[Any]
     text_answer: str | None
     review_requested_at: datetime | None
+    topic_name: str = ""
 
 
 @dataclass(frozen=True)

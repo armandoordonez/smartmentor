@@ -129,6 +129,17 @@ keycloak/scripts/seed-dev-users.sh --with-admin   # además el administrador (SE
 
 El script es idempotente (no toca los usuarios que ya existen), asigna el rol de realm correspondiente y usa la contraseña `SEED_USERS_PASSWORD` del `.env` (la genera `scripts/gen-secrets.sh`; debe cumplir la política del realm). El instructor y el administrador configuran su OTP en el primer ingreso. **Solo desarrollo:** en producción deja esas variables vacías y no ejecutes el script.
 
+### Segundo instructor como evaluador (DEF-24)
+
+Para probar la calificación de respuestas cortas o la anotación de preguntas hace falta un instructor asignado como evaluador del curso que **no** sea su dueño. `scripts/dev-seed-evaluator.sh` lo crea en Keycloak y en la base (con rol `instructor`, contraseña `SEED_USERS_PASSWORD`) y lo asigna con `POST /courses/{id}/evaluators` usando el token del administrador sembrado:
+
+```bash
+scripts/dev-seed-evaluator.sh               # lista los cursos con su id y su dueño
+scripts/dev-seed-evaluator.sh --course 3    # crea evaluador.smartmentor@yopmail.com y lo asigna al curso 3
+```
+
+Es idempotente y no imprime contraseñas ni tokens. Necesita el stack encendido con `--with-admin` y `REQUIRE_SECOND_FACTOR=false` (el token del admin se pide con `smartmentor-dev-tools`, sin OTP). **Solo desarrollo.**
+
 ## Rotar secretos
 
 Un secreto que se publicó, se filtró o simplemente cumplió su ciclo se rota así:
