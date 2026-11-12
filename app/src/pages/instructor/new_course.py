@@ -16,6 +16,7 @@ from clients.models_staff import CourseCreate
 from components.layout import render_page_header
 from components.loading_steps import render_loading_steps
 from core.container import get_client
+from core.polling import poll_job_or_rerun
 from core.staff_errors import show_staff_error
 from core.staff_state import (
     COURSES,
@@ -217,7 +218,9 @@ def _poll() -> None:
     """Vuelve a ejecutar la página cada 2 s mientras el trabajo no termina (contrato, sección 1)."""
     if state.job_id is None:
         st.stop()
-    if is_done(client.poll_job(state.job_id)):
+    job_id = state.job_id
+    job = poll_job_or_rerun(lambda: client.poll_job(job_id))
+    if job is not None and is_done(job):
         st.rerun()
 
 
