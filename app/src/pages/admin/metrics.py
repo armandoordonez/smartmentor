@@ -13,15 +13,14 @@ from components.staff_theme import METRIC_BADGE
 from core.container import get_client
 from core.staff_errors import show_staff_error
 from core.staff_state import PILOT
+from services.staff_admin import metric_text
 
 COLUMNS = 3
 
 client = get_client()
 
 render_notice("Solo Admin · Métricas de todo el sistema. El instructor solo ve las de sus rutas.")
-render_page_header(
-    "Métricas de evaluación", caption="Metas orientativas del brief · cohorte 2026-2"
-)
+render_page_header("Métricas de evaluación", caption="Metas orientativas del brief")
 
 try:
     metrics = client.get_evaluation_metrics()
@@ -29,6 +28,8 @@ except ApiError as error:
     show_staff_error(error)
     st.stop()
 
+if metrics.cohort:
+    st.caption(metrics.cohort.capitalize())
 if metrics.is_sample_data:
     st.caption("Valores de ejemplo hasta que corra el piloto")
 if st.button("Configurar piloto", key="m-pilot"):
@@ -46,7 +47,7 @@ def _card(metric: MetricEntry) -> None:
             st.badge(metric.priority, color="gray")
             st.badge(label, color=color)
         st.markdown(f"**{metric.name}**")
-        st.markdown(f"### {metric.value_text or '—'}")
+        st.markdown(f"### {metric_text(metric)}")
         st.caption(f"Meta: {metric.goal}")
         st.caption(metric.detail)
 

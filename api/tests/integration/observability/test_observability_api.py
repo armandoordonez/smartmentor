@@ -193,6 +193,12 @@ async def test_the_metrics_come_out_of_the_views_and_respect_ownership(
     assert metrics["llm"]["calls"] == 2
     assert metrics["llm"]["invalid_json_rate"] == 0.5
     assert metrics["steps"]["steps_passed"] == 0
+    # Catálogo de AD3 (aditivo): la meta y el estado los decide la API.
+    catalog = {e["code"]: e for g in metrics["groups"] for e in g["metrics"]}
+    assert (catalog["m3"]["value"], catalog["m3"]["status"]) == (0.5, "not_met")  # κ < 0,6
+    assert catalog["m7"]["status"] == "meets"  # QWK 1,0
+    assert catalog["m10"]["status"] == "not_met"  # JSON inválido 50 %
+    assert catalog["m4"]["status"] == "no_data"  # lo calcula el notebook
 
     assert (await client.get(f"{API}/metrics/evaluation")).json()["item_validity"]["items"] == 5
     by_path = await client.get(

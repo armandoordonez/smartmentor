@@ -354,6 +354,8 @@ async def test_the_learner_rates_the_video_and_the_quality_view_aggregates_it(
     assert row["by_rating"] == {"too_long": 1}
     assert row["measuring"] is True
     assert row["quality_index"] is None
+    assert row["status"] == "measuring"
+    assert quality["min_ratings"] == 5
 
     _, stranger_id = await make_learner(engine, client_for, "intruso")
     other = await insert_enrollment(engine, stranger_id, course.path_id)

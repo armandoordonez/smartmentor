@@ -112,6 +112,27 @@ LANGUAGE_LABEL: dict[str, str] = {
 }
 COMMON_TOOLS: tuple[str, ...] = ("Excel", "SQL", "Python", "R", "Power BI", "Tableau")
 
+# Tareas de `ai/` tal como las registra el log del LLM (`prompts/catalog.yaml`, AD2). Una tarea
+# nueva que no esté aquí se muestra con su código.
+AI_TASK_LABEL: dict[str, str] = {
+    "syllabus.structure": "Estructurar el syllabus",
+    "diagnostic.generate_items": "Preguntas del diagnóstico",
+    "diagnostic.finalize": "Cerrar el diagnóstico",
+    "levels.estimate": "Estimar niveles",
+    "path.sequence": "Ordenar la ruta",
+    "items.review": "Revisar preguntas",
+    "items.generate_quiz_bank": "Quiz del tema",
+    "items.generate_final_bank": "Evaluación final",
+    "content.explain_topic": "Explicación (RAG)",
+    "content.remedial": "Explicación alterna",
+    "content.personal_example": "Ejemplo personalizado",
+    "content.check_faithfulness": "Fidelidad de la explicación",
+    "grading.short_answer": "Califica respuesta corta",
+    "badge.compose_text": "Texto del badge",
+    "video.rank": "Ordenar videos",
+    "eval.simulate_learner": "Aprendiz simulado",
+}
+
 VIDEO_RATING_LABEL: dict[VideoRating, str] = {
     "useful": "Claro y útil",
     "audio_issue": "Audio con problemas",

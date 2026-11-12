@@ -96,6 +96,9 @@ async def test_dashboard_and_learner_detail(
     )
     assert detail.status_code == 200, detail.text
     data = detail.json()
+    # El encabezado de D4 (nombre de la ruta y grupo) sale de la misma respuesta.
+    assert data["learning_path"]["id"] == path.path_id
+    assert data["learning_path"]["status"] == "published"
     assert "email" not in data
     assert "description" not in data["profile"]
     assert len(data["level_by_topic"]) == 3
@@ -187,6 +190,9 @@ async def test_admin_enrollments_list_withdraw_and_move(
     )
     assert created.status_code == 201, created.text
     enrollment_id = created.json()["id"]
+    # Lo que AD5 muestra sin otra llamada (aditivo).
+    assert created.json()["full_name"] == me["full_name"]
+    assert isinstance(created.json()["pilot_consent"], bool)
     listed = (
         await client.get(f"{API}/enrollments", params={"learning_path_id": path.path_id})
     ).json()

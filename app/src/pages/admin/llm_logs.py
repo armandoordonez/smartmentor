@@ -11,6 +11,7 @@ from components.formatting import integer, usd
 from components.kpi_cards import Kpi, render_kpis
 from components.layout import render_notice, render_page_header
 from components.table import Row, render_table
+from components.theme import AI_TASK_LABEL
 from core.container import get_client
 from core.staff_errors import show_staff_error
 from core.staff_state import PROMPT_CATALOG
@@ -47,9 +48,9 @@ rows = [
     Row(
         key=str(log.id),
         cells=[
-            f"**{log.task_label}**",
-            log.model,
-            f"{log.prompt_id} {log.prompt_version}",
+            f"**{AI_TASK_LABEL.get(log.task_label, log.task_label)}**",
+            log.model or "—",
+            f"{log.prompt_id} {log.prompt_version}".strip() or "—",
             integer(log.tokens),
             usd(log.cost_usd, 3),
             seconds(log.latency_ms),

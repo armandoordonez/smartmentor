@@ -6,7 +6,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.repository_impl import SqlAlchemyCrudRepository
-from app.domains.pilot.entities import ContentFacts, Pilot, PilotEnrollment
+from app.domains.pilot.entities import ContentFacts, PathSummary, Pilot, PilotEnrollment
 from app.domains.pilot.models import PilotModel
 
 
@@ -48,6 +48,22 @@ class SqlAlchemyPilotRepository(SqlAlchemyCrudRepository[PilotModel, Pilot]):
 class SqlAlchemyPilotPopulation:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+
+    async def path_summary(self, learning_path_id: int) -> PathSummary | None:
+        row = (
+            await self._session.execute(
+                text(
+                    "SELECT name, group_label, final_pass_threshold FROM learning_paths "
+                    "WHERE id = :id AND active"
+                ),
+                {"id": learning_path_id},
+            )
+        ).first()
+        if row is None:
+            return None
+        return PathSummary(
+            name=str(row[0]), group_label=row[1], final_pass_threshold=float(row[2])
+        )
 
     async def path_course(self, learning_path_id: int) -> tuple[int, float] | None:
         row = (
@@ -141,6 +157,12 @@ class SqlAlchemyPilotPopulation:
             + "SELECT 1 FROM video_candidates v WHERE v.topic_id = t.id AND v.active "
             "AND v.status = 'backup') ORDER BY t.id"
         )
+        no_equivalents = await lacking(
+            base  # noqa: S608  (fragmentos fijos, sin entrada del usuario)
+            + "SELECT 1 FROM assessment_items i WHERE i.topic_id = t.id AND i.active "
+            "AND i.source IN ('final', 'retention') AND i.equivalence_group IS NOT NULL "
+            "GROUP BY i.equivalence_group HAVING count(*) >= 2) ORDER BY t.id"
+        )
         counts = {
             str(source): int(count)
             for source, count in (
@@ -161,6 +183,7 @@ class SqlAlchemyPilotPopulation:
             topics_without_items=no_items,
             topics_without_video=no_video,
             topics_without_backup=no_backup,
+            topics_without_equivalents=no_equivalents,
             approved_diagnostic_items=counts.get("diagnostic", 0),
             approved_final_items=counts.get("final", 0),
         )

@@ -117,7 +117,7 @@ PILOT_STATUS_BADGE: dict[PilotStatus, BadgeStyle] = {
 }
 READINESS_TEXT: dict[str, str] = {
     "min_consents": "Faltan aprendices con consentimiento informado",
-    "item_bank": "El banco de ítems equivalentes está incompleto",
+    "item_bank": "El banco de preguntas (quiz, diagnóstico o final) está incompleto",
     "dates": "Faltan las fechas del piloto",
     "fixed_group": "Falta el grupo de ruta fija",
 }

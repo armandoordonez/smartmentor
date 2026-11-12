@@ -63,3 +63,7 @@ RUBRIC_MAX_CRITERIA = 3
 RUBRIC_POINTS_TOLERANCE = 0.01
 # Un índice de calidad de video con menos calificaciones se muestra como «Midiendo» (ADR 0016).
 VIDEO_QUALITY_MIN_RATINGS = 5
+# Umbrales del estado del video en D5f (Figma): desde 0,75 se recomienda, desde 0,60 queda en
+# observación y por debajo pasa a revisión. Se aplican al índice bayesiano (0 a 1).
+VIDEO_QUALITY_RECOMMENDED = 0.75
+VIDEO_QUALITY_OBSERVATION = 0.60

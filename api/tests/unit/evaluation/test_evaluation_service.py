@@ -251,6 +251,28 @@ async def test_the_queue_shows_only_the_evaluators_own_annotation(ew: EvalWorld)
     assert done[0].own_annotation.comment == "SECRETO"
 
 
+async def test_the_queue_brings_the_topic_the_slot_and_the_progress(ew: EvalWorld) -> None:
+    for evaluator in (EVAL_A, EVAL_B):
+        await ew.admin_service.assign(ew.base.admin, ew.course_id, evaluator)
+    before, _ = await ew.annotation_service.queue(
+        ew.user(EVAL_B), course_id=None, done=False, limit=10, offset=0
+    )
+    assert before[0].topic_name
+    assert before[0].evaluator_slot == 1
+    assert await ew.annotation_service.annotated_count(ew.user(EVAL_B), course_id=None) == 0
+
+    await ew.annotation_service.annotate(ew.user(EVAL_A), ew.item_id, ANNOTATION)
+    pending, _ = await ew.annotation_service.queue(
+        ew.user(EVAL_B), course_id=None, done=False, limit=10, offset=0
+    )
+    assert pending[0].evaluator_slot == 2
+    done, _ = await ew.annotation_service.queue(
+        ew.user(EVAL_A), course_id=None, done=True, limit=10, offset=0
+    )
+    assert done[0].evaluator_slot == 1
+    assert await ew.annotation_service.annotated_count(ew.user(EVAL_A), course_id=None) == 1
+
+
 async def test_the_owner_an_admin_and_strangers_cannot_annotate(ew: EvalWorld) -> None:
     await ew.admin_service.assign(ew.base.admin, ew.course_id, EVAL_A)
     for who in (ew.user(OWNER), ew.base.admin):

@@ -10,6 +10,7 @@ from app.auth.dependencies import require_roles
 from app.auth.policies import ADMIN, STAFF
 from app.common.schemas import Page, UtcDatetime
 from app.domains.identity.authentication import CurrentUser
+from app.domains.observability.catalog import metric_catalog
 from app.domains.observability.dependencies import get_log_service, get_metrics_service
 from app.domains.observability.entities import LlmCallLog, LogFilters
 from app.domains.observability.service import LogService, MetricsService
@@ -120,8 +121,12 @@ async def evaluation_metrics(
     service: MetricsServiceDep,
     learning_path_id: Annotated[int | None, Query(gt=0)] = None,
 ) -> dict[str, Any]:
-    """Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas."""
-    return asdict(await service.evaluation(user, learning_path_id))
+    """Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas.
+
+    `groups` (aditivo, 2026-11-12) es el catálogo de AD3: cada métrica con su meta y su estado.
+    """
+    found = await service.evaluation(user, learning_path_id)
+    return {**asdict(found), "groups": metric_catalog(found)}
 
 
 routers: list[APIRouter] = [router]

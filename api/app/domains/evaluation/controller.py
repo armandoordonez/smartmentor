@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, Query
 from app.auth.dependencies import require_roles
 from app.auth.policies import ADMIN, INSTRUCTOR
 from app.common.entities import require_id
-from app.common.schemas import Page
 from app.domains.evaluation.dependencies import (
     get_annotation_service,
     get_evaluator_admin_service,
@@ -16,6 +15,7 @@ from app.domains.evaluation.dependencies import (
 from app.domains.evaluation.entities import CourseEvaluator, ItemAnnotation
 from app.domains.evaluation.schemas import (
     AnnotationCreate,
+    AnnotationQueuePage,
     AnnotationResponse,
     EvaluatorCreate,
     EvaluatorResponse,
@@ -73,6 +73,7 @@ def _queue_item(entry: AnnotationQueueEntry) -> QueueItem:
     return QueueItem(
         id=require_id(item),
         topic_id=item.topic_id,
+        topic_name=entry.topic_name,
         learning_outcome_id=item.learning_outcome_id,
         source=item.source,
         item_type=item.item_type,
@@ -87,6 +88,7 @@ def _queue_item(entry: AnnotationQueueEntry) -> QueueItem:
         own_annotation=(
             _annotation(entry.own_annotation) if entry.own_annotation is not None else None
         ),
+        evaluator_slot=entry.evaluator_slot,
     )
 
 
@@ -115,7 +117,7 @@ async def remove_evaluator(
     return _evaluator(await service.remove(user, evaluator_id))
 
 
-@router.get("/evaluation/annotation-queue", response_model=Page[QueueItem])
+@router.get("/evaluation/annotation-queue", response_model=AnnotationQueuePage)
 async def annotation_queue(
     user: InstructorUser,
     service: AnnotationServiceDep,
@@ -123,13 +125,17 @@ async def annotation_queue(
     done: Annotated[bool, Query(description="Los ya anotados por mí (solo mi anotación)")] = False,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
-) -> Page[QueueItem]:
+) -> AnnotationQueuePage:
     """Ítems por anotar. La anotación del otro evaluador nunca se devuelve (anotación ciega)."""
     entries, total = await service.queue(
         user, course_id=course_id, done=done, limit=limit, offset=offset
     )
-    return Page[QueueItem](
-        items=[_queue_item(e) for e in entries], total=total, limit=limit, offset=offset
+    return AnnotationQueuePage(
+        annotated=await service.annotated_count(user, course_id=course_id),
+        items=[_queue_item(e) for e in entries],
+        total=total,
+        limit=limit,
+        offset=offset,
     )
 
 

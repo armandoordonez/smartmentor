@@ -24,7 +24,7 @@ from app.common.unit_of_work import UnitOfWork
 from app.domains.ai_gateway.repository import AiServicePort
 from app.domains.courses.repository import PrerequisiteRepository, TopicRepository
 from app.domains.pilot.constants import MIN_PARTICIPANTS, PilotArm, PilotStatus
-from app.domains.pilot.entities import Pilot
+from app.domains.pilot.entities import PathSummary, Pilot
 from app.domains.pilot.repository import PilotPopulation, PilotRepository
 
 _EDITABLE = frozenset({PilotStatus.DRAFT, PilotStatus.RANDOMIZED})
@@ -43,12 +43,19 @@ class PilotConfig:
 class PilotView:
     pilot: Pilot
     arms: dict[str, int]
+    path: PathSummary | None = None
 
 
 @dataclass(frozen=True)
 class Readiness:
     ready: bool
     missing: list[str]
+    # Lo que AD4 muestra junto a la lista de pendientes (aditivo, 2026-11-12).
+    consents_accepted: int = 0
+    consents_total: int = 0
+    topics_total: int = 0
+    topics_with_items: int = 0
+    topics_with_equivalent_items: int = 0
 
 
 @dataclass(frozen=True)
@@ -108,7 +115,12 @@ class PilotService:
         return pilot
 
     async def _view(self, pilot: Pilot) -> PilotView:
-        return PilotView(pilot, await self._population.arm_counts(pilot.learning_path_id))
+        path_id = pilot.learning_path_id
+        return PilotView(
+            pilot,
+            await self._population.arm_counts(path_id),
+            await self._population.path_summary(path_id),
+        )
 
     async def create(self, config: PilotConfig) -> PilotView:
         _check_dates(config)
@@ -232,7 +244,21 @@ class PilotService:
                 missing.append("approved_explanations")
             if facts.topics_without_video or facts.topics_without_backup:
                 missing.append("video_backups")
-        return Readiness(ready=not missing, missing=missing)
+        enrollments = await self._population.enrollments(pilot.learning_path_id)
+        topics = set(facts.topic_ids) if facts is not None else set()
+        without_items = set(facts.topics_without_items) if facts is not None else set()
+        without_equivalents = (
+            set(facts.topics_without_equivalents) if facts is not None else set()
+        )
+        return Readiness(
+            ready=not missing,
+            missing=missing,
+            consents_accepted=sum(1 for e in enrollments if e.consented),
+            consents_total=len(enrollments),
+            topics_total=len(topics),
+            topics_with_items=len(topics - without_items),
+            topics_with_equivalent_items=len(topics - without_equivalents),
+        )
 
     async def start(self, pilot_id: int) -> PilotView:
         await self._load(pilot_id)
@@ -262,7 +288,7 @@ class PilotService:
         requires: dict[int, list[str]] = {}
         for edge in edges:
             requires.setdefault(edge.topic_id, []).append(str(edge.prerequisite_topic_id))
-        return await self._ai.run_task(
+        result = await self._ai.run_task(
             "path.sequence",
             {
                 "topics": [
@@ -280,3 +306,11 @@ class PilotService:
                 "pilot_arm": PilotArm.FIXED.value,
             },
         )
+        # Aditivo (2026-11-12): AD4b muestra el nombre de cada tema y el umbral de la final.
+        names = {str(require_id(t)): t.name for t in topics}
+        for step in result.get("steps") or []:
+            step.setdefault("name", names.get(str(step.get("topic_id")), ""))
+        summary = await self._population.path_summary(pilot.learning_path_id)
+        if summary is not None:
+            result.setdefault("final_pass_threshold", summary.final_pass_threshold)
+        return result

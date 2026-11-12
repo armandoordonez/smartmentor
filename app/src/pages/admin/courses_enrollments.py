@@ -11,6 +11,7 @@ from collections.abc import Callable
 import streamlit as st
 
 from clients.base import ApiError
+from clients.models_staff import Course
 from components.layout import render_page_header
 from components.staff_theme import ADMIN_ENROLLMENT_BADGE, COURSE_BADGE, PILOT_ARM_TEXT
 from components.table import Actions, Row, render_table
@@ -48,13 +49,25 @@ with st.container(horizontal=True):
     if st.button("Inscribir aprendiz", key="ce-enroll"):
         st.session_state["ce-panel"] = ("enroll", None)
 
+user_names = {u.id: u.full_name for u in users}
+
+
+def _owner_name(course: Course) -> str | None:
+    """El dueño del curso: el de los fixtures o, con la API real, el que indica `owner_user_id`."""
+    if course.owner is not None:
+        return course.owner.full_name
+    if course.owner_user_id is not None:
+        return user_names.get(course.owner_user_id, f"Usuario {course.owner_user_id}")
+    return None
+
+
 st.subheader("Cursos y rutas", anchor=False)
 course_rows = [
     Row(
         key=str(course.id),
         cells=[
             f"**{course.name}**",
-            course.owner.full_name if course.owner else "Sin asignar",
+            _owner_name(course) or "Sin asignar",
             (
                 f"{course.learning_path.group_label or course.learning_path.name} · "
                 f"{course.topics_count} temas"
@@ -63,7 +76,9 @@ course_rows = [
             ),
             COURSE_BADGE[course.status],
             str(course.enrolled_count),
-            Actions((("owner", "Cambiar instructor" if course.owner else "Asignar instructor"),)),
+            Actions(
+                (("owner", "Cambiar instructor" if _owner_name(course) else "Asignar instructor"),)
+            ),
         ],
     )
     for course in courses

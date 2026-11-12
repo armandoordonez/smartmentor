@@ -85,6 +85,10 @@ class AdminEnrollmentCreate(RequestSchema):
 
 class AdminEnrollmentResponse(EnrollmentResponse):
     user_id: int
+    # Lo que AD5 muestra sin otra llamada (aditivo, 2026-11-12): el nombre del aprendiz y si tiene
+    # vigente la autorización `pilot_research`.
+    full_name: str
+    pilot_consent: bool
 
 
 class WithdrawRequest(RequestSchema):
@@ -251,6 +255,8 @@ class LearnerDetailResponse(BaseModel):
     """Detalle del aprendiz para el instructor (D4, D4b): perfil reducido según A3c."""
 
     enrollment_id: int
+    # Ruta del aprendiz: el encabezado de D4 la muestra sin otra llamada (aditivo, 2026-11-12).
+    learning_path: DashboardPath
     user_id: int
     full_name: str
     profile: dict[str, str | None]

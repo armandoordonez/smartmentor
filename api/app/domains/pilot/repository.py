@@ -2,7 +2,7 @@
 
 from typing import Any, Protocol
 
-from app.domains.pilot.entities import ContentFacts, Pilot, PilotEnrollment
+from app.domains.pilot.entities import ContentFacts, PathSummary, Pilot, PilotEnrollment
 
 
 class PilotRepository(Protocol):
@@ -41,3 +41,7 @@ class PilotPopulation(Protocol):
     async def arm_counts(self, learning_path_id: int) -> dict[str, int]: ...
 
     async def content_facts(self, course_id: int) -> ContentFacts: ...
+
+    async def path_summary(self, learning_path_id: int) -> PathSummary | None:
+        """Nombre, grupo y umbral de la final de la ruta, o `None` si no existe."""
+        ...

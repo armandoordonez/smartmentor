@@ -122,10 +122,14 @@ class VideoQualityItem(BaseModel):
     useful_rate: float | None
     quality_index: float | None
     measuring: bool
+    # `measuring`, `recommended`, `observation` o `under_review` (aditivo, 2026-11-12).
+    status: str
 
 
 class VideoQualityResponse(BaseModel):
     learning_path_id: int
+    # Calificaciones necesarias para calcular el índice (aditivo, 2026-11-12).
+    min_ratings: int
     items: list[VideoQualityItem]
 
 

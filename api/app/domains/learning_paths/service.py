@@ -484,6 +484,12 @@ class EnrollmentService:
         )
         return [await self._view(e) for e in items], total
 
+    async def learner_facts(self, user_id: int) -> tuple[str, bool]:
+        """(nombre, autorización `pilot_research` vigente) del aprendiz, para AD5."""
+        user = await self._reader.user(user_id)
+        consent = await self._reader.consent_in_force(user_id, ConsentType.PILOT_RESEARCH)
+        return (user.full_name if user is not None else "", consent)
+
     async def admin_enroll(self, user_id: int, learning_path_id: int) -> EnrollmentView:
         if await self._reader.user(user_id) is None:
             raise NotFoundError("User", user_id, code="USER_NOT_FOUND")
