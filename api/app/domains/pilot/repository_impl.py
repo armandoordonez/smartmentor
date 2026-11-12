@@ -61,9 +61,7 @@ class SqlAlchemyPilotPopulation:
         ).first()
         if row is None:
             return None
-        return PathSummary(
-            name=str(row[0]), group_label=row[1], final_pass_threshold=float(row[2])
-        )
+        return PathSummary(name=str(row[0]), group_label=row[1], final_pass_threshold=float(row[2]))
 
     async def path_course(self, learning_path_id: int) -> tuple[int, float] | None:
         row = (

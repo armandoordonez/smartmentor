@@ -20,16 +20,20 @@ COLUMNS = 3
 client = get_client()
 
 render_notice("Solo Admin · Métricas de todo el sistema. El instructor solo ve las de sus rutas.")
-render_page_header("Métricas de evaluación", caption="Metas orientativas del brief")
+CAPTION = "Metas orientativas del brief"
 
 try:
     metrics = client.get_evaluation_metrics()
 except ApiError as error:
+    render_page_header("Métricas de evaluación", caption=CAPTION)
     show_staff_error(error)
     st.stop()
+# La API real no tiene cohorte; los fixtures sí (Figma: «… · cohorte 2026-2»).
+render_page_header(
+    "Métricas de evaluación",
+    caption=f"{CAPTION} · {metrics.cohort}" if metrics.cohort else CAPTION,
+)
 
-if metrics.cohort:
-    st.caption(metrics.cohort.capitalize())
 if metrics.is_sample_data:
     st.caption("Valores de ejemplo hasta que corra el piloto")
 if st.button("Configurar piloto", key="m-pilot"):

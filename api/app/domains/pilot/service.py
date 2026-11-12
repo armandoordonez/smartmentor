@@ -247,9 +247,7 @@ class PilotService:
         enrollments = await self._population.enrollments(pilot.learning_path_id)
         topics = set(facts.topic_ids) if facts is not None else set()
         without_items = set(facts.topics_without_items) if facts is not None else set()
-        without_equivalents = (
-            set(facts.topics_without_equivalents) if facts is not None else set()
-        )
+        without_equivalents = set(facts.topics_without_equivalents) if facts is not None else set()
         return Readiness(
             ready=not missing,
             missing=missing,
