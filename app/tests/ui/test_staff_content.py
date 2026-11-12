@@ -172,6 +172,20 @@ def test_d5e_matches_figma() -> None:
     )
 
 
+def test_d5e_videos_open_on_youtube_with_their_thumbnail() -> None:
+    at = _open(VIDEOS)
+    assert_no_exception(at)
+    texts = " ".join(m.value for m in at.markdown)
+    # Candidato en uso: portada y título enlazados a YouTube.
+    assert "https://i.ytimg.com/vi/EXAMPLE0001/mqdefault.jpg" in texts
+    assert (
+        "[Regresión logística explicada paso a paso](https://www.youtube.com/watch?v=EXAMPLE0001)"
+        in texts
+    )
+    # Video de respaldo: el título también abre el video.
+    assert "(https://www.youtube.com/watch?v=EXAMPLE0004)" in texts
+
+
 def test_d5e_use_this_video_and_pertinence() -> None:
     at = _open(VIDEOS)
     at = click(at, "Usar este")

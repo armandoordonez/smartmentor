@@ -12,6 +12,12 @@ from components.formatting import approx_duration, duration, initials, percent, 
 from services.assessment import rubric_view
 from services.catalog import card_view, load_catalog, open_path
 from services.profile import resume_values, save_description, save_resume
+from services.staff_content import (
+    video_link_markdown,
+    video_thumbnail_markdown,
+    youtube_thumbnail_url,
+    youtube_watch_url,
+)
 
 
 def test_catalog_groups_the_cards_in_two_sections_with_figma_meta() -> None:
@@ -125,3 +131,25 @@ def test_formatting_matches_the_design() -> None:
     assert approx_duration(215) == "~3 h 35 min"
     assert initials("Laura Martínez") == "LM"
     assert initials("") == "?"
+
+
+def test_video_links_point_to_youtube_and_its_thumbnail() -> None:
+    assert youtube_watch_url("dQw4w9WgXcQ") == "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    assert (
+        youtube_thumbnail_url("dQw4w9WgXcQ") == "https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg"
+    )
+    assert video_thumbnail_markdown("dQw4w9WgXcQ") == (
+        "[![Portada del video en YouTube](https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg)]"
+        "(https://www.youtube.com/watch?v=dQw4w9WgXcQ)"
+    )
+
+
+def test_video_title_link_escapes_brackets_and_rejects_odd_ids() -> None:
+    assert video_link_markdown("Qué es [DW]?", "dQw4w9WgXcQ") == (
+        r"[Qué es \[DW\]?](https://www.youtube.com/watch?v=dQw4w9WgXcQ)"
+    )
+    # Un id que no tiene la forma de YouTube no arma enlaces (ni HTML ni otra URL).
+    for odd in ("corto", 'x"><img src=1>', "dQw4w9WgXcQ/../x"):
+        assert youtube_watch_url(odd) is None
+        assert video_thumbnail_markdown(odd) is None
+        assert video_link_markdown("Título", odd) == "Título"
