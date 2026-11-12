@@ -43,3 +43,27 @@ Rama `feature/seguimiento-trazabilidad` desde `dev` (`d8de841`) para crear `proy
 Se crean `README.md`, `HOJA_DE_RUTA.md`, `BITACORA.md`, `BUGS.md`, `FIGMA.md`, `SUBIDAS.md` y `MEJORAS.md` en `proyecto/seguimiento/`. Falta el commit y la subida (los aprueba el dueño).
 - Rama: `feature/seguimiento-trazabilidad` · Sin commit todavía
 - Pruebas: no aplican (solo documentación)
+
+### 2026-11-12 14:00 · COMMIT · T-001
+
+Commit de la carpeta de seguimiento.
+- Rama: `feature/seguimiento-trazabilidad` · Commit: `ee2ee75`
+
+### 2026-11-12 14:01 · CORRECCIÓN · —
+
+La entrada «2026-11-12 14:05 · CAMBIO · T-001» tiene una hora estimada a mano que quedó adelantada. Los archivos se crearon entre las 13:57 y las 14:00 (la hora del commit `ee2ee75`). Desde ahora, toda hora sale de `TZ=America/Bogota date` o de la hora del commit.
+
+### 2026-11-12 14:01 · INICIO · T-002 · B-001
+
+Rama `fix/bloqueo-trabajos-ia-a-dev` desde `origin/dev` (`d8de841`).
+
+### 2026-11-12 14:01 · CORRECCIÓN · B-001
+
+`git cherry-pick -x 448e154` → `0699da7`, sin conflictos. Conserva como autora a Alexander Amador y el mensaje original, con la referencia «cherry picked from».
+- Rama: `fix/bloqueo-trabajos-ia-a-dev` · Commit: `0699da7`
+- Archivos: `api/app/domains/content/{ingestion,repository_impl}.py`, `api/app/domains/courses/repository_impl.py`, `api/app/domains/learning_paths/repository_impl.py` y 3 archivos de pruebas de integración
+- Evidencia: el `patch-id --stable` coincide con el del original (`21f67f3`), y ninguno de los 7 archivos cambió en `dev` desde la base del PR 4
+
+### 2026-11-12 14:01 · PRUEBA · B-001
+
+Sin correr: `api/scripts/dev.sh all` necesita Docker y PostgreSQL, y el dueño todavía no autoriza ejecutar el proyecto. Según su descripción, el PR 4 pasó sus pruebas en su rama original.

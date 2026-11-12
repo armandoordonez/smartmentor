@@ -2,7 +2,7 @@
 
 Lo que falta para llegar al hito del brief (el flujo corre de punta a punta con el LLM real) y al piloto. Arranca del estado de `dev` en `d8de841` (2026-11-12). Estados e IDs en el [README](README.md#estados). Las fases F0–F11 son las del [plan v3](../../PLAN_IMPLEMENTACION_V3.md#7-plan-fase-a-fase).
 
-**Última actualización:** 2026-11-12 14:05
+**Última actualización:** 2026-11-12 14:03
 
 ## Dónde estamos (2026-11-12)
 
@@ -18,8 +18,8 @@ Lo que falta para llegar al hito del brief (el flujo corre de punta a punta con 
 
 | ID | Tarea | Fase | Depende de | Estado | Inicio | Fin | Rama / PR |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T-001 | Crear la carpeta de seguimiento (esta hoja, bitácora, bugs, Figma, subidas y mejoras) | — | — | ⏳ | 2026-11-12 13:57 | 2026-11-12 14:05 | `feature/seguimiento-trazabilidad` |
-| T-002 | Llevar a `dev` el arreglo del bloqueo API ↔ `ai/` ([B-001](BUGS.md)) | F6 | — | ☐ | | | |
+| T-001 | Crear la carpeta de seguimiento (esta hoja, bitácora, bugs, Figma, subidas y mejoras) | — | — | ⏳ | 2026-11-12 13:57 | 2026-11-12 14:00 | `feature/seguimiento-trazabilidad` · `ee2ee75` |
+| T-002 | Llevar a `dev` el arreglo del bloqueo API ↔ `ai/` ([B-001](BUGS.md)) | F6 | — | ⏳ Pruebas sin correr | 2026-11-12 14:01 | 2026-11-12 14:01 | `fix/bloqueo-trabajos-ia-a-dev` · `0699da7` |
 | T-003 | Poner al día `proyecto/checklist.md`, `HANDOFF.md`, `app/README.md` y `CHANGELOG.md` ([B-002](BUGS.md)) | F10 | T-002 | ☐ | | | |
 
 ## Etapa 1 · Conectar con la API real las pantallas que faltan
