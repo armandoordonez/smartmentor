@@ -262,3 +262,15 @@ A pedido del dueño, `HOJA_DE_RUTA.md` suma la sección «Estado por fase (F0 a 
 ### 2026-11-12 15:02 · CAMBIO · —
 
 Estados actualizados a «⬆ Subido (sin PR)» (nuevo en la leyenda) y registro de S-001.
+
+### 2026-11-12 15:20 · PRUEBA · —
+
+El dueño pide las pruebas antes del PR. En este equipo no hay Docker ni `uv`, así que se usa la CI de la rama. La primera corrida después de S-001 falló en Ruff (lint) en api y app y en los enlaces de docs. Todos los errores eran de esta sesión.
+
+### 2026-11-12 15:31 · PRUEBA · T-012 a T-015, B-001 a B-008
+
+Después de 4 correcciones (S-002), **la CI está en verde**: API con 660 pruebas, app con 621 y ai con 463, más Ruff, formato y mypy estricto en las tres. Las 2 fallas que hubo en las pruebas eran reales y se corrigieron: AD3 había perdido el texto de la cohorte que pide Figma, y el OpenAPI publicado no tenía la descripción nueva de un endpoint.
+
+### 2026-11-12 15:31 · BUG · B-009
+
+pip-audit encuentra 41 vulnerabilidades en `certifi` y `pillow` (api y app). Ya fallaba en `dev`; se corrige en otra rama.

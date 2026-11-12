@@ -43,3 +43,21 @@ Repositorio: <https://github.com/armandoordonez/smartmentor>
 - **Pruebas locales:** sin correr (el dueño no autorizó ejecutar el proyecto)
 - **Fuera de la subida:** `pr-3-descripcion-actualizada.md` (borrador del dueño, sin versionar)
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 15:02)
+
+### S-002 · 2026-11-12 15:05 a 15:25 · `feature/seguimiento-trazabilidad`
+
+Correcciones que pidió la CI. Las pruebas no se pueden correr en este equipo (no hay Docker ni `uv`), así que el dueño pidió las pruebas y se corrieron en la CI:
+- `73c9224` style: Ruff lint (I001, SIM108, E501, PT018) y un enlace roto → CI `43304494731`: falló el formato (app) y E501 (API)
+- `7181ee3` style: línea larga y formato → CI `43304868193`: app con 620 pruebas en verde y 1 fallida (AD3 frente a Figma: faltaba la cohorte en el encabezado); API con el formato de 2 archivos
+- `0c07692` fix(app): la cohorte vuelve al encabezado de AD3, y el formato del piloto → CI `43305251283`: app en verde; API con 659 en verde y 1 fallida (el OpenAPI publicado no coincidía: faltaba la descripción nueva de `GET /metrics/evaluation`)
+- `58badeb` docs(contracts): sincroniza esa descripción → **CI `43305654426` en verde**
+
+### Resultado de las pruebas · 2026-11-12 15:31
+
+| Servicio | Ruff | Formato | mypy estricto | pytest |
+| --- | --- | --- | --- | --- |
+| api | ✔ | ✔ (216 archivos) | ✔ (141) | ✔ **660 en verde** |
+| app | ✔ | ✔ (141) | ✔ (104) | ✔ **621 en verde** |
+| ai | ✔ | ✔ (150) | ✔ (145) | ✔ 463 en verde, 10 omitidas |
+
+También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint y enlaces), secrets (gitleaks) e images (Trivy). Fallan solo `audit (api)` y `audit (app)`, que son informativos y ya fallaban en `dev` ([B-009](BUGS.md)).
