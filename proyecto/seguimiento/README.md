@@ -31,6 +31,7 @@ Completa al plan, no lo reemplaza. [`PLAN_IMPLEMENTACION_V3.md`](../../PLAN_IMPL
 | ☐ | Pendiente | Abierto |
 | ◐ | En curso | En corrección |
 | ⏳ | Hecho en local, sin subir | Corregido en local, sin subir |
+| ⬆ | Subido a una rama, sin PR | Corrección subida, sin PR |
 | 🔼 | Subido a una rama, con PR abierto | Corrección subida, PR abierto |
 | ✔ | En `dev` | Corregido y en `dev` |
 | ⛔ | Bloqueado (se dice por qué) | Bloqueado |

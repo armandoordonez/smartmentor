@@ -254,3 +254,11 @@ Sin correr (no autorizado).
 ### 2026-11-12 14:59 · CAMBIO · —
 
 A pedido del dueño, `HOJA_DE_RUTA.md` suma la sección «Estado por fase (F0 a F11)». Para cada fase da el estado, la evidencia, lo que falta y las tareas que le tocan. Los 9 commits de evidencia del tablero del plan (`eb84c97`, `726fc16`, `e709dd4`, `3e23ac3`, `f81d49d`, `37f44e8`, `995dbd9`, `9000895`, `97ffd44`) se comprobaron en `origin/dev`. El tablero del plan y `checklist.md` siguen desactualizados (B-002).
+
+### 2026-11-12 15:01 · SUBIDA · S-001
+
+`git push -u origin feature/seguimiento-trazabilidad`: 5 commits sobre `dev`. Detalle en [SUBIDAS.md](SUBIDAS.md). La CI arrancó (corrida `43296141612`).
+
+### 2026-11-12 15:02 · CAMBIO · —
+
+Estados actualizados a «⬆ Subido (sin PR)» (nuevo en la leyenda) y registro de S-001.
