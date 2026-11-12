@@ -12211,7 +12211,7 @@
     },
     "/api/v1/metrics/evaluation": {
       "get": {
-        "description": "Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas.",
+        "description": "Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas.\n\n`groups` (aditivo, 2026-11-12) es el catálogo de AD3: cada métrica con su meta y su estado.",
         "operationId": "evaluation_metrics_api_v1_metrics_evaluation_get",
         "parameters": [
           {
