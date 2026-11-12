@@ -21,6 +21,7 @@ x-ai-environment: &ai-environment
   DATABASE_HOST: ${DATABASE_HOST:-postgres}
   DATABASE_PORT: ${DATABASE_PORT:-5432}
   DATABASE_NAME: ${DATABASE_NAME:-smartmentor}
+  DATABASE_SSL: ${DATABASE_SSL:-false}
   AI_DATABASE_USER: ${AI_DATABASE_USER:?Define AI_DATABASE_USER en .env (ver .env.example)}
   AI_DATABASE_PASSWORD: ${AI_DATABASE_PASSWORD:?Define AI_DATABASE_PASSWORD en .env (ver .env.example)}
   # Validación de los tokens de la API (ADR 0014): mismas llaves que la API, audiencia propia.
@@ -109,7 +110,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-smartmentor}
+      # Base local por defecto; con una base remota (Neon) DATABASE_HOST/PORT/JDBC_PARAMS apuntan a ella.
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://${DATABASE_HOST:-postgres}:${DATABASE_PORT:-5432}/${POSTGRES_DB:-smartmentor}${DATABASE_JDBC_PARAMS:-}
       # Liquibase corre como smartmentor_owner: las tablas quedan a su nombre (ADR 0019).
       LIQUIBASE_COMMAND_USERNAME: ${OWNER_DATABASE_USER:?Define OWNER_DATABASE_USER en .env (ver .env.example)}
       LIQUIBASE_COMMAND_PASSWORD: ${OWNER_DATABASE_PASSWORD:?Define OWNER_DATABASE_PASSWORD en .env (ver .env.example)}
@@ -142,6 +144,7 @@ services:
       DATABASE_HOST: ${DATABASE_HOST:-postgres}
       DATABASE_PORT: ${DATABASE_PORT:-5432}
       DATABASE_NAME: ${DATABASE_NAME:-smartmentor}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
       # La API se conecta con su usuario de mínimo privilegio (ADR 0019); su configuración lo lee como DATABASE_*.
       DATABASE_USER: ${API_DATABASE_USER:?Define API_DATABASE_USER en .env (ver .env.example)}
       DATABASE_PASSWORD: ${API_DATABASE_PASSWORD:?Define API_DATABASE_PASSWORD en .env (ver .env.example)}
@@ -218,7 +221,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:?Define KEYCLOAK_ADMIN en .env (ver .env.example)}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Define KEYCLOAK_ADMIN_PASSWORD en .env (ver .env.example)}
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/${KEYCLOAK_DB_NAME:-keycloak}
+      KC_DB_URL: jdbc:postgresql://${DATABASE_HOST:-postgres}:${DATABASE_PORT:-5432}/${KEYCLOAK_DB_NAME:-keycloak}${DATABASE_JDBC_PARAMS:-}
       KC_DB_USERNAME: ${KEYCLOAK_DB_USER:?Define KEYCLOAK_DB_USER en .env (ver .env.example)}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Define KEYCLOAK_DB_PASSWORD en .env (ver .env.example)}
       KC_HEALTH_ENABLED: "true"

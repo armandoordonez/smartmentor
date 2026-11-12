@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     database_name: str = "smartmentor"
     database_user: str = "smartmentor"
     database_password: SecretStr
+    # true = la conexión exige TLS (bases administradas en la nube, como Neon). Local: false.
+    database_ssl: bool = False
 
     # Perfil de etiquetas visibles de los roles (sección 13.3 del plan). Solo cambia texto.
     app_context_profile: Literal["generic", "academic", "corporate"] = "generic"
@@ -84,6 +86,7 @@ class Settings(BaseSettings):
         return (
             f"postgresql+asyncpg://{user}:{password}"
             f"@{self.database_host}:{self.database_port}/{self.database_name}"
+            f"{'?ssl=require' if self.database_ssl else ''}"
         )
 
 

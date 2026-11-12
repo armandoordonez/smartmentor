@@ -19,7 +19,13 @@
 #   scripts/local-up.sh --with-admin    # además crea al administrador en Keycloak
 #   scripts/local-up.sh --gen-secrets   # rellena antes las variables secretas vacías (scripts/gen-secrets.sh)
 #   scripts/local-up.sh --no-build      # no reconstruye las imágenes
+#   scripts/local-up.sh --bootstrap-db  # base remota, solo la primera vez: crea bases, roles y pgvector
 #   scripts/local-up.sh --down          # detiene el stack (conserva los datos)
+#
+# Base de datos remota (Neon u otra): si DATABASE_HOST del .env no es «postgres», el script no levanta el
+# PostgreSQL local, aplica las migraciones de Liquibase contra la base remota y arranca el resto. La primera
+# vez, quien crea la base remota usa --bootstrap-db (necesita ADMIN_DATABASE_URL en el .env). Ver
+# database/README.md.
 #
 # Es idempotente: puedes repetirlo; los usuarios que ya existen no se tocan.
 set -euo pipefail
@@ -27,7 +33,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-AI=1; MAIL=1; ADMIN=0; GEN=0; BUILD=1; DOWN=0
+AI=1; MAIL=1; ADMIN=0; GEN=0; BUILD=1; DOWN=0; BOOTSTRAP=0
 for arg in "$@"; do
   case "$arg" in
     --no-ai) AI=0 ;;
@@ -35,8 +41,9 @@ for arg in "$@"; do
     --with-admin) ADMIN=1 ;;
     --gen-secrets) GEN=1 ;;
     --no-build) BUILD=0 ;;
+    --bootstrap-db) BOOTSTRAP=1 ;;
     --down) DOWN=1 ;;
-    -h|--help) sed -n '2,26p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,33p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Argumento desconocido: $arg" >&2; exit 2 ;;
   esac
 done
@@ -77,6 +84,14 @@ set -a
 . ./.env
 set +a
 
+REMOTE_DB=0
+[ "${DATABASE_HOST:-postgres}" != "postgres" ] && REMOTE_DB=1
+if [ "$REMOTE_DB" = 1 ]; then
+  echo "Base de datos remota: ${DATABASE_HOST} (no se levanta el PostgreSQL local)."
+  [ -n "${DATABASE_JDBC_PARAMS:-}" ] && [ "${DATABASE_SSL:-false}" != "true" ] \
+    && echo "Aviso: DATABASE_JDBC_PARAMS está definido pero DATABASE_SSL no es true; la API y el servicio de IA se conectarán sin TLS."
+fi
+
 missing=()
 for v in POSTGRES_USER POSTGRES_PASSWORD KEYCLOAK_PORT API_PORT APP_PORT POSTGRES_PORT SEED_USERS_PASSWORD; do
   [ -n "${!v:-}" ] || missing+=("$v")
@@ -100,7 +115,7 @@ if docker ps --format '{{.Names}}' | grep -q '^smartmentor-'; then
   echo "  Ya hay contenedores smartmentor-* en marcha: se actualizarán en su sitio."
 else
   busy=()
-  for pair in POSTGRES_PORT API_PORT KEYCLOAK_PORT APP_PORT AI_PORT MAILPIT_UI_PORT; do
+  for pair in $([ "$REMOTE_DB" = 1 ] || echo POSTGRES_PORT) API_PORT KEYCLOAK_PORT APP_PORT AI_PORT MAILPIT_UI_PORT; do
     port="${!pair:-}"
     [ -n "$port" ] || continue
     if (exec 3<>"/dev/tcp/127.0.0.1/$port") 2>/dev/null; then busy+=("$pair=$port"); fi
@@ -113,10 +128,26 @@ fi
 
 # 3) Arranque
 say "Levantando los contenedores (la primera vez descarga imágenes y tarda varios minutos)"
-mkdir -p database/data/postgres
 UP=(up -d)
 [ "$BUILD" = 1 ] && UP+=(--build)
-"${COMPOSE[@]}" "${UP[@]}"
+if [ "$REMOTE_DB" = 1 ]; then
+  if [ "$BOOTSTRAP" = 1 ]; then
+    [ -n "${ADMIN_DATABASE_URL:-}" ] || die "--bootstrap-db necesita ADMIN_DATABASE_URL en el .env."
+    say "Creando bases, roles y pgvector en la base remota (idempotente)"
+    database/scripts/bootstrap.sh
+  fi
+  say "Aplicando las migraciones de Liquibase en la base remota"
+  [ "$BUILD" = 1 ] && "${COMPOSE[@]}" build liquibase
+  "${COMPOSE[@]}" run --rm --no-deps liquibase update \
+    || die "Liquibase falló. Si es la primera vez, ¿ejecutaste --bootstrap-db? ¿Son correctos DATABASE_HOST, el usuario y la contraseña?"
+  SERVICES=(keycloak api app)
+  [ "$AI" = 1 ] && SERVICES+=(ai ai-worker)
+  [ "$MAIL" = 1 ] && SERVICES+=(mailpit)
+  "${COMPOSE[@]}" "${UP[@]}" --no-deps "${SERVICES[@]}"
+else
+  mkdir -p database/data/postgres
+  "${COMPOSE[@]}" "${UP[@]}"
+fi
 
 # 4) Espera a que estén sanos
 say "Esperando a que los servicios estén sanos (máximo 10 minutos)"
@@ -133,10 +164,16 @@ wait_healthy() {
   docker logs --tail 30 "$name" >&2 || true
   die "$name no quedó sano a tiempo."
 }
-liq="$(docker inspect -f '{{.State.ExitCode}}' smartmentor-liquibase 2>/dev/null || echo 1)"
-[ "$liq" = "0" ] || { docker logs --tail 30 smartmentor-liquibase >&2 || true; die "Liquibase (migraciones de la base) falló."; }
-echo "  OK   smartmentor-liquibase (migraciones aplicadas)"
-for c in smartmentor-postgres smartmentor-keycloak smartmentor-api smartmentor-app; do wait_healthy "$c"; done
+if [ "$REMOTE_DB" = 1 ]; then
+  echo "  OK   liquibase (migraciones aplicadas en la base remota)"
+  HEALTH_SERVICES=(smartmentor-keycloak smartmentor-api smartmentor-app)
+else
+  liq="$(docker inspect -f '{{.State.ExitCode}}' smartmentor-liquibase 2>/dev/null || echo 1)"
+  [ "$liq" = "0" ] || { docker logs --tail 30 smartmentor-liquibase >&2 || true; die "Liquibase (migraciones de la base) falló."; }
+  echo "  OK   smartmentor-liquibase (migraciones aplicadas)"
+  HEALTH_SERVICES=(smartmentor-postgres smartmentor-keycloak smartmentor-api smartmentor-app)
+fi
+for c in "${HEALTH_SERVICES[@]}"; do wait_healthy "$c"; done
 [ "$AI" = 1 ] && for c in smartmentor-ai smartmentor-ai-worker; do wait_healthy "$c"; done
 [ "$MAIL" = 1 ] && wait_healthy smartmentor-mailpit
 
@@ -156,7 +193,7 @@ cat <<OUT
   Interfaz     http://localhost:${APP_PORT}
   API (docs)   http://localhost:${API_PORT}/docs
   Keycloak     http://localhost:${KEYCLOAK_PORT}
-  PostgreSQL   localhost:${POSTGRES_PORT}
+  PostgreSQL   $([ "$REMOTE_DB" = 1 ] && echo "remoto: ${DATABASE_HOST}" || echo "localhost:${POSTGRES_PORT}")
 OUT
 [ "$AI" = 1 ] && echo "  Servicio IA  localhost:${AI_PORT:-8030} (proveedor: ${AI_LLM_PROVIDER:-?})"
 [ "$MAIL" = 1 ] && echo "  Mailpit      http://localhost:${MAILPIT_UI_PORT:-8025}"

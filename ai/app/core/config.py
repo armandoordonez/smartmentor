@@ -51,6 +51,8 @@ class Settings(BaseSettings):
     database_name: str = "smartmentor"
     ai_database_user: str | None = None
     ai_database_password: SecretStr | None = None
+    # true = la conexión exige TLS (bases administradas en la nube, como Neon). Local: false.
+    database_ssl: bool = False
 
     # --- Service-to-service authentication (ADR 0014) ---
     oidc_issuer_url: str | None = None
@@ -123,6 +125,7 @@ class Settings(BaseSettings):
         return (
             f"postgresql+asyncpg://{user}:{password}"
             f"@{self.database_host}:{self.database_port}/{self.database_name}"
+            f"{'?ssl=require' if self.database_ssl else ''}"
         )
 
     @property

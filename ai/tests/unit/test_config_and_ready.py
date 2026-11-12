@@ -83,3 +83,14 @@ async def test_ready_reports_database_errors() -> None:
 
     missing = await make_container(database_ping=broken).readiness()
     assert missing == ["database:ConnectionRefusedError"]
+
+
+def test_database_url_requires_tls_only_when_asked() -> None:
+    base = {
+        "database_host": "ep-demo.neon.tech",
+        "ai_database_user": "smartmentor_ai",
+        "ai_database_password": "x",
+    }
+    assert not Settings.model_validate(base).database_url.endswith("?ssl=require")
+    secure = Settings.model_validate({**base, "database_ssl": True})
+    assert secure.database_url.endswith("/smartmentor?ssl=require")

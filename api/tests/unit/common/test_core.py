@@ -20,6 +20,16 @@ def test_database_url_escapes_special_characters() -> None:
     )
 
 
+def test_database_url_requires_tls_only_when_asked() -> None:
+    common = {
+        "database_host": "ep-demo.neon.tech",
+        "database_user": "smartmentor_api",
+        "database_password": SecretStr("x"),
+    }
+    assert not Settings(**common).database_url.endswith("?ssl=require")
+    assert Settings(**common, database_ssl=True).database_url.endswith("/smartmentor?ssl=require")
+
+
 def test_mask_email_hides_the_local_part() -> None:
     assert mask_email("juan.perez@example.com") == "j***@example.com"
     assert mask_email("sin-arroba") == "***"

@@ -12,6 +12,8 @@
 --     (solo con el directorio de datos vacío).
 --   * Otros ambientes y recuperación: database/scripts/bootstrap.sh
 \getenv target_db POSTGRES_DB
+SELECT current_database() AS admin_db
+\gset
 
 SELECT format('CREATE DATABASE %I', :'target_db')
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :'target_db')
@@ -26,6 +28,13 @@ WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :'target_db')
 \if :{?kc_password}
 SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'kc_user', :'kc_password')
 WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'kc_user')
+\gexec
+
+-- Bases administradas (Neon...): el administrador no es superusuario y necesita ser miembro del rol para
+-- asignarlo como dueño de la base. En local (superusuario) no hace falta.
+SELECT format('GRANT %I TO %I WITH SET TRUE', :'kc_user', current_user)
+WHERE NOT (SELECT rolsuper FROM pg_roles WHERE rolname = current_user)
+  AND NOT pg_has_role(current_user, :'kc_user', 'SET')
 \gexec
 
 SELECT format('CREATE DATABASE %I OWNER %I', :'kc_db', :'kc_user')
@@ -132,11 +141,21 @@ SELECT format('ALTER ROLE %I PASSWORD %L', :'metrics_user', :'metrics_password')
 WHERE :'has_metrics'::boolean AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'metrics_user')
 \gexec
 
+-- pgvector no es una extensión de confianza: la crea el administrador en la base de la aplicación
+\connect :"target_db"
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Al final, de nuevo en la base de conexión: así el administrador crea pgvector mientras todavía puede
+-- escribir en la base (en bases administradas deja de poder al ceder el dueño).
+\connect :"admin_db"
+-- Bases administradas: ver la nota de Keycloak arriba (el administrador debe poder asumir el rol dueño)
+SELECT format('GRANT %I TO %I WITH SET TRUE', :'owner_user', current_user)
+WHERE :'has_owner'::boolean
+  AND NOT (SELECT rolsuper FROM pg_roles WHERE rolname = current_user)
+  AND NOT pg_has_role(current_user, :'owner_user', 'SET')
+\gexec
+
 -- El dueño del esquema debe ser dueño de la base: así Liquibase puede crear objetos y fijar la zona horaria
 SELECT format('ALTER DATABASE %I OWNER TO %I', :'target_db', :'owner_user')
 WHERE :'has_owner'::boolean
 \gexec
-
--- pgvector no es una extensión de confianza: la crea el administrador en la base de la aplicación
-\connect :"target_db"
-CREATE EXTENSION IF NOT EXISTS vector;
