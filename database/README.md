@@ -177,6 +177,41 @@ docker compose up -d
 
 ---
 
+## Base compartida en la nube (Neon) para pruebas del equipo
+
+Para que todo el equipo use los mismos datos de prueba se puede alojar la base de la aplicación y la de Keycloak en un PostgreSQL remoto (por ejemplo, Neon, plan gratuito). **Solo datos de prueba**: no subas datos de personas reales.
+
+**Qué se necesita:** una cuenta de Neon con un proyecto (PostgreSQL 17, pgvector disponible). Las dos bases (`smartmentor` y `keycloak`) viven en el mismo proyecto. Usa la conexión **directa** (el host sin `-pooler`): Liquibase y `asyncpg` no se llevan bien con el pooler en modo transacción.
+
+**Variables del `.env`** (los valores solo en `.env`; el repositorio no los guarda):
+
+| Variable | Valor para la base remota |
+| --- | --- |
+| `DATABASE_HOST` | host de la conexión directa, por ejemplo `ep-xxxx.us-east-2.aws.neon.tech` |
+| `DATABASE_PORT` | `5432` |
+| `DATABASE_SSL` | `true` (la API y el servicio de IA exigen TLS) |
+| `DATABASE_JDBC_PARAMS` | `?sslmode=require` (Liquibase y Keycloak) |
+| `ADMIN_DATABASE_URL` | URL del administrador de Neon, solo para la preparación inicial |
+| `OWNER_/API_/AI_/KEYCLOAK_DB_*` y `METRICS_DATABASE_PASSWORD` | contraseñas de los roles; el bootstrap las pone en Neon, así que todo el equipo usa las mismas |
+
+Con `DATABASE_HOST` distinto de `postgres`, `scripts/local-up.sh` no levanta el PostgreSQL local, aplica Liquibase contra la base remota y arranca el resto. `POSTGRES_USER` y `POSTGRES_PASSWORD` deben seguir definidos (cualquier valor): el compose los exige.
+
+**Cada Keycloak local usa la misma base**, así que todos ven el mismo realm y los mismos usuarios. Para que los clientes funcionen, `OIDC_UI_CLIENT_SECRET` y `AI_CLIENT_SECRET` deben ser **iguales** en el `.env` de todo el equipo (el realm los guardó con los valores de quien lo importó primero), y `KC_HOSTNAME` también (`http://localhost:8180`).
+
+**Preparar la base remota (una vez, lo hace una sola persona):**
+
+```bash
+# 1. En .env: ADMIN_DATABASE_URL y las contraseñas de los roles (incluida METRICS_DATABASE_PASSWORD).
+database/scripts/bootstrap.sh                # crea bases, roles y pgvector; usa Docker si no tienes psql 15+
+database/scripts/remote-sync.sh push         # exporta las dos bases locales y las sube
+```
+
+`remote-sync.sh` también tiene `export` (solo genera los archivos en `database/backups/remote_<fecha>/`) e `import [CARPETA]`. Se niega a escribir sobre una base remota que ya tiene tablas; para reemplazarla: `import --replace --yes`. No ejecutes Liquibase antes del `push`: el volcado trae el esquema y `databasechangelog`, y los `liquibase update` posteriores siguen funcionando. Los volcados de Keycloak contienen hashes de contraseñas y llaves: son secretos (`database/backups/` está ignorado por git).
+
+**Cada integrante, después:** copia el `.env` compartido por un canal privado y ejecuta `scripts/local-up.sh`. Primera conexión tras una suspensión del cómputo gratuito de Neon: puede tardar unos segundos.
+
+**Límites a tener en cuenta:** varios Keycloak sobre la misma base no son un clúster; si alguien cambia roles o clientes desde la consola, los demás pueden tardar en verlo (reinicia su contenedor). Los cambios de configuración deben hacerlos una sola persona. Las pruebas de integración usan una base propia local (`smartmentor_test`); no las apuntes a la base compartida.
+
 ## Modelo de datos (v2.0.0)
 
 39 tablas de negocio y de IA, más 34 tablas `_audit`. Los grupos siguen el orden de entrega de los changesets.

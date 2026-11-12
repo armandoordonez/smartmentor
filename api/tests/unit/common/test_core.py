@@ -23,6 +23,7 @@ def test_database_url_escapes_special_characters() -> None:
 def test_database_url_requires_tls_only_when_asked() -> None:
     common = {
         "database_host": "ep-demo.neon.tech",
+        "database_name": "smartmentor",
         "database_user": "smartmentor_api",
         "database_password": SecretStr("x"),
     }

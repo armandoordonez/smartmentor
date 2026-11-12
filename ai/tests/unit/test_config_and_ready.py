@@ -88,6 +88,7 @@ async def test_ready_reports_database_errors() -> None:
 def test_database_url_requires_tls_only_when_asked() -> None:
     base = {
         "database_host": "ep-demo.neon.tech",
+        "database_name": "smartmentor",
         "ai_database_user": "smartmentor_ai",
         "ai_database_password": "x",
     }
