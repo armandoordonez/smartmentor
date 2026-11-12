@@ -94,7 +94,18 @@ with st.container(key="card-quiz-entry"):
         f"{min(attempts.used + 1, total)} de {total}."
     )
     st.caption("Durante el quiz no verás el video ni la explicación. Respóndelo sin ayuda de IA.")
-    if attempts.remaining <= 0:
+    action = enrollment.next_action
+    open_attempt = (
+        action.attempt_id
+        if action.type == "continue_attempt" and action.step_id == step_id
+        else None
+    )
+    if open_attempt is not None:
+        # Ya hay un intento abierto: la API no deja crear otro (`ATTEMPT_IN_PROGRESS`).
+        if st.button("Continuar quiz", type="primary", key="topic-continue-quiz"):
+            state.step_id, state.attempt_id, state.quiz_job_id = step_id, open_attempt, None
+            st.switch_page(QUIZ_PAGE)
+    elif attempts.remaining <= 0:
         st.warning("Usaste todos los intentos de este tema.")
         if st.button("Ver el estado de este tema", key="topic-exhausted"):
             state.attempt_id = None

@@ -43,6 +43,7 @@ SCHEMAS: dict[str, tuple[str, bool]] = {
     "review_plan": ("ReviewPlanResponse", False),
     "badge": ("BadgeSummary", False),
     "goals": ("StudyGoalsResponse", False),
+    "after-job": ("NextActionResponse", False),
 }
 # `badge.v1` (Open Badges) lo arma la IA: la API lo sirve como objeto libre.
 WITHOUT_SCHEMA = {"assertion"}

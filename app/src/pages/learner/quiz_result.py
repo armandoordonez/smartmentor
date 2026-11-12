@@ -130,13 +130,6 @@ except ApiError as error:
     show_action_error(error)
     st.stop()
 
-content, path = _load_context()
-if not result.passed and (
-    result.next_action.type == "wait_instructor" or result.attempts.remaining <= 0
-):
-    _exhausted(content, path)
-    st.stop()
-
 stems = {item.item_id: item for item in attempt.items}
 correct = sum(1 for a in result.answers if a.grading.get("is_correct"))
 score = percent_points(result.score)
@@ -184,6 +177,12 @@ if result.passed:
         _back_to_path()
         if st.button("Siguiente tema", type="primary", key="result-next"):
             go_to_action(result.next_action)
+    st.stop()
+
+# Solo sin aprobar: un tema aprobado queda `passed` y la API ya no entrega su contenido.
+content, path = _load_context()
+if result.next_action.type == "wait_instructor" or result.attempts.remaining <= 0:
+    _exhausted(content, path)
     st.stop()
 
 # E7b · Quiz no aprobado (refuerzo)

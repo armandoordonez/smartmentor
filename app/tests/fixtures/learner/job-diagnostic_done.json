@@ -4,12 +4,6 @@
   "status": "succeeded",
   "progress_label": "Listo",
   "ingested": true,
-  "next_action": {
-    "type": "confirm_objective",
-    "step_id": null,
-    "attempt_id": null,
-    "job_id": null,
-    "screen": "E4"
-  },
+  "next_action": null,
   "error": null
 }

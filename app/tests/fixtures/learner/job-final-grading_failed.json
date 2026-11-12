@@ -5,8 +5,5 @@
   "progress_label": "No se pudo terminar",
   "ingested": false,
   "next_action": null,
-  "error": {
-    "code": "AI_TASK_FAILED",
-    "retryable": true
-  }
+  "error": null
 }

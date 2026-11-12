@@ -100,8 +100,9 @@ def test_job_runs_first_and_succeeds_on_the_next_poll() -> None:
     accepted = client.submit_diagnostic(7, idempotency_key="k")
     job = wait_for_job(client, accepted.job_id, sleep=lambda _: None)
     assert job.status == "succeeded"
-    assert job.next_action is not None
-    assert job.next_action.type == "confirm_objective"
+    # Como la API real: el trabajo no trae `next_action`; la inscripción sí cambia.
+    assert job.next_action is None
+    assert client.get_enrollment(7).next_action.type == "confirm_objective"
 
 
 def test_missing_fixture_file_is_a_404(tmp_path: object) -> None:

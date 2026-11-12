@@ -37,6 +37,28 @@ def test_e3_resumes_at_the_first_unanswered_question() -> None:
     assert "Tema · Regresión lineal · Bloom · Aplicar" in texts
 
 
+def test_e3_failed_scoring_reopens_the_diagnostic_to_send_it_again() -> None:
+    """Si el cálculo falla, la API deja el diagnóstico en `scoring_failed` y pide continuarlo."""
+    script = LearnerScript({"diagnostic": "learner/diagnostic_scoring_failed"})
+    at = learner_app("learner_diagnostic", DIAGNOSTIC, script=script)
+    no_exception(at)
+    assert not at.error
+    assert any("Pregunta 4 de 15" in t for t in page_texts(at))
+
+
+def test_e4_without_a_proposed_objective_opens_the_editor() -> None:
+    at = learner_app("learner_objective", DIAGNOSTIC_RESULT, run=False)
+    client = client_of(at)
+    result = client.get_diagnostic_result(1)
+    client.get_diagnostic_result = lambda _e: result.model_copy(  # type: ignore[method-assign]
+        update={"proposed_objective": None}
+    )
+    at.run()
+    no_exception(at)
+    assert "Confirmar y ver mi ruta" not in page_texts(at)
+    assert "Verbo de Bloom" in [s.label for s in at.selectbox]
+
+
 def test_e3_next_is_disabled_until_the_question_is_answered() -> None:
     at = learner_app("learner_diagnostic", DIAGNOSTIC)
     assert button(at, "Siguiente").disabled

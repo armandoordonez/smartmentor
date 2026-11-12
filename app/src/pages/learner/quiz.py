@@ -27,12 +27,71 @@ PAGE = "pages/learner/quiz.py"
 TOPIC_PAGE = "pages/learner/topic.py"
 RESULT_PAGE = "pages/learner/quiz_result.py"
 PATH_PAGE = "pages/learner/path.py"
+FINAL_PAGE = "pages/learner/final_assessment.py"
 MC_NOTE = "Tutor IA desactivado durante el quiz"
 SA_NOTE = "Responde sin ayuda de IA."
 
 client = get_client()
 state = get_session().learner
 enrollment = current_enrollment(client)
+
+# U1c al volver: la API manda esperar la calificación (`wait_job`) con el intento y el trabajo,
+# pero sin el tema. El intento dice de qué tema es, o si es la evaluación final (U1d).
+waiting = enrollment.next_action
+if waiting.type == "wait_job" and waiting.attempt_id and waiting.job_id and not state.quiz_job_id:
+    try:
+        graded = client.get_attempt(waiting.attempt_id)
+    except ApiError as error:
+        show_action_error(error)
+        st.stop()
+    if graded.assessment_type == "final":
+        state.final_attempt_id = graded.id
+        st.switch_page(FINAL_PAGE)
+        st.stop()
+    state.step_id, state.attempt_id = graded.step_id, graded.id
+    state.quiz_job_id, state.quiz_job_kind = waiting.job_id, "grade"
+
+# --- U1c · Calificando ---------------------------------------------------------------------------
+# Va antes de pedir el contenido del tema: si el quiz se aprueba, el tema queda `passed` y la API ya
+# no entrega su contenido (`STEP_NOT_AVAILABLE`). Esta espera no lo necesita.
+
+
+def _regrade() -> None:
+    """Entrega de nuevo el intento (reintento de U1c)."""
+    if state.attempt_id is None:
+        return
+    try:
+        sent = client.submit_attempt(
+            state.attempt_id,
+            idempotency_key=idempotency_key(f"submit-{state.attempt_id}", fresh=True),
+        )
+    except ApiError as error:
+        show_action_error(error)
+        return
+    if not isinstance(sent, AttemptResult):
+        state.quiz_job_id = sent.job_id
+    st.rerun()
+
+
+if state.quiz_job_id and state.quiz_job_kind == "grade":
+    grading_screen = JobScreen(
+        key="quiz-grade",
+        title="Calificando tu respuesta corta",
+        steps=(
+            "Calificar las preguntas de opción múltiple",
+            "Aplicar la rúbrica de 3 criterios a tu respuesta corta",
+            "Preparar tu retroalimentación",
+        ),
+        error_message="No pudimos calificar tu respuesta corta. Tus respuestas están guardadas.",
+    )
+    graded_job = wait_for_job(client, state.quiz_job_id, grading_screen, on_retry=_regrade)
+    if graded_job is None:
+        st.stop()
+    state.quiz_job_id = None
+    if graded_job.next_action and graded_job.next_action.attempt_id:
+        state.attempt_id = graded_job.next_action.attempt_id
+    st.switch_page(RESULT_PAGE)
+    st.stop()
 
 step_id = state.step_id or enrollment.next_action.step_id
 if step_id is None:
@@ -74,65 +133,31 @@ def _prepare() -> None:
     st.rerun()
 
 
-def _regrade() -> None:
-    """Entrega de nuevo el intento (reintento de U1c)."""
-    if state.attempt_id is None:
-        return
-    try:
-        sent = client.submit_attempt(
-            state.attempt_id,
-            idempotency_key=idempotency_key(f"submit-{state.attempt_id}", fresh=True),
-        )
-    except ApiError as error:
-        show_action_error(error)
-        return
-    if not isinstance(sent, AttemptResult):
-        state.quiz_job_id = sent.job_id
-    st.rerun()
+# --- U1b · Preparando preguntas nuevas -----------------------------------------------------------
 
-
-# --- U1b y U1c · Carga ---------------------------------------------------------------------------
-
-if state.quiz_job_id:
-    if state.quiz_job_kind == "prepare":
-        screen = JobScreen(
-            key="quiz-prepare",
-            title=f"Preparando preguntas nuevas para tu intento {attempt_number}",
-            steps=(
-                f"Revisar lo que fallaste en el intento {max(attempt_number - 1, 1)}",
-                f"Generar {content.quiz_rules.items_per_attempt} preguntas nuevas con los mismos "
-                "resultados de aprendizaje",
-                "Verificar que cada pregunta tenga una sola respuesta correcta",
-            ),
-            error_message="No pudimos preparar las preguntas nuevas. Tu avance está guardado.",
-        )
-        job = wait_for_job(client, state.quiz_job_id, screen, on_retry=_prepare)
-        if job is None:
-            st.stop()
-        state.quiz_job_id = None
-        if job.next_action and job.next_action.attempt_id:
-            state.attempt_id = job.next_action.attempt_id
-        st.rerun()
+if state.quiz_job_id and state.quiz_job_kind == "prepare":
+    screen = JobScreen(
+        key="quiz-prepare",
+        title=f"Preparando preguntas nuevas para tu intento {attempt_number}",
+        steps=(
+            f"Revisar lo que fallaste en el intento {max(attempt_number - 1, 1)}",
+            f"Generar {content.quiz_rules.items_per_attempt} preguntas nuevas con los mismos "
+            "resultados de aprendizaje",
+            "Verificar que cada pregunta tenga una sola respuesta correcta",
+        ),
+        error_message="No pudimos preparar las preguntas nuevas. Tu avance está guardado.",
+    )
+    job = wait_for_job(client, state.quiz_job_id, screen, on_retry=_prepare)
+    if job is None:
+        st.stop()
+    state.quiz_job_id = None
+    if job.next_action and job.next_action.attempt_id:
+        state.attempt_id = job.next_action.attempt_id
     else:
-        screen = JobScreen(
-            key="quiz-grade",
-            title="Calificando tu respuesta corta",
-            steps=(
-                "Calificar las preguntas de opción múltiple",
-                "Aplicar la rúbrica de 3 criterios a tu respuesta corta",
-                "Preparar tu retroalimentación",
-            ),
-            error_message=(
-                "No pudimos calificar tu respuesta corta. Tus respuestas están guardadas."
-            ),
-        )
-        job = wait_for_job(client, state.quiz_job_id, screen, on_retry=_regrade)
-        if job is None:
-            st.stop()
-        state.quiz_job_id = None
-        if job.next_action and job.next_action.attempt_id:
-            state.attempt_id = job.next_action.attempt_id
-        st.switch_page(RESULT_PAGE)
+        # La API no dice qué intento abrir: con las preguntas ya generadas, pedir el intento
+        # de nuevo (con otra clave de idempotencia) lo crea.
+        _prepare()
+    st.rerun()
 
 # --- E6b y E6c · Preguntas -----------------------------------------------------------------------
 
