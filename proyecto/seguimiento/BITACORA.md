@@ -475,3 +475,9 @@ Cuarta pasada, con 7 capturas más de Figma (20 llamadas en total). Los colores 
 - V-032 reúne lo que se acepta (paneles laterales y ventanas, color por fila, color de las etiquetas).
 
 Verificado en el navegador del 8502 (D5b, D5c, D5e y D5f). A7 no tiene escenario de demostración: se revisa con sus pruebas y con la pantalla previa al login del 8501.
+
+### 2026-11-13 14:07 · PRUEBA · B-009 (Streamlit 1.66)
+
+El dueño pide probar Streamlit 1.66 para poder subir `pillow` a 13. Con `streamlit[auth]>=1.66,<1.67` se resuelven Streamlit 1.66.1 y `pillow` 13.0.0, y `pip-audit` de `app/` queda sin vulnerabilidades. Ruff, formato y mypy en verde.
+
+Falla 1 de 632 pruebas: `test_a3b_decision_travels_back_to_the_checkbox`. La causa, confirmada con un script mínimo en 1.65.0 y 1.66.1: en 1.66, si una ejecución termina en `st.stop()`, Streamlit no descarta el valor de los widgets con `key` que no se dibujaron. Al volver de A3b, la casilla del piloto trae su valor viejo y pisa la decisión. Hay 32 páginas con `st.stop()` y varias con pasos (consentimiento, nuevo curso, encuesta final, quiz y evaluación final), así que el cambio no se aplicó en el PR 7: se revirtió y la migración va en su propia rama, después del PR 5.
