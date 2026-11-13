@@ -106,12 +106,31 @@ def test_e11_follows_figma() -> None:
     )
 
 
-def test_e11_without_goals_the_section_is_hidden() -> None:
+def test_e11_without_goals_they_can_be_chosen_b028() -> None:
+    """La API responde 404 hasta que hay metas: la sección se muestra vacía y se pueden elegir."""
     at = learner_app("learner_path", PROGRESS, run=False)
-    client_of(at).get_study_goals = lambda: None  # type: ignore[method-assign]
+    client = client_of(at)
+    original_get, original_set = client.get_study_goals, client.set_study_goals
+    saved: list[StudyGoals] = []
+
+    def save(update: object) -> StudyGoals:
+        goals = original_set(update)  # type: ignore[arg-type]
+        saved.append(goals)
+        client.get_study_goals = original_get  # type: ignore[method-assign]
+        return goals
+
+    client.get_study_goals = lambda: None if not saved else original_get()  # type: ignore[method-assign]
+    client.set_study_goals = save  # type: ignore[method-assign]
     at.run()
     no_exception(at)
-    assert "Mis metas · opcional" not in page_texts(at)
+    texts = page_texts(at)
+    assert "Mis metas · opcional" in texts
+    assert "Todavía no tienes metas. Elige una para hoy y otra para este mes." in texts
+    at.segmented_control(key="goal-daily").set_value(30).run()
+    assert saved == []  # falta la meta del mes
+    at.segmented_control(key="goal-monthly").set_value(3).run()
+    no_exception(at)
+    assert len(saved) == 1
 
 
 def test_e11_changing_the_daily_goal_saves_it() -> None:

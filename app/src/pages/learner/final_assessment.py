@@ -116,10 +116,11 @@ if state.quiz_job_id and state.quiz_job_kind == "final-grade":
 # --- E8 · Preguntas ------------------------------------------------------------------------------
 
 try:
-    if state.final_attempt_id is not None:
-        attempt: Attempt = client.get_attempt(state.final_attempt_id)
-    elif action.type == "continue_attempt" and action.attempt_id is not None:
-        attempt = client.get_attempt(action.attempt_id)
+    # El intento abierto que dice la API manda sobre el recordado, que puede ser uno ya calificado.
+    if action.type == "continue_attempt" and action.attempt_id is not None:
+        attempt: Attempt = client.get_attempt(action.attempt_id)
+    elif action.type != "take_final" and state.final_attempt_id is not None:
+        attempt = client.get_attempt(state.final_attempt_id)
     else:
         created = client.create_final_attempt(
             enrollment.id, idempotency_key=idempotency_key(f"final-{enrollment.id}")
@@ -134,6 +135,8 @@ except ApiError as error:
     st.stop()
 
 state.final_attempt_id = attempt.id
+if attempt.status not in ("created", "in_progress"):
+    st.switch_page(RESULT_PAGE)  # ya enviado: no se vuelve a responder (B-026)
 state.sheet.load(f"attempt-{attempt.id}", attempt.answers, len(attempt.items))
 number = min(state.sheet.index, max(len(attempt.items) - 1, 0)) + 1
 final = path.final

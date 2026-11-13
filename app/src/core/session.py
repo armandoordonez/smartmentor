@@ -52,6 +52,8 @@ class AppSession:
 
     def start_onboarding(self, path_id: int, enrollment_id: int) -> None:
         """Empieza (o retoma) la incorporación a una ruta: la hoja de vida parte limpia."""
+        if enrollment_id != self.selected_enrollment_id:
+            self.learner.forget_position()
         self.selected_path_id = path_id
         self.selected_enrollment_id = enrollment_id
         self.extra_tools = []
