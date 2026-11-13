@@ -30,6 +30,7 @@ from core.staff_state import (
     forget_key,
     get_staff_state,
     idempotency_key,
+    pop_flash,
 )
 from services.staff_content import (
     edited_content,
@@ -83,6 +84,8 @@ render_page_header(
     "Revisión de contenido generado con IA",
     caption=f"{course.name} · Tema {topic.position}: {topic.name}",
 )
+if flash := pop_flash():
+    st.success(flash)
 # Los dos contadores van juntos bajo el título, como en Figma D5 (V-022).
 with st.container(horizontal=True, key="content-counts"):
     st.badge(f"Recursos ({len(resources)})", color="green")
@@ -96,6 +99,26 @@ def _act(call: Any, *args: Any, **kwargs: Any) -> None:
     except ApiError as error:
         show_staff_error(error)
         return
+    st.rerun()
+
+
+def _regenerate(resource: Resource) -> None:
+    """Pide una versión nueva con IA (un trabajo en segundo plano).
+
+    La clave de idempotencia se olvida tras el éxito: antes se conservaba y una segunda
+    regeneración repetía la primera respuesta sin generar nada (B-029).
+    """
+    operation = f"regen-{resource.id}"
+    try:
+        client.regenerate_resource(resource.id, idempotency_key=idempotency_key(operation))
+    except ApiError as error:
+        show_staff_error(error)
+        return
+    forget_key(operation)
+    state.flash = (
+        f"Regenerando «{resource.title}» con IA. La versión nueva aparece aquí al terminar; "
+        "vuelve a abrir el tema en unos segundos."
+    )
     st.rerun()
 
 
@@ -142,7 +165,7 @@ if clicked is not None:
     elif action == "retire":
         _act(client.review_resource, rid, "retired")
     elif action == "regenerate":
-        _act(client.regenerate_resource, rid, idempotency_key=idempotency_key(f"regen-{rid}"))
+        _regenerate(next(r for r in resources if r.id == rid))
     elif action == "replace":
         st.switch_page(TOPIC_VIDEOS)
     else:
@@ -156,6 +179,9 @@ def _resource_editor(resource: Resource) -> None:
     sections = content.get("sections", [])
     sources: list[dict[str, Any]] = list(content.get("sources", []))
     rid = resource.id
+    # La versión va en las claves: Streamlit conserva el valor de un campo por su clave, así que
+    # sin ella una versión regenerada seguía mostrando (y al guardar, reponía) el texto anterior.
+    k = f"{rid}-v{resource.version}"
     with st.container(border=True, key=f"panel-edit-resource-{rid}"):
         st.subheader("Editar la explicación del tema", anchor=False)
         prompt = (
@@ -171,27 +197,27 @@ def _resource_editor(resource: Resource) -> None:
             heading = st.text_input(
                 "Título de la sección",
                 value=section["heading"],
-                key=f"cr-h-{rid}-{index}",
+                key=f"cr-h-{k}-{index}",
             )
             body = st.text_area(
                 "Texto",
                 value=section["body"],
                 height=180,
-                key=f"cr-b-{rid}-{index}",
+                key=f"cr-b-{k}-{index}",
                 label_visibility="collapsed",
             )
             edited_sections.append((heading, body))
-        summary = st.text_area("Resumen", value=content.get("summary", ""), key=f"cr-s-{rid}")
+        summary = st.text_area("Resumen", value=content.get("summary", ""), key=f"cr-s-{k}")
         st.markdown("**Fuentes citadas**")
         kept = [
             source
             for source in sources
             if st.checkbox(
-                f"[{source['n']}] {source['title']}", value=True, key=f"cr-src-{rid}-{source['n']}"
+                f"[{source['n']}] {source['title']}", value=True, key=f"cr-src-{k}-{source['n']}"
             )
         ]
-        new_title = st.text_input("+ Agregar fuente", key=f"cr-newsrc-{rid}")
-        new_url = st.text_input("Dirección de la fuente", key=f"cr-newurl-{rid}")
+        new_title = st.text_input("+ Agregar fuente", key=f"cr-newsrc-{k}")
+        new_url = st.text_input("Dirección de la fuente", key=f"cr-newurl-{k}")
         if new_title.strip() and new_url.strip():
             number = max((s["n"] for s in sources), default=0) + 1
             kept.append(
@@ -217,7 +243,7 @@ def _resource_editor(resource: Resource) -> None:
         st.session_state.pop("cr-edit-resource", None)
         st.rerun()
     if regenerate:
-        _act(client.regenerate_resource, rid, idempotency_key=idempotency_key(f"regen-{rid}"))
+        _regenerate(resource)
     if save:
         body = edited_content(content, sections=edited_sections, summary=summary, sources=kept)
         try:

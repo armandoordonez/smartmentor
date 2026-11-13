@@ -94,6 +94,26 @@ def test_d5d_edit_text_resource() -> None:
     assert "Editar la explicación del tema" not in page_texts(at)
 
 
+def test_d5_regenerating_twice_asks_for_two_regenerations_b029() -> None:
+    at = _open(REVIEW)
+    client = at.session_state["app_session"].fixtures_client
+    original = client.regenerate_resource
+    keys: list[str] = []
+
+    def spy(resource_id: int, *, idempotency_key: str) -> object:
+        keys.append(idempotency_key)
+        return original(resource_id, idempotency_key=idempotency_key)
+
+    client.regenerate_resource = spy
+    for _ in range(2):
+        regen = next(b for b in at.button if b.label == "Regenerar")
+        at = regen.click().run()
+        assert_no_exception(at)
+        assert any(s.value.startswith("Regenerando «") for s in at.success)
+    assert len(keys) == 2
+    assert keys[0] != keys[1]
+
+
 def test_d5_edit_question_returns_to_review() -> None:
     at = _open(REVIEW)
     edit = next(b for b in at.button if b.label == "Editar" and b.key.startswith("items-700"))
