@@ -2,7 +2,7 @@
 
 Lista de verificación del [brief](brief.md): qué está hecho, qué falta y quién responde de cada cosa. Se marca a mano (`[x]`) y el resumen de avance se recalcula con un script. Complementa a [`HANDOFF.md`](../HANDOFF.md) (estado técnico y deuda) y a [`decisiones-pendientes.md`](decisiones-pendientes.md).
 
-**Última actualización:** 2026-11-07 · **Cohorte:** 1
+**Última actualización:** 2026-11-13 · **Cohorte:** 1 · El estado tarea por tarea, con fecha y hora, está en [`seguimiento/HOJA_DE_RUTA.md`](seguimiento/HOJA_DE_RUTA.md)
 
 ## Cómo usar este checklist
 
@@ -38,18 +38,18 @@ En grupos de 2 personas los roles se combinan.
 
 | Sección | Hechas | Total | Avance |
 | --- | ---: | ---: | ---: |
-| A. Gestión del proyecto y repositorio | 6 | 15 | 40 % |
+| A. Gestión del proyecto y repositorio | 7 | 15 | 47 % |
 | B. Infraestructura, datos e identidad | 8 | 18 | 44 % |
-| C. Fase 0: prototipado y validación del flujo | 1 | 6 | 17 % |
-| D. Módulos del brief (backend) | 12 | 26 | 46 % |
-| E. Componente de IA y ciencia de datos | 1 | 9 | 11 % |
-| F. Interfaz de usuario (frontend) | 2 | 11 | 18 % |
+| C. Fase 0: prototipado y validación del flujo | 3 | 6 | 50 % |
+| D. Módulos del brief (backend) | 24 | 26 | 92 % |
+| E. Componente de IA y ciencia de datos | 9 | 9 | 100 % |
+| F. Interfaz de usuario (frontend) | 5 | 11 | 45 % |
 | G. Evaluación, piloto y entregables | 0 | 11 | 0 % |
-| H. Decisiones técnicas pendientes | 1 | 6 | 17 % |
-| I. Plan de implementación v3 | 3 | 18 | 17 % |
-| **Total** | **34** | **120** | **28 %** |
+| H. Decisiones técnicas pendientes | 5 | 6 | 83 % |
+| I. Plan de implementación v3 | 11 | 18 | 61 % |
+| **Total** | **72** | **120** | **60 %** |
 
-_Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
+_Calculado el 2026-11-13 con `proyecto/scripts/avance.sh --actualizar`._
 
 <!-- AVANCE:FIN -->
 
@@ -57,13 +57,13 @@ _Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
 
 | Fase del brief | Estado | Detalle |
 | --- | --- | --- |
-| **Fase 0: prototipado** | En curso | Hecho: prototipo navegable en Figma y en Streamlit con datos de ejemplo. Falta: aprobación del flujo, prueba de prompts, esquemas JSON de la IA y prueba de usabilidad |
-| **Fundamentos** | Parcial | Hecho: modelo de datos, repositorio y documentación. Falta: CI, estado del arte, syllabus real y docente validador |
-| **Flujo completo** | En curso, solo el backend | Hecho: usuarios y roles, cursos, rutas, evaluaciones, seguridad y endpoints del estudiante. Falta: IA, recursos, interfaz |
-| **Piloto** | No iniciada | Requiere el flujo completo, el consentimiento informado y los instrumentos |
-| **Cierre** | No iniciada | Métricas, notebook, documento final y traspaso |
+| **Fase 0: prototipado** | Hecha en lo técnico | Prototipo en Figma v3 y las 96 pantallas en Streamlit. Falta: aprobación del flujo por el director y prueba de usabilidad |
+| **Fundamentos** | Hecha en lo técnico | Modelo de datos v2.0.0, contratos, CI y estándares en `dev`. Falta: estado del arte y syllabus real del curso piloto |
+| **Flujo completo** | Casi completa (F6) | El 2026-11-12, con Gemini real, se creó un curso desde un syllabus y 4 aprendices simulados lo recorrieron por la API hasta la insignia. Falta: el syllabus real y el recorrido del aprendiz por la interfaz (PR 5) |
+| **Piloto** | Herramientas listas | Métricas, notebook, anotación y piloto en la API y la interfaz. Falta: personas reales, textos legales y despliegue |
+| **Cierre** | No iniciada | Documento final, brief v2, etiqueta y traspaso |
 
-**Lectura honesta del avance:** la infraestructura y el backend van adelantados; la IA y la interfaz, que son el aporte académico y lo que el estudiante ve, no han empezado. El hito clave del brief («el flujo corre de punta a punta, con el alcance congelado») no se alcanza solo con el backend: su principal riesgo es la capa de IA y su principal bloqueo, la decisión del proveedor de LLM (D-02).
+**Lectura honesta del avance (2026-11-13):** la base de datos, la API, la capa de IA y la interfaz del instructor y del administrador ya funcionan con datos y LLM reales. Lo que falta para el hito es que el aprendiz recorra la ruta por la interfaz con la API real (PR 5, en borrador) y usar el syllabus real. Después vienen el piloto con personas, que depende de los textos legales y de dónde se despliega, y el cierre.
 
 ## A. Gestión del proyecto y repositorio
 
@@ -80,7 +80,7 @@ _Calculado el 2026-11-07 con `proyecto/scripts/avance.sh --actualizar`._
 
 - [ ] Repositorio en una organización de GitHub de la maestría, no en una cuenta personal — **Resp.:** _por asignar_ (Director o tutor)
 - [ ] Rama `main` protegida: sin push directo y con revisión de otro integrante — **Resp.:** _por asignar_ (Líder del grupo)
-- [ ] CI en GitHub Actions: Ruff, mypy, pytest y validación de los changelogs en cada pull request — **Resp.:** _por asignar_ (Líder del grupo)
+- [x] CI en GitHub Actions: Ruff, mypy, pytest y validación de los changelogs en cada pull request — **Resp.:** _por asignar_ (Líder del grupo) — _2026-11-13: CI en `.github/workflows/ci.yml` (Ruff, mypy, pytest, Liquibase, docs, gitleaks, Trivy) en cada PR_
 - [ ] Tablero de GitHub Projects con cada tarea como issue enlazado a su pull request — **Resp.:** _por asignar_ (Líder del grupo)
 - [ ] Reunión semanal de 30 minutos con el director y demo al cierre de cada fase — **Resp.:** _por asignar_ (Líder del grupo)
 - [ ] Documento final iniciado en paralelo, en el formato de la maestría — **Resp.:** _por asignar_ (Líder del grupo)
@@ -127,8 +127,8 @@ Criterio de salida del brief: flujo y pantallas aprobados, y esquemas JSON de ca
 - [ ] Mapa del flujo y casos de uso aprobado por el director (el brief ya trae el diagrama del flujo del estudiante) — **Resp.:** _por asignar_ (Director o tutor)
 - [ ] Wireframes de baja fidelidad de las 7 pantallas: login, catálogo de rutas, perfil, diagnóstico, vista de ruta, tema (video, texto y quiz) y badge — **Resp.:** _por asignar_ (Responsable de producto)
 - [x] Prototipo navegable de alta fidelidad (Figma, o Streamlit con datos de ejemplo) — **Resp.:** eduar.troyano — [diseño en Figma v3](https://www.figma.com/design/atp2fZdSolEoaww3n9jRLg/SmartMentor-%C2%B7-Prototipo-Fase-0-v3--4-?node-id=0-1) y su versión en Streamlit con datos de ejemplo ([`app/`](../app/README.md)): estudiante, docente y admin, sin login
-- [ ] Prueba de prompts «Mago de Oz»: syllabus estructurado, diagnóstico y un tema generados a mano con el LLM — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Esquemas JSON de cada salida de IA, definidos y versionados en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [x] Prueba de prompts «Mago de Oz»: syllabus estructurado, diagnóstico y un tema generados a mano con el LLM — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: notebooks en `design/04-prueba-mago-de-oz/`_
+- [x] Esquemas JSON de cada salida de IA, definidos y versionados en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `prompts/schemas/`, verificados por el trabajo `prompts` de la CI_
 - [ ] Prueba de usabilidad con 3 a 5 usuarios (pensar en voz alta) y cuestionario SUS — **Resp.:** _por asignar_ (Responsable de evaluación)
 
 ## D. Módulos del brief (backend)
@@ -144,35 +144,35 @@ Criterio de salida del brief: flujo y pantallas aprobados, y esquemas JSON de ca
 
 - [x] Crear cursos, temas y prerrequisitos (grafo sin ciclos y dentro del mismo curso) — **Resp.:** eduar.troyano
 - [x] Objetivo por defecto y umbrales de la ruta según el brief (70 %, 80 %, 80 % y 3 intentos) — **Resp.:** eduar.troyano
-- [ ] Carga del syllabus (PDF o texto) — **Resp.:** _por asignar_ (Responsable de producto)
-- [ ] Extracción de temas, prerrequisitos y resultados de aprendizaje con LLM — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Revisión y aprobación de los temas extraídos por el docente — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Carga del syllabus (PDF o texto) — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: D1b con la API real; el dueño creó un curso desde un PDF el 2026-11-12_
+- [x] Extracción de temas, prerrequisitos y resultados de aprendizaje con LLM — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `syllabus.structure` con Gemini real (evidencia de F6 en `proyecto/seguimiento/HOJA_DE_RUTA.md`)_
+- [x] Revisión y aprobación de los temas extraídos por el docente — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: D2 y D2d con la API real (T-017)_
 
 ### Módulo 3: rutas
 
 - [x] Inscripción, estado de avance por tema e historial de intentos — **Resp.:** eduar.troyano
 - [x] Endpoints del estudiante sobre lo propio (`/api/v1/me/enrollments...`), con verificación de pertenencia — **Resp.:** eduar.troyano — [`api/README.md`](../api/README.md)
-- [ ] Dashboard simple de avance para el docente — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Dashboard simple de avance para el docente — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: D3 y D4 con la API real (T-012, T-017)_
 
 ### Módulo 4: diagnóstico
 
 - [x] Guardar el diagnóstico y recibir las respuestas del estudiante (una sola vez) — **Resp.:** eduar.troyano
-- [ ] Generar la prueba diagnóstica desde el syllabus (2 a 3 preguntas por tema, en tres niveles de Bloom) — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Calcular el nivel por tema — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [x] Generar la prueba diagnóstica desde el syllabus (2 a 3 preguntas por tema, en tres niveles de Bloom) — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `diagnostic.generate_items` con Gemini real_
+- [x] Calcular el nivel por tema — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `diagnostic.finalize` y `levels.estimate`; 4 aprendices simulados el 2026-11-12_
 
 ### Módulo 5: motor de ruta y contenido
 
-- [ ] Definir el objetivo de aprendizaje personalizado — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Seleccionar y ordenar los temas (orden topológico; omitir los dominados con 80 % o más) — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Recursos de video y texto por tema — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [x] Definir el objetivo de aprendizaje personalizado — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: objetivo propuesto por el LLM y editable (E4, E4b)_
+- [x] Seleccionar y ordenar los temas (orden topológico; omitir los dominados con 80 % o más) — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `path.sequence`; en la simulación se omitieron los temas dominados_
+- [x] Recursos de video y texto por tema — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `content.explain_topic` y `video.collect_candidates` con Gemini y YouTube reales_
 
 ### Módulo 6: evaluación y certificación
 
 - [x] Aprobación automática con el umbral de la ruta y máximo de intentos por evaluación — **Resp.:** eduar.troyano
 - [x] El badge solo se emite con la evaluación final aprobada — **Resp.:** eduar.troyano
-- [ ] Generar los quizzes de tema y la evaluación final — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Calificar automáticamente las respuestas cortas — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Emitir el badge como imagen y JSON tipo Open Badges — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Generar los quizzes de tema y la evaluación final — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: bancos con Gemini real; la final genera más al reintentar (B-011)_
+- [x] Calificar automáticamente las respuestas cortas — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `grading.short_answer`: 99 llamadas, p95 de 2 s_
+- [x] Emitir el badge como imagen y JSON tipo Open Badges — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: `/badges/{id}/assertion.json` e `image.png`; la prueba de integración valida el `badge.v1`_
 
 ### Calidad del backend
 
@@ -185,14 +185,14 @@ Criterio de salida del brief: flujo y pantallas aprobados, y esquemas JSON de ca
 El corazón académico del proyecto: cada paso es un problema de IA con entrada, salida estructurada (JSON) y una forma de medirlo.
 
 - [x] Registro de cada llamada al LLM (tarea, modelo, tokens, costo, latencia): tabla y endpoints listos — **Resp.:** eduar.troyano — falta que la capa de IA lo use
-- [ ] Estructuración del syllabus como grafo de temas, con salida validada por esquema (Pydantic) — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Prueba diagnóstica y estimación del nivel por tema — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Perfil semántico del estudiante con embeddings, combinado con el diagnóstico — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Definición del objetivo de aprendizaje (el de la ruta o uno propuesto por el LLM) — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Secuenciación de la ruta: algoritmo determinista y explicable sobre el grafo — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Texto con RAG citando fuentes y videos reordenados por similitud semántica — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Evaluaciones generadas desde los resultados de aprendizaje y calificación con rúbrica (LLM-as-judge) — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] Prompts versionados como código, y contenido en caché por tema — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [x] Estructuración del syllabus como grafo de temas, con salida validada por esquema (Pydantic) — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: en `ai/`, con contratos Pydantic_
+- [x] Prueba diagnóstica y estimación del nivel por tema — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: en `ai/`, probada con Gemini real_
+- [x] Perfil semántico del estudiante con embeddings, combinado con el diagnóstico — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `profile_prior` en el resultado del diagnóstico_
+- [x] Definición del objetivo de aprendizaje (el de la ruta o uno propuesto por el LLM) — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: prompt `learning_objective`_
+- [x] Secuenciación de la ruta: algoritmo determinista y explicable sobre el grafo — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `path.sequence` (ADR 0013)_
+- [x] Texto con RAG citando fuentes y videos reordenados por similitud semántica — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: RAG con `ai_embeddings` y prompt `rag_faithfulness`_
+- [x] Evaluaciones generadas desde los resultados de aprendizaje y calificación con rúbrica (LLM-as-judge) — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: bancos y `short_answer_grading`_
+- [x] Prompts versionados como código, y contenido en caché por tema — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `prompts/catalog.yaml` con sha256; caché por tema (`from_cache`)_
 
 ## F. Interfaz de usuario (frontend)
 
@@ -202,8 +202,8 @@ El brief propone dos caminos: **Streamlit** (recomendado para el MVP) o **Next.j
 
 - [x] Decidir el frontend: **Streamlit** — **Resp.:** eduar.troyano — [ADR 0006](../docs/adr/0006-frontend-streamlit.md); comparación a continuación
 - [x] Arquitectura de la interfaz definida (capas, autenticación, caché, datos de ejemplo) y guía de referencia analizada — **Resp.:** eduar.troyano — [`app/README.md`](../app/README.md)
-- [ ] Prueba técnica del login de Streamlit con Keycloak (1 día) — **Resp.:** _por asignar_ (Responsable de producto) — [plan](../app/README.md#autenticación)
-- [ ] Base de la interfaz: contenedor, cliente de la API y de datos de ejemplo, navegación por rol, errores y pruebas — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Prueba técnica del login de Streamlit con Keycloak (1 día) — **Resp.:** _por asignar_ (Responsable de producto) — [plan](../app/README.md#autenticación) — _2026-11-13: `st.login` con Keycloak; renovación silenciosa del token (PR 6)_
+- [x] Base de la interfaz: contenedor, cliente de la API y de datos de ejemplo, navegación por rol, errores y pruebas — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: las 96 pantallas de Figma v3 tienen página_
 
 ### Comparación
 
@@ -234,7 +234,7 @@ El prototipo de la Fase 0 ya tiene todas estas pantallas con datos de ejemplo ([
 - [ ] Vista de la ruta personalizada — **Resp.:** _por asignar_ (Responsable de producto)
 - [ ] Tema: video, texto y quiz — **Resp.:** _por asignar_ (Responsable de producto)
 - [ ] Badge — **Resp.:** _por asignar_ (Responsable de producto)
-- [ ] Panel del docente: revisión del syllabus y avance de los estudiantes — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] Panel del docente: revisión del syllabus y avance de los estudiantes — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: D2, D3 y D4 con la API real (PR 3 y PR 6)_
 
 ## G. Evaluación, piloto y entregables
 
@@ -255,10 +255,10 @@ El prototipo de la Fase 0 ya tiene todas estas pantallas con datos de ejemplo ([
 Detalle, opciones y recomendación en [`decisiones-pendientes.md`](decisiones-pendientes.md).
 
 - [x] D-03: autenticación, contraseñas y seguridad de la API (Keycloak y bearer tokens) — **Resp.:** eduar.troyano — cerrada, [ADR 0004](../docs/adr/0004-authentication-keycloak-bearer.md)
-- [ ] D-02: proveedor de LLM (Claude, GPT u open source). **Bloquea la capa de IA** — **Resp.:** _por asignar_ (Director o tutor, con el Responsable de IA y datos)
-- [ ] D-01: modelo de embeddings y dimensión del vector (hoy `vector(1024)` provisional); benchmark con el syllabus real — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] D-04: almacenamiento de los fragmentos RAG (`document_chunks` gestionado por Liquibase) — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] D-05: usuario de base de datos con mínimos privilegios para la API — **Resp.:** _por asignar_ (Responsable de producto)
+- [x] D-02: proveedor de LLM (Claude, GPT u open source). **Bloquea la capa de IA** — **Resp.:** _por asignar_ (Director o tutor, con el Responsable de IA y datos) — _2026-11-13: Gemini (DEF-01 y DEF-02)_
+- [x] D-01: modelo de embeddings y dimensión del vector (hoy `vector(1024)` provisional); benchmark con el syllabus real — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `gemini-embedding-001`, dimensión 768_
+- [x] D-04: almacenamiento de los fragmentos RAG (`document_chunks` gestionado por Liquibase) — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: tabla `ai_embeddings` en la base v2.0.0_
+- [x] D-05: usuario de base de datos con mínimos privilegios para la API — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: usuarios `smartmentor_api`, `smartmentor_ai` y `smartmentor_metrics` (ADR 0019)_
 - [ ] D-06: destino de despliegue (verificar PostgreSQL 17 + pgvector y cómo correr Liquibase) — **Resp.:** _por asignar_ (Responsable de producto)
 
 ## I. Plan de implementación v3
@@ -269,14 +269,14 @@ Fases y tareas de [`PLAN_IMPLEMENTACION_V3.md`](../PLAN_IMPLEMENTACION_V3.md) (s
 - [x] Especificación de Figma v3 extraída en [`design/03-prototipo-alta-fidelidad/v3/`](../design/03-prototipo-alta-fidelidad/v3/README.md) (96 pantallas, 24 variables, tokens) — **Resp.:** eduar.troyano
 - [x] F0: responder las decisiones bloqueantes (DEF-01, 02, 13, 14 y 25; las demás por defecto) — **Resp.:** eduar.troyano — 2026-11-07
 - [ ] F0: confirmar la sección 18.4 del plan (DEF-02, DEF-27, DEF-28 y SMTP) y aprobar el plan con el director — **Resp.:** eduar.troyano
-- [ ] F0: integrar la línea base a `dev` por pull request (`feature/phase-0-prototypes` y luego `feature/plan-v3-decisiones`) — **Resp.:** eduar.troyano — los `push` son del dueño
-- [ ] F1: rama `feature/repo-standards` (CI mínima, `pre-commit`, Ruff común, `.dockerignore`, plantillas de PR y ADR) — **Resp.:** eduar.troyano
-- [ ] F1: casos de uso, estados, flujos y glosario sobre el vocabulario Aprendiz, Instructor y Administrador — **Resp.:** _por asignar_ (Responsable de producto)
-- [ ] F1: contratos Pydantic de `ai/`, prompts versionados y esquemas JSON en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] F2: re-base de la base como `v2.0.0` con roles `learner`, `instructor`, `admin` — **Resp.:** eduar.troyano
-- [ ] F3: API v2 sin IA con `FakeAiService` — **Resp.:** eduar.troyano
-- [ ] F4: servicio `ai/` con trabajos, prompts, log y presupuesto — **Resp.:** _por asignar_ (Responsable de IA y datos)
-- [ ] F5: `ai/` con RAG, banco de ítems, calificación y videos — **Resp.:** _por asignar_ (Responsable de IA y datos)
+- [x] F0: integrar la línea base a `dev` por pull request (`feature/phase-0-prototypes` y luego `feature/plan-v3-decisiones`) — **Resp.:** eduar.troyano — los `push` son del dueño — _2026-11-13: `eb84c97` en `dev`_
+- [x] F1: rama `feature/repo-standards` (CI mínima, `pre-commit`, Ruff común, `.dockerignore`, plantillas de PR y ADR) — **Resp.:** eduar.troyano — _2026-11-13: `726fc16` en `dev`_
+- [x] F1: casos de uso, estados, flujos y glosario sobre el vocabulario Aprendiz, Instructor y Administrador — **Resp.:** _por asignar_ (Responsable de producto) — _2026-11-13: `e709dd4` en `dev`; falta la aprobación del director_
+- [x] F1: contratos Pydantic de `ai/`, prompts versionados y esquemas JSON en `prompts/` — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `f81d49d` en `dev`_
+- [x] F2: re-base de la base como `v2.0.0` con roles `learner`, `instructor`, `admin` — **Resp.:** eduar.troyano — _2026-11-13: `995dbd9` en `dev`_
+- [x] F3: API v2 sin IA con `FakeAiService` — **Resp.:** eduar.troyano — _2026-11-13: en `dev`; se amplió en los PR 3 y 6_
+- [x] F4: servicio `ai/` con trabajos, prompts, log y presupuesto — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `9000895` en `dev`_
+- [x] F5: `ai/` con RAG, banco de ítems, calificación y videos — **Resp.:** _por asignar_ (Responsable de IA y datos) — _2026-11-13: `9000895` en `dev`; probado con Gemini real el 2026-11-12_
 - [ ] F6: flujo completo de punta a punta con el LLM real (hito del brief) — **Resp.:** _por asignar_ (Director o tutor)
 - [ ] F7: interfaz Streamlit rehecha desde Figma v3 — **Resp.:** _por asignar_ (Responsable de producto)
 - [ ] F8: Keycloak (clientes y roles renombrados), compose, `.env.example` v3 y CI — **Resp.:** eduar.troyano

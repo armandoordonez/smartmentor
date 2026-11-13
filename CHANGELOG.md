@@ -4,6 +4,25 @@ Cambios por versión y cohorte.
 
 ## Sin publicar (cohorte 1)
 
+### Plan v3 (2026-11-07 a 2026-11-13)
+
+Lo que sigue reemplaza la base v1 que se describe más abajo. El detalle por tarea, con fecha y hora, está en [`proyecto/seguimiento/`](proyecto/seguimiento/README.md).
+
+- **Base de datos v2.0.0:** 39 tablas, roles `learner`, `instructor` y `admin`, y usuarios de mínimo privilegio por servicio ([ADR 0019](docs/adr/0019-least-privilege-db-users.md)).
+- **API v2:** aprendiz, instructor, administrador, piloto, métricas y log del LLM ([contrato](docs/contracts/api-v2.md)). Cambios aditivos para las pantallas del instructor y del administrador (PR 3 y PR 6).
+- **Servicio `ai/`:** trabajos asíncronos ([ADR 0010](docs/adr/0010-async-jobs-postgres-pull-ingestion.md)), syllabus, diagnóstico, objetivo, ruta, RAG, videos, bancos de preguntas y calificación con el LLM como juez. Probado con Gemini real el 2026-11-12. El timeout del LLM sube a 240 s (B-013).
+- **Interfaz v3:** las 96 pantallas de Figma v3 rehechas en Streamlit ([ADR 0017](docs/adr/0017-frontend-rebuilt-from-figma-v3.md)). El instructor y el administrador ya leen la API real. La sesión dura 3 h y el token se renueva solo.
+- **Keycloak v3:** realm sin secretos, OTP para el instructor y el administrador, y prueba de importación en la CI.
+- **CI** con GitHub Actions para los tres servicios, Liquibase, el realm, los prompts, la documentación, gitleaks y Trivy.
+- **Correcciones:**
+  - el bloqueo entre la API y `ai/` (B-001);
+  - AD1, AD4 y AD5 con la API real (B-003 a B-008);
+  - el nivel del diagnóstico en D4 (B-010);
+  - el reintento de la evaluación final, que ahora genera preguntas nuevas (B-011).
+- **Herramientas:** `scripts/simulate-learners.py` (aprendices simulados, solo para desarrollo) y la carpeta de seguimiento.
+
+**Base v1 (2026-10, antes del plan v3).** Lo que sigue describe la primera versión.
+
 ### Base de datos
 
 - Contenedor `smartmentor-postgres` (PostgreSQL 17 + pgvector 0.8.7) con volumen en `database/data/postgres`, reinicio automático y zona horaria `America/Bogota`.

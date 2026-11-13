@@ -1,64 +1,74 @@
 # HANDOFF
 
-El seguimiento de las tareas, con responsables y porcentaje de avance, está en [`proyecto/checklist.md`](proyecto/checklist.md). Este documento recoge el estado técnico, la deuda y los próximos pasos.
+Estado técnico del proyecto, deuda y próximos pasos para la siguiente cohorte. **Última actualización: 2026-11-13 (cohorte 1).**
 
-Estado del proyecto, deuda técnica y próximos pasos para la siguiente cohorte. Última actualización: 2026-10-07 (cohorte 1).
+Dónde está cada cosa:
+
+- Tareas con fecha y hora, bugs, huecos de Figma y subidas: [`proyecto/seguimiento/`](proyecto/seguimiento/README.md), empezando por la [hoja de ruta](proyecto/seguimiento/HOJA_DE_RUTA.md).
+- Avance frente al brief y responsables: [`proyecto/checklist.md`](proyecto/checklist.md).
+- Fases y decisiones: el [plan v3](PLAN_IMPLEMENTACION_V3.md).
 
 ## Qué funciona
 
-- **Entorno:** `docker compose up -d --build` levanta PostgreSQL 17 + pgvector, aplica el esquema con Liquibase y arranca la API y Keycloak. Ver [`README.md`](README.md).
-- **Base de datos:** esquema `v1.0.1` con 14 tablas de negocio, cada una con su `_audit` y trigger, secuencias propias, borrado lógico (`active`) y fechas `timestamptz` en `America/Bogota`. Rollback probado. Respaldos con `database/scripts/backup.sh`. Ver [`database/README.md`](database/README.md).
-- **API:** 6 dominios y 14 recursos con crear, consultar, listar, actualizar, activar e inactivar (sin `DELETE`). Reglas de negocio del brief: umbrales y máximo de intentos de la ruta, aprobación automática, prerrequisitos sin ciclos, badge solo con la final aprobada. Errores RFC 9457, logs JSON con `request_id`. 148 pruebas, Ruff y mypy estricto en verde (`api/scripts/dev.sh all`). Ver [`api/README.md`](api/README.md).
-- **Endpoints del estudiante** (`/api/v1/me/enrollments...`): inscribirse, ver y actualizar su inscripción, abandonarla, ver su ruta, entregar el diagnóstico y los intentos y ver su badge. Verifican la pertenencia (404 si el dato es de otro) y el estudiante nunca fija puntajes. Ver [`api/README.md`](api/README.md#dominios-y-rutas).
-- **Autenticación (D-03, [ADR 0004](docs/adr/0004-authentication-keycloak-bearer.md)):** la API valida bearer tokens de Keycloak (RS256 por JWKS, `iss`, `aud`, `exp`), enlaza al usuario por `sub` o por correo verificado, crea como `student` a quien no existe, y autoriza con los roles de `user_roles` (matriz en `api/app/auth/policies.py`). Probado de punta a punta con tokens reales de este Keycloak.
-- **Keycloak ([ADR 0005](docs/adr/0005-keycloak-postgres-realm-versioned.md)):** guarda sus datos en la base `keycloak` del PostgreSQL del proyecto, con su propio rol. El realm `smartmentor` (roles, clientes y usuarios de prueba) está versionado en `keycloak/realm/smartmentor-realm.json` y se importa solo en un PC nuevo. Respaldo y restauración de ambas bases con `database/scripts/backup.sh` y `restore.sh`; el realm se actualiza con `keycloak/scripts/export-realm.sh`.
-- **Usuario inicial:** `Administrador` (`admin.smartmentor@yopmail.com`, rol `admin`) sembrado por Liquibase; se enlaza con Keycloak en su primer acceso si el correo está verificado.
+- **Entorno:** `scripts/local-up.sh` levanta todo con Docker Compose: PostgreSQL 17 + pgvector (o una base externa como Neon), Liquibase, la API, el servicio `ai/` y su trabajador, Keycloak, la interfaz y Mailpit. Ver [`README.md`](README.md).
+- **Base de datos v2.0.0:** 39 tablas con auditoría y rollback, roles `learner`, `instructor` y `admin`, y usuarios de mínimo privilegio por servicio: `smartmentor_api`, `smartmentor_ai` y `smartmentor_metrics` ([ADR 0019](docs/adr/0019-least-privilege-db-users.md)). Ver [`database/README.md`](database/README.md).
+- **API v2** ([contrato](docs/contracts/api-v2.md) y [OpenAPI](docs/contracts/openapi-api.json)): aprendiz, instructor, administrador, piloto, métricas y log del LLM. Las reglas de negocio están en la API, no en la interfaz ([ADR 0017](docs/adr/0017-frontend-rebuilt-from-figma-v3.md)). Hay unas 660 pruebas y la CI está en verde.
+- **Servicio `ai/`:** trabajos asíncronos con lease y reintentos ([ADR 0010](docs/adr/0010-async-jobs-postgres-pull-ingestion.md)), prompts versionados ([`prompts/catalog.yaml`](prompts/catalog.yaml)), presupuestos en USD y registro de cada llamada. Hace todo esto:
+  - estructurar el syllabus;
+  - generar el diagnóstico y estimar el nivel;
+  - proponer el objetivo;
+  - secuenciar la ruta;
+  - explicar con RAG;
+  - buscar videos;
+  - generar bancos de preguntas, y revisarlos y calificarlos con el LLM como juez.
+
+  **Probado con Gemini real el 2026-11-12:** 354 llamadas, US$ 1,83 ([evidencia de F6](proyecto/seguimiento/HOJA_DE_RUTA.md#evidencia-de-f6-2026-11-12)).
+- **Interfaz (Streamlit):**
+  - las 96 pantallas de Figma v3 tienen página, con pruebas `AppTest`;
+  - las del instructor y las del administrador ya leen la API real;
+  - el login es con Keycloak, la sesión dura 3 h y el token de 5 min se renueva solo.
+- **Keycloak v3:** realm versionado sin secretos (`sanitize-realm.py`), OTP obligatorio para el instructor y el administrador, y una prueba de importación en la CI.
+- **CI** ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Ruff, mypy y pytest en los tres servicios, más Liquibase, el realm, los prompts, la documentación, gitleaks y Trivy.
+- **Simulación:** [`scripts/simulate-learners.py`](scripts/simulate-learners.py) recorre por la API cada ruta publicada con 4 aprendices de prueba. Es solo para desarrollo.
 
 ## Qué no funciona o no existe todavía
 
 | Pendiente | Detalle |
 | --- | --- |
-| Configuración de Keycloak | Al migrar, el realm tenía: el usuario administrador **sin contraseña**, el cliente `smartmentor-frontend` sin el mapper de audiencia y una URI de redirección mal escrita (`http:localhost:8081`, aún sin borrar). El mapper de audiencia, la URI de retorno de Postman y el cliente `smartmentor-dev-tools` ya se agregaron y se probó el inicio de sesión completo; falta **definir la contraseña** del usuario administrador en la consola y ejecutar `keycloak/scripts/export-realm.sh` (ver `keycloak/README.md`). |
-| Endpoints de estudiante que dependen de la IA | Pedir el siguiente quiz o el recurso de un tema requiere la capa de IA. Lo base (inscribirse, ver y entregar) ya existe. |
-| Endurecimiento | Limitación de peticiones, CORS restringido al frontend, HTTPS en Keycloak, vida corta de los tokens y decidir si el registro es abierto (hoy cualquiera con correo verificado se vuelve estudiante). |
-| Capa de IA | `ai/`: generación, RAG, motor de ruta y calificador. La API ya tiene dónde guardar sus resultados (`topics`, `resources`, `diagnostics`, `assessment_attempts`, `llm_call_logs`). |
-| Interfaz | Decidida: **Streamlit** ([ADR 0006](docs/adr/0006-frontend-streamlit.md)). Arquitectura y plan en [`app/README.md`](app/README.md); falta la prueba técnica del login y el código. |
-| Embeddings | La dimensión `vector(1024)` y los índices HNSW son provisionales (D-01). |
-| Syllabus y RAG | Extracción del syllabus, fragmentos RAG (D-04) y videos. |
-| CI | No hay GitHub Actions todavía (Ruff, mypy, pytest y validación de changelogs). |
-
-Las decisiones abiertas están en [`proyecto/decisiones-pendientes.md`](proyecto/decisiones-pendientes.md) (D-01 a D-06).
+| Aprendiz por la interfaz | El catálogo, el perfil, el quiz y la ruta con la API real están en el PR 5 (`fix/flujo-aprendiz`), en borrador. Se fusiona limpio con `dev` y pasan 730 pruebas. Falta verlo en el navegador (T-010 y T-011) |
+| Syllabus real | El del curso piloto (T-031) |
+| Piloto con personas | Textos legales del consentimiento (T-040), dónde se despliega y quién lo opera (T-043), anotación de expertos y prueba de usabilidad (T-041 y T-042) |
+| Revisión visual | Nunca se comparó cada pantalla con su captura de Figma (T-034) |
+| Estados que Figma no dibuja | Catálogo vacío, instructor sin cursos y menú de perfil (F-002 a F-004); el estado «sin piloto» de AD4 (F-013) |
 
 ## Deuda técnica
 
-- **Secretos en git:** `keycloak/realm/smartmentor-realm.json` incluye client secrets, llaves privadas de firma y hashes de contraseñas (decisión aceptada para datos de prueba, ADR 0005). **Antes de datos reales o de hacer público el repositorio:** regenerar llaves y secretos, dejar de versionar usuarios y secretos del realm y limpiar el historial de git. El client secret de `smartmentor-api` además se compartió en una conversación: regenerarlo.
-
-- **Cliente `smartmentor-dev-tools` (flujo password):** existe para que Swagger, `api/scripts/token.sh` y Postman pidan un token sin navegador. **Solo desarrollo:** eliminarlo de Keycloak y dejar `OIDC_DOCS_CLIENT_ID` vacío antes de producción.
-- Usuario único de base de datos para Liquibase y la API (D-05): separar uno con permisos mínimos para la API.
-- La validación de tokens usa `PyJWKClient` (síncrono) en un hilo aparte; si el volumen crece, conviene un cliente JWKS asíncrono.
-- Keycloak en modo `start-dev` (HTTP): para producción, `start` con HTTPS, nombre de host fijo y un rol de base de datos con mínimos privilegios.
-- `topics.embedding` y `enrollments.profile_embedding` se cargan completos en cada consulta aunque la API no los devuelve; convendría diferir su carga.
-- `changed_at` de la auditoría usa `now()`: los cambios de una misma transacción comparten hora. El orden real lo da `audit_id`.
-- La detección de ciclos en prerrequisitos carga el grafo por consultas sucesivas; si los cursos crecen, conviene una consulta recursiva.
-- Las pruebas no miden cobertura todavía.
+- **Secretos en el historial de git:** el realm de Keycloak tuvo secretos y llaves versionados antes de `sanitize-realm.py`. Antes de usar datos reales o hacer público el repositorio, hay que rotarlos y limpiar el historial (T-050).
+- **Cliente `smartmentor-dev-tools` (flujo password):** existe solo para desarrollo, porque lo usan Swagger, `api/scripts/token.sh`, Postman y el simulador. Hay que quitarlo antes de producción.
+- **Keycloak en `start-dev` (HTTP):** para producción hace falta `start` con HTTPS y un nombre de host fijo.
+- **Renovación del token por redirección:** Streamlit no expone el refresh token, así que la app repite `st.login`. Al renovar, la app vuelve a su página de inicio.
+- **`ai/` corta las llamadas al LLM a los 240 s:** antes eran 120 s y se cortaban los bancos de preguntas (B-013). El lease de los trabajos no se renueva mientras corren: es de 1800 s.
+- **`GET /jobs/{id}` siempre devuelve `next_action` en `null`** (B-012): la app vuelve a leer la inscripción.
+- **Dependencias con vulnerabilidades conocidas** en `api/` y `app/`: `certifi` y `pillow` (B-009, trabajo `audit` de la CI).
+- **Las pruebas no miden la cobertura.**
 
 ## Próximos pasos sugeridos
 
-1. Terminar la configuración de Keycloak (mapper de audiencia, URIs, correo verificado) y probar el inicio de sesión desde el frontend.
-2. Decidir el modelo de embeddings con el procedimiento de D-01 y el proveedor de LLM (D-02).
-3. Construir `ai/` empezando por la estructuración del syllabus (módulo 2 del brief).
-4. Elegir y construir la interfaz.
-5. Configurar CI.
+1. Terminar y fusionar el PR 5 (aprendiz por la interfaz) y recorrer una ruta completa en el navegador.
+2. Correr el flujo de punta a punta con el syllabus real del curso piloto (cierra F6).
+3. Revisión visual frente a Figma y decidir los estados que Figma no dibuja.
+4. Textos legales, despliegue y piloto con 15 a 30 aprendices (F9).
+5. Endurecimiento (T-050), brief v2 y etiqueta `v1.0-cohorte1` (F10 y F11).
 
 ## Traspaso entre cohortes
 
 Checklist del brief:
 
 - [ ] Versión etiquetada en Git y aplicación desplegada funcionando.
-- [x] Este `HANDOFF.md` actualizado.
-- [ ] Notebook de métricas reproducible.
+- [x] Este `HANDOFF.md` actualizado (2026-11-13).
+- [ ] Notebook de métricas reproducible con los datos del piloto.
 - [ ] Datos anonimizados y anotaciones en `data/`.
 - [ ] Accesos transferidos (GitHub, despliegue, claves de API, Figma, Keycloak).
 - [ ] Brief actualizado con métricas y lecciones aprendidas.
 
-Para trasladar datos entre PC: `database/scripts/backup.sh` en el origen, copiar los `.dump` y `restore.sh` en el destino (aplicación y Keycloak). `.env` no viaja con git y contiene credenciales: cópialo por un canal seguro o regenéralo.
+Para pasar los datos de un PC a otro: `database/scripts/backup.sh` en el origen, copiar los `.dump` y `restore.sh` en el destino (aplicación y Keycloak). El `.env` no viaja con git y tiene credenciales: cópialo por un canal seguro o regenéralo con `scripts/gen-secrets.sh`.
