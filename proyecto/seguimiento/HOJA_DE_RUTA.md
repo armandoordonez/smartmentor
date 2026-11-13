@@ -86,7 +86,7 @@ Antes de codificarlos se le avisa al dueño (ver [FIGMA.md](FIGMA.md)).
 | T-031 | Conseguir el syllabus real del curso (Carlos Villada) | Dueño | ⛔ Dueño |
 | T-032 | Corrida completa: syllabus → temas → contenido → diagnóstico → ruta → quiz → final → badge, con costo y latencia anotados | T-002, T-010, T-011, T-030, T-031 | ◐ Hecha por la API con 3 cursos y 4 aprendices (2026-11-12, [evidencia](#evidencia-de-f6-2026-11-12)). Falta con el syllabus real (T-031) y recorriendo la UI del aprendiz (T-010, T-011) |
 | T-033 | Verificar en el navegador que la nota del LLM aparece después de guardar (cambio 6 del PR 3) | Autorización para levantar la app | ☐ Se puede hacer: el stack está arriba |
-| T-034 | Revisión visual de todas las pantallas frente a Figma ([M-005](MEJORAS.md)) | Autorización para levantar la app | ◐ Revisadas E1, E6, D1 a D5, AD1 a AD5 (2026-11-13 12:37); encontró B-014 y V-001 a V-025 ([FIGMA.md](FIGMA.md#revisión-visual-t-034)). Las del aprendiz siguen después del PR 5 |
+| T-034 | Revisión visual de todas las pantallas frente a Figma ([M-005](MEJORAS.md)) | Autorización para levantar la app | ◐ Revisadas E1, E6, A6, A7, D1 a D5f y AD1 a AD5 (2026-11-13 13:35); encontró B-014 y V-001 a V-032 ([FIGMA.md](FIGMA.md#revisión-visual-t-034)). Las del aprendiz siguen después del PR 5 |
 
 ### Evidencia de F6 (2026-11-12)
 

@@ -461,3 +461,17 @@ Tercera pasada, con 5 capturas más de Figma (13 llamadas en total). Los colores
 - V-025 reúne lo que se acepta (clic en filas, acciones que la API no tiene, color del botón por rol).
 
 Se actualizó la prueba del grafo (`test_components.py`), que esperaba el color anterior. Verificado en el navegador del 8502.
+
+### 2026-11-13 13:35 · PRUEBA · T-034 (D5b a D5f, A6, A7)
+
+Cuarta pasada, con 7 capturas más de Figma (20 llamadas en total). Los colores de D5f salieron de `estructura-pantallas.json`.
+
+- **D5b (V-026):** barra de avance, pregunta en caja gris con la respuesta correcta en verde, criterios en una línea y nota ciega en violeta.
+- **D5c (V-027):** respuesta y nota del LLM en dos columnas.
+- **D5d (V-028):** fidelidad y versión en una línea, aviso ámbar y botones repartidos.
+- **D5e (V-029):** candidatos y respaldo en dos tarjetas.
+- **D5f (V-030):** índice en negrita, «En revisión» ámbar y dos tarjetas lado a lado.
+- **A6:** coincide. **A7 (V-031):** tarjeta blanca con el botón a todo el ancho; también la usa la pantalla previa al login.
+- V-032 reúne lo que se acepta (paneles laterales y ventanas, color por fila, color de las etiquetas).
+
+Verificado en el navegador del 8502 (D5b, D5c, D5e y D5f). A7 no tiene escenario de demostración: se revisa con sus pruebas y con la pantalla previa al login del 8501.

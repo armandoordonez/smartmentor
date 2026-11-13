@@ -83,3 +83,21 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **PR:** <https://github.com/armandoordonez/smartmentor/pull/6> hacia `dev` (fusionado el 2026-11-12 21:11 en `42b14df`). Reúne S-001 a S-004: T-012 a T-015, B-001 a B-011 y la sesión de 3 h
 - **CI:** corrida `43343437580` (`5b9a6aa`) en verde, también `docs`. Solo fallan `audit (api)` y `audit (app)`, informativos ([B-009](BUGS.md))
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 20:17)
+
+### S-005 · 2026-11-13 13:46 · `feature/hoja-de-ruta-f6-f7`
+
+- **Rama:** nueva, desde `dev` en `42b14df` (después de fusionar el PR 6)
+- **Commits:**
+  - `047bc29` fix(ai): corta las llamadas al LLM a los 240 s y alarga el lease a 1800 s (B-013)
+  - `16bbce0` docs(contratos): aclara que next_action de GET /jobs/{id} siempre es null (B-012)
+  - `1f6d39a` test(app): error al preparar preguntas nuevas (T-020) y sincronía de C4 con el catálogo de prompts (M-008)
+  - `4e59245` fix(app): revisión visual frente a Figma (V-001 a V-024) y CSS que DOMPurify descartaba (B-014)
+  - `69a6651` docs(proyecto): seguimiento de F6 y F7, checklist al 60 %, HANDOFF y CHANGELOG (T-003, T-034)
+  - `3e2e003` fix(app): revisión visual de D5b a D5f y A7 frente a Figma (V-026 a V-031)
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-012, B-013, B-014, M-008, T-003, T-020, T-034, V-001 a V-032
+- **PR:** ninguno todavía
+- **CI:** pendiente
+- **Pruebas locales:** app con Ruff, formato y mypy en verde, y **632 pruebas en verde**. Revisión en el navegador del 8502 (datos de ejemplo) y del 8501 (pantalla previa al login)
+- **Fuera de la subida:** `.claude/` (configuración local) y `pr-3-descripcion-actualizada.md`
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 13:46)
