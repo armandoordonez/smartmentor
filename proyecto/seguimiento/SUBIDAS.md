@@ -142,3 +142,10 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** app con Ruff, formato y mypy en verde y **643 pruebas en verde**. En la copia de prueba (PR 5 sobre PR 7, local), 746; 8501 reconstruido con ella
 - **Ojo:** B-025 deja una decisión del dueño (que la API entregue el contenido de los temas aprobados para repasarlos desde E9). En el PR 5, `topic.py` y `quiz.py` también cambian: al fusionarlo hay que conservar los dos arreglos
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 17:28)
+
+### S-010 · 2026-11-13 17:33 · `dev_13112026_530` (respaldo de `dev`) y PR 7
+
+- **Respaldo:** rama nueva `dev_13112026_530` en GitHub, creada en el mismo commit de `dev` (`42b14df`, la fusión del PR 6). No cambia `dev`
+- **PR 7 hacia `dev`:** ya existía con todos los commits (B-012 a B-029). Se actualizaron el título y la descripción con el flujo del aprendiz (B-015 a B-029), las pruebas (643 y 746 con el PR 5) y lo que falta (B-017 con el PR 5 y la decisión de B-025)
+- **Commits:** el de esta entrada
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 17:33)
