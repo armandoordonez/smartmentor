@@ -12,8 +12,12 @@ import streamlit as st
 from clients.base import ApiError
 from clients.models import BloomLevel
 from clients.models_staff import Course, CourseTopic, LearningOutcomeWrite, TopicWrite
-from components.layout import render_notice, render_page_header
-from components.staff_theme import BLOOM_LABEL, COURSE_BADGE, TOPIC_REVIEW_BADGE
+from components.layout import (
+    render_notice,
+    render_page_header,
+    render_page_header_with_actions,
+)
+from components.staff_theme import BLOOM_COLOR, BLOOM_LABEL, COURSE_BADGE, TOPIC_REVIEW_BADGE
 from components.table import Row, render_table
 from components.theme import BadgeColor
 from components.topic_graph import GraphEdge, GraphNode, ReviewState, render_topic_graph
@@ -243,8 +247,7 @@ def _table_view() -> None:
         detail.append(syllabus.filename)
     if syllabus and syllabus.pages:
         detail.append(f"{syllabus.pages} páginas")
-    render_page_header(course.name, caption=" · ".join(detail))
-    with st.container(horizontal=True):
+    with render_page_header_with_actions(course.name, caption=" · ".join(detail)):
         if st.button("Volver a extraer temas", key="sr-reextract-top", disabled=not can_review):
             st.session_state["sr-reextract"] = True
             st.rerun()
@@ -257,8 +260,8 @@ def _table_view() -> None:
             key=str(t.id),
             cells=[
                 str(t.position),
-                f"**{t.name}**",
-                BLOOM_LABEL[t.bloom_level],
+                t.name,
+                (BLOOM_LABEL[t.bloom_level], BLOOM_COLOR[t.bloom_level]),
                 prereq_text(t, positions),
                 TOPIC_REVIEW_BADGE[t.review_status],
             ],
@@ -289,31 +292,33 @@ def _table_view() -> None:
         if st.button("Revisar recursos y preguntas", key="sr-resources"):
             state.topic_id = selected
             st.switch_page(CONTENT_REVIEW)
-    st.markdown(f"**{reviewed_count(counts)} de {len(topics)} temas revisados**")
-    st.caption(review_summary(counts))
-    text = (
-        "La columna Revisión se llena sola con lo que haces y se usa para calcular el F1 de la "
-        "extracción."
-    )
-    if deleted:
-        names_text = ", ".join(f"{t.name} (eliminado)" for t in deleted)
-        text += f" Los temas eliminados quedan en una lista aparte: {names_text}."
-    st.caption(text)
-    with st.container(horizontal=True):
-        if st.button("Agregar tema", key="sr-add-bottom", type="tertiary", disabled=not can_review):
-            st.session_state["sr-edit"] = NEW
-            st.rerun()
-        if st.button(
-            "Volver a extraer temas",
-            key="sr-reextract-bottom",
-            type="tertiary",
-            disabled=not can_review,
-        ):
-            st.session_state["sr-reextract"] = True
-            st.rerun()
-        if st.button("Ver los temas como grafo", key="sr-graph", type="tertiary"):
-            st.session_state["sr-mode"] = "graph"
-            st.rerun()
+    with st.container(border=True, key="card-review-summary"):
+        with st.container(horizontal=True, vertical_alignment="center"):
+            st.badge(f"{reviewed_count(counts)} de {len(topics)} temas revisados", color="green")
+            st.markdown(review_summary(counts))
+        text = (
+            "La columna Revisión se llena sola con lo que haces y se usa para calcular el F1 de la "
+            "extracción."
+        )
+        if deleted:
+            names_text = ", ".join(f"{t.name} (eliminado)" for t in deleted)
+            text += f" Los temas eliminados quedan en una lista aparte: {names_text}."
+        st.caption(text)
+        with st.container(horizontal=True, vertical_alignment="center"):
+            if st.button("Agregar tema", key="sr-add-bottom", disabled=not can_review):
+                st.session_state["sr-edit"] = NEW
+                st.rerun()
+            if st.button(
+                "Volver a extraer temas",
+                key="sr-reextract-bottom",
+                type="tertiary",
+                disabled=not can_review,
+            ):
+                st.session_state["sr-reextract"] = True
+                st.rerun()
+    if st.button("Ver los temas como grafo", key="sr-graph", type="tertiary"):
+        st.session_state["sr-mode"] = "graph"
+        st.rerun()
     edit = st.session_state.get("sr-edit")
     if edit is not None and can_review:
         _edit_panel(next((t for t in topics if t.id == edit), None))
@@ -356,8 +361,8 @@ def _graph_view() -> None:
         )
     with st.container(horizontal=True):
         legend: tuple[tuple[str, BadgeColor], ...] = (
-            ("Corregido", "blue"),
-            ("Agregado por ti", "green"),
+            TOPIC_REVIEW_BADGE["corrected"],
+            TOPIC_REVIEW_BADGE["added"],
             ("Sin cambios", "gray"),
         )
         for label, color in legend:

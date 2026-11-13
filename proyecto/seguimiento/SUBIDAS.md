@@ -80,6 +80,72 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 ### S-004 · 2026-11-12 20:17 · `feature/seguimiento-trazabilidad` → `dev`
 
 - **Commits:** `5b9a6aa` docs(proyecto): corrige dos avisos de markdownlint y anota la CI de S-003; y el commit de esta entrada
-- **PR:** <https://github.com/armandoordonez/smartmentor/pull/6> hacia `dev` (abierto). Reúne S-001 a S-004: T-012 a T-015, B-001 a B-011 y la sesión de 3 h
+- **PR:** <https://github.com/armandoordonez/smartmentor/pull/6> hacia `dev` (fusionado el 2026-11-12 21:11 en `42b14df`). Reúne S-001 a S-004: T-012 a T-015, B-001 a B-011 y la sesión de 3 h
 - **CI:** corrida `43343437580` (`5b9a6aa`) en verde, también `docs`. Solo fallan `audit (api)` y `audit (app)`, informativos ([B-009](BUGS.md))
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 20:17)
+
+### S-005 · 2026-11-13 13:46 · `feature/hoja-de-ruta-f6-f7`
+
+- **Rama:** nueva, desde `dev` en `42b14df` (después de fusionar el PR 6)
+- **Commits:**
+  - `047bc29` fix(ai): corta las llamadas al LLM a los 240 s y alarga el lease a 1800 s (B-013)
+  - `16bbce0` docs(contratos): aclara que next_action de GET /jobs/{id} siempre es null (B-012)
+  - `1f6d39a` test(app): error al preparar preguntas nuevas (T-020) y sincronía de C4 con el catálogo de prompts (M-008)
+  - `4e59245` fix(app): revisión visual frente a Figma (V-001 a V-024) y CSS que DOMPurify descartaba (B-014)
+  - `69a6651` docs(proyecto): seguimiento de F6 y F7, checklist al 60 %, HANDOFF y CHANGELOG (T-003, T-034)
+  - `3e2e003` fix(app): revisión visual de D5b a D5f y A7 frente a Figma (V-026 a V-031)
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-012, B-013, B-014, M-008, T-003, T-020, T-034, V-001 a V-032
+- **PR:** <https://github.com/armandoordonez/smartmentor/pull/7> hacia `dev`, abierto el 2026-11-13
+- **CI:** corrida `43485918657` (`e9130ae`): 12 trabajos en verde y 1 en curso al abrir el PR. Fallan solo `audit (api)` y `audit (app)`, informativos ([B-009](BUGS.md))
+- **Pruebas locales:** app con Ruff, formato y mypy en verde, y **632 pruebas en verde**. Revisión en el navegador del 8502 (datos de ejemplo) y del 8501 (pantalla previa al login)
+- **Fuera de la subida:** `.claude/` (configuración local) y `pr-3-descripcion-actualizada.md`
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 13:46)
+
+### S-006 · 2026-11-13 13:57 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:** `build(deps)`: actualiza `certifi`, `dnspython` y `opentelemetry-api` en `api/uv.lock` y `certifi` en `app/uv.lock` (B-009); y el registro de S-005 y S-006
+- **Por qué:** en el PR 7 fallaban `audit (api)` y `audit (app)` por vulnerabilidades conocidas en las dependencias fijadas, no por el código del PR
+- **Pruebas locales:** `pip-audit` de `api/` sin vulnerabilidades. API con Ruff y mypy en verde y 445 pruebas unitarias en verde (fallan las 2 de siempre, solo aquí, por el `.env` real). App con 632 pruebas en verde
+- **Queda:** `audit (app)` sigue fallando por `pillow` 12.3.0, que no se puede subir sin cambiar Streamlit 1.65 ([B-009](BUGS.md))
+- **Quién aprobó la subida:** el dueño, en el chat («corrígelo y sube los cambios»)
+
+### S-007 · 2026-11-13 14:40 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:**
+  - `65c47ec` fix(app): la hoja de vida se guarda aunque Streamlit recargue los modelos [B-015]
+  - `dedc6b1` fix(app): la hoja de vida sigue al diagnóstico y no vuelve al perfil [B-016]
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-015, B-016
+- **Pruebas locales:** app con Ruff, formato y mypy en verde y **635 pruebas en verde** (3 nuevas). Recorrido en el navegador del 8502: consentimiento → catálogo → E2 → E2b con inglés B1 → E3
+- **Ojo con el PR 5:** toca `pages/learner/onboarding_profile.py` y `clients/fixtures.py`, que el PR 5 también puede cambiar
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 14:40)
+
+### S-008 · 2026-11-13 16:53 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:**
+  - `18cdffa` fix(app): diagnóstico, quiz y objetivo sin recargas ni 422 con la API real [B-018, B-019, B-020, B-022]
+  - `11b2a48` fix(app): el catálogo abre la ruta y no salta al quiz abierto [B-023]
+  - el commit del seguimiento (esta entrada), con B-017 y B-021
+- **IDs:** B-017 a B-023
+- **Pruebas locales:** app con Ruff, formato y mypy en verde y **637 pruebas en verde**. En la copia de prueba (PR 5 sobre PR 7, local), 739. El dueño probó cada arreglo en el 8501 con la API real
+- **Ojo:** B-017 (el catálogo del aprendiz con la API real) se arregla con el PR 5, no con este PR
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 16:53)
+
+### S-009 · 2026-11-13 17:28 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:**
+  - `0926d4a` fix(app): tema, quiz, final y metas coherentes con la API real [B-024, B-025, B-026, B-027, B-028]
+  - `784bac6` fix(app): regenerar un recurso en D5 genera de nuevo y muestra la versión nueva [B-029]
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-024 a B-029
+- **Pruebas locales:** app con Ruff, formato y mypy en verde y **643 pruebas en verde**. En la copia de prueba (PR 5 sobre PR 7, local), 746; 8501 reconstruido con ella
+- **Ojo:** B-025 deja una decisión del dueño (que la API entregue el contenido de los temas aprobados para repasarlos desde E9). En el PR 5, `topic.py` y `quiz.py` también cambian: al fusionarlo hay que conservar los dos arreglos
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 17:28)
+
+### S-010 · 2026-11-13 17:33 · `dev_13112026_530` (respaldo de `dev`) y PR 7
+
+- **Respaldo:** rama nueva `dev_13112026_530` en GitHub, creada en el mismo commit de `dev` (`42b14df`, la fusión del PR 6). No cambia `dev`
+- **PR 7 hacia `dev`:** ya existía con todos los commits (B-012 a B-029). Se actualizaron el título y la descripción con el flujo del aprendiz (B-015 a B-029), las pruebas (643 y 746 con el PR 5) y lo que falta (B-017 con el PR 5 y la decisión de B-025)
+- **Commits:** el de esta entrada
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 17:33)

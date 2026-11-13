@@ -29,7 +29,7 @@ logger = logging.getLogger("app.worker")
 
 @dataclass(frozen=True)
 class WorkerConfig:
-    lease_seconds: int = 900
+    lease_seconds: int = 1800  # igual que ai_job_lock_seconds (B-013)
     max_attempts: int = 3
     backoff_seconds: int = 30
     poll_seconds: float = 2.0

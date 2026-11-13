@@ -50,27 +50,40 @@ def render_annotation_form(
     progress: str,
     key: str,
     criteria: Sequence[tuple[str, str]] = CRITERIA,
+    ratio: float | None = None,
 ) -> AnnotationResult:
-    """Formulario de anotación.
+    """Formulario de anotación, con la distribución de Figma D5b (V-026).
 
-    `evaluator_slot` es «Evaluador 1 de 2» y `progress`, «23 de 60 anotadas».
+    `evaluator_slot` es «Evaluador 1 de 2», `progress` es «23 de 60 anotadas» y `ratio`, la
+    fracción anotada para la barra (sin ella no se dibuja).
     """
-    st.markdown("#### Anotar pregunta")
-    badge_col, progress_col = st.columns([1, 3], vertical_alignment="center")
-    with badge_col:
+    with st.container(horizontal=True, vertical_alignment="center"):
+        st.markdown("#### Anotar pregunta", width="content")
+        st.space("stretch")
         st.badge(evaluator_slot, color="violet")
-    progress_col.caption(progress)
-    st.caption(item.meta)
-    st.markdown(f"**{item.stem}**")
-    for position, option in enumerate(item.options):
-        letter = "ABCDEFGH"[position]
-        mark = "  ← correcta" if item.correct_index == position else ""
-        st.markdown(f"{letter}. {option}{mark}")
+    st.caption(progress)
+    if ratio is not None:
+        st.progress(min(max(ratio, 0.0), 1.0))
+    with st.container(key=f"panel-{key}-item"):
+        st.caption(item.meta)
+        st.markdown(f"**{item.stem}**")
+        for position, option in enumerate(item.options):
+            letter = "ABCDEFGH"[position]
+            if item.correct_index == position:
+                st.markdown(f":green[**{letter}. {option}  ← correcta**]")
+            else:
+                st.markdown(f"{letter}. {option}")
     st.caption("**RÚBRICA**")
     answers: dict[str, bool | None] = {}
     for code, label in criteria:
-        choice = st.segmented_control(
-            label, (_YES, _NO), selection_mode="single", key=f"{key}-{item.item_id}-{code}"
+        label_col, choice_col = st.columns([4, 1], vertical_alignment="center")
+        label_col.markdown(label)
+        choice = choice_col.segmented_control(
+            label,
+            (_YES, _NO),
+            selection_mode="single",
+            label_visibility="collapsed",
+            key=f"{key}-{item.item_id}-{code}",
         )
         answers[code] = None if choice is None else choice == _YES
     st.caption("**VEREDICTO**")
@@ -82,10 +95,11 @@ def render_annotation_form(
         key=f"{key}-{item.item_id}-verdict",
     )
     comment = st.text_area("Comentario", key=f"{key}-{item.item_id}-comment")
-    st.caption(
-        "Anotación ciega: no ves la del otro evaluador hasta que ambos terminen. "
-        "Así el kappa de Cohen es válido."
-    )
+    with st.container(key=f"{key}-blind-note"):
+        st.caption(
+            "Anotación ciega: no ves la del otro evaluador hasta que ambos terminen. "
+            "Así el kappa de Cohen es válido."
+        )
     verdict: Verdict | None = (
         None if verdict_choice is None else ("valid" if verdict_choice == "Válida" else "invalid")
     )

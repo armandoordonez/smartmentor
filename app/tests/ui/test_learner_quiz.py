@@ -106,6 +106,67 @@ def test_e6_api_error_is_friendly() -> None:
     assert at.error[0].value == "Este tema todavía no está disponible."
 
 
+def _with_next_action(at: AppTest, **fields: object) -> None:
+    """Cambia el `next_action` de la inscripción del escenario (lo que diría la API)."""
+    enrollment = client_of(at)._enrollments[0]
+    enrollment.next_action = enrollment.next_action.model_copy(update=fields)
+
+
+def test_e6_open_attempt_is_continued_not_restarted_b024() -> None:
+    at = learner_app("learner_path", TOPIC, run=False)
+    session_of(at).learner.step_id = 813
+    _with_next_action(at, type="continue_attempt", screen="E6b", step_id=813, attempt_id=9002)
+    at.run()
+    texts = page_texts(at)
+    assert "Empezar quiz" not in texts
+    button(at, "Continuar quiz").click().run()
+    no_exception(at)
+    assert session_of(at).learner.attempt_id == 9002
+    assert "Quiz: Regresión logística" in page_texts(at)
+
+
+def test_e6_start_quiz_with_an_unknown_open_attempt_follows_the_api_b024() -> None:
+    at = _open_topic()
+
+    def in_progress(*_: object, **__: object) -> None:
+        _with_next_action(at, type="continue_attempt", screen="E6b", step_id=813, attempt_id=9002)
+        raise ApiError(409, "ATTEMPT_IN_PROGRESS")
+
+    client_of(at).create_attempt = in_progress  # type: ignore[method-assign]
+    button(at, "Empezar quiz").click().run()
+    no_exception(at)
+    assert not at.error
+    assert "Quiz: Regresión logística" in page_texts(at)
+
+
+def test_e6_passed_or_skipped_topic_can_be_reviewed_without_a_quiz_b025() -> None:
+    for step_id, note in ((812, "Ya aprobaste este tema."), (811, "Este tema se omitió")):
+        at = learner_app("learner_path", TOPIC, run=False)
+        session_of(at).learner.step_id = step_id
+        at.run()
+        no_exception(at)
+        # Con datos como los de la API real llega como aviso; si hay contenido, bajo el tema.
+        texts = page_texts(at) + [i.value for i in at.info]
+        assert "Empezar quiz" not in texts
+        assert any(t.startswith(note) for t in texts)
+        button(at, "Volver a mi ruta").click().run()
+        assert "Ver otras rutas" in page_texts(at)
+
+
+def test_e6_closed_topic_explains_why_when_the_api_hides_its_content_b025() -> None:
+    """Con la API real un tema aprobado responde 409 STEP_NOT_AVAILABLE (p. ej. desde E9)."""
+    at = learner_app("learner_path", TOPIC, run=False)
+    session_of(at).learner.step_id = 812
+    fail(at, "get_step_content", ApiError(409, "STEP_NOT_AVAILABLE"))
+    at.run()
+    no_exception(at)
+    assert not at.error
+    assert at.info[0].value == "Ya aprobaste este tema."
+    assert "Regresión lineal" in page_texts(at)
+    button(at, "Volver a mi ruta").click().run()
+    assert "Ver otras rutas" in page_texts(at)
+
+
 # --- E6b · E6c -----------------------------------------------------------------------------------
 
 
@@ -174,6 +235,21 @@ def test_u1c_error_keeps_the_answers_and_offers_retry() -> None:
     no_exception(at)
     assert any("Tus respuestas están guardadas" in e.value for e in at.error)
     assert "Reintentar" in [b.label for b in at.button]
+
+
+def test_u1b_error_offers_retry_and_back_to_the_path() -> None:
+    """T-020 (F-001): si falla la generación de preguntas nuevas, no se inventa un quiz."""
+    script = LearnerScript({"job_outcome": "failed"})
+    at = learner_app("learner_path", QUIZ, script=script, run=False)
+    learner = session_of(at).learner
+    learner.step_id, learner.quiz_job_id, learner.quiz_job_kind = 813, "job-retry", "prepare"
+    at.run()
+    at.run()
+    no_exception(at)
+    assert any("No pudimos preparar las preguntas nuevas" in e.value for e in at.error)
+    labels = [b.label for b in at.button]
+    assert "Reintentar" in labels
+    assert "Volver a mi ruta" in labels
 
 
 def test_u1b_follows_figma_and_continues_to_the_new_quiz() -> None:
@@ -290,3 +366,19 @@ def test_e7_offline() -> None:
     at = _result("learner_offline")
     no_exception(at)
     assert at.error
+
+
+def test_e6b_submitted_attempt_is_not_answered_again_b026() -> None:
+    at = learner_app("learner_path", QUIZ, run=False)
+    state = session_of(at).learner
+    state.step_id, state.attempt_id = 813, 9002
+    client = client_of(at)
+    original = client.get_attempt
+    client.get_attempt = lambda attempt_id: original(attempt_id).model_copy(  # type: ignore[method-assign]
+        update={"status": "graded"}
+    )
+    at.run()
+    no_exception(at)
+    texts = page_texts(at)
+    assert "Enviar quiz" not in texts
+    assert "Siguiente" not in texts

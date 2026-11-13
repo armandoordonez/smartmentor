@@ -40,7 +40,7 @@ Todo sale de variables de entorno (raíz `.env.example`); **el código no trae p
 | `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`, `AI_DATABASE_USER`, `AI_DATABASE_PASSWORD` | Base con el usuario `smartmentor_ai` (ADR 0019) |
 | `OIDC_ISSUER_URL`, `OIDC_JWKS_URL`, `AI_SERVICE_AUDIENCE` | Validación del token de servicio (ADR 0014) |
 | `AI_PROMPTS_DIR`, `AI_PRICES_FILE` | Rutas (la imagen las fija en `/app/prompts` y `/app/config/prices.yaml`) |
-| `AI_LLM_TIMEOUT_SECONDS`, `AI_WORKER_POLL_SECONDS`, `AI_JOB_LOCK_SECONDS`, `AI_JOB_MAX_ATTEMPTS`, `AI_JOB_RETRY_BACKOFF_SECONDS` | Ajustes con valor por defecto (120, 2, 900, 3, 30) |
+| `AI_LLM_TIMEOUT_SECONDS`, `AI_WORKER_POLL_SECONDS`, `AI_JOB_LOCK_SECONDS`, `AI_JOB_MAX_ATTEMPTS`, `AI_JOB_RETRY_BACKOFF_SECONDS` | Ajustes con valor por defecto (240, 2, 1800, 3, 30). El timeout pasó de 120 a 240 s y el lease de 900 a 1800 s por B-013 (los bancos de preguntas se cortaban con Gemini) |
 
 ## Fuentes del RAG (DEF-08)
 

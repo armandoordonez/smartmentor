@@ -196,7 +196,7 @@ def test_topic_graph_dot_uses_tokens_and_escapes_text() -> None:
     assert "Corregido" in dot
     assert "Agregado por ti" in dot
     assert "Sin cambios" in dot
-    assert token("learner-soft") in dot  # el color sale de tokens.css
+    assert token("warning-soft") in dot  # el color sale de tokens.css
 
 
 def _graph() -> None:

@@ -25,6 +25,13 @@ RETENTION_PAGE = "pages/learner/retention_test.py"
 ARM_LABEL = {"personalized": "ruta personalizada", "fixed": "ruta fija"}
 LEAVE_PILOT = "Salir del piloto"
 REVOKE_ALL = "Revocar la autorización y borrar mis datos"
+NO_GOALS = StudyGoals(
+    daily_minutes_goal=0,
+    daily_minutes_done=0,
+    monthly_topics_goal=0,
+    monthly_topics_done=0,
+    streak_days=0,
+)
 
 client = get_client()
 state = get_session().learner
@@ -73,25 +80,30 @@ if enrollment.status == "completed":
             st.switch_page(RETENTION_PAGE)
 
 
-def _goals(current: StudyGoals) -> None:
+def _goals(current: StudyGoals, *, new: bool) -> None:
+    """Metas del día y del mes; `new` cuando la persona aún no las ha elegido (sin preselección)."""
     st.subheader("Mis metas · opcional", anchor=False)
     st.caption(
         "Lo que tú te propones hoy y este mes. Solo tú las ves y no cambian el objetivo de tu ruta."
     )
-    st.markdown(f"**Racha de {current.streak_days} días**")
+    if new:
+        st.caption("Todavía no tienes metas. Elige una para hoy y otra para este mes.")
+    else:
+        st.markdown(f"**Racha de {current.streak_days} días**")
     today, month = st.columns(2)
     with today:
         st.markdown("**Hoy**")
         st.caption("minutos de estudio")
         st.markdown(f"## {current.daily_minutes_done}")
-        st.caption(f"de {current.daily_minutes_goal} min")
+        if not new:
+            st.caption(f"de {current.daily_minutes_goal} min")
         missing = max(current.daily_minutes_goal - current.daily_minutes_done, 0)
         if missing:
             st.caption(f"Faltan {missing} min")
         daily = st.segmented_control(
             "Meta:",
             current.daily_options,
-            default=current.daily_minutes_goal,
+            default=None if new else current.daily_minutes_goal,
             format_func=lambda minutes: f"{minutes} min",
             key="goal-daily",
         )
@@ -99,14 +111,15 @@ def _goals(current: StudyGoals) -> None:
         st.markdown("**Este mes**")
         st.caption("temas aprobados")
         st.markdown(f"## {current.monthly_topics_done}")
-        st.caption(f"de {current.monthly_topics_goal} temas")
+        if not new:
+            st.caption(f"de {current.monthly_topics_goal} temas")
         left = max(current.monthly_topics_goal - current.monthly_topics_done, 0)
         if left:
             st.caption(f"Falta {left}" if left == 1 else f"Faltan {left}")
         monthly = st.segmented_control(
             "Meta:",
             current.monthly_options,
-            default=current.monthly_topics_goal,
+            default=None if new else current.monthly_topics_goal,
             format_func=str,
             key="goal-monthly",
         )
@@ -123,8 +136,9 @@ def _goals(current: StudyGoals) -> None:
             st.rerun()
 
 
-if goals is not None:
-    _goals(goals)
+# La API responde 404 mientras la persona no tenga metas; antes la sección no se mostraba y nunca
+# se podían elegir (B-028). Sin metas se muestra vacía, con las opciones por omisión.
+_goals(goals or NO_GOALS, new=goals is None)
 
 # --- Tus datos y autorizaciones ------------------------------------------------------------------
 

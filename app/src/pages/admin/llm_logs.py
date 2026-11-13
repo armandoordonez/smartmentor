@@ -48,7 +48,7 @@ rows = [
     Row(
         key=str(log.id),
         cells=[
-            f"**{AI_TASK_LABEL.get(log.task_label, log.task_label)}**",
+            AI_TASK_LABEL.get(log.task_label, log.task_label),
             log.model or "—",
             f"{log.prompt_id} {log.prompt_version}".strip() or "—",
             integer(log.tokens),

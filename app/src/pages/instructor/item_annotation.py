@@ -56,6 +56,7 @@ result = render_annotation_form(
     ),
     evaluator_slot=f"Evaluador {item.evaluator_slot} de {item.evaluator_slots_total}",
     progress=f"{queue.annotated} de {queue.total} anotadas",
+    ratio=queue.annotated / queue.total if queue.total else None,
     key="annotation",
 )
 if result.close:

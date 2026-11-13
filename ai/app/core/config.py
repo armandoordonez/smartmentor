@@ -68,7 +68,9 @@ class Settings(BaseSettings):
     embedding_dimension: int | None = Field(default=None, ge=1, le=2000)
     gemini_api_key: SecretStr | None = None
     anthropic_api_key: SecretStr | None = None
-    ai_llm_timeout_seconds: float = Field(default=120.0, gt=0)
+    # 240 s (B-013): con 120 s, los bancos de preguntas (`items.generate_quiz_bank`,
+    # `items.generate_final_bank`, `diagnostic.generate_items`) se cortaban a menudo con Gemini.
+    ai_llm_timeout_seconds: float = Field(default=240.0, gt=0)
 
     # --- Budget in USD (plan 18.5): empty = not configured ---
     ai_daily_budget_usd: Decimal | None = Field(default=None, ge=0)
@@ -82,7 +84,9 @@ class Settings(BaseSettings):
 
     # --- Worker (ADR 0010) ---
     ai_worker_poll_seconds: float = Field(default=2.0, gt=0)
-    ai_job_lock_seconds: int = Field(default=900, ge=10)
+    # El lease no se renueva mientras el trabajo corre: debe cubrir una llamada con sus reintentos
+    # (3 intentos x 240 s, B-013). Solo retrasa la recuperación si un trabajador se cae.
+    ai_job_lock_seconds: int = Field(default=1800, ge=10)
     ai_job_max_attempts: int = Field(default=3, ge=1)
     ai_job_retry_backoff_seconds: int = Field(default=30, ge=0)
 

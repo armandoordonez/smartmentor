@@ -12,8 +12,8 @@ import streamlit as st
 from clients.base import ApiError
 from clients.models_staff import ExhaustedStep, LearnerDetail
 from components.formatting import percent_points, short_date
-from components.layout import render_notice
-from components.levels import LevelRow, render_levels
+from components.layout import render_notice, render_page_header_with_actions
+from components.levels import LevelRow, render_level_bars
 from components.staff_theme import ADMIN_ENROLLMENT_BADGE
 from components.table import Row, render_table
 from components.theme import ATTEMPT_BADGE, EDUCATION_LEVEL_LABEL, EXPERIENCE_BAND_LABEL
@@ -92,14 +92,14 @@ status_text = (
     "En espera por intentos agotados" if exhausted else ADMIN_ENROLLMENT_BADGE[detail.status][0]
 )
 group = f" · {detail.learning_path.group_label}" if detail.learning_path.group_label else ""
-st.title(detail.user.full_name, anchor=False)
-st.caption(f"{detail.learning_path.name}{group} · {status_text}")
-with st.container(horizontal=True):
+with render_page_header_with_actions(
+    detail.user.full_name, caption=f"{detail.learning_path.name}{group} · {status_text}"
+):
     if st.button("Corregir recurso", key="ld-fix"):
         first = detail.topic_levels[0].topic_id if detail.topic_levels else None
         state.topic_id = first
         st.switch_page(CONTENT_REVIEW)
-    if st.button("Reiniciar intentos", key="ld-reset"):
+    if st.button("Reiniciar intentos", type="primary", key="ld-reset"):
         st.session_state["ld-target"] = exhausted[0].step_id if exhausted else FINAL
 
 
@@ -147,20 +147,21 @@ def _grant_panel(target: int) -> None:
 if (target := st.session_state.get("ld-target")) is not None:
     _grant_panel(target)
 
-st.caption("**PERFIL Y OBJETIVO**")
-with st.container(border=True, key="panel-learner-profile"):
+# Perfil y nivel lado a lado, cada uno en su tarjeta, como Figma D4 (V-021).
+profile_col, levels_col = st.columns(2)
+with profile_col.container(border=True, key="card-learner-profile"):
+    st.caption("**PERFIL Y OBJETIVO**")
     st.markdown(_profile_text(detail))
     # La API no manda la hoja de vida (perfil reducido A3c): sin dato no se afirma que falte.
     if detail.resume_summary:
         st.markdown(f"Hoja de vida: {detail.resume_summary}")
     if detail.objective:
         st.markdown(_objective_text(detail))
-
-st.caption("**NIVEL POR TEMA (DIAGNÓSTICO)**")
-render_levels(
-    [LevelRow(t.topic_id, t.name, t.level * 100, t.classification) for t in detail.topic_levels],
-    key="learner-levels",
-)
+with levels_col.container(border=True, key="card-learner-levels"):
+    st.caption("**NIVEL POR TEMA (DIAGNÓSTICO)**")
+    render_level_bars(
+        [LevelRow(t.topic_id, t.name, t.level * 100, t.classification) for t in detail.topic_levels]
+    )
 
 rows = [
     Row(

@@ -23,7 +23,8 @@ def render_path_card(card: PathCardView, *, cta_label: str = "Ver ruta") -> bool
     with st.container(key=f"path-card-{card.path_id}", border=False):
         if card.tag_text:
             eyebrow(card.tag_text)
-        st.markdown(f"**{card.name}**")
+        with st.container(key=f"path-title-{card.path_id}"):
+            st.markdown(card.name)
         if card.description:
             st.caption(card.description)
         st.caption(card.meta)

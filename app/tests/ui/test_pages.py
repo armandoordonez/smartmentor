@@ -12,6 +12,8 @@ from figma_compare import figma_texts, missing_in_order
 from streamlit.testing.v1 import AppTest
 
 from clients.base import ApiError
+from clients.fixtures import FixturesClient
+from core.session import AppSession
 
 CATALOG = "pages/learner/catalog.py"
 PROFILE = "pages/learner/onboarding_profile.py"
@@ -321,7 +323,17 @@ def test_e1_has_six_open_buttons_and_no_more_than_three_columns_per_row() -> Non
 
 
 def test_e1_open_path_enrolls_and_follows_next_action_to_profile() -> None:
-    at = signed_in("learner")
+    """Sin descripción en el perfil, la inscripción queda en `profiling` y abre E2."""
+    at = new_app()
+    client = FixturesClient("learner_new")
+    client.grant_consent("data_processing", "v1")
+    at.session_state["app_session"] = AppSession(
+        me=client.get_me(),
+        active_role="learner",
+        scenario_key="learner_new",
+        fixtures_client=client,
+    )
+    at.run()
     at.button(key="open-path-1").click().run()
     assert_no_exception(at)
     session = session_of(at)
@@ -330,13 +342,22 @@ def test_e1_open_path_enrolls_and_follows_next_action_to_profile() -> None:
     assert "Cuéntanos sobre ti" in page_texts(at)
 
 
+def test_e1_open_path_with_a_profile_goes_straight_to_the_diagnostic() -> None:
+    """Con descripción, la API inscribe en `diagnosing`: E1 abre el diagnóstico, no el perfil."""
+    at = signed_in("learner")
+    at.button(key="open-path-1").click().run()
+    assert_no_exception(at)
+    assert session_of(at).selected_enrollment_id == 101
+    assert any(t.startswith("PASO 3 DE 4 · DIAGNÓSTICO") for t in page_texts(at))
+
+
 def test_e1_open_path_with_existing_enrollment_does_not_duplicate_it() -> None:
     at = signed_in("learner_in_path")
     at.button(key="open-path-1").click().run()
     assert_no_exception(at)
     assert session_of(at).selected_enrollment_id == 7
-    # El `next_action` (E6) ya tiene página (F07b): la interfaz navega al tema.
-    assert "QUIZ DEL TEMA" in page_texts(at)
+    # B-023: con la ruta en curso se abre la ruta (E5), no el paso que diga el `next_action`.
+    assert "Continuar tema" in [b.label for b in at.button]
 
 
 def test_e1_has_tags_as_eyebrows() -> None:

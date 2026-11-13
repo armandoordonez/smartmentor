@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 import streamlit as st
+from streamlit.delta_generator import DeltaGenerator
 
 from clients.models import Role
 from components.formatting import initials
@@ -89,6 +90,20 @@ def render_page_header(
         st.caption(caption)
 
 
+def render_page_header_with_actions(
+    title: str, *, caption: str | None = None, key: str = "page-actions"
+) -> DeltaGenerator:
+    """Título y subtítulo a la izquierda y, a la derecha, el contenedor de las acciones (V-002).
+
+    Como en Figma (D1, AD1): los botones de la página van en la misma fila que el título. La página
+    pone sus botones dentro del contenedor que devuelve (`with actions: st.button(...)`).
+    """
+    left, right = st.columns([3, 2], vertical_alignment="center")
+    with left:
+        render_page_header(title, caption=caption)
+    return right.container(horizontal=True, horizontal_alignment="right", key=key)
+
+
 def render_notice(text: str) -> None:
     """Aviso ámbar de permisos o reglas («Tu rol: Instructor · Solo corriges tus cursos»)."""
     st.warning(text)
@@ -103,10 +118,28 @@ def render_status_screen(
     message: str,
     primary_label: str,
     secondary_label: str | None = None,
+    card: bool = False,
 ) -> tuple[bool, bool]:
-    """Pantalla centrada de estado (A6 · 403, A7 · sesión expirada). Devuelve qué botón se pulsó."""
+    """Pantalla centrada de estado (A6 · 403, A7 · sesión expirada). Devuelve qué botón se pulsó.
+
+    Con `card=True` es la variante de A7 (V-031): tarjeta blanca con el texto a la izquierda, el
+    botón principal a todo el ancho y el secundario como enlace.
+    """
     st.space("large")
     render_brand(role_label, role)
+    if card:
+        with st.container(key="status-card"):
+            st.subheader(title, anchor=False)
+            st.caption(message)
+            primary = st.button(
+                primary_label, type="primary", key="status-primary", width="stretch"
+            )
+            secondary = (
+                st.button(secondary_label, key="status-secondary", type="tertiary")
+                if secondary_label
+                else False
+            )
+        return primary, secondary
     with st.container(key="status-screen", horizontal_alignment="center"):
         if code:
             st.markdown(f"# :red[{code}]", width="content")

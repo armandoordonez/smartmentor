@@ -5,3 +5,9 @@
   border-radius: var(--radius-card);
   padding: var(--space-16);
 }
+
+/* Nombre de la ruta: título de tarjeta de Figma, 18 px semibold (V-005). */
+[class*="st-key-path-card-"] [class*="st-key-path-title-"] p {
+  font-size: var(--font-size-card-title);
+  font-weight: var(--font-weight-semibold);
+}

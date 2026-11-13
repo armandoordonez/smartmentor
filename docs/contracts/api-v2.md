@@ -398,7 +398,9 @@ Con `PREREQUISITE_CYCLE`, el cuerpo de error trae `"cycle": [12, 11, 12]`.
 }
 ```
 
-Si `ai/` terminó, la API ingiere el resultado en la misma petición (transacción idempotente) y responde `status = "succeeded"`, `ingested = true` y el `next_action` de la inscripción. Si falló: el error RFC 9457 correspondiente, con `retryable`.
+Si `ai/` terminó, la API ingiere el resultado en la misma petición (transacción idempotente) y responde `status = "succeeded"` e `ingested = true`. Si falló: el error RFC 9457 correspondiente, con `retryable`.
+
+`next_action` existe en la respuesta pero **la API no lo llena: siempre es `null`** (B-012, 2026-11-13). Después de un trabajo, la app vuelve a leer la inscripción (`GET /me/enrollments/{id}`) o el intento para saber a dónde ir. Si algún día se llena, es un cambio aditivo.
 
 ## 8. Lo que este borrador no fija
 

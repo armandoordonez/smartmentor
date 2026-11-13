@@ -22,9 +22,10 @@ _STATE_TEXT: dict[ReviewState, str] = {
 }
 _STATE_COLORS: dict[ReviewState, tuple[str, str]] = {
     # (relleno, borde) como nombres de tokens.
-    "unchanged": ("bg-neutral", "text-secondary"),
-    "corrected": ("learner-soft", "learner-accent"),
-    "added": ("instructor-soft", "instructor-accent"),
+    # Como Figma D2d: corregido ámbar, agregado violeta y sin cambios en blanco (V-020).
+    "unchanged": ("bg-surface", "text-secondary"),
+    "corrected": ("warning-soft", "warning-accent"),
+    "added": ("admin-soft", "admin-accent"),
 }
 
 

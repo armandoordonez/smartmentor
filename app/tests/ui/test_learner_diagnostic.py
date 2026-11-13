@@ -63,10 +63,16 @@ def test_e3_next_saves_partial_answers() -> None:
     assert any("Pregunta 5 de 15" in t for t in page_texts(at))
 
 
-def test_e3_dont_know_counts_as_an_answer() -> None:
+def test_e3_dont_know_counts_as_an_answer_and_moves_on() -> None:
+    """B-019: «No lo sé» guarda y pasa a la siguiente pregunta; al volver, se ve lo elegido."""
     at = learner_app("learner_diagnostic", DIAGNOSTIC)
+    assert any("Pregunta 4 de 15" in t for t in page_texts(at))
     button(at, "No lo sé").click().run()
     no_exception(at)
+    assert any("Pregunta 5 de 15" in t for t in page_texts(at))
+    button(at, "Anterior").click().run()
+    assert any("Pregunta 4 de 15" in t for t in page_texts(at))
+    assert any(t.startswith("Respondiste «No lo sé».") for t in page_texts(at))
     assert not button(at, "Siguiente").disabled
 
 
@@ -233,3 +239,20 @@ def test_e5_offline() -> None:
     at = learner_app("learner_offline", PATH)
     no_exception(at)
     assert at.error
+
+
+def test_e4b_keeps_a_proposed_verb_outside_the_list() -> None:
+    """B-020: la IA propuso «Construir»; al editar, el verbo no se pierde."""
+    at = learner_app("learner_objective", DIAGNOSTIC_RESULT, run=False)
+    client = client_of(at)
+    result = client.get_diagnostic_result(1)
+    assert result.proposed_objective is not None
+    proposal = result.proposed_objective.model_copy(update={"bloom_verb": "Construir"})
+    client.get_diagnostic_result = lambda _e: result.model_copy(  # type: ignore[method-assign]
+        update={"proposed_objective": proposal}
+    )
+    at.run()
+    button(at, "Editar el objetivo").click().run()
+    no_exception(at)
+    verb = next(s for s in at.selectbox if s.label == "Verbo de Bloom")
+    assert verb.value == "Construir"

@@ -18,7 +18,21 @@ class Actions:
     """(id de la acción, texto del botón)."""
 
 
-Cell = str | BadgeStyle | Actions | None
+@dataclass(frozen=True)
+class Badges:
+    """Varias insignias en una celda, por ejemplo los roles de un usuario (V-008)."""
+
+    items: tuple[BadgeStyle, ...]
+
+
+@dataclass(frozen=True)
+class PlainText:
+    """Texto que Markdown no debe convertir en enlace, como un correo (V-009)."""
+
+    text: str
+
+
+Cell = str | BadgeStyle | Badges | PlainText | Actions | None
 
 
 @dataclass(frozen=True)
@@ -40,6 +54,14 @@ def _render_cell(cell: Cell, key: str) -> str | None:
     if isinstance(cell, tuple):
         label, color = cell
         st.badge(label, color=color)
+        return None
+    if isinstance(cell, Badges):
+        with st.container(horizontal=True, gap="small"):
+            for label, color in cell.items:
+                st.badge(label, color=color)
+        return None
+    if isinstance(cell, PlainText):
+        st.text(cell.text)  # sin Markdown: GFM convertiría el correo en un enlace `mailto:`
         return None
     st.markdown(cell)
     return None

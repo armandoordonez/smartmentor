@@ -74,6 +74,8 @@ def plain(text: str) -> str:
         text = _COLOR.sub(r"\1", text)
     text = re.sub(r"^#+\s*", "", text.strip())
     text = text.replace("**", "").replace("`", "")
+    # Los escapes de Markdown (`\@`, `\.`) no se ven en pantalla (`PlainText` de la tabla, V-009).
+    text = _ESCAPED.sub(r"\1", text)
     return re.sub(r"\s+", " ", text).strip()
 
 

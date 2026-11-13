@@ -111,6 +111,7 @@ No hay transformación automática de `variables.json` a CSS: un valor nuevo de 
 | Espaciados exactos en píxeles | Orden de los elementos, `gap`, `st.space` | Streamlit no expone márgenes |
 | KPI con el valor arriba y la etiqueta abajo | `st.metric`: etiqueta arriba, valor abajo | Widget fijo |
 | Botones «(Demo del prototipo)» y avance automático a los 2 segundos | **No se construyen** | Los estados reales salen de la API; en `fixtures` se usan escenarios de datos |
+| Tamaños de letra en px (título 28, tarjeta 18, cuerpo 13) | Los tokens en `rem` salen un 12,5 % más pequeños (24,5, 15,75 y 11,4 px), porque la raíz de Streamlit es de 14 px | Decisión del dueño (2026-11-13, V-010): se deja así |
 
 ## 3. Componentes
 

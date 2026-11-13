@@ -79,19 +79,25 @@ else:
     if st.button("Volver", key="dg-back-empty"):
         st.switch_page(CONTENT_REVIEW)
     st.stop()
-with st.container(border=True, key="panel-grading"):
-    st.markdown(f"**Respuesta #{answer.code} · {answer.topic_name}**")
-    st.markdown(answer.prompt)
-    st.markdown(f"«{answer.answer}»")
+# Respuesta a la izquierda y nota del LLM a la derecha, como Figma D5c (V-027).
+answer_col, llm_col = st.columns([2, 1])
+with answer_col.container(key="card-grading"):
+    st.caption(f"Respuesta #{answer.code} · {answer.topic_name}")
+    st.markdown(f"**{answer.prompt}**")
+    with st.container(key="panel-grading-answer"):
+        st.markdown(f"«{answer.answer}»")
     st.caption("**RÚBRICA**")
     met: list[bool] = []
     for index, criterion in enumerate(answer.criteria):
-        choice = st.segmented_control(
+        label_col, choice_col = st.columns([3, 2], vertical_alignment="center")
+        label_col.markdown(criterion)
+        choice = choice_col.segmented_control(
             criterion,
             (MET, NOT_MET),
             selection_mode="single",
             default=None,
             disabled=saved is not None,
+            label_visibility="collapsed",
             key=f"dg-c-{answer.attempt_answer_id}-{index}",
         )
         met.append(choice == MET)
@@ -101,11 +107,12 @@ with st.container(border=True, key="panel-grading"):
     )
     total = sum(met)
     st.markdown(f"**Tu nota: {total} de {len(answer.criteria)}**")
+with llm_col.container(key="grading-llm-note"):
     st.caption("**NOTA DEL LLM · SE MUESTRA AL GUARDAR**")
     if saved is None:
         st.caption("Guarda tu calificación para ver la nota del LLM.")
     else:
-        st.markdown(f"**{saved.llm_criteria_met} de {saved.llm_criteria_total}**")
+        st.subheader(f"{saved.llm_criteria_met} de {saved.llm_criteria_total}", anchor=False)
         st.markdown(saved.llm_rationale)
         if saved.agrees:
             st.badge("Coincide con tu nota", color="green")

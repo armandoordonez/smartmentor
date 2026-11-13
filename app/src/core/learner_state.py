@@ -46,3 +46,15 @@ class LearnerState:
     survey_likert: dict[str, int] = field(default_factory=dict)
     survey_sus: dict[int, int] = field(default_factory=dict)
     manage_consents: bool = False
+
+    def forget_position(self) -> None:
+        """Olvida el tema, los intentos y los trabajos de la ruta anterior (B-027).
+
+        Se llama al cambiar de inscripción: si no, la ruta nueva abría el tema o el intento de la
+        otra. Los trabajos ya terminados se conservan porque se identifican por su id.
+        """
+        self.step_id = self.attempt_id = self.final_attempt_id = None
+        self.job_id = self.diagnostic_job_id = self.quiz_job_id = None
+        self.quiz_job_kind = "grade"
+        self.edit_objective = False
+        self.survey_step = 1

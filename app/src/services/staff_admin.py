@@ -15,10 +15,14 @@ from components.staff_theme import ROLE_TEXT
 _ROLE_ORDER: tuple[Role, ...] = ("admin", "instructor", "learner")
 
 
+def ordered_roles(roles: Sequence[Role]) -> list[Role]:
+    """Los roles del de mayor privilegio al de menor (admin, instructor, aprendiz)."""
+    return [role for role in _ROLE_ORDER if role in roles]
+
+
 def roles_text(roles: Sequence[Role]) -> str:
     """«Instructor, Aprendiz», del rol de mayor privilegio al de menor."""
-    ordered = [role for role in _ROLE_ORDER if role in roles]
-    return ", ".join(ROLE_TEXT[role] for role in ordered) or "—"
+    return ", ".join(ROLE_TEXT[role] for role in ordered_roles(roles)) or "—"
 
 
 def users_caption(total: int, users: Sequence[AdminUser]) -> str:

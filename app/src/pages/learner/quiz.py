@@ -27,6 +27,7 @@ PAGE = "pages/learner/quiz.py"
 TOPIC_PAGE = "pages/learner/topic.py"
 RESULT_PAGE = "pages/learner/quiz_result.py"
 PATH_PAGE = "pages/learner/path.py"
+OPEN_STATUSES = frozenset({"created", "in_progress"})
 MC_NOTE = "Tutor IA desactivado durante el quiz"
 SA_NOTE = "Responde sin ayuda de IA."
 
@@ -149,6 +150,15 @@ try:
 except ApiError as error:
     show_action_error(error)
     st.stop()
+
+# Un intento ya enviado no se vuelve a responder (con «Atrás» del navegador se llegaba aquí y
+# guardar daba 409, B-026): si se está calificando se espera; si no, se ve el resultado.
+if attempt.status not in OPEN_STATUSES:
+    pending = enrollment.next_action
+    if pending.type == "wait_job" and pending.attempt_id == attempt.id and pending.job_id:
+        state.quiz_job_id, state.quiz_job_kind = pending.job_id, "grade"
+        st.rerun()
+    st.switch_page(RESULT_PAGE)
 
 state.sheet.load(f"attempt-{attempt.id}", attempt.answers, len(attempt.items))
 number = min(state.sheet.index, max(len(attempt.items) - 1, 0)) + 1

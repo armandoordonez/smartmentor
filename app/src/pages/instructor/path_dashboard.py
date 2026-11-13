@@ -20,7 +20,7 @@ from clients.models_staff import (
 )
 from components.formatting import percent, percent_points
 from components.kpi_cards import Kpi, render_kpis
-from components.layout import render_notice, render_page_header
+from components.layout import render_notice, render_page_header_with_actions
 from components.staff_theme import ADMIN_ENROLLMENT_BADGE, MASTERY_BADGE
 from components.table import Actions, Row, render_table
 from components.theme import BLOOM_VERBS
@@ -161,13 +161,13 @@ def _config_panel() -> None:
         st.rerun()
 
 
-render_page_header(
+with render_page_header_with_actions(
     dashboard.learning_path.name
     + (f" · {dashboard.learning_path.group_label}" if dashboard.learning_path.group_label else ""),
     caption=settings_caption(dashboard),
-)
-if st.button("Configurar ruta", key="pd-configure"):
-    st.session_state["pd-open"] = True
+):
+    if st.button("Configurar ruta", key="pd-configure"):
+        st.session_state["pd-open"] = True
 if st.session_state.get("pd-open"):
     _config_panel()
 
@@ -185,7 +185,7 @@ rows = [
     Row(
         key=str(learner.enrollment_id),
         cells=[
-            f"**{learner.full_name}**",
+            learner.full_name,
             ADMIN_ENROLLMENT_BADGE[learner.status],
             f"{learner.steps_done} de {learner.steps_total}",
             "Badge emitido" if learner.badge_issued else (learner.current_topic or "—"),
@@ -237,14 +237,22 @@ summary: list[tuple[str, str, Callable[[TopicStat], str]]] = [
     ("avg", "Intentos promedio", lambda s: optional_decimal(s.avg_attempts)),
     ("drop", "Abandonos", lambda s: str(s.abandonments)),
 ]
+critical_ids = set(dashboard.critical_topic_ids)
+
+
+def _stat_cell(topic_id: int, fmt: Callable[[TopicStat], str]) -> str:
+    """El valor del tema; en rojo si la API lo marcó como crítico (como Figma D3)."""
+    if topic_id not in stats:
+        return "—"
+    value = fmt(stats[topic_id])
+    return f":red[{value}]" if topic_id in critical_ids and value != "—" else value
+
+
 for key, label, fmt in summary:
     mastery_rows.append(
         Row(
             key=f"stat-{key}",
-            cells=[
-                f"**{label}**",
-                *[fmt(stats[t.topic_id]) if t.topic_id in stats else "—" for t in topics],
-            ],
+            cells=[f":gray[{label}]", *[_stat_cell(t.topic_id, fmt) for t in topics]],
         )
     )
 clicked_row = render_table(
@@ -254,11 +262,11 @@ if clicked_row is not None and not clicked_row[0].startswith("stat-"):
     state.enrollment_id = int(clicked_row[0])
     st.switch_page(LEARNER_DETAIL)
 
-critical = [t for t in topics if t.topic_id in dashboard.critical_topic_ids]
-st.subheader("Temas críticos", anchor=False)
+critical = [t for t in topics if t.topic_id in critical_ids and t.topic_id in stats]
 if critical:
-    for topic in critical:
-        if topic.topic_id in stats:
-            st.markdown(critical_text(topic.name, stats[topic.topic_id]))
+    # Figma D3: aviso ámbar con el título en negrita y una línea por tema.
+    lines = [critical_text(topic.name, stats[topic.topic_id]) for topic in critical]
+    st.warning("\n\n".join(["**Temas críticos**", *lines]))
 else:
+    st.subheader("Temas críticos", anchor=False)
     st.caption("Todavía no hay temas críticos.")

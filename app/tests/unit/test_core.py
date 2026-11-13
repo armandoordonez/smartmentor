@@ -16,6 +16,7 @@ from core.bootstrap_secrets import missing_variables, render_secrets
 from core.config import Settings, get_settings
 from core.errors import MESSAGES, action_message, describe_error
 from core.labels import GLOSSARIES, glossary, role_label
+from core.session import AppSession
 
 
 def make_jwt(claims: dict[str, object]) -> str:
@@ -275,3 +276,16 @@ def test_messages_are_spanish_and_codes_are_upper_snake() -> None:
     for code, text in MESSAGES.items():
         assert code.isupper()
         assert text.endswith(".")
+
+
+def test_opening_another_enrollment_forgets_the_previous_topic_and_attempts_b027() -> None:
+    session = AppSession()
+    session.start_onboarding(1, 10)
+    learner = session.learner
+    learner.step_id, learner.attempt_id, learner.final_attempt_id = 813, 9002, 9100
+    learner.quiz_job_id = "job-grading"
+    session.start_onboarding(1, 10)  # la misma inscripción: se retoma donde iba
+    assert (learner.step_id, learner.attempt_id) == (813, 9002)
+    session.start_onboarding(2, 11)
+    assert learner.step_id is learner.attempt_id is learner.final_attempt_id is None
+    assert learner.quiz_job_id is None

@@ -93,27 +93,34 @@ except ApiError as error:
     st.stop()
 
 state.sheet.load(f"diagnostic-{diagnostic.id}", diagnostic.answers, len(diagnostic.items))
-position = min(state.sheet.index, max(len(diagnostic.items) - 1, 0)) + 1
-
-eyebrow(
-    f"PASO 3 DE 4 · DIAGNÓSTICO · {enrollment.learning_path.name.upper()} · "
-    f"Pregunta {position} de {len(diagnostic.items)}"
-)
-render_page_header("Diagnóstico")
 
 
 def _save(answers: list[LearnerAnswer]) -> None:
     client.save_diagnostic_answers(enrollment.id, answers)
 
 
-render_question_sheet(
-    diagnostic.items,
-    state.sheet,
-    key="diagnostic",
-    save=_save,
-    submit=lambda _answers: _submit(),
-    submit_label="Enviar diagnóstico",
-    notes=NOTES,
-    context=item_context,
-    allow_dont_know=True,
-)
+@st.fragment
+def _sheet() -> None:
+    """Encabezado y pregunta actual. Va en un fragmento: cada clic solo redibuja esta parte y no
+    vuelve a pedir la inscripción ni el diagnóstico a la API (B-018)."""
+    position = min(state.sheet.index, max(len(diagnostic.items) - 1, 0)) + 1
+    eyebrow(
+        f"PASO 3 DE 4 · DIAGNÓSTICO · {enrollment.learning_path.name.upper()} · "
+        f"Pregunta {position} de {len(diagnostic.items)}"
+    )
+    render_page_header("Diagnóstico")
+    render_question_sheet(
+        diagnostic.items,
+        state.sheet,
+        key="diagnostic",
+        save=_save,
+        submit=lambda _answers: _submit(),
+        submit_label="Enviar diagnóstico",
+        notes=NOTES,
+        context=item_context,
+        allow_dont_know=True,
+        rerun_scope="fragment",
+    )
+
+
+_sheet()

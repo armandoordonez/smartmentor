@@ -30,6 +30,7 @@ from core.staff_state import (
     forget_key,
     get_staff_state,
     idempotency_key,
+    pop_flash,
 )
 from services.staff_content import (
     edited_content,
@@ -83,6 +84,12 @@ render_page_header(
     "Revisión de contenido generado con IA",
     caption=f"{course.name} · Tema {topic.position}: {topic.name}",
 )
+if flash := pop_flash():
+    st.success(flash)
+# Los dos contadores van juntos bajo el título, como en Figma D5 (V-022).
+with st.container(horizontal=True, key="content-counts"):
+    st.badge(f"Recursos ({len(resources)})", color="green")
+    st.badge(f"Preguntas ({items.total})", color="gray")
 
 
 def _act(call: Any, *args: Any, **kwargs: Any) -> None:
@@ -95,9 +102,28 @@ def _act(call: Any, *args: Any, **kwargs: Any) -> None:
     st.rerun()
 
 
+def _regenerate(resource: Resource) -> None:
+    """Pide una versión nueva con IA (un trabajo en segundo plano).
+
+    La clave de idempotencia se olvida tras el éxito: antes se conservaba y una segunda
+    regeneración repetía la primera respuesta sin generar nada (B-029).
+    """
+    operation = f"regen-{resource.id}"
+    try:
+        client.regenerate_resource(resource.id, idempotency_key=idempotency_key(operation))
+    except ApiError as error:
+        show_staff_error(error)
+        return
+    forget_key(operation)
+    state.flash = (
+        f"Regenerando «{resource.title}» con IA. La versión nueva aparece aquí al terminar; "
+        "vuelve a abrir el tema en unos segundos."
+    )
+    st.rerun()
+
+
 # --- Recursos ------------------------------------------------------------------------------
 
-st.subheader(f"Recursos ({len(resources)})", anchor=False)
 resource_rows = []
 for resource in resources:
     actions: list[tuple[str, str]] = []
@@ -117,7 +143,7 @@ for resource in resources:
         Row(
             key=str(resource.id),
             cells=[
-                f"**{resource.title}**",
+                resource.title,
                 sources_text(resource),
                 faithfulness_text(resource),
                 RESOURCE_BADGE[resource.review_status],
@@ -139,7 +165,7 @@ if clicked is not None:
     elif action == "retire":
         _act(client.review_resource, rid, "retired")
     elif action == "regenerate":
-        _act(client.regenerate_resource, rid, idempotency_key=idempotency_key(f"regen-{rid}"))
+        _regenerate(next(r for r in resources if r.id == rid))
     elif action == "replace":
         st.switch_page(TOPIC_VIDEOS)
     else:
@@ -153,40 +179,45 @@ def _resource_editor(resource: Resource) -> None:
     sections = content.get("sections", [])
     sources: list[dict[str, Any]] = list(content.get("sources", []))
     rid = resource.id
+    # La versión va en las claves: Streamlit conserva el valor de un campo por su clave, así que
+    # sin ella una versión regenerada seguía mostrando (y al guardar, reponía) el texto anterior.
+    k = f"{rid}-v{resource.version}"
     with st.container(border=True, key=f"panel-edit-resource-{rid}"):
         st.subheader("Editar la explicación del tema", anchor=False)
-        if resource.faithfulness is not None:
-            st.badge(f"Fidelidad {decimal(resource.faithfulness, 2)}", color="green")
         prompt = (
             f" · prompt recurso_texto {resource.prompt_version}" if resource.prompt_version else ""
         )
-        st.caption(f"{topic.name} · versión {resource.version}{prompt}")
+        # Fidelidad y versión en la misma línea, como Figma D5d (V-028).
+        with st.container(horizontal=True, vertical_alignment="center"):
+            if resource.faithfulness is not None:
+                st.badge(f"Fidelidad {decimal(resource.faithfulness, 2)}", color="green")
+            st.caption(f"{topic.name} · versión {resource.version}{prompt}")
         edited_sections: list[tuple[str, str]] = []
         for index, section in enumerate(sections):
             heading = st.text_input(
                 "Título de la sección",
                 value=section["heading"],
-                key=f"cr-h-{rid}-{index}",
+                key=f"cr-h-{k}-{index}",
             )
             body = st.text_area(
                 "Texto",
                 value=section["body"],
                 height=180,
-                key=f"cr-b-{rid}-{index}",
+                key=f"cr-b-{k}-{index}",
                 label_visibility="collapsed",
             )
             edited_sections.append((heading, body))
-        summary = st.text_area("Resumen", value=content.get("summary", ""), key=f"cr-s-{rid}")
+        summary = st.text_area("Resumen", value=content.get("summary", ""), key=f"cr-s-{k}")
         st.markdown("**Fuentes citadas**")
         kept = [
             source
             for source in sources
             if st.checkbox(
-                f"[{source['n']}] {source['title']}", value=True, key=f"cr-src-{rid}-{source['n']}"
+                f"[{source['n']}] {source['title']}", value=True, key=f"cr-src-{k}-{source['n']}"
             )
         ]
-        new_title = st.text_input("+ Agregar fuente", key=f"cr-newsrc-{rid}")
-        new_url = st.text_input("Dirección de la fuente", key=f"cr-newurl-{rid}")
+        new_title = st.text_input("+ Agregar fuente", key=f"cr-newsrc-{k}")
+        new_url = st.text_input("Dirección de la fuente", key=f"cr-newurl-{k}")
         if new_title.strip() and new_url.strip():
             number = max((s["n"] for s in sources), default=0) + 1
             kept.append(
@@ -198,20 +229,21 @@ def _resource_editor(resource: Resource) -> None:
                     "license": None,
                 }
             )
-        st.caption(
+        render_notice(
             "Al guardar, tu versión reemplaza la de la caché para todos los aprendices del tema "
             f"y queda como versión {next_version(resource.version)} (editada por instructor). "
             "La fidelidad se recalcula sobre las fuentes citadas."
         )
         with st.container(horizontal=True):
             regenerate = st.button("Regenerar con IA", key=f"cr-regen-{rid}")
+            st.space("stretch")
             cancel = st.button("Cancelar", key=f"cr-cancel-{rid}")
             save = st.button("Guardar y aprobar", type="primary", key=f"cr-save-{rid}")
     if cancel:
         st.session_state.pop("cr-edit-resource", None)
         st.rerun()
     if regenerate:
-        _act(client.regenerate_resource, rid, idempotency_key=idempotency_key(f"regen-{rid}"))
+        _regenerate(resource)
     if save:
         body = edited_content(content, sections=edited_sections, summary=summary, sources=kept)
         try:
@@ -234,7 +266,6 @@ if editing is not None:
 # --- Preguntas -----------------------------------------------------------------------------
 
 st.subheader("Banco de preguntas del tema", anchor=False)
-st.caption(f"Preguntas ({items.total})")
 item_rows = []
 for item in items.items:
     item_actions: list[tuple[str, str]] = []
@@ -247,7 +278,7 @@ for item in items.items:
         Row(
             key=str(item.id),
             cells=[
-                f"**{item.stem}**",
+                item.stem,
                 BLOOM_LABEL[item.bloom_level],
                 ITEM_TYPE_LABEL[item.item_type],
                 ITEM_BADGE[item.review_status],
@@ -321,7 +352,7 @@ if editing_item is not None:
         _item_editor(target_item)
 
 with st.container(horizontal=True):
-    if st.button("Anotar preguntas con la rúbrica", key="cr-annotate"):
+    if st.button("Anotar preguntas con la rúbrica", type="primary", key="cr-annotate"):
         st.switch_page(ITEM_ANNOTATION)
     if st.button("Calificar respuestas cortas", key="cr-grade"):
         st.switch_page(SHORT_ANSWER_GRADING)

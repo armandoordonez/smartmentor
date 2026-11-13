@@ -230,3 +230,26 @@ def test_wait_for_job_times_out() -> None:
         wait_for_job(ScriptedJobs([_job()]), "job-1", timeout=5, sleep=lambda _: None)  # type: ignore[arg-type]
     assert caught.value.code == "JOB_TIMEOUT"
     assert caught.value.retryable
+
+
+@respx.mock
+def test_set_objective_sends_only_the_fields_of_objective_update(client: ApiClient) -> None:
+    """B-020: `ObjectiveUpdate` no admite campos de más; `origin` hacía que la API diera 422."""
+    from clients.models import Objective
+
+    enrollment = json.loads((FIXTURES_DIR / "enrollment_in_path.json").read_text("utf-8"))
+    route = respx.put(f"{BASE}/api/v1/me/enrollments/7/objective").mock(
+        return_value=httpx.Response(200, json=enrollment)
+    )
+    client.set_objective(
+        7,
+        Objective(
+            statement="Construir flujos con al menos 80 %.",
+            bloom_verb="Construir",
+            content="flujos",
+            criterion="con al menos 80 %",
+            origin="llm_proposed",
+        ),
+    )
+    sent = json.loads(route.calls.last.request.content)
+    assert set(sent) == {"statement", "bloom_verb", "content", "criterion"}

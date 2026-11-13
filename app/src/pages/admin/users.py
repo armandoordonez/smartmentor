@@ -10,14 +10,15 @@ import streamlit as st
 from clients.base import ApiError
 from clients.models import ROLES, Role
 from clients.models_staff import AdminUser, UserCreate
-from components.layout import render_notice, render_page_header
+from components.layout import render_notice, render_page_header, render_page_header_with_actions
 from components.staff_theme import ROLE_TEXT
-from components.table import Actions, Row, render_table
+from components.table import Actions, Badges, PlainText, Row, render_table
+from components.theme import ROLE_COLOR
 from core.container import get_client
 from core.identity import current_me
 from core.staff_errors import show_staff_error
 from core.staff_state import COURSES_ENROLLMENTS
-from services.staff_admin import roles_text, users_caption
+from services.staff_admin import ordered_roles, users_caption
 
 client = get_client()
 me = current_me()
@@ -26,22 +27,28 @@ render_notice(
     "Solo Admin · Crear usuarios y asignar roles. Instructores y aprendices no ven esta pantalla "
     "(403)."
 )
-render_page_header("Usuarios y roles")
-
 try:
     page = client.list_users()
 except ApiError as error:
+    render_page_header("Usuarios y roles")
     show_staff_error(error)
     st.stop()
 users = page.items
-st.caption(users_caption(page.total, users))
 
-with st.container(horizontal=True):
+with render_page_header_with_actions("Usuarios y roles", caption=users_caption(page.total, users)):
     st.button("Importar CSV", key="u-import", disabled=True, help="Llega en una siguiente versión.")
     if st.button("Crear usuario", type="primary", key="u-create"):
         st.session_state["u-panel"] = ("create", None)
     if st.button("Cursos y rutas", key="u-courses"):
         st.switch_page(COURSES_ENROLLMENTS)
+
+
+def role_badges(roles: list[Role]) -> Badges | str:
+    """Una insignia por rol, con el color del rol (V-008); «—» si no tiene ninguno."""
+    ordered = ordered_roles(roles)
+    if not ordered:
+        return "—"
+    return Badges(tuple((ROLE_TEXT[role], ROLE_COLOR[role]) for role in ordered))
 
 
 def _row_actions(user: AdminUser) -> Actions | str:
@@ -56,9 +63,9 @@ rows = [
     Row(
         key=str(user.id),
         cells=[
-            f"**{user.full_name}**",
-            user.email,
-            roles_text(user.roles),
+            user.full_name,
+            PlainText(user.email),
+            role_badges(user.roles),
             ("Activo", "green") if user.active else ("Inactivo", "gray"),
             _row_actions(user),
         ],

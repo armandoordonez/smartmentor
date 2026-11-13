@@ -53,8 +53,8 @@ def test_d5_matches_figma_with_documented_differences() -> None:
         at,
         "D5",
         accepted=(
-            # Las pestañas «Recursos (3)» y «Preguntas (12)» son títulos de sección, y el total
-            # de preguntas sale de los datos.
+            # «Recursos (3)» y «Preguntas (12)» son contadores; el total de preguntas sale de los
+            # datos.
             "Preguntas (12)",
             # Las acciones de cada fila son botones separados, no un solo texto.
             "Editar · Regenerar",
@@ -92,6 +92,26 @@ def test_d5d_edit_text_resource() -> None:
     at = click(at, "Guardar y aprobar")
     assert_no_exception(at)
     assert "Editar la explicación del tema" not in page_texts(at)
+
+
+def test_d5_regenerating_twice_asks_for_two_regenerations_b029() -> None:
+    at = _open(REVIEW)
+    client = at.session_state["app_session"].fixtures_client
+    original = client.regenerate_resource
+    keys: list[str] = []
+
+    def spy(resource_id: int, *, idempotency_key: str) -> object:
+        keys.append(idempotency_key)
+        return original(resource_id, idempotency_key=idempotency_key)
+
+    client.regenerate_resource = spy
+    for _ in range(2):
+        regen = next(b for b in at.button if b.label == "Regenerar")
+        at = regen.click().run()
+        assert_no_exception(at)
+        assert any(s.value.startswith("Regenerando «") for s in at.success)
+    assert len(keys) == 2
+    assert keys[0] != keys[1]
 
 
 def test_d5_edit_question_returns_to_review() -> None:
