@@ -78,8 +78,7 @@ def describe_error(error: ApiError, role_label: str | None, page_title: str) -> 
         return ErrorView(
             "session_expired",
             "Tu sesión expiró",
-            "Por seguridad cerramos tu sesión tras 30 minutos sin actividad. "
-            "Tu avance está guardado.",
+            "Por seguridad cerramos tu sesión tras 3 horas sin actividad. Tu avance está guardado.",
         )
     if error.status == 403 and error.code in _BLOCKED_CODES:
         return ErrorView("blocked", "No pudimos darte acceso", MESSAGES[error.code])

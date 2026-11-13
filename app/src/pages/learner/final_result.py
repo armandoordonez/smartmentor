@@ -8,7 +8,7 @@ lista los temas débiles (`review-plan`) y ofrece reintentar con preguntas nueva
 import streamlit as st
 
 from clients.base import ApiError
-from clients.models import AttemptResult, PathDetail, ReviewPlan
+from clients.models import Attempt, AttemptResult, PathDetail, ReviewPlan
 from components.attempt_history import AttemptRow, render_attempt_history
 from components.formatting import percent_points
 from components.layout import render_page_header
@@ -125,7 +125,11 @@ if st.button("Reintentar evaluación final", type="primary", key="final-retry"):
     except ApiError as error:
         show_action_error(error)
     else:
-        state.final_attempt_id = created.id
+        if isinstance(created, Attempt):
+            state.final_attempt_id = created.id
+        else:  # no quedan preguntas sin ver: E8 muestra la carga mientras se generan (B-011)
+            state.final_attempt_id = None
+            state.quiz_job_id, state.quiz_job_kind = created.job_id, "final-prepare"
         st.switch_page(FINAL_PAGE)
 with st.container(key="card-survey"):
     st.markdown("**Encuesta final · opcional**")

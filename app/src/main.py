@@ -69,6 +69,8 @@ def _error_screen(error: ApiError, *, page_title: str) -> None:
         error.code,
         error.request_id,
     )
+    if error.status == 401 and error.code == auth.TOKEN_EXPIRED_CODE:
+        auth.renew_silently_if_possible()  # redirige y no regresa si la sesión SSO sigue viva
     role = session.active_role
     role_text = label_for(role) if role and session.me else None
     view = describe_error(error, role_text, page_title)

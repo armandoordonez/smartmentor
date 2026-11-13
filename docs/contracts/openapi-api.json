@@ -43,6 +43,10 @@
             "title": "Created At",
             "type": "string"
           },
+          "full_name": {
+            "title": "Full Name",
+            "type": "string"
+          },
           "id": {
             "title": "Id",
             "type": "integer"
@@ -74,6 +78,10 @@
             ],
             "title": "Pilot Arm"
           },
+          "pilot_consent": {
+            "title": "Pilot Consent",
+            "type": "boolean"
+          },
           "progress": {
             "$ref": "#/components/schemas/ProgressResponse"
           },
@@ -97,7 +105,9 @@
           "next_action",
           "created_at",
           "completed_at",
-          "user_id"
+          "user_id",
+          "full_name",
+          "pilot_consent"
         ],
         "title": "AdminEnrollmentResponse",
         "type": "object"
@@ -238,6 +248,44 @@
           "verdict"
         ],
         "title": "AnnotationCreate",
+        "type": "object"
+      },
+      "AnnotationQueuePage": {
+        "description": "La cola más cuántos ítems de esos cursos ya anotó el evaluador.",
+        "properties": {
+          "annotated": {
+            "description": "Ítems de estos cursos que el evaluador ya anotó",
+            "title": "Annotated",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QueueItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "annotated"
+        ],
+        "title": "AnnotationQueuePage",
         "type": "object"
       },
       "AnnotationResponse": {
@@ -3180,6 +3228,9 @@
             "title": "Full Name",
             "type": "string"
           },
+          "learning_path": {
+            "$ref": "#/components/schemas/DashboardPath"
+          },
           "level_by_topic": {
             "items": {
               "additionalProperties": true,
@@ -3230,6 +3281,7 @@
         },
         "required": [
           "enrollment_id",
+          "learning_path",
           "user_id",
           "full_name",
           "profile",
@@ -4358,37 +4410,6 @@
         "title": "Page[PilotResponse]",
         "type": "object"
       },
-      "Page_QueueItem_": {
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/QueueItem"
-            },
-            "title": "Items",
-            "type": "array"
-          },
-          "limit": {
-            "title": "Limit",
-            "type": "integer"
-          },
-          "offset": {
-            "title": "Offset",
-            "type": "integer"
-          },
-          "total": {
-            "title": "Total",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "items",
-          "total",
-          "limit",
-          "offset"
-        ],
-        "title": "Page[QueueItem]",
-        "type": "object"
-      },
       "Page_RoleResponse_": {
         "properties": {
           "items": {
@@ -4737,6 +4758,16 @@
             "title": "Id",
             "type": "integer"
           },
+          "learning_path": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PathRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "learning_path_id": {
             "title": "Learning Path Id",
             "type": "integer"
@@ -4783,7 +4814,8 @@
           "status",
           "arms",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "learning_path"
         ],
         "title": "PilotResponse",
         "type": "object"
@@ -5137,6 +5169,17 @@
             "title": "Difficulty",
             "type": "integer"
           },
+          "evaluator_slot": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluator Slot"
+          },
           "id": {
             "title": "Id",
             "type": "integer"
@@ -5216,11 +5259,16 @@
           "topic_id": {
             "title": "Topic Id",
             "type": "integer"
+          },
+          "topic_name": {
+            "title": "Topic Name",
+            "type": "string"
           }
         },
         "required": [
           "id",
           "topic_id",
+          "topic_name",
           "learning_outcome_id",
           "source",
           "item_type",
@@ -5232,7 +5280,8 @@
           "model_answer",
           "rubric",
           "review_status",
-          "own_annotation"
+          "own_annotation",
+          "evaluator_slot"
         ],
         "title": "QueueItem",
         "type": "object"
@@ -5290,6 +5339,14 @@
       },
       "ReadinessResponse": {
         "properties": {
+          "consents_accepted": {
+            "title": "Consents Accepted",
+            "type": "integer"
+          },
+          "consents_total": {
+            "title": "Consents Total",
+            "type": "integer"
+          },
           "missing": {
             "items": {
               "type": "string"
@@ -5300,11 +5357,28 @@
           "ready": {
             "title": "Ready",
             "type": "boolean"
+          },
+          "topics_total": {
+            "title": "Topics Total",
+            "type": "integer"
+          },
+          "topics_with_equivalent_items": {
+            "title": "Topics With Equivalent Items",
+            "type": "integer"
+          },
+          "topics_with_items": {
+            "title": "Topics With Items",
+            "type": "integer"
           }
         },
         "required": [
           "ready",
-          "missing"
+          "missing",
+          "consents_accepted",
+          "consents_total",
+          "topics_total",
+          "topics_with_items",
+          "topics_with_equivalent_items"
         ],
         "title": "ReadinessResponse",
         "type": "object"
@@ -7339,6 +7413,10 @@
             "title": "Ratings",
             "type": "integer"
           },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
           "topic_name": {
             "title": "Topic Name",
             "type": "string"
@@ -7370,7 +7448,8 @@
           "watched_fully",
           "useful_rate",
           "quality_index",
-          "measuring"
+          "measuring",
+          "status"
         ],
         "title": "VideoQualityItem",
         "type": "object"
@@ -7387,10 +7466,15 @@
           "learning_path_id": {
             "title": "Learning Path Id",
             "type": "integer"
+          },
+          "min_ratings": {
+            "title": "Min Ratings",
+            "type": "integer"
           }
         },
         "required": [
           "learning_path_id",
+          "min_ratings",
           "items"
         ],
         "title": "VideoQualityResponse",
@@ -9446,7 +9530,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Page_QueueItem_"
+                  "$ref": "#/components/schemas/AnnotationQueuePage"
                 }
               }
             },
@@ -11304,7 +11388,7 @@
     },
     "/api/v1/me/enrollments/{enrollment_id}/final-attempts": {
       "post": {
-        "description": "Intento de la final: solo con todos los pasos `passed` o `skipped` (E8).",
+        "description": "Intento de la final: solo con todos los pasos `passed` o `skipped` (E8).\n\n`202` si un reintento no tiene suficientes preguntas no vistas: se generan más bajo demanda.",
         "operationId": "start_final_attempt_api_v1_me_enrollments__enrollment_id__final_attempts_post",
         "parameters": [
           {
@@ -11345,6 +11429,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Hay que generar más preguntas (U1d, B-011)"
           },
           "422": {
             "content": {
@@ -12127,7 +12221,7 @@
     },
     "/api/v1/metrics/evaluation": {
       "get": {
-        "description": "Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas.",
+        "description": "Métricas del brief calculables en SQL. El administrador ve todo; el instructor, sus rutas.\n\n`groups` (aditivo, 2026-11-12) es el catálogo de AD3: cada métrica con su meta y su estado.",
         "operationId": "evaluation_metrics_api_v1_metrics_evaluation_get",
         "parameters": [
           {

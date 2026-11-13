@@ -15,6 +15,7 @@ from app.domains.assessments.contracts import (
 )
 from app.domains.assessments.service import (
     DIAGNOSTIC_FINALIZE,
+    FINAL_BANK,
     GRADING_SHORT_ANSWER,
     QUIZ_BANK,
     AttemptService,
@@ -108,3 +109,20 @@ class QuizBankIngestor:
     async def pending_jobs(self) -> list[PendingJob]:
         # Los del aprendiz se ingieren al consultar (vuelve a pedir el intento, U1b).
         return await self._fallback.pending_jobs() if self._fallback is not None else []
+
+
+class FinalBankIngestor(QuizBankIngestor):
+    """`items.generate_final_bank` pedido para un reintento de la final (B-011, U1d).
+
+    Igual que el del quiz: el que pidió un aprendiz lo ingiere este dominio y el generado al
+    publicar el curso va al ingestor de contenido (`fallback`).
+    """
+
+    job_type = FINAL_BANK
+    progress_label = "Preparando preguntas nuevas para tu evaluación final"
+
+    async def ingest(self, job: JobStatus, result: BaseModel) -> bool:
+        delegate = self._delegate(job.refs)
+        if delegate is not None:
+            return await delegate.ingest(job, delegate.result_model.model_validate(job.result))
+        return await self._service.ingest_final_bank(job, result)

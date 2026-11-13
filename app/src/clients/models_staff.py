@@ -15,7 +15,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from clients.models import (
     ApiModel,
     BloomLevel,
+    EducationLevel,
     EnrollmentStatus,
+    ExperienceBand,
     ItemType,
     LearningPathRef,
     LevelWeights,
@@ -61,6 +63,8 @@ class Course(ApiModel):
     status: CourseStatus
     learning_path: LearningPathRef | None = None
     owner: UserRef | None = None
+    owner_user_id: int | None = None
+    """La API manda el id del dueño, no su nombre: AD5 lo busca entre los usuarios."""
     topics_count: int = 0
     enrolled_count: int = 0
     syllabus: SyllabusInfo | None = None
@@ -281,6 +285,10 @@ class LearnerDetail(ApiModel):
     status: EnrollmentStatus
     profile_summary: str | None = None
     resume_summary: str | None = None
+    education_level: EducationLevel | None = None
+    """Perfil reducido de la API (A3c); la página arma el resumen si no viene `profile_summary`."""
+    experience_band: ExperienceBand | None = None
+    job_title: str | None = None
     objective: Objective | None = None
     topic_levels: list[LearnerTopicLevel]
     attempts: list[LearnerAttempt]
@@ -391,6 +399,9 @@ class VideoQualityRow(ApiModel):
     index: int | None = None
     """Índice de 0 a 100; None mientras se mide (menos de 10 calificaciones)."""
     rating_average: float | None = None
+    """Promedio de 1 a 5 del prototipo; la API real no lo mide (F-012) y manda `useful_rate`."""
+    useful_rate: float | None = None
+    """De 0 a 1: aprendices que marcaron el video como útil."""
     ratings_count: int
     ratings_needed: int = 10
     watched_fully_rate: float | None = None

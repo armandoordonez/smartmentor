@@ -11,6 +11,7 @@ from app.auth.policies import ADMIN
 from app.common.entities import require_id
 from app.common.schemas import Page, RequestSchema, UtcDatetime
 from app.domains.identity.authentication import CurrentUser
+from app.domains.learning_paths.schemas import PathRef
 from app.domains.pilot.dependencies import get_pilot_service
 from app.domains.pilot.service import PilotConfig, PilotService, PilotView
 
@@ -44,6 +45,8 @@ class PilotResponse(BaseModel):
     arms: ArmCounts
     created_at: UtcDatetime | None
     updated_at: UtcDatetime | None
+    # Nombre y grupo de la ruta para AD4 sin otra llamada (aditivo, 2026-11-12).
+    learning_path: PathRef | None
 
 
 class RandomizeResponse(BaseModel):
@@ -56,6 +59,13 @@ class RandomizeResponse(BaseModel):
 class ReadinessResponse(BaseModel):
     ready: bool
     missing: list[str]
+    # Lo que AD4 muestra junto a los pendientes (aditivo, 2026-11-12).
+    consents_accepted: int
+    consents_total: int
+    topics_total: int
+    topics_with_items: int
+    # Temas con versiones paralelas (mismo `equivalence_group`) para la ganancia de Hake.
+    topics_with_equivalent_items: int
 
 
 def _response(view: PilotView) -> PilotResponse:
@@ -73,6 +83,15 @@ def _response(view: PilotView) -> PilotResponse:
         ),
         created_at=pilot.created_at,
         updated_at=pilot.updated_at,
+        learning_path=(
+            PathRef(
+                id=pilot.learning_path_id,
+                name=view.path.name,
+                group_label=view.path.group_label,
+            )
+            if view.path is not None
+            else None
+        ),
     )
 
 
@@ -147,7 +166,15 @@ async def pilot_readiness(
     pilot_id: int, _admin: AdminUser, service: PilotServiceDep
 ) -> ReadinessResponse:
     result = await service.readiness(pilot_id)
-    return ReadinessResponse(ready=result.ready, missing=result.missing)
+    return ReadinessResponse(
+        ready=result.ready,
+        missing=result.missing,
+        consents_accepted=result.consents_accepted,
+        consents_total=result.consents_total,
+        topics_total=result.topics_total,
+        topics_with_items=result.topics_with_items,
+        topics_with_equivalent_items=result.topics_with_equivalent_items,
+    )
 
 
 @router.get("/pilots/{pilot_id}/fixed-path-preview", response_model=dict[str, Any])

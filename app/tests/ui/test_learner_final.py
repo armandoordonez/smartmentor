@@ -87,6 +87,30 @@ def test_e8_locked_final_is_a_friendly_error() -> None:
     assert at.error[0].value == "La evaluación final se habilita al aprobar todos los temas."
 
 
+def test_e8_retake_without_unseen_questions_waits_for_new_ones() -> None:
+    """B-011: la API responde 202 y genera más preguntas; se muestra la carga, no un error."""
+    at = learner_app("learner_final_ready", FINAL, run=False)
+    client_of(at)._script = LearnerScript(
+        {**client_of(at)._script.docs, "final_attempt": "learner/job_accepted_retry"}
+    )
+    at.run()
+    no_exception(at)
+    assert "Preparando preguntas nuevas para tu evaluación final" in page_texts(at)
+    assert session_of(at).learner.quiz_job_kind == "final-prepare"
+
+
+def test_e9_retry_without_unseen_questions_waits_for_new_ones() -> None:
+    """B-011: «Reintentar» desde E9 con 202 lleva a la carga de E8, no de vuelta a E9."""
+    at = learner_app("learner_final_failed", FINAL_RESULT)
+    client_of(at)._script = LearnerScript(
+        {**client_of(at)._script.docs, "final_attempt": "learner/job_accepted_retry"}
+    )
+    button(at, "Reintentar evaluación final").click().run()
+    no_exception(at)
+    assert session_of(at).learner.quiz_job_kind == "final-prepare"
+    assert "Preparando preguntas nuevas para tu evaluación final" in page_texts(at)
+
+
 # --- E9 · E9c ------------------------------------------------------------------------------------
 
 

@@ -15,7 +15,7 @@ from components.layout import render_page_header
 from components.staff_theme import PILOT_STATUS_BADGE, READINESS_TEXT
 from core.container import get_client
 from core.staff_errors import show_staff_error
-from core.staff_state import DEFAULT_PILOT_ID, METRICS
+from core.staff_state import METRICS
 from services.staff_admin import plural_learners
 
 client = get_client()
@@ -30,8 +30,17 @@ render_page_header(
 )
 
 try:
-    pilot: Pilot = client.get_pilot(DEFAULT_PILOT_ID)
-    readiness = client.get_pilot_readiness(DEFAULT_PILOT_ID)
+    found = client.find_pilot_id()
+    if found is None:
+        # Figma no dibuja este estado (F-013 en proyecto/seguimiento/FIGMA.md).
+        st.info(
+            "Todavía no hay un piloto configurado. Se crea con `POST /pilots` (ruta y fechas); "
+            "esta pantalla todavía no tiene el formulario para crearlo."
+        )
+        st.stop()
+    pilot_id: int = found
+    pilot: Pilot = client.get_pilot(pilot_id)
+    readiness = client.get_pilot_readiness(pilot_id)
 except ApiError as error:
     show_staff_error(error)
     st.stop()
@@ -89,8 +98,8 @@ if st.button(
         random_seed=int(seed),
     )
     if (
-        _call(client.update_pilot, DEFAULT_PILOT_ID, body) is not None
-        and _call(client.randomize_pilot, DEFAULT_PILOT_ID) is not None
+        _call(client.update_pilot, pilot_id, body) is not None
+        and _call(client.randomize_pilot, pilot_id) is not None
     ):
         st.rerun()
 if st.button("Vista previa de la ruta fija (solo lectura)", key="p-preview"):
@@ -98,7 +107,7 @@ if st.button("Vista previa de la ruta fija (solo lectura)", key="p-preview"):
 
 if st.session_state.get("p-preview-open"):
     try:
-        preview = client.get_fixed_path_preview(DEFAULT_PILOT_ID)
+        preview = client.get_fixed_path_preview(pilot_id)
     except ApiError as error:
         show_staff_error(error)
     else:
@@ -143,7 +152,8 @@ equivalent = pilot.equivalent_items_topics == pilot.topics_total and pilot.topic
 st.badge("Verificado" if equivalent else "Incompleto", color="green" if equivalent else "orange")
 st.caption(
     f"{pilot.equivalent_items_topics} de {pilot.topics_total} temas tienen ítems equivalentes "
-    "entre el diagnóstico y la evaluación final, necesarios para la ganancia de Hake."
+    "(versiones paralelas de la evaluación final y la prueba de retención), necesarios para la "
+    "ganancia de Hake."
 )
 st.caption(
     "Sin grupo de ruta fija no se puede calcular la d de Cohen; la ganancia de Hake se reportaría "
@@ -163,7 +173,7 @@ with st.container(horizontal=True):
             delayed_posttest_on=posttest,
             random_seed=int(seed),
         )
-        if _call(client.update_pilot, DEFAULT_PILOT_ID, body) is not None:
+        if _call(client.update_pilot, pilot_id, body) is not None:
             st.toast("Borrador guardado")
     start_clicked = st.button(
         "Iniciar piloto",
@@ -171,7 +181,7 @@ with st.container(horizontal=True):
         key="p-start-btn",
         disabled=locked or not readiness.ready,
     )
-    if start_clicked and _call(client.start_pilot, DEFAULT_PILOT_ID) is not None:
+    if start_clicked and _call(client.start_pilot, pilot_id) is not None:
         st.rerun()
     if st.button("Ver métricas", key="p-metrics", type="tertiary"):
         st.switch_page(METRICS)

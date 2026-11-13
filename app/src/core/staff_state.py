@@ -31,9 +31,6 @@ PROMPT_CATALOG = "pages/admin/prompt_catalog.py"
 USERS = "pages/admin/users.py"
 METRICS = "pages/admin/metrics.py"
 
-DEFAULT_PILOT_ID = 1
-"""El contrato no lista pilotos (`GET /pilots/{id}` solo); hay un piloto por cohorte."""
-
 
 @dataclass
 class StaffState:

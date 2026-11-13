@@ -540,6 +540,9 @@ async def request_review(
     "/enrollments/{enrollment_id}/final-attempts",
     response_model=AttemptResponse,
     status_code=201,
+    responses={
+        202: {"model": JobAccepted, "description": "Hay que generar más preguntas (U1d, B-011)"}
+    },
 )
 async def start_final_attempt(
     enrollment_id: int,
@@ -548,7 +551,10 @@ async def start_final_attempt(
     service: AttemptServiceDep,
     idempotency: IdempotencyDep,
 ) -> JSONResponse:
-    """Intento de la final: solo con todos los pasos `passed` o `skipped` (E8)."""
+    """Intento de la final: solo con todos los pasos `passed` o `skipped` (E8).
+
+    `202` si un reintento no tiene suficientes preguntas no vistas: se generan más bajo demanda.
+    """
 
     async def action() -> BaseModel:
         return _outcome(

@@ -40,7 +40,7 @@ from app.domains.learning_paths.schemas import (
     TopicSummary,
     WithdrawRequest,
 )
-from app.domains.learning_paths.service import EnrollmentView, StepView
+from app.domains.learning_paths.service import EnrollmentService, EnrollmentView, StepView
 from app.domains.learning_paths.states import DONE_STEPS, StepStatus
 
 router = APIRouter(tags=["learning-paths"])
@@ -343,8 +343,12 @@ async def learner_detail(
 ) -> LearnerDetailResponse:
     """Detalle del aprendiz (D4, D4b): perfil reducido, niveles, pasos e intentos."""
     detail = await service.learner_detail(user, learning_path_id, enrollment_id)
+    path = detail.path
     return LearnerDetailResponse(
         enrollment_id=enrollment_id,
+        learning_path=DashboardPath(
+            id=require_id(path), name=path.name, group_label=path.group_label, status=path.status
+        ),
         user_id=detail.enrollment.user_id,
         full_name=detail.full_name,
         profile=detail.profile,
@@ -419,9 +423,16 @@ async def mark_alert_read(
 # --- administración de inscripciones (AD5) -----------------------------------------------------
 
 
-def _admin(view: EnrollmentView) -> AdminEnrollmentResponse:
+async def _admin(view: EnrollmentView, service: EnrollmentService) -> AdminEnrollmentResponse:
+    user_id = view.enrollment.user_id
+    full_name, pilot_consent = await service.learner_facts(user_id)
     return AdminEnrollmentResponse.model_validate(
-        {**enrollment_response(view), "user_id": view.enrollment.user_id}
+        {
+            **enrollment_response(view),
+            "user_id": user_id,
+            "full_name": full_name,
+            "pilot_consent": pilot_consent,
+        }
     )
 
 
@@ -437,7 +448,10 @@ async def admin_list_enrollments(
         learning_path_id=learning_path_id, status=status, limit=limit, offset=offset
     )
     return Page[AdminEnrollmentResponse](
-        items=[_admin(v) for v in views], total=total, limit=limit, offset=offset
+        items=[await _admin(v, service) for v in views],
+        total=total,
+        limit=limit,
+        offset=offset,
     )
 
 
@@ -446,7 +460,9 @@ async def admin_enroll(
     payload: AdminEnrollmentCreate, service: EnrollmentServiceDep
 ) -> AdminEnrollmentResponse:
     """Inscribe a un aprendiz (exige su consentimiento de datos: `403 CONSENT_REQUIRED`)."""
-    return _admin(await service.admin_enroll(payload.user_id, payload.learning_path_id))
+    return await _admin(
+        await service.admin_enroll(payload.user_id, payload.learning_path_id), service
+    )
 
 
 @admin_router.patch("/enrollments/{enrollment_id}/withdraw", response_model=AdminEnrollmentResponse)
@@ -456,7 +472,7 @@ async def withdraw_enrollment(
     service: EnrollmentServiceDep,
 ) -> AdminEnrollmentResponse:
     """Retira la inscripción (no se borra) y la saca del análisis."""
-    return _admin(await service.withdraw(enrollment_id))
+    return await _admin(await service.withdraw(enrollment_id), service)
 
 
 @admin_router.patch("/enrollments/{enrollment_id}/move", response_model=AdminEnrollmentResponse)
@@ -464,7 +480,7 @@ async def move_enrollment(
     enrollment_id: int, payload: MoveRequest, service: EnrollmentServiceDep
 ) -> AdminEnrollmentResponse:
     """Mueve al aprendiz a otra ruta: la inscripción nueva queda fuera del análisis."""
-    return _admin(await service.move(enrollment_id, payload.learning_path_id))
+    return await _admin(await service.move(enrollment_id, payload.learning_path_id), service)
 
 
 routers: list[APIRouter] = [router, admin_router]

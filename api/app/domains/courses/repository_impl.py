@@ -40,11 +40,14 @@ class SqlAlchemyCourseRepository(SqlAlchemyCrudRepository[CourseModel, Course]):
     }
 
     async def get_for_update(self, course_id: int) -> Course | None:
+        # FOR NO KEY UPDATE (y no FOR UPDATE): serializa los cambios de la fila igual, pero deja que
+        # `ai/` valide la llave foránea de `ai_jobs` desde su conexión mientras la API espera su
+        # respuesta. Con FOR UPDATE se bloquean entre sí y la API responde 503 a los 10 s.
         row = (
             await self._session.execute(
                 select(CourseModel)
                 .where(CourseModel.id == course_id)
-                .with_for_update()
+                .with_for_update(key_share=True)
                 .execution_options(populate_existing=True)
             )
         ).scalar_one_or_none()

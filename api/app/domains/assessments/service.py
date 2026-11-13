@@ -107,10 +107,12 @@ logger = logging.getLogger("app.assessments")
 DIAGNOSTIC_FINALIZE = "diagnostic.finalize"
 GRADING_SHORT_ANSWER = "grading.short_answer"
 QUIZ_BANK = "items.generate_quiz_bank"
+FINAL_BANK = "items.generate_final_bank"
 LEVELS_ESTIMATE = "levels.estimate"
 
 ITEMS_PER_ATTEMPT = 5  # quiz del tema (ADR 0015: 3 intentos x 5 ítems)
 FINAL_ITEMS = 10
+FINAL_ON_DEMAND_SHORT_ANSWERS = 1
 DIAGNOSTIC_ITEMS_PER_TOPIC = 3
 REINFORCE_CUTOFF = 50.0
 OPEN_DIAGNOSTIC = ("created", "in_progress", "scoring_failed")
@@ -953,6 +955,33 @@ class AttemptService(_Base):
         await self._uow.commit()
         return AttemptOutcome(view=AttemptView(attempt, picked, []))
 
+    async def _request_final_bank(
+        self, enrollment: Enrollment, path: LearningPath, topic_ids: list[int], upcoming: int
+    ) -> JobStatus:
+        """Pide a `ai/` una versión más de la final (B-011); la ingiere `ingest_final_bank`.
+
+        La llave lleva el número de preguntas ya existentes: si cambian (por ejemplo, la IA
+        devolvió solo preguntas descartadas), el pedido es otro trabajo y `ai/` no lo rechaza por
+        reusar la llave con otra entrada.
+        """
+        stems: list[str] = []
+        for topic_id in topic_ids:
+            stems.extend(await self._r.items.stems_for_topic(topic_id, "final"))
+        enrollment_id = require_id(enrollment)
+        ref = await self._ai.submit_job(
+            FINAL_BANK,
+            {
+                "learning_path_id": require_id(path),
+                "topic_ids": [str(t) for t in topic_ids],
+                "n_short_answer": FINAL_ON_DEMAND_SHORT_ANSWERS,
+                "n_versions": 1,
+                "previous_stems": stems[-200:],
+            },
+            f"{FINAL_BANK}:enrollment:{enrollment_id}:attempt:{upcoming}:v{len(stems)}",
+            JobRefs(course_id=path.course_id, enrollment_id=enrollment_id),
+        )
+        return await self._ai.get_job(ref.job_id)
+
     async def _request_quiz_bank(
         self, enrollment: Enrollment, path: LearningPath, topic_id: int
     ) -> JobStatus:
@@ -1002,6 +1031,23 @@ class AttemptService(_Base):
         topic_order = [s.topic_id for s in steps]
         seen = {i for a in attempts for i in (a.item_ids or [])}
         unseen = [i for i in await self._r.items.approved(topic_order, "final") if i.id not in seen]
+        # B-011: al publicar se generan pocas preguntas de la final (unas 3 por tema), así que un
+        # reintento se quedaba sin preguntas no vistas. Como en el quiz (ADR 0015, U1b), se piden
+        # más bajo demanda: en un reintento con menos de FINAL_ITEMS sin ver, o si no queda
+        # ninguna. Las generadas llevan en `auto_review` para qué intento se pidieron: si ya hay,
+        # no se pide otra vez (a lo sumo una generación por intento, sin ciclos).
+        upcoming = len(attempts) + 1
+        already = any(_generated_for(i, enrollment_id, upcoming) for i in unseen)
+        if not already and (not unseen or (attempts and len(unseen) < FINAL_ITEMS)):
+            job = await self._request_final_bank(enrollment, path, topic_order, upcoming)
+            if not job.is_finished:
+                await self._uow.commit()
+                return AttemptOutcome(job=JobRef(job.job_id, job.job_type, job.status))
+            if job.status == "succeeded":
+                await self.ingest_final_bank_job(job)
+            unseen = [
+                i for i in await self._r.items.approved(topic_order, "final") if i.id not in seen
+            ]
         picked = round_robin(unseen, topic_order, FINAL_ITEMS)
         if not picked:
             raise ConflictError("There are no unseen approved final items for this path.")
@@ -1524,6 +1570,88 @@ class AttemptService(_Base):
             )
         await self._uow.commit()
         return True
+
+    # --- ingesta del banco de la final bajo demanda (B-011) --------------------------------------
+
+    async def ingest_final_bank_job(self, job: JobStatus) -> bool:
+        try:
+            parsed = AssessmentItemBankV1.model_validate(job.result)
+        except ValidationError as exc:
+            raise AiResultInvalidError(job.job_id) from exc
+        return await self.ingest_final_bank(job, parsed)
+
+    async def ingest_final_bank(self, job: JobStatus, result: BaseModel) -> bool:
+        """Guarda las preguntas de la final generadas bajo demanda para un reintento.
+
+        Misma decisión que en el quiz (`ingest_quiz_bank`): el aprendiz espera (U1d), así que las
+        que pasaron la revisión automática entran `approved`, marcadas `on_demand` para que el
+        instructor las revise. Solo se guardan las de temas de la ruta de la inscripción; con
+        `n_versions=1` todas son `final`.
+        """
+        assert isinstance(result, AssessmentItemBankV1)  # noqa: S101
+        await self._r.items.lock_job(job.job_id)
+        if await self._r.items.exists_for_job(job.job_id):
+            return False
+        enrollment_id = job.refs.enrollment_id
+        if enrollment_id is None:
+            raise AiResultInvalidError(job.job_id)
+        steps = await self._r.steps.list_for_enrollment(enrollment_id)
+        path_topics = {s.topic_id for s in steps}
+        # Aún no existe el intento para el que se pidieron (se crea con estas preguntas).
+        upcoming = 1 + sum(
+            1
+            for a in await self._r.attempts.list_for_enrollment(enrollment_id)
+            if a.assessment_type == "final"
+        )
+        reviews = {r.item_id: r.model_dump() for r in result.item_reviews}
+        discarded = set(result.discarded_item_ids)
+        outcomes: dict[int, set[int]] = {}
+        for item in result.items:
+            topic_id = int(item.topic_id) if item.topic_id.isdigit() else None
+            if topic_id is None or topic_id not in path_topics:
+                continue
+            if topic_id not in outcomes:
+                outcomes[topic_id] = {o["id"] for o in await self._r.content.outcomes(topic_id)}
+            outcome = int(item.outcome_id) if item.outcome_id.isdigit() else None
+            await self._r.items.add(
+                AssessmentItem(
+                    topic_id=topic_id,
+                    learning_outcome_id=outcome if outcome in outcomes[topic_id] else None,
+                    source=item.source,
+                    item_type=item.item_type,
+                    bloom_level=item.bloom_level,
+                    difficulty=item.difficulty,
+                    stem=item.stem,
+                    options=item.options or None,
+                    correct_option=None
+                    if item.correct_option is None
+                    else str(item.correct_option),
+                    model_answer=item.model_answer or None,
+                    rubric=[c.model_dump() for c in item.rubric] or None,
+                    equivalence_group=item.equivalence_group,
+                    review_status="auto_rejected" if item.id in discarded else "approved",
+                    auto_review={
+                        "job_id": job.job_id,
+                        "on_demand": True,
+                        "enrollment_id": enrollment_id,
+                        "final_attempt": upcoming,
+                        "review": reviews.get(item.id),
+                    },
+                    prompt_version=result.meta.prompt_version,
+                )
+            )
+        await self._uow.commit()
+        return True
+
+
+def _generated_for(item: AssessmentItem, enrollment_id: int, attempt: int) -> bool:
+    """Si la pregunta se generó bajo demanda para ese intento de la final (B-011)."""
+    review = item.auto_review or {}
+    return (
+        bool(review.get("on_demand"))
+        and review.get("enrollment_id") == enrollment_id
+        and review.get("final_attempt") == attempt
+    )
 
 
 class BadgeService(_Base):

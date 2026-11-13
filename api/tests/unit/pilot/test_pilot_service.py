@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 
 from app.common.exceptions import BusinessRuleError, ConflictError, NotFoundError
-from app.domains.pilot.entities import ContentFacts, Pilot, PilotEnrollment
+from app.domains.pilot.entities import ContentFacts, PathSummary, Pilot, PilotEnrollment
 from app.domains.pilot.service import PilotConfig, PilotService, split_arms
 from tests.unit.conftest import World
 from tests.unit.fakes import InMemoryRepository
@@ -60,6 +60,9 @@ class InMemoryPopulation:
 
     async def content_facts(self, course_id: int) -> ContentFacts:
         return self.facts
+
+    async def path_summary(self, learning_path_id: int) -> PathSummary | None:
+        return PathSummary("Datos", "Piloto", 80.0) if learning_path_id == 1 else None
 
 
 READY = ContentFacts(topic_ids=[1, 2], approved_diagnostic_items=3, approved_final_items=2)
@@ -130,10 +133,17 @@ async def test_readiness_names_what_is_missing_and_start_freezes_the_pilot(world
         topics_without_explanation=[2],
         topics_without_items=[1],
         topics_without_video=[1],
+        topics_without_equivalents=[1, 2],
     )
     service, _, pilots = build(world, learners(2), facts)
     pilot_id = (await service.create(CONFIG)).pilot.id or 0
-    missing = (await service.readiness(pilot_id)).missing
+    readiness = await service.readiness(pilot_id)
+    # Lo que AD4 muestra junto a los pendientes: consentimientos y temas con ítems.
+    assert (readiness.consents_accepted, readiness.consents_total) == (2, 2)
+    assert (readiness.topics_with_items, readiness.topics_total) == (1, 2)
+    # Ningún tema tiene versiones paralelas: no hay ítems equivalentes para Hake.
+    assert readiness.topics_with_equivalent_items == 0
+    missing = readiness.missing
     assert missing == [
         "randomization",
         "min_consents",
@@ -193,12 +203,18 @@ async def test_the_fixed_preview_sends_every_topic_with_the_fixed_arm(world: Wor
 
     def sequence(input_: dict[str, Any]) -> dict[str, Any]:
         seen.update(input_)
-        return {"steps": []}
+        return {"steps": [{"step_order": 1, "topic_id": str(require_id(first))}]}
 
     world.ai.task_results["path.sequence"] = sequence
     service, _, _ = build(world, [])
-    pilot_id = (await service.create(CONFIG)).pilot.id or 0
-    await service.fixed_path_preview(pilot_id)
+    created = await service.create(CONFIG)
+    pilot_id = created.pilot.id or 0
+    assert created.path is not None
+    assert created.path.name == "Datos"
+    preview = await service.fixed_path_preview(pilot_id)
+    # Aditivo para AD4b: el nombre del tema y el umbral de la final.
+    assert preview["steps"][0]["name"] == first.name
+    assert preview["final_pass_threshold"] == 80.0
     assert seen["pilot_arm"] == "fixed"
     assert seen["topics"][1] == {
         "topic_id": str(require_id(second)),

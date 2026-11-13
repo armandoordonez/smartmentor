@@ -1,6 +1,8 @@
 """D5f · Calidad de los videos según los aprendices (P2).
 
-El índice (0 a 100) y su estado salen de la API; con menos de 10 calificaciones aparece «Midiendo».
+El índice (0 a 100), el estado y el mínimo de calificaciones salen de la API; antes de ese mínimo
+aparece «Midiendo». La API mide si el video fue útil, no una nota de 1 a 5 ni el efecto en el quiz
+(F-012 en `proyecto/seguimiento/FIGMA.md`): esas columnas muestran lo que haya.
 Para un video «En revisión» el instructor decide qué hacer. El contrato no trae una ruta propia
 para esa decisión: se usa `PATCH /video-candidates/{id}` (ver la bitácora F07c).
 """
@@ -13,6 +15,7 @@ from components.formatting import decimal, percent
 from components.layout import render_page_header
 from components.staff_theme import QUALITY_BADGE
 from components.table import Row, render_table
+from components.theme import VIDEO_RATING_LABEL
 from core.container import get_client
 from core.staff_errors import show_staff_error
 from core.staff_state import TOPIC_VIDEOS, get_staff_state
@@ -29,10 +32,9 @@ render_page_header(
     "Calidad de los videos según los aprendices",
     breadcrumb="Revisión de contenido › Calidad de los videos",
     caption=(
-        "Índice de 0 a 100: calificación 30 %, efecto en el quiz 30 %, vista completa 15 %, "
-        "reportes 10 %, fuente y vigencia 10 %, subtítulos 5 %. Se calcula con 10 o más "
-        "calificaciones; antes aparece como «Midiendo». Desde 75 se recomienda, entre 60 y 74 "
-        "queda en observación y por debajo de 60 pasa a revisión."
+        "Índice de 0 a 100 según cuántos aprendices marcan el video como útil, ajustado cuando "
+        "hay pocas calificaciones; antes del mínimo aparece como «Midiendo». Desde 75 se "
+        "recomienda, entre 60 y 74 queda en observación y por debajo de 60 pasa a revisión."
     ),
 )
 
@@ -47,10 +49,16 @@ except ApiError as error:
     st.stop()
 
 
+# Las etiquetas llegan con su código desde la API y ya traducidas desde los fixtures.
+_LABELS: dict[str, str] = {str(code): text for code, text in VIDEO_RATING_LABEL.items()}
+
+
 def _rating(row: VideoQualityRow) -> str:
-    if row.rating_average is None:
-        return f"{row.ratings_count} de {row.ratings_needed} notas"
-    return f"{decimal(row.rating_average)} · {row.ratings_count} notas"
+    if row.rating_average is not None:
+        return f"{decimal(row.rating_average)} · {row.ratings_count} notas"
+    if row.useful_rate is not None and row.ratings_count >= row.ratings_needed:
+        return f"{percent(row.useful_rate)} útil · {row.ratings_count} notas"
+    return f"{row.ratings_count} de {row.ratings_needed} notas"
 
 
 def _effect(row: VideoQualityRow) -> str:
@@ -100,13 +108,14 @@ for row in flagged:
         st.subheader(f"{code} · Qué dicen los aprendices", anchor=False)
         with st.container(horizontal=True):
             for label in feedback.labels:
-                st.badge(f"{label.label} · {label.count}", color="gray")
+                st.badge(f"{_LABELS.get(label.label, label.label)} · {label.count}", color="gray")
         for comment in feedback.comments:
             st.markdown(f"«{comment}»")
-        st.caption(
-            f"{feedback.comments_total} comentarios anónimos, agrupados con IA por tema. Tú ves "
-            "el texto, nunca el nombre de quien lo escribió."
-        )
+        if feedback.comments_total:
+            st.caption(
+                f"{feedback.comments_total} comentarios anónimos, agrupados con IA por tema. Tú "
+                "ves el texto, nunca el nombre de quien lo escribió."
+            )
     st.subheader(f"Tu decisión sobre el video de {code}", anchor=False)
     st.caption(
         "Mientras decides, el video deja de recomendarse y los aprendices ven el video de "

@@ -31,6 +31,7 @@ from app.domains.content.service import (
     VideoFeedbackService,
     VideoService,
     bayesian_quality,
+    quality_status,
     version_label,
 )
 from app.domains.courses.entities import Course, Topic
@@ -375,4 +376,16 @@ async def test_video_quality_shows_measuring_until_enough_ratings(cw: ContentWor
     assert (top.ratings, top.measuring) == (6, False)
     assert top.useful_rate == 1.0
     assert top.quality_index is not None
-    assert next(r for r in rows if require_id(r.video) != video_id).measuring is True
+    # 6 «útil» de 6: (5 · 0,5 + 6) / 11 = 0,77, desde 0,75 se recomienda.
+    assert top.status == "recommended"
+    other = next(r for r in rows if require_id(r.video) != video_id)
+    assert other.measuring is True
+    assert other.status == "measuring"
+
+
+def test_the_video_status_follows_the_d5f_thresholds() -> None:
+    assert quality_status(None) == "measuring"
+    assert quality_status(0.75) == "recommended"
+    assert quality_status(0.749) == "observation"
+    assert quality_status(0.60) == "observation"
+    assert quality_status(0.599) == "under_review"

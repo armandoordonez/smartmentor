@@ -293,11 +293,16 @@ async def test_the_whole_learner_flow_from_enrollment_to_badge(
     assert failed_final["next_action"]["type"] == "review_final"
     plan = (await learner.get(f"{API}/me/enrollments/{enrollment_id}/review-plan")).json()
     assert {w["topic_id"] for w in plan["weak_topics"]} == set(path.topics.values())
+    first_final_ids = {i["item_id"] for i in final.json()["items"]}
     final = await learner.post(
         f"{API}/me/enrollments/{enrollment_id}/final-attempts", headers=key()
     )
+    # B-011: quedaban 2 sin ver; el reintento pide más a `ai/` (aquí el falso las genera al
+    # instante) en lugar de quedarse con 2 o sin preguntas.
+    assert final.status_code == 201, final.text
     final_ids = {i["item_id"] for i in final.json()["items"]}
-    assert len(final_ids) == 2
+    assert 2 < len(final_ids) <= 10
+    assert not final_ids & first_final_ids
     passed_final = (await answer_attempt(learner, engine, final.json(), correct=True)).json()
     assert passed_final["passed"] is True
     assert passed_final["next_action"]["type"] == "answer_survey"
@@ -512,6 +517,61 @@ async def test_an_exhausted_bank_answers_202_until_the_new_items_are_ingested(
     ai.auto_complete = True
     second = await start_attempt(http, enrollment_id, step_id)
     assert not {i["item_id"] for i in second["items"]} & {i["item_id"] for i in first["items"]}
+
+
+async def final_ready_enrollment(
+    http: httpx.AsyncClient, engine: AsyncEngine, path: PublishedPath
+) -> int:
+    """Inscripción con todos los pasos aprobados u omitidos: lista para la final."""
+    enrollment_id = await enrollment_in_path(
+        http, path, diagnostic_correct=dict.fromkeys(path.topics.values(), True)
+    )
+    for _ in range(10):
+        current = (await http.get(f"{API}/me/enrollments/{enrollment_id}")).json()
+        if current["status"] == "final_ready":
+            return enrollment_id
+        assert current["next_action"]["type"] == "study_topic", current["next_action"]
+        attempt = await start_attempt(http, enrollment_id, current["next_action"]["step_id"])
+        await answer_attempt(http, engine, attempt, correct=True)
+    raise AssertionError("la inscripción no llegó a final_ready")
+
+
+async def retire_unseen_final_items(
+    engine: AsyncEngine, path: PublishedPath, seen: set[int]
+) -> None:
+    """Deja el banco de la final sin preguntas no vistas (como un banco pequeño agotado)."""
+    async with engine.begin() as conn:
+        await conn.execute(
+            text(
+                "UPDATE assessment_items SET review_status = 'retired' "
+                "WHERE source = 'final' AND topic_id = ANY(:topics) AND NOT (id = ANY(:seen))"
+            ),
+            {"topics": list(path.topics.values()), "seen": list(seen)},
+        )
+
+
+async def test_a_final_retake_without_unseen_items_answers_202_until_they_are_ingested(
+    client_for: ClientFactory, engine: AsyncEngine, path: PublishedPath, ai: FakeAiService
+) -> None:
+    """B-011: sin preguntas de la final no vistas, el reintento ya no se queda en 409."""
+    http = await learner_client(client_for, engine, "gus")
+    enrollment_id = await final_ready_enrollment(http, engine, path)
+    first = await http.post(f"{API}/me/enrollments/{enrollment_id}/final-attempts", headers=key())
+    assert first.status_code == 201, first.text
+    await answer_attempt(http, engine, first.json(), correct=False)
+    await retire_unseen_final_items(engine, path, {i["item_id"] for i in first.json()["items"]})
+    ai.auto_complete = False
+    pending = await http.post(f"{API}/me/enrollments/{enrollment_id}/final-attempts", headers=key())
+    assert pending.status_code == 202, pending.text
+    assert (await http.get(pending.json()["poll_url"])).json()["ingested"] is False
+    ai.complete(pending.json()["job_id"])
+    assert (await http.get(pending.json()["poll_url"])).json()["ingested"] is True
+    ai.auto_complete = True
+    second = await http.post(f"{API}/me/enrollments/{enrollment_id}/final-attempts", headers=key())
+    assert second.status_code == 201, second.text
+    seen = {i["item_id"] for i in first.json()["items"]}
+    assert second.json()["items"]
+    assert not {i["item_id"] for i in second.json()["items"]} & seen
 
 
 async def test_the_sweep_ingests_a_diagnostic_nobody_polled(

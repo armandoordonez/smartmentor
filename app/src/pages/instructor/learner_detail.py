@@ -16,7 +16,7 @@ from components.layout import render_notice
 from components.levels import LevelRow, render_levels
 from components.staff_theme import ADMIN_ENROLLMENT_BADGE
 from components.table import Row, render_table
-from components.theme import ATTEMPT_BADGE
+from components.theme import ATTEMPT_BADGE, EDUCATION_LEVEL_LABEL, EXPERIENCE_BAND_LABEL
 from core.config import get_settings
 from core.container import get_client
 from core.staff_errors import show_staff_error
@@ -29,6 +29,22 @@ def _continue_text(step: ExhaustedStep) -> str:
     if not step.continue_topic_names:
         return ""
     return " El aprendiz puede seguir con " + ", ".join(step.continue_topic_names) + "."
+
+
+def _profile_text(detail: LearnerDetail) -> str:
+    """El resumen del fixture o, con la API real, el perfil reducido (A3c) en una línea."""
+    if detail.profile_summary:
+        return detail.profile_summary
+    parts = [
+        detail.job_title or "",
+        EDUCATION_LEVEL_LABEL[detail.education_level] if detail.education_level else "",
+        (
+            f"Experiencia: {EXPERIENCE_BAND_LABEL[detail.experience_band].lower()}"
+            if detail.experience_band
+            else ""
+        ),
+    ]
+    return " · ".join(part for part in parts if part) or "Sin descripción."
 
 
 def _objective_text(detail: LearnerDetail) -> str:
@@ -133,8 +149,10 @@ if (target := st.session_state.get("ld-target")) is not None:
 
 st.caption("**PERFIL Y OBJETIVO**")
 with st.container(border=True, key="panel-learner-profile"):
-    st.markdown(detail.profile_summary or "Sin descripción.")
-    st.markdown(f"Hoja de vida: {detail.resume_summary or 'sin completar'}")
+    st.markdown(_profile_text(detail))
+    # La API no manda la hoja de vida (perfil reducido A3c): sin dato no se afirma que falte.
+    if detail.resume_summary:
+        st.markdown(f"Hoja de vida: {detail.resume_summary}")
     if detail.objective:
         st.markdown(_objective_text(detail))
 

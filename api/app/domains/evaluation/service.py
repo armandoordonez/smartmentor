@@ -128,6 +128,9 @@ class EvaluatorAdminService:
 class AnnotationQueueEntry:
     item: AssessmentItem
     own_annotation: ItemAnnotation | None
+    topic_name: str = ""
+    evaluator_slot: int | None = None
+    """El puesto propio si ya anotó; si no, el primero libre; None si no queda ninguno."""
 
 
 @dataclass(frozen=True)
@@ -171,7 +174,37 @@ class AnnotationService:
             course_ids=courses, annotator_user_id=user.id, done=done, limit=limit, offset=offset
         )
         own = await self._annotations.own_annotations(user.id, [require_id(i) for i in items])
-        return [AnnotationQueueEntry(i, own.get(require_id(i))) for i in items], total
+        names: dict[int, str] = {}
+        for topic_id in sorted({i.topic_id for i in items}):
+            topic = await self._topics.get(topic_id)
+            names[topic_id] = topic.name if topic is not None else ""
+        entries: list[AnnotationQueueEntry] = []
+        for item in items:
+            mine = own.get(require_id(item))
+            entries.append(
+                AnnotationQueueEntry(
+                    item,
+                    mine,
+                    topic_name=names.get(item.topic_id, ""),
+                    evaluator_slot=await self._slot_for(require_id(item), mine),
+                )
+            )
+        return entries, total
+
+    async def annotated_count(self, user: CurrentUser, *, course_id: int | None) -> int:
+        """Cuántos ítems de esos cursos ya anotó el evaluador (el progreso de D5b)."""
+        courses = await self._access.courses_of(user, course_id)
+        _, total = await self._annotations.queue(
+            course_ids=courses, annotator_user_id=user.id, done=True, limit=1, offset=0
+        )
+        return total
+
+    async def _slot_for(self, item_id: int, mine: ItemAnnotation | None) -> int | None:
+        if mine is not None:
+            return mine.evaluator_slot
+        used = await self._annotations.slots_used(item_id)
+        free = [s for s in (1, 2) if s not in used]
+        return free[0] if free else None
 
     async def annotate(
         self, user: CurrentUser, item_id: int, data: AnnotationInput

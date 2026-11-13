@@ -184,8 +184,8 @@ def test_a7_session_expired_screen_and_new_login() -> None:
     assert_no_exception(at)
     texts = page_texts(at, skip_header=False)
     assert "Tu sesión expiró" in texts
-    # Figma A7: título, explicación de los 30 minutos y botones.
-    assert any("30 minutos sin actividad" in t for t in texts)
+    # Figma A7: título, explicación de las 3 horas (Figma dice 30 minutos, F-015) y botones.
+    assert any("3 horas sin actividad" in t for t in texts)
     assert [b.label for b in at.button if b.key and b.key.startswith("status-")] == [
         "Iniciar sesión",
         "Cambiar de cuenta",

@@ -185,7 +185,7 @@ Campos sin valor van en `null`. `screen` es una ayuda para la app (código de Fi
 | `POST /me/attempts/{attempt_id}/submit` | learner | — (`Idempotency-Key`) | `200 AttemptResult` si todo es opción múltiple; `202 JobAccepted` (`grading.short_answer`) si hay respuesta corta | `409 ATTEMPT_ALREADY_SUBMITTED`, `428` | U1c, U1d |
 | `GET /me/attempts/{attempt_id}/result` | learner | — | `200 AttemptResult` | `409 ATTEMPT_NOT_GRADED` | E7, E7b, E7c, E9, E9c |
 | `POST /me/attempt-answers/{id}/review-request` | learner | `{"comment": "…"}` | `201 {alert_id}` | `409 REVIEW_ALREADY_REQUESTED`, `422 REVIEW_NOT_ALLOWED` | E7 |
-| `POST /me/enrollments/{id}/final-attempts` | learner | — (`Idempotency-Key`) | `201 Attempt` (`assessment_type=final`) | `422 FINAL_ASSESSMENT_LOCKED`, `MAX_ATTEMPTS_EXCEEDED` | E8 |
+| `POST /me/enrollments/{id}/final-attempts` | learner | — (`Idempotency-Key`) | `201 Attempt` (`assessment_type=final`); `202 JobAccepted` (`items.generate_final_bank`) si un reintento tiene menos de 10 preguntas no vistas o no queda ninguna: se genera una versión más (aprobada al ingerir, marcada `on_demand`), a lo sumo una vez por intento, y se vuelve a pedir con otra clave | `422 FINAL_ASSESSMENT_LOCKED`, `MAX_ATTEMPTS_EXCEEDED`, `409 CONFLICT` si aun así no hay preguntas | E8, U1d |
 | `GET /me/enrollments/{id}/review-plan` | learner | — | `200 {"weak_topics": [{topic_id, name, score, resource_id}]}` | `404` | E9 |
 | `GET /me/badges` | learner | — | `200 [BadgeSummary]` | — | E12 |
 | `GET /me/enrollments/{id}/badge` | learner | — | `200 BadgeSummary` | `404 BADGE_NOT_FOUND` | E10 |
@@ -311,7 +311,7 @@ Los ítems de `Diagnostic` y `Attempt` traen además `topic_name`, `bloom_level`
 | `GET /courses/{id}/extraction-metrics` | instructor, admin | — | `200 {"topics": {precision, recall, f1}, "prerequisites": {precision, recall, f1}, "corrections": n}` | `404` | D2, AD3 |
 | `PATCH /learning-paths/{id}/settings` | instructor, admin | `PathSettings` | `200 PathSettings` | `409 PILOT_RUNNING` sin `confirm_pilot_change=true` | D3b |
 | `GET /learning-paths/{id}/dashboard` | instructor, admin | — | `200 Dashboard`: `course_id`, `learning_path` (id, nombre, grupo, estado), `settings` (como `PathSettings`), `pilot_running`, `kpi` (tasas en porcentaje, 0 a 100; `attempts_per_topic`), `learners`, `topics`, `mastery_matrix`, `critical_topics` y `topic_stats` (todos los temas, en el orden de `topics`). Forma exacta: `DashboardResponse` en `openapi-api.json` | `404` | D3 |
-| `GET /learning-paths/{id}/learners/{enrollment_id}` | instructor, admin | — | `200` perfil reducido (A3c), niveles e intentos | `404` | D4, D4b |
+| `GET /learning-paths/{id}/learners/{enrollment_id}` | instructor, admin | — | `200` ruta (`learning_path`), perfil reducido (A3c), niveles, pasos e intentos | `404` | D4, D4b |
 | `POST /path-steps/{id}/attempt-grants` | instructor, admin | `{"attempts": 1, "note": "…"}` | `201 AttemptGrant` | `422` | D4c |
 | `POST /enrollments/{id}/final-attempt-grants` | instructor, admin | `{"attempts": 1, "note": "…"}` | `201 AttemptGrant` | `422` | D4c |
 | `GET /topics/{id}/resources` | instructor, admin | — | `200 [Resource]` (todas las versiones) | `404` | D5 |
@@ -323,7 +323,7 @@ Los ítems de `Diagnostic` y `Attempt` traen además `topic_name`, `bloom_level`
 | `GET /topics/{id}/video-candidates` | instructor, admin | — | `200 video_resource.v1` + ids de `video_candidates` | `404` | D5e |
 | `PATCH /video-candidates/{id}` | instructor, admin | `{"status"?: "in_use"\|"backup"\|"rejected", "is_relevant"?: true}` | `200` (el juicio va a `video_relevance_judgments`) | `422` | D5e |
 | `POST /topics/{id}/video-candidates` | instructor, admin | `{"youtube_video_id": "EXAMPLE0004", "title": "…"}` | `201` (`origin=instructor`) | `422` | D5e |
-| `GET /learning-paths/{id}/video-quality` | instructor, admin | — | `200` (P2) | — | D5f |
+| `GET /learning-paths/{id}/video-quality` | instructor, admin | — | `200` (P2): `min_ratings` y, por video, calificaciones por etiqueta, vistas completas, índice bayesiano y `status` (`measuring`, `recommended` ≥ 0,75, `observation` ≥ 0,60, `under_review`) | — | D5f |
 | `GET /alerts?unread=true` | instructor | — | `200` paginado | — | D3, D4 |
 | `PATCH /alerts/{id}/read` | instructor | — | `200` | `404` | D3 |
 
@@ -351,7 +351,7 @@ Con `PREREQUISITE_CYCLE`, el cuerpo de error trae `"cycle": [12, 11, 12]`.
 
 | Método y ruta | Rol | Cuerpo | Respuesta | Errores | Pantalla |
 | --- | --- | --- | --- | --- | --- |
-| `GET /evaluation/annotation-queue?course_id=` | instructor evaluador | — | `200` paginado de ítems **sin** la anotación del otro evaluador | `403 EVALUATOR_NOT_ASSIGNED` | D5b |
+| `GET /evaluation/annotation-queue?course_id=` | instructor evaluador | — | `200 AnnotationQueuePage`: ítems **sin** la anotación del otro evaluador, con `topic_name` y `evaluator_slot`, más `annotated` (cuántos ya anotó) | `403 EVALUATOR_NOT_ASSIGNED` | D5b |
 | `POST /items/{id}/annotations` | instructor evaluador | `{"single_correct": true, "clear_stem": true, "bloom_ok": true, "plausible_distractors": false, "verdict": "invalid", "comment": "…"}` | `201` | `409 ANNOTATION_ALREADY_EXISTS`, `EVALUATOR_SLOTS_FULL` | D5b |
 | `GET /evaluation/grading-queue?sample=random\|learner_request` | instructor evaluador | — | `200` paginado de respuestas cortas **sin** la nota del LLM | `403 EVALUATOR_NOT_ASSIGNED` | D5c |
 | `POST /attempt-answers/{id}/human-gradings` | instructor evaluador | `{"criteria": [{"criterion", "met", "points_awarded"}], "score": 80, "sample_type": "random"}` | `201` con la nota del LLM para comparar (solo después de guardar) | `409 HUMAN_GRADING_ALREADY_EXISTS` | D5c |
@@ -364,17 +364,18 @@ Con `PREREQUISITE_CYCLE`, el cuerpo de error trae `"cycle": [12, 11, 12]`.
 | `GET`, `POST /roles`; `PATCH /roles/{id}` | admin | CRUD actual | `200`/`201` | `409 ROLE_CODE_ALREADY_EXISTS` | AD1 |
 | `GET`, `POST /user-roles`; `PATCH /user-roles/{id}/deactivate` | admin | `{"user_id", "role_id"}` | `200`/`201`; refleja el cambio en Keycloak (DEF-27) | `409 ROLE_ALREADY_ASSIGNED`, `LAST_ADMIN` | AD1, CU-14 |
 | `PUT /users/{id}/roles` | admin | `{"roles": ["learner", "instructor"]}` | `200 {"roles": [...]}` (reemplaza el conjunto; auditado por `_audit`) | `409 LAST_ADMIN`, `422` | AD1, CU-14 |
-| `GET /pilots/{id}`, `PUT /pilots/{id}` | admin | `{"learning_path_id", "starts_on", "ends_on", "delayed_posttest_on", "random_seed"}` | `200 Pilot` | `409 PILOT_ALREADY_STARTED` | AD4 |
+| `GET /pilots` | admin | — | `200` paginado de `Pilot` (AD4 abre el más reciente que no cerró) | — | AD4 |
+| `GET /pilots/{id}`, `PUT /pilots/{id}` | admin | `{"learning_path_id", "starts_on", "ends_on", "delayed_posttest_on", "random_seed"}` | `200 Pilot` con `arms` y `learning_path` (`id`, `name`, `group_label`) | `409 PILOT_ALREADY_STARTED` | AD4 |
 | `POST /pilots/{id}/randomize` | admin | — | `200 {"personalized": n, "fixed": m}` | `409 PILOT_ALREADY_STARTED`, `422 PILOT_CONSENT_REQUIRED` | AD4 |
 | `POST /pilots/{id}/start` | admin | — | `200 Pilot` (`running`) | `422 PILOT_NOT_READY` | AD4 |
-| `GET /pilots/{id}/readiness` | admin | — | `200 {"ready": false, "missing": ["min_consents", "item_bank"]}` | — | AD4 |
-| `GET /pilots/{id}/fixed-path-preview` | admin | — | `200 learning_path.v1` con `pilot_arm=fixed` | — | AD4b |
-| `GET`, `POST /enrollments` | admin | `{"user_id", "learning_path_id"}` | `200`/`201` | `409 ENROLLMENT_ALREADY_EXISTS`, `403 CONSENT_REQUIRED` | AD5 |
+| `GET /pilots/{id}/readiness` | admin | — | `200 {"ready": false, "missing": ["min_consents", "item_bank"], "consents_accepted", "consents_total", "topics_total", "topics_with_items", "topics_with_equivalent_items"}` (temas con un `equivalence_group` de dos o más versiones, ver `docs/evaluation/metrics.md`) | — | AD4 |
+| `GET /pilots/{id}/fixed-path-preview` | admin | — | `200 learning_path.v1` con `pilot_arm=fixed`, el `name` de cada paso y `final_pass_threshold` | — | AD4b |
+| `GET`, `POST /enrollments` | admin | `{"user_id", "learning_path_id"}` | `200`/`201` `AdminEnrollment`: la inscripción con `user_id`, `full_name` y `pilot_consent` (autorización `pilot_research` vigente) | `409 ENROLLMENT_ALREADY_EXISTS`, `403 CONSENT_REQUIRED` | AD5 |
 | `PATCH /enrollments/{id}/withdraw` | admin | `{"note": "…"}` | `200` (`withdrawn`, `analysis_included=false`) | `409 ENROLLMENT_CLOSED` | AD5 |
 | `PATCH /enrollments/{id}/move` | admin | `{"learning_path_id": 2}` | `200` (sale del análisis) | `409` | AD5 |
 | `GET /llm-call-logs?task=&model=&prompt_id=` | admin | — | `200` paginado | — | AD2 |
 | `GET /llm-call-logs/summary` | admin | — | `200 {"by_task": [{task, calls, invalid_json_rate, latency_p50_ms, latency_p95_ms, cost_usd}], "total_cost_usd"}` | — | AD2 |
-| `GET /metrics/evaluation?learning_path_id=` | admin (todo), instructor (sus rutas) | — | `200` (F1, κ, QWK, fidelidad, P@3, nDCG@3 que se calculan en SQL) | — | AD3 |
+| `GET /metrics/evaluation?learning_path_id=` | admin (todo), instructor (sus rutas) | — | `200` (F1, κ, QWK, fidelidad, P@3, nDCG@3 que se calculan en SQL) y `groups`: el catálogo de AD3, con cada métrica, su meta (`docs/evaluation/metrics.md`) y su estado (`meets`, `not_met`, `report`, `no_data`), que decide la API | — | AD3 |
 
 ## 7. Trabajos y salud
 

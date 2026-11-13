@@ -200,6 +200,7 @@ async def test_the_pilot_starts_only_when_it_is_ready_and_then_it_is_frozen(
     client_for: ClientFactory,
 ) -> None:
     pilot = await new_pilot(client, course)
+    assert pilot["learning_path"]["id"] == course.path_id
     readiness = (await client.get(f"{API}/pilots/{pilot['id']}/readiness")).json()
     assert readiness["ready"] is False
     assert {
@@ -219,7 +220,12 @@ async def test_the_pilot_starts_only_when_it_is_ready_and_then_it_is_frozen(
         await enroll(engine, client_for, course, f"par-{n}", pilot_consent=True)
     assert (await client.post(f"{API}/pilots/{pilot['id']}/randomize")).status_code == 200
     ready = (await client.get(f"{API}/pilots/{pilot['id']}/readiness")).json()
-    assert ready == {"ready": True, "missing": []}
+    assert (ready["ready"], ready["missing"]) == (True, [])
+    # Lo que AD4 muestra junto a los pendientes (aditivo).
+    assert (ready["consents_accepted"], ready["consents_total"]) == (2, 2)
+    assert ready["topics_with_items"] == ready["topics_total"] == len(course.topic_ids)
+    # Los bancos simulados no traen versiones paralelas: el conteo existe y no pasa del total.
+    assert 0 <= ready["topics_with_equivalent_items"] <= ready["topics_total"]
 
     started = await client.post(f"{API}/pilots/{pilot['id']}/start")
     assert started.status_code == 200, started.text
@@ -251,6 +257,7 @@ async def test_the_fixed_path_preview_asks_the_ai_service_for_the_fixed_arm(
     preview = await client.get(f"{API}/pilots/{pilot['id']}/fixed-path-preview")
     assert preview.status_code == 200
     assert preview.json()["pilot_arm"] == "fixed"
+    assert 0 < preview.json()["final_pass_threshold"] <= 100
     assert seen["pilot_arm"] == "fixed"
     assert [t["topic_id"] for t in seen["topics"]] == [str(t) for t in course.topic_ids]
     assert seen["topics"][1]["prerequisites"] == [str(course.topic_ids[0])]

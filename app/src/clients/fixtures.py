@@ -348,8 +348,12 @@ class FixturesClient(LearnerFixtureOps, StaffFixturesOps):
         self.check_online()
         return 1
 
-    def create_final_attempt(self, enrollment_id: int, *, idempotency_key: str) -> Attempt:
+    def create_final_attempt(
+        self, enrollment_id: int, *, idempotency_key: str
+    ) -> Attempt | JobAccepted:
         del enrollment_id, idempotency_key
+        if "poll_url" in self.doc_raw("final_attempt"):
+            return self.accepted("final_attempt")
         return self.doc("final_attempt", Attempt)
 
     def get_review_plan(self, enrollment_id: int) -> ReviewPlan:

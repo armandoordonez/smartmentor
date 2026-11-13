@@ -11,7 +11,7 @@ from support import FIXTURES_DIR
 from clients.api import ApiClient
 from clients.base import ApiError
 from clients.jobs import is_done, next_poll_delay, wait_for_job
-from clients.models import Job
+from clients.models import Attempt, Job, JobAccepted
 
 BASE = "http://api.test"
 
@@ -130,6 +130,20 @@ def test_idempotent_operations_send_the_key(client: ApiClient) -> None:
     )
     client.create_final_attempt(7, idempotency_key="key-final")
     assert final.calls.last.request.headers["Idempotency-Key"] == "key-final"
+
+
+@respx.mock
+def test_create_final_attempt_returns_attempt_or_job(client: ApiClient) -> None:
+    """B-011: un reintento sin preguntas no vistas responde 202 mientras se generan."""
+    url = f"{BASE}/api/v1/me/enrollments/7/final-attempts"
+    respx.post(url).mock(
+        side_effect=[
+            httpx.Response(201, json=fixture("attempt")),
+            httpx.Response(202, json=fixture("job_accepted")),
+        ]
+    )
+    assert isinstance(client.create_final_attempt(7, idempotency_key="f1"), Attempt)
+    assert isinstance(client.create_final_attempt(7, idempotency_key="f2"), JobAccepted)
 
 
 @respx.mock

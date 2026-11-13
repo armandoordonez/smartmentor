@@ -96,6 +96,10 @@ async def test_the_blind_annotation_never_shows_the_other_evaluators_work(
     assert queue.status_code == 200
     assert queue.json()["total"] == 5
     assert queue.json()["items"][0]["correct_option"] is not None
+    # Lo que D5b muestra sin otra llamada: el tema, el puesto que tomaría y el progreso.
+    assert queue.json()["items"][0]["topic_name"]
+    assert queue.json()["items"][0]["evaluator_slot"] == 1
+    assert queue.json()["annotated"] == 0
 
     mine = await first.post(
         f"{API}/items/{item['id']}/annotations",
@@ -109,6 +113,8 @@ async def test_the_blind_annotation_never_shows_the_other_evaluators_work(
     assert pending.json()["total"] == 5
     assert "SECRETO-DEL-PRIMERO" not in pending.text
     assert all(i["own_annotation"] is None for i in pending.json()["items"])
+    slots = {i["id"]: i["evaluator_slot"] for i in pending.json()["items"]}
+    assert slots[item["id"]] == 2
     theirs = await second.post(f"{API}/items/{item['id']}/annotations", json=ANNOTATION)
     assert theirs.status_code == 201
     assert theirs.json()["evaluator_slot"] == 2
@@ -121,6 +127,8 @@ async def test_the_blind_annotation_never_shows_the_other_evaluators_work(
     assert done_second.json()["items"][0]["own_annotation"]["verdict"] == "valid"
     done_first = await first.get(f"{API}/evaluation/annotation-queue", params={"done": True})
     assert done_first.json()["items"][0]["own_annotation"]["verdict"] == "invalid"
+    assert done_first.json()["items"][0]["evaluator_slot"] == 1
+    assert done_first.json()["annotated"] == 1
     # Con los dos cupos llenos el ítem sale de la cola pendiente.
     assert (await first.get(f"{API}/evaluation/annotation-queue")).json()["total"] == 4
 

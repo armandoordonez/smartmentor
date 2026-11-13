@@ -6,8 +6,13 @@
   navegador ni a los registros. Solo se **lee** su `exp` para decidir si pedir un nuevo login: la
   firma y el `aud` los valida la API.
 - La cookie de sesión de Streamlit dura 30 días y no sigue el vencimiento del token, así que
-  `access_token()` revisa `exp` antes de cada llamada. Si venció (o la API responde 401), la app
-  muestra A7 «Tu sesión expiró».
+  `access_token()` revisa `exp` antes de cada llamada.
+- **Renovación silenciosa.** Streamlit no expone el refresh token, así que el access token (corto,
+  5 min en el realm) se renueva repitiendo `st.login`: mientras la sesión SSO de Keycloak siga viva
+  (3 h, `ssoSessionIdleTimeout` y `ssoSessionMaxLifespan`), Keycloak devuelve un token nuevo sin
+  pedir contraseña ni OTP. Cuando la sesión SSO vence, Keycloak muestra su login. Para no entrar en
+  un ciclo de redirecciones, solo se renueva si el token vencido se emitió hace más de
+  `RENEW_MIN_AGE_SECONDS` (`should_renew_silently`); si no, la app muestra A7 «Tu sesión expiró».
 - `st.logout()` no cierra la sesión de Keycloak: `end_session_url` arma la redirección al
   `end_session_endpoint` del realm.
 
@@ -34,21 +39,45 @@ logger = logging.getLogger(__name__)
 
 PROVIDER = "keycloak"
 EXPIRY_LEEWAY_SECONDS = 30
+RENEW_MIN_AGE_SECONDS = 120
+TOKEN_EXPIRED_CODE = "TOKEN_EXPIRED"  # noqa: S105 (código de error de la API, no un secreto)
 _END_SESSION_KEY = "end_session_url"
 
 
 # --- Funciones puras (con pruebas) -------------------------------------------------------------
 
 
-def token_expiry(token: str) -> datetime | None:
-    """Lee el `exp` de un JWT **sin validar la firma** (solo para decidir si pedir otro login)."""
+def _claim_time(token: str, claim: str) -> datetime | None:
     try:
         payload = token.split(".")[1]
         padded = payload + "=" * (-len(payload) % 4)
         claims: Any = json.loads(base64.urlsafe_b64decode(padded))
-        return datetime.fromtimestamp(float(claims["exp"]), tz=UTC)
+        return datetime.fromtimestamp(float(claims[claim]), tz=UTC)
     except (IndexError, ValueError, KeyError, TypeError):
         return None
+
+
+def token_expiry(token: str) -> datetime | None:
+    """Lee el `exp` de un JWT **sin validar la firma** (solo para decidir si pedir otro login)."""
+    return _claim_time(token, "exp")
+
+
+def should_renew_silently(
+    token: str | None, *, now: datetime | None = None, min_age: int = RENEW_MIN_AGE_SECONDS
+) -> bool:
+    """True si conviene pedir un token nuevo a Keycloak sin mostrar A7.
+
+    Solo para un token vencido que se emitió hace más de `min_age` segundos: si el token recién
+    renovado ya llega vencido (reloj desfasado, realm mal configurado), renovar otra vez sería un
+    ciclo infinito de redirecciones, y es mejor mostrar A7.
+    """
+    if token is None or not is_token_expired(token, now=now):
+        return False
+    issued = _claim_time(token, "iat")
+    if issued is None:
+        return False
+    current = now or datetime.now(UTC)
+    return (current - issued).total_seconds() > min_age
 
 
 def is_token_expired(
@@ -99,8 +128,19 @@ def access_token() -> str:
     """Access token vigente; lanza `ApiError(401)` si falta o venció (la página muestra A7)."""
     token = _exposed_token("access")
     if token is None or is_token_expired(token):
-        raise ApiError(401, "TOKEN_EXPIRED", "access token missing or expired")
+        raise ApiError(401, TOKEN_EXPIRED_CODE, "access token missing or expired")
     return token
+
+
+def renew_silently_if_possible() -> None:
+    """Si el token venció pero la sesión de Keycloak puede seguir viva, repite el login.
+
+    `st.login` redirige el navegador y no regresa; si no aplica, la función no hace nada y la
+    página sigue con A7.
+    """
+    if should_renew_silently(_exposed_token("access")):
+        logger.info("Access token vencido: se renueva con la sesión SSO de Keycloak")
+        st.login(PROVIDER)
 
 
 def login() -> None:
