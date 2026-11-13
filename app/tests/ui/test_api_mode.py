@@ -107,7 +107,7 @@ def test_an_expired_token_shows_a7_before_any_api_call(monkeypatch: pytest.Monke
     assert [e.value for e in at.exception] == []
     texts = page_texts(at, skip_header=False)
     assert "Tu sesión expiró" in texts
-    assert any("30 minutos sin actividad" in t for t in texts)
+    assert any("3 horas sin actividad" in t for t in texts)
     assert [b.label for b in at.button] == ["Iniciar sesión", "Cambiar de cuenta"]
 
 

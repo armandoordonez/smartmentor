@@ -33,6 +33,43 @@ NOW = datetime(2026, 11, 7, 15, 0, tzinfo=UTC)
 # --- Token ---------------------------------------------------------------------------------------
 
 
+def test_an_old_expired_token_is_renewed_silently() -> None:
+    token = make_jwt(
+        {
+            "iat": int((NOW - timedelta(minutes=6)).timestamp()),
+            "exp": int((NOW - timedelta(minutes=1)).timestamp()),
+        }
+    )
+    assert auth.should_renew_silently(token, now=NOW)
+
+
+def test_a_valid_token_is_not_renewed() -> None:
+    token = make_jwt(
+        {
+            "iat": int((NOW - timedelta(minutes=1)).timestamp()),
+            "exp": int((NOW + timedelta(minutes=4)).timestamp()),
+        }
+    )
+    assert not auth.should_renew_silently(token, now=NOW)
+
+
+def test_a_token_that_arrives_expired_is_not_renewed_again() -> None:
+    """Sin este freno, un reloj desfasado dejaría la app en un ciclo de redirecciones."""
+    token = make_jwt(
+        {
+            "iat": int((NOW - timedelta(seconds=30)).timestamp()),
+            "exp": int((NOW - timedelta(seconds=10)).timestamp()),
+        }
+    )
+    assert not auth.should_renew_silently(token, now=NOW)
+
+
+def test_without_token_or_iat_there_is_no_silent_renewal() -> None:
+    assert not auth.should_renew_silently(None, now=NOW)
+    no_iat = make_jwt({"exp": int((NOW - timedelta(minutes=1)).timestamp())})
+    assert not auth.should_renew_silently(no_iat, now=NOW)
+
+
 def test_token_expiry_reads_exp_without_validating_signature() -> None:
     token = make_jwt({"exp": int((NOW + timedelta(minutes=5)).timestamp())})
     assert auth.token_expiry(token) == NOW + timedelta(minutes=5)
