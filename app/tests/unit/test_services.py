@@ -153,3 +153,32 @@ def test_video_title_link_escapes_brackets_and_rejects_odd_ids() -> None:
         assert youtube_watch_url(odd) is None
         assert video_thumbnail_markdown(odd) is None
         assert video_link_markdown("Título", odd) == "Título"
+
+
+def test_save_resume_accepts_languages_from_a_reloaded_models_module() -> None:
+    """Streamlit recarga `clients/models.py` y el perfil de la sesión queda con la clase vieja."""
+    from pydantic import BaseModel
+
+    from clients.models import Profile
+    from components.resume_form import ResumeValues
+
+    class OldLanguage(BaseModel):  # otra clase con los mismos campos, como tras la recarga
+        code: str
+        cefr_level: str
+
+    profile = Profile.model_construct(
+        **{
+            **FixturesClient("learner").get_profile().__dict__,
+            "languages": [OldLanguage(code="en", cefr_level="B1")],
+        }
+    )
+    values = ResumeValues(
+        education_level="undergraduate",
+        qualification_title="Ingeniería industrial",
+        job_title="Analista de datos",
+        experience_band="1_3_years",
+        tools=("Excel", "SQL"),
+        languages=(("en", "B1"),),
+    )
+    saved = save_resume(FixturesClient("learner"), profile, values)
+    assert [(lang.code, lang.cefr_level) for lang in saved.languages] == [("en", "B1")]

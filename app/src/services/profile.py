@@ -50,6 +50,11 @@ def _apply_resume(update: ProfileUpdate, values: ResumeValues) -> None:
 
 
 def _update_from(profile: Profile) -> ProfileUpdate:
+    """Copia el perfil al cuerpo de `PUT /me/profile`.
+
+    Los idiomas se rearman desde sus campos: el perfil vive en la sesión y, si Streamlit recarga
+    `clients/models.py`, sus `Language` son de la clase vieja y Pydantic los rechaza.
+    """
     return ProfileUpdate(
         description=profile.description,
         education_level=profile.education_level,
@@ -57,5 +62,8 @@ def _update_from(profile: Profile) -> ProfileUpdate:
         job_title=profile.job_title,
         experience_band=profile.experience_band,
         tools=list(profile.tools),
-        languages=list(profile.languages),
+        languages=[
+            Language(code=language.code, cefr_level=language.cefr_level)
+            for language in profile.languages
+        ],
     )
