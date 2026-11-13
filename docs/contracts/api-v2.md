@@ -185,7 +185,7 @@ Campos sin valor van en `null`. `screen` es una ayuda para la app (código de Fi
 | `POST /me/attempts/{attempt_id}/submit` | learner | — (`Idempotency-Key`) | `200 AttemptResult` si todo es opción múltiple; `202 JobAccepted` (`grading.short_answer`) si hay respuesta corta | `409 ATTEMPT_ALREADY_SUBMITTED`, `428` | U1c, U1d |
 | `GET /me/attempts/{attempt_id}/result` | learner | — | `200 AttemptResult` | `409 ATTEMPT_NOT_GRADED` | E7, E7b, E7c, E9, E9c |
 | `POST /me/attempt-answers/{id}/review-request` | learner | `{"comment": "…"}` | `201 {alert_id}` | `409 REVIEW_ALREADY_REQUESTED`, `422 REVIEW_NOT_ALLOWED` | E7 |
-| `POST /me/enrollments/{id}/final-attempts` | learner | — (`Idempotency-Key`) | `201 Attempt` (`assessment_type=final`) | `422 FINAL_ASSESSMENT_LOCKED`, `MAX_ATTEMPTS_EXCEEDED` | E8 |
+| `POST /me/enrollments/{id}/final-attempts` | learner | — (`Idempotency-Key`) | `201 Attempt` (`assessment_type=final`); `202 JobAccepted` (`items.generate_final_bank`) si un reintento tiene menos de 10 preguntas no vistas o no queda ninguna: se genera una versión más (aprobada al ingerir, marcada `on_demand`), a lo sumo una vez por intento, y se vuelve a pedir con otra clave | `422 FINAL_ASSESSMENT_LOCKED`, `MAX_ATTEMPTS_EXCEEDED`, `409 CONFLICT` si aun así no hay preguntas | E8, U1d |
 | `GET /me/enrollments/{id}/review-plan` | learner | — | `200 {"weak_topics": [{topic_id, name, score, resource_id}]}` | `404` | E9 |
 | `GET /me/badges` | learner | — | `200 [BadgeSummary]` | — | E12 |
 | `GET /me/enrollments/{id}/badge` | learner | — | `200 BadgeSummary` | `404 BADGE_NOT_FOUND` | E10 |

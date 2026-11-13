@@ -11388,7 +11388,7 @@
     },
     "/api/v1/me/enrollments/{enrollment_id}/final-attempts": {
       "post": {
-        "description": "Intento de la final: solo con todos los pasos `passed` o `skipped` (E8).",
+        "description": "Intento de la final: solo con todos los pasos `passed` o `skipped` (E8).\n\n`202` si un reintento no tiene suficientes preguntas no vistas: se generan más bajo demanda.",
         "operationId": "start_final_attempt_api_v1_me_enrollments__enrollment_id__final_attempts_post",
         "parameters": [
           {
@@ -11429,6 +11429,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobAccepted"
+                }
+              }
+            },
+            "description": "Hay que generar más preguntas (U1d, B-011)"
           },
           "422": {
             "content": {

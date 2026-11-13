@@ -3,12 +3,22 @@
 Se llega por `take_final` (crea el intento con `POST …/final-attempts`) o `continue_attempt`
 (retoma uno abierto). Una pregunta a la vez con guardado parcial; si hay respuesta corta la API
 responde con un trabajo de IA (U1d) y, si falla, se conserva lo respondido.
+
+En un reintento sin preguntas no vistas la API responde `202` y genera más (B-011): se muestra la
+misma carga que en el quiz y, al terminar, se pide otra vez el intento con una clave nueva (la
+anterior repetiría el `202`).
 """
 
 import streamlit as st
 
 from clients.base import ApiError
-from clients.models import AssessmentItem, Attempt, AttemptResult, LearnerAnswer
+from clients.models import (
+    AssessmentItem,
+    Attempt,
+    AttemptResult,
+    LearnerAnswer,
+    NextActionType,
+)
 from components.layout import render_page_header
 from core.container import get_client
 from core.errors import show_action_error
@@ -40,10 +50,24 @@ GRADING = JobScreen(
     error_message="No pudimos calificar tu respuesta corta. Tus respuestas están guardadas.",
 )
 
+PREPARE = JobScreen(
+    key="final-prepare",
+    title="Preparando preguntas nuevas para tu evaluación final",
+    steps=(
+        "Revisar las preguntas que ya respondiste",
+        "Generar preguntas nuevas con los mismos resultados de aprendizaje",
+        "Verificar que cada pregunta tenga una sola respuesta correcta",
+    ),
+    error_message="No pudimos preparar las preguntas nuevas. Tu avance está guardado.",
+)
+
 client = get_client()
 state = get_session().learner
 enrollment = current_enrollment(client)
-action = redirect_unless(enrollment, {"take_final", "continue_attempt", "wait_job"}, PAGE)
+allowed: set[NextActionType] = {"take_final", "continue_attempt", "wait_job"}
+if state.quiz_job_id and state.quiz_job_kind == "final-prepare":
+    allowed.add("review_final")  # el reintento desde E9 espera preguntas nuevas (B-011)
+action = redirect_unless(enrollment, allowed, PAGE)
 if action.type == "wait_job" and action.job_id:
     state.quiz_job_id, state.quiz_job_kind = action.job_id, "final-grade"
 
@@ -64,6 +88,20 @@ def _regrade() -> None:
     st.rerun()
 
 
+def _new_final_request() -> None:
+    """Después de generar (o para reintentar), el intento se pide con una clave nueva."""
+    state.quiz_job_id = None
+    idempotency_key(f"final-{enrollment.id}", fresh=True)
+    st.rerun()
+
+
+# --- Preparando preguntas nuevas (reintento sin preguntas no vistas, B-011) ---------------------
+
+if state.quiz_job_id and state.quiz_job_kind == "final-prepare":
+    if wait_for_job(client, state.quiz_job_id, PREPARE, on_retry=_new_final_request) is None:
+        st.stop()
+    _new_final_request()
+
 # --- U1d · Calificando la evaluación final -------------------------------------------------------
 
 if state.quiz_job_id and state.quiz_job_kind == "final-grade":
@@ -83,9 +121,13 @@ try:
     elif action.type == "continue_attempt" and action.attempt_id is not None:
         attempt = client.get_attempt(action.attempt_id)
     else:
-        attempt = client.create_final_attempt(
+        created = client.create_final_attempt(
             enrollment.id, idempotency_key=idempotency_key(f"final-{enrollment.id}")
         )
+        if not isinstance(created, Attempt):
+            state.quiz_job_id, state.quiz_job_kind = created.job_id, "final-prepare"
+            st.rerun()
+        attempt = created
     path = client.get_path(enrollment.id)
 except ApiError as error:
     show_action_error(error)
