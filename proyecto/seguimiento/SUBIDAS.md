@@ -120,4 +120,3 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** app con Ruff, formato y mypy en verde y **635 pruebas en verde** (3 nuevas). Recorrido en el navegador del 8502: consentimiento → catálogo → E2 → E2b con inglés B1 → E3
 - **Ojo con el PR 5:** toca `pages/learner/onboarding_profile.py` y `clients/fixtures.py`, que el PR 5 también puede cambiar
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 14:40)
-
