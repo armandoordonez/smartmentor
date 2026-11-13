@@ -1,9 +1,11 @@
 [
   {
+    "attempt_id": 9100,
     "number": 1,
     "score": 88.0,
     "correct": 9,
     "total": 10,
-    "extra_grant": false
+    "extra_grant": false,
+    "passed": true
   }
 ]

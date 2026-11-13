@@ -25,6 +25,7 @@ ORIGIN_LABEL = {
     "learner_edited": "TU OBJETIVO · EDITADO POR TI",
     "path_default": "TU OBJETIVO · DEFINIDO POR LA RUTA",
 }
+DEFAULT_ORIGIN_LABEL = "TU OBJETIVO"
 
 client = get_client()
 state = get_session().learner
@@ -60,7 +61,7 @@ else:
     )
     if enrollment.objective is not None:
         with st.container(key="card-objective"):
-            eyebrow(ORIGIN_LABEL[enrollment.objective.origin])
+            eyebrow(ORIGIN_LABEL.get(enrollment.objective.origin or "", DEFAULT_ORIGIN_LABEL))
             st.markdown(f"**{enrollment.objective.statement}**")
             if st.button("Editar objetivo", key="path-edit-objective"):
                 state.edit_objective = True

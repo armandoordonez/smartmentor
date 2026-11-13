@@ -33,7 +33,7 @@ for badge in badges:
     with st.container(key=f"achievement-{badge.public_id}"):
         render_badge_slot(
             badge.learning_path_name,
-            f"Obtenido {short_date(badge.issued_at.date())}",
+            f"Obtenido {short_date(badge.issued_at.date())}" if badge.issued_at else "Obtenido",
             obtained=True,
             key=badge.public_id,
         )

@@ -285,7 +285,11 @@ class LearnerFixtureOps:
         return data
 
     def job_document(self, job_id: str) -> Job:
-        """Primera consulta: en curso. Las siguientes: el resultado del escenario."""
+        """Primera consulta: en curso. Las siguientes: el resultado del escenario.
+
+        Como la API real, el trabajo no trae `next_action`: al terminar, la inscripción de la
+        sesión pasa al `next_action` de `learner/after-<job_id>.json` (lo que la API dice después).
+        """
         self.check_online()
         polls = self._job_polls.get(job_id, 0)
         self._job_polls[job_id] = polls + 1
@@ -293,7 +297,8 @@ class LearnerFixtureOps:
             stage = "running" if polls == 0 else self._script.doc("job_outcome")
             job = Job.model_validate(read_fixture(self._dir, f"learner/{job_id}_{stage}"))
             if job.status == "succeeded":
-                self.echo_next_action(job.next_action)
+                after = read_fixture(self._dir, f"learner/after-{job_id}")
+                self.echo_next_action(NextAction.model_validate(after))
             return job
         name = "job_running" if polls == 0 else "job_succeeded"
         job = Job.model_validate(read_fixture(self._dir, name))
@@ -302,6 +307,10 @@ class LearnerFixtureOps:
 
     def accepted(self, operation: str) -> JobAccepted:
         return self.doc(operation, JobAccepted)
+
+    def job_succeeded(self, job_id: str) -> bool:
+        """El trabajo ya se consultó hasta terminar bien (p. ej., el banco de preguntas listo)."""
+        return self._job_polls.get(job_id, 0) >= 2 and self._script.doc("job_outcome") == "done"
 
     def get_badge_assertion(self, public_id: str) -> BadgeAssertion:
         del public_id

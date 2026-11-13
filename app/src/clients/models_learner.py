@@ -59,13 +59,15 @@ class StudyGoals(ApiModel):
 
 
 class AttemptSummary(ApiModel):
-    """Propuesta: un intento ya calificado, para el historial (E7c, E9c)."""
+    """`AttemptHistoryItem` del OpenAPI: un intento ya calificado, para el historial (E7c, E9c)."""
 
+    attempt_id: int | None = None
     number: int
     score: float
     correct: int
     total: int
     extra_grant: bool = False
+    passed: bool | None = None
 
 
 class StudyGoalsUpdate(ApiModel):

@@ -12,6 +12,9 @@ from components.course_card import PathCardView
 from components.formatting import approx_duration
 from components.theme import PATH_LEVEL_LABEL, PATH_TAG_TEXT
 
+OPEN_LABEL = "Ver ruta"
+CONTINUE_LABEL = "Continuar ruta"
+
 
 @dataclass(frozen=True)
 class CatalogView:
@@ -24,15 +27,20 @@ class CatalogView:
 
 
 def card_view(card: LearningPathCard) -> PathCardView:
-    meta = f"{card.topics_count} temas · {approx_duration(card.estimated_minutes)} · "
-    meta += PATH_LEVEL_LABEL[card.level]
+    """«3 temas · ~8 h · Intermedio». La duración y el nivel se omiten si la API no los da."""
+    parts = [f"{card.topic_count} {'tema' if card.topic_count == 1 else 'temas'}"]
+    if card.estimated_minutes > 0:
+        parts.append(approx_duration(card.estimated_minutes))
+    if card.level is not None:
+        parts.append(PATH_LEVEL_LABEL[card.level])
     tag = PATH_TAG_TEXT[card.tags[0]] if card.tags else None
     return PathCardView(
         path_id=card.id,
         name=card.name,
-        meta=meta,
+        meta=" · ".join(parts),
         tag_text=tag,
-        description=card.description,
+        description=card.course.description,
+        cta_label=CONTINUE_LABEL if card.enrolled else OPEN_LABEL,
     )
 
 

@@ -3,6 +3,7 @@
   "assessment_type": "final",
   "status": "in_progress",
   "step_id": null,
+  "attempt_number": 1,
   "items": [
     {
       "item_id": 601,

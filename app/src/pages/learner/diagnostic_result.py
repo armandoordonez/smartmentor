@@ -27,6 +27,7 @@ ORIGIN_LABEL = {
     "learner_edited": "TU OBJETIVO · EDITADO POR TI",
     "path_default": "OBJETIVO DE LA RUTA",
 }
+DEFAULT_ORIGIN_LABEL = "TU OBJETIVO"
 
 client = get_client()
 state = get_session().learner
@@ -41,7 +42,10 @@ except ApiError as error:
     show_action_error(error)
     st.stop()
 
-objective: Objective = enrollment.objective or result.proposed_objective
+objective: Objective | None = enrollment.objective or result.proposed_objective
+if objective is None:
+    # La IA no propuso objetivo: la persona lo escribe (E4b).
+    state.edit_objective = True
 
 eyebrow("PASO 4 DE 4 · OBJETIVO")
 render_page_header("Tu punto de partida", caption=FORMULA)
@@ -49,9 +53,10 @@ render_levels(
     [LevelRow(t.topic_id, t.name, t.level, t.classification) for t in result.level_by_topic]
 )
 
-with st.container(key="card-objective"):
-    eyebrow(ORIGIN_LABEL[objective.origin])
-    st.markdown(f"**{objective.statement}**")
+if objective is not None:
+    with st.container(key="card-objective"):
+        eyebrow(ORIGIN_LABEL.get(objective.origin or "", DEFAULT_ORIGIN_LABEL))
+        st.markdown(f"**{objective.statement}**")
 
 
 def _save(chosen: Objective) -> None:
@@ -64,7 +69,7 @@ def _save(chosen: Objective) -> None:
     go_to_action(updated.next_action)
 
 
-if not state.edit_objective:
+if not state.edit_objective and objective is not None:
     edit_col, confirm_col = st.columns(2)
     if edit_col.button("Editar el objetivo", key="objective-edit"):
         state.edit_objective = True
@@ -76,10 +81,16 @@ if not state.edit_objective:
 # --- E4b · Editar el objetivo -------------------------------------------------------------------
 
 proposal = result.proposed_objective
-base = proposal if st.session_state.get("objective-use-proposal") else objective
+base = (proposal if st.session_state.get("objective-use-proposal") else None) or objective
+draft = (
+    ObjectiveDraft(base.bloom_verb, base.content, base.criterion)
+    if base
+    else ObjectiveDraft("", "", "")
+)
 editor = render_objective_editor(
-    ObjectiveDraft(base.bloom_verb, base.content, base.criterion),
+    draft,
     key="objective",
+    can_reset=proposal is not None,
     topics_count=sum(1 for t in result.level_by_topic if t.classification != "mastered"),
 )
 if editor.cancel:

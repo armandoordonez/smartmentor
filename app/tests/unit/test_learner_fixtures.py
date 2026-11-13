@@ -36,6 +36,8 @@ MODELS: dict[str, Any] = {
     "badge": models.BadgeSummary,
     "assertion": BadgeAssertion,
     "goals": StudyGoals,
+    # `next_action` de la inscripción cuando termina un trabajo (la API no lo pone en el trabajo).
+    "after-job": models.NextAction,
 }
 FILES = sorted(LEARNER_DIR.glob("*.json"))
 

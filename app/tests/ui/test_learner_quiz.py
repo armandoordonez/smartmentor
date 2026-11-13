@@ -14,6 +14,7 @@ from learner_support import (
 from streamlit.testing.v1 import AppTest
 
 from clients.base import ApiError
+from clients.models import NextAction
 from clients.ops_learner import LearnerScript
 
 GRADE_SCRIPT = LearnerScript({"submit_attempt": "learner/job_accepted_grading"})
@@ -88,6 +89,20 @@ def test_e6_start_quiz_can_need_new_questions_u1b() -> None:
     assert any(
         t.startswith("Preparando preguntas nuevas para tu intento 2") for t in page_texts(at)
     )
+
+
+def test_e6_open_attempt_continues_instead_of_creating_another() -> None:
+    at = learner_app("learner_path", TOPIC, run=False)
+    session_of(at).learner.step_id = 813
+    client_of(at).echo_next_action(
+        NextAction(type="continue_attempt", step_id=813, attempt_id=9002, screen="E6b")
+    )
+    at.run()
+    assert "Empezar quiz" not in page_texts(at)
+    button(at, "Continuar quiz").click().run()
+    no_exception(at)
+    assert session_of(at).learner.attempt_id == 9002
+    assert "Quiz: Regresión logística" in page_texts(at)
 
 
 def test_e6_exhausted_attempts_block_the_quiz() -> None:
@@ -187,6 +202,47 @@ def test_u1b_follows_figma_and_continues_to_the_new_quiz() -> None:
     at.switch_page(QUIZ).run()  # segunda consulta: las preguntas están listas
     no_exception(at)
     assert "Quiz: Regresión logística" in page_texts(at)
+
+
+def test_u1c_passed_topic_shows_the_result_without_asking_for_its_content() -> None:
+    """Al aprobar, el tema queda `passed` y la API ya no entrega su contenido (409)."""
+    at = _open_quiz(script=GRADE_SCRIPT)
+    _answer_all(at, 5)
+    client_of(at)._script = LearnerScript(
+        {**client_of(at)._script.docs, "path": "learner/path_all_passed"}
+    )
+    at.run()  # segunda consulta: terminó y el tema quedó aprobado
+    no_exception(at)
+    assert "¡Tema aprobado!" in page_texts(at)
+    assert not at.error
+
+
+def _waiting_for(at: AppTest, attempt_id: int, job_id: str) -> None:
+    """La inscripción dice `wait_job` (U1c), como la API cuando la persona vuelve a mitad."""
+    client_of(at).echo_next_action(
+        NextAction(type="wait_job", attempt_id=attempt_id, job_id=job_id, screen="U1c")
+    )
+
+
+def test_u1c_coming_back_while_grading_waits_and_shows_the_result() -> None:
+    at = learner_app("learner_path", QUIZ, run=False)
+    _waiting_for(at, 9002, "job-grading")
+    at.run()
+    no_exception(at)
+    assert "Calificando tu respuesta corta" in page_texts(at)
+    assert session_of(at).learner.attempt_id == 9002
+    at.run()  # segunda consulta: terminó
+    no_exception(at)
+    assert "¡Tema aprobado!" in page_texts(at)
+
+
+def test_u1c_coming_back_while_the_final_is_graded_goes_to_the_final() -> None:
+    script = LearnerScript({"attempt": "learner/attempt_final"})
+    at = learner_app("learner_path", QUIZ, script=script, run=False)
+    _waiting_for(at, 9100, "job-final-grading")
+    at.run()
+    no_exception(at)
+    assert session_of(at).learner.final_attempt_id == 9100
 
 
 # --- E7 · E7b · E7c ------------------------------------------------------------------------------

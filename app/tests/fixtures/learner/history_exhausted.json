@@ -1,23 +1,29 @@
 [
   {
+    "attempt_id": 9100,
     "number": 1,
     "score": 60.0,
     "correct": 3,
     "total": 5,
-    "extra_grant": false
+    "extra_grant": false,
+    "passed": false
   },
   {
+    "attempt_id": 9101,
     "number": 2,
     "score": 60.0,
     "correct": 3,
     "total": 5,
-    "extra_grant": false
+    "extra_grant": false,
+    "passed": false
   },
   {
+    "attempt_id": 9102,
     "number": 3,
     "score": 40.0,
     "correct": 2,
     "total": 5,
-    "extra_grant": false
+    "extra_grant": false,
+    "passed": false
   }
 ]

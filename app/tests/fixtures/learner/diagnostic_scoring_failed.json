@@ -1,0 +1,252 @@
+{
+  "id": 55,
+  "status": "scoring_failed",
+  "items": [
+    {
+      "item_id": 301,
+      "topic_id": 10,
+      "stem": "Pregunta de diagnóstico 1 sobre Introducción y tipos de aprendizaje.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Introducción y tipos de aprendizaje",
+      "bloom_level": "remember"
+    },
+    {
+      "item_id": 302,
+      "topic_id": 10,
+      "stem": "Pregunta de diagnóstico 2 sobre Introducción y tipos de aprendizaje.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Introducción y tipos de aprendizaje",
+      "bloom_level": "understand"
+    },
+    {
+      "item_id": 303,
+      "topic_id": 10,
+      "stem": "Pregunta de diagnóstico 3 sobre Introducción y tipos de aprendizaje.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Introducción y tipos de aprendizaje",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 304,
+      "topic_id": 11,
+      "stem": "Un modelo de regresión lineal obtiene R² = 0,92 en entrenamiento y 0,41 en prueba. ¿Qué es lo más probable?",
+      "item_type": "multiple_choice",
+      "options": [
+        "El modelo está sobreajustado a los datos de entrenamiento",
+        "El modelo está subajustado y necesita más variables",
+        "Es normal que el R² de prueba sea menor; no hay problema",
+        "Los datos de prueba tienen errores de digitación"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Regresión lineal",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 305,
+      "topic_id": 11,
+      "stem": "Pregunta de diagnóstico 5 sobre Regresión lineal.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Regresión lineal",
+      "bloom_level": "evaluate"
+    },
+    {
+      "item_id": 306,
+      "topic_id": 11,
+      "stem": "Pregunta de diagnóstico 6 sobre Regresión lineal.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Regresión lineal",
+      "bloom_level": "remember"
+    },
+    {
+      "item_id": 307,
+      "topic_id": 12,
+      "stem": "Pregunta de diagnóstico 7 sobre Regresión logística.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Regresión logística",
+      "bloom_level": "understand"
+    },
+    {
+      "item_id": 308,
+      "topic_id": 12,
+      "stem": "Pregunta de diagnóstico 8 sobre Regresión logística.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Regresión logística",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 309,
+      "topic_id": 12,
+      "stem": "Pregunta de diagnóstico 9 sobre Regresión logística.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Regresión logística",
+      "bloom_level": "analyze"
+    },
+    {
+      "item_id": 310,
+      "topic_id": 13,
+      "stem": "Pregunta de diagnóstico 10 sobre Árboles de decisión.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Árboles de decisión",
+      "bloom_level": "evaluate"
+    },
+    {
+      "item_id": 311,
+      "topic_id": 13,
+      "stem": "Pregunta de diagnóstico 11 sobre Árboles de decisión.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Árboles de decisión",
+      "bloom_level": "remember"
+    },
+    {
+      "item_id": 312,
+      "topic_id": 13,
+      "stem": "Pregunta de diagnóstico 12 sobre Árboles de decisión.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Árboles de decisión",
+      "bloom_level": "understand"
+    },
+    {
+      "item_id": 313,
+      "topic_id": 14,
+      "stem": "Pregunta de diagnóstico 13 sobre Evaluación de modelos.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "apply"
+    },
+    {
+      "item_id": 314,
+      "topic_id": 14,
+      "stem": "Pregunta de diagnóstico 14 sobre Evaluación de modelos.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "analyze"
+    },
+    {
+      "item_id": 315,
+      "topic_id": 14,
+      "stem": "Pregunta de diagnóstico 15 sobre Evaluación de modelos.",
+      "item_type": "multiple_choice",
+      "options": [
+        "Opción A",
+        "Opción B",
+        "Opción C",
+        "Opción D"
+      ],
+      "allows_dont_know": true,
+      "topic_name": "Evaluación de modelos",
+      "bloom_level": "evaluate"
+    }
+  ],
+  "answers": [
+    {
+      "item_id": 301,
+      "selected_option": 0,
+      "dont_know": false,
+      "text_answer": null
+    },
+    {
+      "item_id": 302,
+      "selected_option": 0,
+      "dont_know": false,
+      "text_answer": null
+    },
+    {
+      "item_id": 303,
+      "selected_option": 0,
+      "dont_know": false,
+      "text_answer": null
+    }
+  ],
+  "submitted_at": "2026-11-11T22:00:00Z"
+}
