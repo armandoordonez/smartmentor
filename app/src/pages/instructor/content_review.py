@@ -83,6 +83,10 @@ render_page_header(
     "Revisión de contenido generado con IA",
     caption=f"{course.name} · Tema {topic.position}: {topic.name}",
 )
+# Los dos contadores van juntos bajo el título, como en Figma D5 (V-022).
+with st.container(horizontal=True, key="content-counts"):
+    st.badge(f"Recursos ({len(resources)})", color="green")
+    st.badge(f"Preguntas ({items.total})", color="gray")
 
 
 def _act(call: Any, *args: Any, **kwargs: Any) -> None:
@@ -97,7 +101,6 @@ def _act(call: Any, *args: Any, **kwargs: Any) -> None:
 
 # --- Recursos ------------------------------------------------------------------------------
 
-st.subheader(f"Recursos ({len(resources)})", anchor=False)
 resource_rows = []
 for resource in resources:
     actions: list[tuple[str, str]] = []
@@ -117,7 +120,7 @@ for resource in resources:
         Row(
             key=str(resource.id),
             cells=[
-                f"**{resource.title}**",
+                resource.title,
                 sources_text(resource),
                 faithfulness_text(resource),
                 RESOURCE_BADGE[resource.review_status],
@@ -234,7 +237,6 @@ if editing is not None:
 # --- Preguntas -----------------------------------------------------------------------------
 
 st.subheader("Banco de preguntas del tema", anchor=False)
-st.caption(f"Preguntas ({items.total})")
 item_rows = []
 for item in items.items:
     item_actions: list[tuple[str, str]] = []
@@ -247,7 +249,7 @@ for item in items.items:
         Row(
             key=str(item.id),
             cells=[
-                f"**{item.stem}**",
+                item.stem,
                 BLOOM_LABEL[item.bloom_level],
                 ITEM_TYPE_LABEL[item.item_type],
                 ITEM_BADGE[item.review_status],
@@ -321,7 +323,7 @@ if editing_item is not None:
         _item_editor(target_item)
 
 with st.container(horizontal=True):
-    if st.button("Anotar preguntas con la rúbrica", key="cr-annotate"):
+    if st.button("Anotar preguntas con la rúbrica", type="primary", key="cr-annotate"):
         st.switch_page(ITEM_ANNOTATION)
     if st.button("Calificar respuestas cortas", key="cr-grade"):
         st.switch_page(SHORT_ANSWER_GRADING)

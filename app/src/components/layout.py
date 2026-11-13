@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 import streamlit as st
+from streamlit.delta_generator import DeltaGenerator
 
 from clients.models import Role
 from components.formatting import initials
@@ -87,6 +88,20 @@ def render_page_header(
     st.title(title, anchor=False)
     if caption:
         st.caption(caption)
+
+
+def render_page_header_with_actions(
+    title: str, *, caption: str | None = None, key: str = "page-actions"
+) -> DeltaGenerator:
+    """Título y subtítulo a la izquierda y, a la derecha, el contenedor de las acciones (V-002).
+
+    Como en Figma (D1, AD1): los botones de la página van en la misma fila que el título. La página
+    pone sus botones dentro del contenedor que devuelve (`with actions: st.button(...)`).
+    """
+    left, right = st.columns([3, 2], vertical_alignment="center")
+    with left:
+        render_page_header(title, caption=caption)
+    return right.container(horizontal=True, horizontal_alignment="right", key=key)
 
 
 def render_notice(text: str) -> None:

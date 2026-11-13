@@ -10,10 +10,11 @@ catálogo del aprendiz y no se elimina. Los archivados se ocultan salvo que se p
 import streamlit as st
 
 from clients.base import ApiError
-from components.layout import render_notice, render_page_header
+from components.layout import render_notice, render_page_header_with_actions
 from components.staff_theme import COURSE_BADGE
 from components.table import Actions, Row, render_table
 from core.container import get_client
+from core.identity import current_me
 from core.staff_errors import show_staff_error
 from core.staff_state import (
     CONTENT_REVIEW,
@@ -33,13 +34,14 @@ render_notice(
 )
 if flash := pop_flash():
     st.success(flash)
-render_page_header("Mis cursos")
-if st.button("Nuevo curso", type="primary", key="new-course"):
-    state.course_id = None
-    state.job_id = None
-    st.session_state.pop("nc-view", None)
-    st.session_state.pop("nc-draft", None)
-    st.switch_page(NEW_COURSE)
+# V-007: Figma pone el nombre del instructor bajo el título.
+with render_page_header_with_actions("Mis cursos", caption=current_me().full_name or None):
+    if st.button("Nuevo curso", type="primary", key="new-course"):
+        state.course_id = None
+        state.job_id = None
+        st.session_state.pop("nc-view", None)
+        st.session_state.pop("nc-draft", None)
+        st.switch_page(NEW_COURSE)
 
 try:
     courses = client.list_courses(mine=True)
@@ -85,7 +87,7 @@ rows = [
     Row(
         key=str(course.id),
         cells=[
-            f"**{course.name}**",
+            course.name,
             COURSE_BADGE[course.status],
             str(course.topics_count),
             str(course.enrolled_count),

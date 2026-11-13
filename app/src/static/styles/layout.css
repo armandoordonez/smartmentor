@@ -1,14 +1,23 @@
 /*
- * Barra superior, tarjetas y rejilla. Solo clases propias y .st-key-<nombre> (el contenedor de
+ * Barra superior, tarjetas y rejilla. Solo clases propias y .st-key-{nombre} (el contenedor de
  * Streamlit que lleva `key`). No se usan clases internas de Streamlit.
  */
 
-/* Barra superior (render_header): superficie blanca con borde fino. */
+/*
+ * Barra superior (render_header), como en Figma: blanca, de lado a lado y con borde inferior (V-001).
+ * El fondo se pinta fuera de la caja con box-shadow (no cuenta para el scroll, a diferencia de
+ * un ancho de 100vw) y clip-path lo recorta arriba y abajo. Así no se tocan los
+ * contenedores de Streamlit. La separación con el borde superior es la de Streamlit (aceptada).
+ */
 .st-key-app-header {
   background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-card);
   padding: var(--space-10) var(--space-16);
+  border-bottom: 1px solid var(--border-default);
+  /* La línea se alarga a los lados con border-image-outset (tampoco cuenta para el scroll). */
+  border-image: linear-gradient(var(--border-default), var(--border-default)) 0 0 1 0 / 0 0 1px 0 / 0
+    100vmax;
+  box-shadow: 0 0 0 100vmax var(--bg-surface);
+  clip-path: inset(0 -100vmax);
 }
 
 /* Tarjetas de Figma: superficie blanca, borde fino y radio de 14 px. */
@@ -32,4 +41,24 @@
   text-align: center;
   margin: 0 auto;
   max-width: 560px;
+}
+
+/* Tablas (render_table): tarjeta blanca como en Figma, no panel gris (V-004). */
+[class*="st-key-panel-table-"] {
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}
+
+/* AD4: los dos grupos del sorteo en cajas de color (V-024). */
+.st-key-pilot-arm-personalized,
+.st-key-pilot-arm-fixed {
+  border-radius: var(--radius-row);
+  padding: var(--space-12);
+}
+.st-key-pilot-arm-personalized {
+  background: var(--learner-soft);
+}
+.st-key-pilot-arm-fixed {
+  background: var(--admin-soft);
 }

@@ -4,6 +4,8 @@
 - Toda `var(--x)` usada está definida.
 - `.streamlit/config.toml` coincide con `tokens.css`.
 - El contraste de los pares de colores cumple WCAG: 4,5:1 texto y 3:1 bordes de campos.
+- El CSS no tiene `<` seguido de una letra, ni siquiera en comentarios: DOMPurify (el saneador de
+  `st.html`) descarta el `<style>` entero y la app queda sin estilos (B-014).
 """
 
 import re
@@ -42,6 +44,12 @@ def test_build_css_includes_every_file() -> None:
     css = build_css()
     for path in CSS_FILES:
         assert f"/* {path.relative_to(STYLES_DIR).as_posix()} */" in css
+
+
+def test_the_css_has_nothing_that_looks_like_an_html_tag() -> None:
+    """B-014: con `.st-key-<nombre>` en un comentario, DOMPurify descartaba todos los estilos."""
+    found = re.findall(r"<[/!a-zA-Z][^>]{0,30}", build_css())
+    assert not found, f"usa {{nombre}} en lugar de <nombre> en el CSS: {found}"
 
 
 @pytest.mark.parametrize("path", NON_TOKEN_CSS, ids=lambda p: p.name)

@@ -53,8 +53,8 @@ def test_d5_matches_figma_with_documented_differences() -> None:
         at,
         "D5",
         accepted=(
-            # Las pestañas «Recursos (3)» y «Preguntas (12)» son títulos de sección, y el total
-            # de preguntas sale de los datos.
+            # «Recursos (3)» y «Preguntas (12)» son contadores; el total de preguntas sale de los
+            # datos.
             "Preguntas (12)",
             # Las acciones de cada fila son botones separados, no un solo texto.
             "Editar · Regenerar",

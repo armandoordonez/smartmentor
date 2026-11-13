@@ -1,6 +1,6 @@
 /*
- * Acento por rol. main.py envuelve la aplicación en un contenedor con key `role-<rol>`
- * (st.container(key="role-learner")), así que el selector es .st-key-role-<rol>.
+ * Acento por rol. main.py envuelve la aplicación en un contenedor con key `role-{rol}`
+ * (st.container(key="role-learner")), así que el selector es .st-key-role-{rol}.
  * Cada rol define --accent, --accent-soft y --accent-text; lo demás solo usa esas tres.
  *
  * P1: el color del botón principal por rol depende del atributo data-testid de los botones de
