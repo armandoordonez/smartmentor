@@ -96,8 +96,17 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
   - `3e2e003` fix(app): revisión visual de D5b a D5f y A7 frente a Figma (V-026 a V-031)
   - el commit del seguimiento (esta entrada)
 - **IDs:** B-012, B-013, B-014, M-008, T-003, T-020, T-034, V-001 a V-032
-- **PR:** ninguno todavía
-- **CI:** pendiente
+- **PR:** <https://github.com/armandoordonez/smartmentor/pull/7> hacia `dev`, abierto el 2026-11-13
+- **CI:** corrida `43485918657` (`e9130ae`): 12 trabajos en verde y 1 en curso al abrir el PR. Fallan solo `audit (api)` y `audit (app)`, informativos ([B-009](BUGS.md))
 - **Pruebas locales:** app con Ruff, formato y mypy en verde, y **632 pruebas en verde**. Revisión en el navegador del 8502 (datos de ejemplo) y del 8501 (pantalla previa al login)
 - **Fuera de la subida:** `.claude/` (configuración local) y `pr-3-descripcion-actualizada.md`
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 13:46)
+
+### S-006 · 2026-11-13 13:57 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:** `build(deps)`: actualiza `certifi`, `dnspython` y `opentelemetry-api` en `api/uv.lock` y `certifi` en `app/uv.lock` (B-009); y el registro de S-005 y S-006
+- **Por qué:** en el PR 7 fallaban `audit (api)` y `audit (app)` por vulnerabilidades conocidas en las dependencias fijadas, no por el código del PR
+- **Pruebas locales:** `pip-audit` de `api/` sin vulnerabilidades. API con Ruff y mypy en verde y 445 pruebas unitarias en verde (fallan las 2 de siempre, solo aquí, por el `.env` real). App con 632 pruebas en verde
+- **Queda:** `audit (app)` sigue fallando por `pillow` 12.3.0, que no se puede subir sin cambiar Streamlit 1.65 ([B-009](BUGS.md))
+- **Quién aprobó la subida:** el dueño, en el chat («corrígelo y sube los cambios»)
+
