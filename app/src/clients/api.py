@@ -257,7 +257,8 @@ class ApiClient(LearnerApiOps, StaffApiOps):
         response = self._request(
             "PUT",
             f"/me/enrollments/{enrollment_id}/objective",
-            json=objective.model_dump(mode="json"),
+            # `ObjectiveUpdate` no admite campos de más: `origin` lo pone la API (B-020).
+            json=objective.model_dump(mode="json", exclude={"origin"}),
         )
         return self._model(Enrollment, response)
 

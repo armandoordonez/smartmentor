@@ -51,6 +51,9 @@ def render_objective_editor(
     st.markdown("#### Editar tu objetivo")
     st.caption("Redáctalo como un resultado medible: verbo de Bloom + contenido + criterio.")
     verbs = list(BLOOM_VERBS)
+    if draft.bloom_verb and draft.bloom_verb not in verbs:
+        # La IA puede proponer un verbo fuera de la lista («Construir»): se conserva (B-020).
+        verbs.insert(0, draft.bloom_verb)
     verb = st.selectbox(
         "Verbo de Bloom",
         verbs,
