@@ -521,3 +521,14 @@ El dueño confirmó que el quiz ya no recarga la página al elegir (B-022). Enco
 ### 2026-11-13 16:52 · PRUEBA · B-023
 
 El dueño confirmó en el 8501 que «Ver ruta» del catálogo muestra la ruta (E5) con el quiz empezado.
+
+### 2026-11-13 17:26 · AUDITORÍA · B-024 a B-029
+
+A pedido del dueño se buscaron fallas del flujo sin esperar a que aparecieran en la prueba manual, con evidencia y no con suposiciones:
+
+- **Log de la API (24 h):** las respuestas 4xx y 5xx. Los `409` de `POST /me/enrollments` son esperados (el catálogo retoma la inscripción) y los `422` del objetivo eran B-020. Los `404` de `/api/v1/api/v1/…` (10:21) no salen de la app. Los `404` de `GET /me/study-goals` llevaron a B-028.
+- **Rutas:** las 64 llamadas de los clientes existen en la API.
+- **Modelos:** los 25 modelos de respuesta del aprendiz coinciden con el OpenAPI de la API en marcha (campos obligatorios, nulos y valores de los `Literal`).
+- **Flujo:** se leyó cómo la API calcula `next_action` y qué estados acepta cada acción, y se compararon con cada página del aprendiz y con D5.
+
+Se corrigieron 6 fallas (B-024 a B-029), cada una con su prueba. Resultado: 643 pruebas en verde en la rama y 746 en la copia de prueba (PR 7 + PR 5), donde `quiz.py` y `topic.py` se unieron a mano con los cambios del PR 5. 8501 reconstruido. B-025 deja una decisión pendiente para el dueño: si E9 debe dejar repasar el contenido de un tema aprobado, la API tiene que entregarlo.

@@ -131,3 +131,14 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** app con Ruff, formato y mypy en verde y **637 pruebas en verde**. En la copia de prueba (PR 5 sobre PR 7, local), 739. El dueño probó cada arreglo en el 8501 con la API real
 - **Ojo:** B-017 (el catálogo del aprendiz con la API real) se arregla con el PR 5, no con este PR
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 16:53)
+
+### S-009 · 2026-11-13 17:28 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:**
+  - `0926d4a` fix(app): tema, quiz, final y metas coherentes con la API real [B-024, B-025, B-026, B-027, B-028]
+  - `784bac6` fix(app): regenerar un recurso en D5 genera de nuevo y muestra la versión nueva [B-029]
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-024 a B-029
+- **Pruebas locales:** app con Ruff, formato y mypy en verde y **643 pruebas en verde**. En la copia de prueba (PR 5 sobre PR 7, local), 746; 8501 reconstruido con ella
+- **Ojo:** B-025 deja una decisión del dueño (que la API entregue el contenido de los temas aprobados para repasarlos desde E9). En el PR 5, `topic.py` y `quiz.py` también cambian: al fusionarlo hay que conservar los dos arreglos
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 17:28)
