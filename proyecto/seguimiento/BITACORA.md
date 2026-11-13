@@ -352,3 +352,7 @@ Primera prueba en vivo de la corrección. Funcionó: Camila repitió la final de
 | Julián (45 %) | 3 intentos de la final usados, sin aprobar | 3 intentos de la final usados, sin aprobar | Insignia |
 
 Los que agotaron la final quedan en `final_ready` con `next_action` `none` (E9c): el instructor puede darles intentos extra. Se reconstruyó también la imagen de la app (B-010, renovación del token y B-011).
+
+### 2026-11-12 20:17 · SUBIDA · —
+
+PR 6 abierto hacia `dev` (<https://github.com/armandoordonez/smartmentor/pull/6>), con la aprobación del dueño. Los estados «⬆ Subido (sin PR)» pasan a «🔼 PR 6 abierto».

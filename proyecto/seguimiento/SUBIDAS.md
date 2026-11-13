@@ -76,3 +76,10 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** app con Ruff, formato y mypy en verde, y 628 pruebas en verde. API con Ruff, formato y mypy en verde; unitarias con 445 en verde y 2 que fallan solo en este equipo por el `.env` real. La integración de la API no se corrió aquí porque apunta a Neon; la corre la CI. Prueba en vivo con 4 aprendices simulados (ver la bitácora).
 - **Fuera de la subida:** `.claude/` (configuración local) y `pr-3-descripcion-actualizada.md`
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 20:11)
+
+### S-004 · 2026-11-12 20:17 · `feature/seguimiento-trazabilidad` → `dev`
+
+- **Commits:** `5b9a6aa` docs(proyecto): corrige dos avisos de markdownlint y anota la CI de S-003; y el commit de esta entrada
+- **PR:** <https://github.com/armandoordonez/smartmentor/pull/6> hacia `dev` (abierto). Reúne S-001 a S-004: T-012 a T-015, B-001 a B-011 y la sesión de 3 h
+- **CI:** corrida `43343437580` (`5b9a6aa`) en verde, también `docs`. Solo fallan `audit (api)` y `audit (app)`, informativos ([B-009](BUGS.md))
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 20:17)

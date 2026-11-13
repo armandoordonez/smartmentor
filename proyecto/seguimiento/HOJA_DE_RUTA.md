@@ -41,8 +41,8 @@ Resumen: **hechas 6** (F0 a F5 en lo técnico; F0 y F1 esperan la aprobación de
 
 | ID | Tarea | Fase | Depende de | Estado | Inicio | Fin | Rama / PR |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T-001 | Crear la carpeta de seguimiento (esta hoja, bitácora, bugs, Figma, subidas y mejoras) | — | — | ⬆ Subido (sin PR) | 2026-11-12 13:57 | 2026-11-12 14:00 | `feature/seguimiento-trazabilidad` · `ee2ee75` |
-| T-002 | Llevar a `dev` el arreglo del bloqueo API ↔ `ai/` ([B-001](BUGS.md)) | F6 | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:01 | 2026-11-12 14:01 | `feature/seguimiento-trazabilidad` · `4ea823f` (también en `fix/bloqueo-trabajos-ia-a-dev` · `0699da7`, sin subir) |
+| T-001 | Crear la carpeta de seguimiento (esta hoja, bitácora, bugs, Figma, subidas y mejoras) | — | — | 🔼 PR 6 abierto | 2026-11-12 13:57 | 2026-11-12 14:00 | `feature/seguimiento-trazabilidad` · `ee2ee75` |
+| T-002 | Llevar a `dev` el arreglo del bloqueo API ↔ `ai/` ([B-001](BUGS.md)) | F6 | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:01 | 2026-11-12 14:01 | `feature/seguimiento-trazabilidad` · `4ea823f` (también en `fix/bloqueo-trabajos-ia-a-dev` · `0699da7`, sin subir) |
 | T-003 | Poner al día `proyecto/checklist.md`, `HANDOFF.md`, `app/README.md` y `CHANGELOG.md` ([B-002](BUGS.md)) | F10 | T-002 | ☐ | | | |
 
 ## Etapa 1 · Conectar con la API real las pantallas que faltan
@@ -53,15 +53,15 @@ Se sigue el patrón del PR 3: cambios **aditivos** en la API, un adaptador por p
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | T-010 | Flujo del aprendiz: revisar y terminar el PR 5 (catálogo, perfil, quiz y ruta) y sacarlo de borrador | E1–E7c, E15 | T-002 | ◐ PR 5 en borrador | 2026-11-11 | | `fix/flujo-aprendiz` · PR 5 |
 | T-011 | Resto del aprendiz con la API real: diagnóstico, final, badge, progreso, logros, encuesta y retención | E3–E4b, E8–E14, U1a–U1d | T-010 | ☐ | | | |
-| T-012 | Detalle del aprendiz e intentos extra | D4, D4b, D4c | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:0x (aprox.) | 2026-11-12 14:11 | `feature/seguimiento-trazabilidad` · `d47df63` |
-| T-013 | Cola de anotación de preguntas | D5b | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:13 | 2026-11-12 14:16 | `feature/seguimiento-trazabilidad` · `d47df63` |
-| T-014 | Calidad de los videos según los aprendices | D5f | F-012 | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:17 | 2026-11-12 14:22 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-012 | Detalle del aprendiz e intentos extra | D4, D4b, D4c | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:0x (aprox.) | 2026-11-12 14:11 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-013 | Cola de anotación de preguntas | D5b | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:13 | 2026-11-12 14:16 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-014 | Calidad de los videos según los aprendices | D5f | F-012 | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:17 | 2026-11-12 14:22 | `feature/seguimiento-trazabilidad` · `d47df63` |
 | T-015 | Pantallas del administrador (dividida en T-015a a T-015f) | AD1–AD5, C4 | — | ◐ | 2026-11-12 14:22 | | |
-| T-015a | Usuarios y roles: roles desde `/roles` y `/user-roles`, activos e inactivos, alta y activación con las rutas reales ([B-003 a B-005](BUGS.md)) | AD1 | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:22 | 2026-11-12 14:27 | `feature/seguimiento-trazabilidad` · `d47df63` |
-| T-015b | Log del LLM y resumen: tokens, campos vacíos, latencias y nombre de la tarea | AD2 | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:22 | 2026-11-12 14:27 | `feature/seguimiento-trazabilidad` · `d47df63` |
-| T-015c | Métricas globales: catálogo de 29 métricas con meta y estado calculados en la API (decisión del dueño) | AD3 | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:51 | 2026-11-12 14:56 | `feature/seguimiento-trazabilidad` · `d47df63` |
-| T-015d | Piloto y vista previa de la ruta fija: el piloto se busca con `GET /pilots` ([B-006](BUGS.md)), y se agregan la ruta, los consentimientos, los temas con ítems y la vista previa con nombres | AD4, AD4b | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:28 | 2026-11-12 14:33 | `feature/seguimiento-trazabilidad` · `d47df63` |
-| T-015e | Cursos, rutas e inscripciones: nombre del aprendiz y consentimiento al piloto en la API; dueño del curso desde `owner_user_id` | AD5 | — | ⬆ Subido (sin PR), CI en verde | 2026-11-12 14:38 | 2026-11-12 14:42 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-015a | Usuarios y roles: roles desde `/roles` y `/user-roles`, activos e inactivos, alta y activación con las rutas reales ([B-003 a B-005](BUGS.md)) | AD1 | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:22 | 2026-11-12 14:27 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-015b | Log del LLM y resumen: tokens, campos vacíos, latencias y nombre de la tarea | AD2 | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:22 | 2026-11-12 14:27 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-015c | Métricas globales: catálogo de 29 métricas con meta y estado calculados en la API (decisión del dueño) | AD3 | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:51 | 2026-11-12 14:56 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-015d | Piloto y vista previa de la ruta fija: el piloto se busca con `GET /pilots` ([B-006](BUGS.md)), y se agregan la ruta, los consentimientos, los temas con ítems y la vista previa con nombres | AD4, AD4b | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:28 | 2026-11-12 14:33 | `feature/seguimiento-trazabilidad` · `d47df63` |
+| T-015e | Cursos, rutas e inscripciones: nombre del aprendiz y consentimiento al piloto en la API; dueño del curso desde `owner_user_id` | AD5 | — | 🔼 PR 6 abierto, CI en verde | 2026-11-12 14:38 | 2026-11-12 14:42 | `feature/seguimiento-trazabilidad` · `d47df63` |
 | T-015f | Catálogo de prompts: revisar si lee la API o `prompts/catalog.yaml` | C4 | — | ☐ | | | |
 | T-016 | Vista previa de la ruta fija | AD4b, E5b | T-015 | ◐ AD4b hecho en T-015d; falta revisar E5b (vista del aprendiz) | 2026-11-12 14:28 | | |
 | T-017 | Revisar si las demás pantallas del instructor ya leen la API real: nuevo curso, syllabus, grafo y panel de ruta | D1b–D2d, D3b | — | ☐ | | | |
