@@ -176,6 +176,21 @@ def test_u1c_error_keeps_the_answers_and_offers_retry() -> None:
     assert "Reintentar" in [b.label for b in at.button]
 
 
+def test_u1b_error_offers_retry_and_back_to_the_path() -> None:
+    """T-020 (F-001): si falla la generación de preguntas nuevas, no se inventa un quiz."""
+    script = LearnerScript({"job_outcome": "failed"})
+    at = learner_app("learner_path", QUIZ, script=script, run=False)
+    learner = session_of(at).learner
+    learner.step_id, learner.quiz_job_id, learner.quiz_job_kind = 813, "job-retry", "prepare"
+    at.run()
+    at.run()
+    no_exception(at)
+    assert any("No pudimos preparar las preguntas nuevas" in e.value for e in at.error)
+    labels = [b.label for b in at.button]
+    assert "Reintentar" in labels
+    assert "Volver a mi ruta" in labels
+
+
 def test_u1b_follows_figma_and_continues_to_the_new_quiz() -> None:
     at = _open_topic(script=RETRY_SCRIPT)
     button(at, "Empezar quiz").click().run()
