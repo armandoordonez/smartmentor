@@ -109,3 +109,15 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** `pip-audit` de `api/` sin vulnerabilidades. API con Ruff y mypy en verde y 445 pruebas unitarias en verde (fallan las 2 de siempre, solo aquí, por el `.env` real). App con 632 pruebas en verde
 - **Queda:** `audit (app)` sigue fallando por `pillow` 12.3.0, que no se puede subir sin cambiar Streamlit 1.65 ([B-009](BUGS.md))
 - **Quién aprobó la subida:** el dueño, en el chat («corrígelo y sube los cambios»)
+
+### S-007 · 2026-11-13 14:40 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:**
+  - `65c47ec` fix(app): la hoja de vida se guarda aunque Streamlit recargue los modelos [B-015]
+  - `dedc6b1` fix(app): la hoja de vida sigue al diagnóstico y no vuelve al perfil [B-016]
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-015, B-016
+- **Pruebas locales:** app con Ruff, formato y mypy en verde y **635 pruebas en verde** (3 nuevas). Recorrido en el navegador del 8502: consentimiento → catálogo → E2 → E2b con inglés B1 → E3
+- **Ojo con el PR 5:** toca `pages/learner/onboarding_profile.py` y `clients/fixtures.py`, que el PR 5 también puede cambiar
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 14:40)
+

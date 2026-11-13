@@ -481,3 +481,13 @@ Verificado en el navegador del 8502 (D5b, D5c, D5e y D5f). A7 no tiene escenario
 El dueño pide probar Streamlit 1.66 para poder subir `pillow` a 13. Con `streamlit[auth]>=1.66,<1.67` se resuelven Streamlit 1.66.1 y `pillow` 13.0.0, y `pip-audit` de `app/` queda sin vulnerabilidades. Ruff, formato y mypy en verde.
 
 Falla 1 de 632 pruebas: `test_a3b_decision_travels_back_to_the_checkbox`. La causa, confirmada con un script mínimo en 1.65.0 y 1.66.1: en 1.66, si una ejecución termina en `st.stop()`, Streamlit no descarta el valor de los widgets con `key` que no se dibujaron. Al volver de A3b, la casilla del piloto trae su valor viejo y pisa la decisión. Hay 32 páginas con `st.stop()` y varias con pasos (consentimiento, nuevo curso, encuesta final, quiz y evaluación final), así que el cambio no se aplicó en el PR 7: se revirtió y la migración va en su propia rama, después del PR 5.
+
+### 2026-11-13 14:33 · BUG · B-015 y B-016 (hoja de vida y redirecciones del aprendiz)
+
+El dueño encontró dos fallas en la copia de revisión (8502): guardar la hoja de vida daba un `ValidationError` de Pydantic, y «Continuar» llevaba a otra página que lo devolvía.
+
+- **B-015:** el perfil vive en la sesión; cuando Streamlit recarga `clients/models.py`, los `Language` del perfil son de la clase vieja y `ProfileUpdate` los rechaza. `services/profile.py` los rearma desde sus campos.
+- **B-016:** la inscripción queda en `profiling` hasta que se guarda la descripción. La API real la mueve a `diagnosing` en `PUT /me/profile`, pero el cliente de ejemplo no lo hacía: E2b seguía el `next_action` (E2) y el diagnóstico devolvía al perfil. El cliente de ejemplo ahora hace esa transición, como el contrato, y E2 salta E2b si ya hay hoja de vida.
+- **Revisión de las demás redirecciones:** solo tres páginas comprueban el `next_action` antes de mostrarse (E3, E4 y E8). E4 acepta editar el objetivo desde E5 y E8 acepta el reintento desde E9: no hay otro ciclo.
+
+Pruebas: Ruff y mypy en verde; **635 en verde** (3 nuevas). Recorrido en el navegador: consentimiento → catálogo → E2 → E2b con inglés B1 → E3 sin rebote. Se reiniciaron la copia de revisión (8502) y la app real (8501).
