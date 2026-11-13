@@ -72,7 +72,7 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
   - el commit del seguimiento (esta entrada)
 - **IDs:** B-010, B-011, F-015, M-006
 - **PR:** ninguno todavía
-- **CI:** se anota al terminar
+- **CI:** corrida `43342980911`: api (con las pruebas de integración, incluida la nueva de B-011), app, ai, liquibase, keycloak-realm, infra, prompts, secrets e images en verde. `docs` falló por 2 avisos de markdownlint en `BITACORA.md` (un encabezado repetido y una línea en blanco de más), corregidos en el commit siguiente. `audit (api)` y `audit (app)` fallan como en `dev` ([B-009](BUGS.md))
 - **Pruebas locales:** app con Ruff, formato y mypy en verde, y 628 pruebas en verde. API con Ruff, formato y mypy en verde; unitarias con 445 en verde y 2 que fallan solo en este equipo por el `.env` real. La integración de la API no se corrió aquí porque apunta a Neon; la corre la CI. Prueba en vivo con 4 aprendices simulados (ver la bitácora).
 - **Fuera de la subida:** `.claude/` (configuración local) y `pr-3-descripcion-actualizada.md`
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 20:11)

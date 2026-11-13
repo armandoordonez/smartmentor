@@ -313,7 +313,7 @@ El dueño pide que el token se renueve y que la sesión dure 3 h. Streamlit 1.65
 
 Keycloak compartido: `accessTokenLifespan` 10 800 → 300 (token corto otra vez), `ssoSessionIdleTimeout` y `ssoSessionMaxLifespan` 10 800, y `clientSessionMaxLifespan` 18 000 → 10 800 (Keycloak no deja que supere el máximo de SSO). En `smartmentor-realm.json` quedan 300 y 10 800, y `ssoSessionMaxLifespan` 10 800.
 
-### 2026-11-12 18:40 · CAMBIO · —
+### 2026-11-12 18:40 · CAMBIO · D5
 
 A pedido del dueño, se aprueba en D5 como el instructor dueño (`PATCH /items/{id}` y `PATCH /resources/{id}/review`, lo mismo que hacen los botones) todo lo que estaba «Por revisar» en los cursos publicados. Los ítems `auto_rejected` no se tocan. Curso 2: 80 preguntas y 1 recurso. Curso 4: 93 preguntas. Curso 5: 244 preguntas y 8 recursos. Efecto: la tasa de aceptación de ítems (AD3) queda inflada por esta aprobación en bloque.
 
@@ -337,7 +337,6 @@ Pruebas:
 - **api, integración:** sin correr aquí. `prepare-test-db` usaría el `.env`, que apunta a Neon. Hay una prueba nueva (`test_a_final_retake_without_unseen_items_answers_202_until_they_are_ingested`) y se ajustó la del flujo completo. Las corre la CI.
 
 Se reconstruyó la imagen de la API para probar en vivo.
-
 
 ### 2026-11-12 20:06 · PRUEBA · B-011
 
