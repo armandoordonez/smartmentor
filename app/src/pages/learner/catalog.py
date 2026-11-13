@@ -12,7 +12,7 @@ from components.course_card import PathCardView, render_path_card
 from components.layout import render_page_header
 from core.container import get_client
 from core.errors import show_action_error
-from core.navigation import page_for_next_action
+from core.navigation import SCREEN_PAGES, page_for_next_action
 from core.session import get_session
 from services.catalog import load_catalog, open_path
 
@@ -34,8 +34,16 @@ def _render_cards(cards: list[PathCardView]) -> int | None:
     return chosen
 
 
+# Con la ruta ya armada, abrirla desde el catálogo muestra la ruta (E5) y no salta al paso abierto:
+# antes, con un quiz empezado, «Ver ruta» llevaba siempre al quiz (B-023). Mientras falte el
+# perfil, el diagnóstico o el objetivo, se sigue el `next_action`.
+IN_PATH_STATUSES = frozenset({"in_path", "final_ready", "completed"})
+
+
 def _go_to(enrollment: Enrollment) -> None:
     session.start_onboarding(enrollment.learning_path.id, enrollment.id)
+    if enrollment.status in IN_PATH_STATUSES:
+        st.switch_page(SCREEN_PAGES["E5"])
     target = page_for_next_action(enrollment.next_action)
     if target is None:
         st.info(
