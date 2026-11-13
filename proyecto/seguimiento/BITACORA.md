@@ -491,3 +491,33 @@ El dueño encontró dos fallas en la copia de revisión (8502): guardar la hoja 
 - **Revisión de las demás redirecciones:** solo tres páginas comprueban el `next_action` antes de mostrarse (E3, E4 y E8). E4 acepta editar el objetivo desde E5 y E8 acepta el reintento desde E9: no hay otro ciclo.
 
 Pruebas: Ruff y mypy en verde; **635 en verde** (3 nuevas). Recorrido en el navegador: consentimiento → catálogo → E2 → E2b con inglés B1 → E3 sin rebote. Se reiniciaron la copia de revisión (8502) y la app real (8501).
+
+### 2026-11-13 15:34 · BUG · B-017 y B-018 (aprendiz con la API real)
+
+- **B-017:** con la API real, «Rutas» (E1) mostraba «El servicio no está disponible». La API respondía 200, pero `LearningPathCard` de la app no tenía la forma del OpenAPI (6 errores de validación). Viene de `6783086` y lo corrige el PR 5. Se probó el PR 5 sobre el PR 7 en una copia aparte (`prueba/pr5-sobre-pr7`, local, sin subir): 737 pruebas en verde y el modelo lee las 3 rutas reales. El 8501 corre esa copia; el dueño confirmó que el aprendiz carga.
+- **B-018:** el diagnóstico tardaba de 3,6 a 5,5 s por clic. Medido en el log de la API: cada acción recargaba la página y pedía otra vez `GET /me/enrollments/14` y `GET …/diagnostic` (unos 1,8 s cada uno); «Siguiente» suma `PUT …/diagnostic/answers`. La lentitud de cada petición viene de unas 16 consultas seguidas a Neon (us-east-2, unos 110 ms de ida y vuelta). La hoja del diagnóstico va ahora en un `st.fragment` (`render_question_sheet(rerun_scope="fragment")`); entregar sí recarga la página. 60 pruebas del aprendiz en verde.
+
+### 2026-11-13 15:53 · BUG · B-019 («No lo sé» del diagnóstico)
+
+El dueño confirmó en el 8501 que elegir una respuesta ya no recarga la página (B-018), pero «No lo sé» parecía no hacer nada. Ahora guarda y avanza, y al volver a la pregunta se ve lo elegido. 60 pruebas del aprendiz en verde; en la copia de prueba (PR 5 sobre PR 7), 737. Al copiar la prueba a esa copia se borraron dos pruebas del PR 5; se detectó con `git diff` y se restauró antes de correr la suite.
+
+### 2026-11-13 16:14 · BUG · B-020 y B-021 (objetivo del aprendiz)
+
+- **B-020:** el 422 al confirmar el objetivo venía de `origin` en el cuerpo de `PUT /me/enrollments/{id}/objective` (`ObjectiveUpdate` rechaza campos de más). Se quitó, y el editor conserva un verbo propuesto que no está en la lista («Construir»). 39 pruebas nuevas o relacionadas en verde; en la copia de prueba, 739.
+- **B-021:** «Editar el objetivo» dejó la página en «Conectando». Sin peticiones a la API después del clic y con el proceso de la app usando CPU sin parar; no se reproduce con datos de ejemplo ni en `AppTest`. No se pudo inspeccionar el proceso. Se reinició el 8501 con B-020 corregido para volver a probar.
+
+### 2026-11-13 16:18 · PRUEBA · B-020 y B-021
+
+El dueño confirmó en el 8501 que «Confirmar y ver mi ruta» y «Editar el objetivo» funcionan después del reinicio con B-020 corregido. B-021 queda en observación.
+
+### 2026-11-13 16:35 · BUG · B-022 (recarga al elegir en el quiz)
+
+El dueño vio en el quiz la misma recarga que tenía el diagnóstico. El arreglo de B-018 debió ir desde el principio en la hoja compartida y no en una sola página. Ahora `render_question_sheet` pone la hoja en su propio fragmento por defecto (quiz, final y retención) y el diagnóstico sigue con su fragmento completo. Se hizo en `core/question_flow.py`, que el PR 5 no toca, para no chocar con su reescritura de `quiz.py` y `final_assessment.py`. Pruebas: 637 en verde en la rama y 739 en la copia de prueba. 8501 reconstruido.
+
+### 2026-11-13 16:49 · BUG · B-023 (el catálogo saltaba al quiz)
+
+El dueño confirmó que el quiz ya no recarga la página al elegir (B-022). Encontró que «Ver ruta» siempre lo llevaba al quiz abierto. El catálogo ahora abre la ruta (E5) cuando la inscripción ya está en la ruta. 739 pruebas en verde en la copia de prueba; 8501 reconstruido.
+
+### 2026-11-13 16:52 · PRUEBA · B-023
+
+El dueño confirmó en el 8501 que «Ver ruta» del catálogo muestra la ruta (E5) con el quiz empezado.

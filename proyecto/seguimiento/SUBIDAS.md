@@ -120,3 +120,14 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** app con Ruff, formato y mypy en verde y **635 pruebas en verde** (3 nuevas). Recorrido en el navegador del 8502: consentimiento → catálogo → E2 → E2b con inglés B1 → E3
 - **Ojo con el PR 5:** toca `pages/learner/onboarding_profile.py` y `clients/fixtures.py`, que el PR 5 también puede cambiar
 - **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 14:40)
+
+### S-008 · 2026-11-13 16:53 · `feature/hoja-de-ruta-f6-f7` (PR 7)
+
+- **Commits:**
+  - `18cdffa` fix(app): diagnóstico, quiz y objetivo sin recargas ni 422 con la API real [B-018, B-019, B-020, B-022]
+  - `11b2a48` fix(app): el catálogo abre la ruta y no salta al quiz abierto [B-023]
+  - el commit del seguimiento (esta entrada), con B-017 y B-021
+- **IDs:** B-017 a B-023
+- **Pruebas locales:** app con Ruff, formato y mypy en verde y **637 pruebas en verde**. En la copia de prueba (PR 5 sobre PR 7, local), 739. El dueño probó cada arreglo en el 8501 con la API real
+- **Ojo:** B-017 (el catálogo del aprendiz con la API real) se arregla con el PR 5, no con este PR
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-13 16:53)
