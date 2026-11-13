@@ -31,3 +31,7 @@ El [archivo de Figma v3](https://www.figma.com/design/atp2fZdSolEoaww3n9jRLg/Sma
 | F-009 | 2026-11-12 13:55 | Marcas de terceros en los cursos de IA aplicada («Nuevo · Anthropic», «Nuevo · Google», «Claude Ventas») (C-01, DEF-04) | ☐ Decide el dueño |
 | F-010 | 2026-11-12 13:55 | D2b dice «Embedding» donde debe decir «Revisión» (C-16) | ☐ |
 | F-011 | 2026-11-12 13:55 | Falta confirmar el valor de la variable `error/acento` (`118:923`) (P-13) | ☐ |
+
+### F-015 · 2026-11-12 · A7 «Tu sesión expiró»
+
+Figma dice «Por seguridad cerramos tu sesión tras 30 minutos sin actividad». El dueño decidió que la sesión dure 3 h, así que el texto pasa a «3 horas». **Decidido** (el dueño).

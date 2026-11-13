@@ -274,3 +274,82 @@ Después de 4 correcciones (S-002), **la CI está en verde**: API con 660 prueba
 ### 2026-11-12 15:31 · BUG · B-009
 
 pip-audit encuentra 41 vulnerabilidades en `certifi` y `pillow` (api y app). Ya fallaba en `dev`; se corrige en otra rama.
+
+### 2026-11-12 16:51 · PRUEBA · T-012 a T-015
+
+El dueño quiere probar los cambios antes del PR. Se levanta el stack local desde `feature/seguimiento-trazabilidad`: `.env` nuevo a partir de `.env.example` (ignorado por git; secretos de `scripts/gen-secrets.sh`) y `AI_SERVICE_MODE=fake` (IA simulada, sin Gemini). Corre `scripts/local-up.sh --no-ai --with-admin`. La primera vez la máquina virtual se quedó sin memoria (5,3 GB y sin swap) mientras construía las imágenes. Se terminó a mano: `docker compose up -d --no-build app` y `keycloak/scripts/seed-dev-users.sh --with-admin`. Los 5 contenedores quedaron sanos con unos 1 GB en total (Keycloak se lleva 730 MB). La app redirige al login de Keycloak. La prueba manual la hace el dueño.
+
+### 2026-11-12 17:00 · CAMBIO · —
+
+El dueño pasa su `.env` real y se reemplaza el local (ignorado por git; la copia anterior queda en el scratchpad de la sesión, fuera del repo). Cambia esto: la base es la compartida en **Neon** (también la de Keycloak), `AI_SERVICE_MODE=http` con **Gemini real** (topes de 5 USD al día y 30 al mes) y correo con Mailpit. La rama no trae migraciones (`git diff origin/dev -- database/` vacío), así que Liquibase no cambió el esquema de Neon. Primero se construyó la imagen `ai` sola, para no quedarse sin memoria, y después `scripts/local-up.sh --no-build --with-admin`. Quedan 6 contenedores sanos (app, api, ai, ai-worker, keycloak, mailpit), con unos 870 MB en total. Los usuarios de desarrollo ya existían en el Keycloak compartido: no se tocaron.
+
+### 2026-11-12 17:25 · PRUEBA · T-012 a T-015
+
+Prueba manual del dueño con la API real. AD1 (Usuarios y roles) y AD2 (Log LLM): sin problemas. D4 (Detalle de aprendiz): el nivel por tema salía en «670 %» → B-010. Creó el curso «curso claude code» desde un syllabus: D5 salía vacía hasta pulsar «Aprobar y publicar». **No es un bug:** `POST /courses/{id}/publish` es el que encola la generación de preguntas y recursos (`api/app/domains/courses/service.py`). Falta que la pantalla lo explique → M-006.
+
+### 2026-11-12 17:30 · BUG · B-010
+
+Corregido en `learner_detail_adapter.py`: el nivel se pasa de 0–100 a 0–1. La muestra de la prueba ahora usa la escala de la API y verifica el valor. `pytest tests/unit/test_learner_detail_adapter.py` y las pruebas de UI de D4: 11 en verde; Ruff y formato en verde.
+
+### 2026-11-12 17:39 · CAMBIO · —
+
+El dueño pide que la sesión dure 3 horas. El access token del realm duraba 5 min (`accessTokenLifespan: 300`) y la app no lo renueva, así que mostraba A7 «Tu sesión expiró». La sesión SSO se cerraba a los 30 min sin uso. En `keycloak/realm/smartmentor-realm.json` ambos pasan a 10 800 s (3 h); el máximo de la sesión SSO sigue en 10 h. Ese archivo solo se importa cuando el realm no existe, así que el Keycloak compartido no cambia hasta que se aplique a mano. **Costo:** un token robado vale 3 h en lugar de 5 min. Lo correcto a mediano plazo es que la app renueve el token con el refresh token.
+
+### 2026-11-12 18:05 · CAMBIO · —
+
+Sesión de 3 h aplicada en el Keycloak compartido (con aprobación del dueño): `accessTokenLifespan` 300 → 10 800. El realm tenía `ssoSessionIdleTimeout` en 108 000 (30 h, no los 1 800 del archivo del repo) y quedó en 10 800. Al intentar devolverlo a 108 000, el control de permisos bloqueó el comando dos veces. El dueño tiene el comando para hacerlo él. El máximo de la sesión sigue en 10 h.
+
+### 2026-11-12 18:10 · CAMBIO · —
+
+Nuevo `scripts/simulate-learners.py` (sin commit), a pedido del dueño: crea 4 aprendices en Keycloak (`aprendiz1` a `aprendiz4.smartmentor@yopmail.com`, con la contraseña `SEED_USERS_PASSWORD`; aciertan el 92, 78, 62 y 45 %) y recorre por la API cada ruta publicada, guiado por `next_action`. Las respuestas correctas se leen como administrador. Si un paso agota los intentos, el administrador habilita uno más.
+
+### 2026-11-12 18:15 · PRUEBA · —
+
+Prueba con el aprendiz 1 en MLOps (ruta 4). Diagnóstico, objetivo y 2 pasos aprobados; un tema se omitió por dominado. Se detiene en la final con `409 There are no unseen approved final items`. Causa: **ninguno de los 3 cursos publicados tiene preguntas de la final aprobadas**, y «Curso de Claude Code» (curso 5) no tiene nada aprobado, ni el diagnóstico. El diagnóstico de MLOps solo tiene 1 ítem aprobado, así que con una sola pregunta el nivel queda en 0 o 100. El dueño decide aprobar las preguntas en D5 como instructor. Después se corre el script con los 4 aprendices.
+
+### 2026-11-12 18:40 · CAMBIO · —
+
+El dueño pide que el token se renueve y que la sesión dure 3 h. Streamlit 1.65 solo expone los tokens `id` y `access` (`expose_tokens`), no el refresh token. Por eso la renovación repite `st.login` cuando el access token vence: mientras la sesión SSO de Keycloak siga viva, vuelve con un token nuevo sin pedir contraseña ni OTP. Para evitar un ciclo de redirecciones, solo se renueva si el token vencido se emitió hace más de 2 min (`should_renew_silently`, con 4 pruebas nuevas en `test_core.py`). Limitación: después de renovar, la app vuelve a su página de inicio (Streamlit redirige a la raíz). El texto de A7 pasa de «30 minutos» a «3 horas» (F-015).
+
+Keycloak compartido: `accessTokenLifespan` 10 800 → 300 (token corto otra vez), `ssoSessionIdleTimeout` y `ssoSessionMaxLifespan` 10 800, y `clientSessionMaxLifespan` 18 000 → 10 800 (Keycloak no deja que supere el máximo de SSO). En `smartmentor-realm.json` quedan 300 y 10 800, y `ssoSessionMaxLifespan` 10 800.
+
+### 2026-11-12 18:40 · CAMBIO · —
+
+A pedido del dueño, se aprueba en D5 como el instructor dueño (`PATCH /items/{id}` y `PATCH /resources/{id}/review`, lo mismo que hacen los botones) todo lo que estaba «Por revisar» en los cursos publicados. Los ítems `auto_rejected` no se tocan. Curso 2: 80 preguntas y 1 recurso. Curso 4: 93 preguntas. Curso 5: 244 preguntas y 8 recursos. Efecto: la tasa de aceptación de ítems (AD3) queda inflada por esta aprobación en bloque.
+
+### 2026-11-12 18:40 · PRUEBA · —
+
+Corre `scripts/simulate-learners.py` con los 4 aprendices en las rutas 2, 4 y 5. El resultado se anota al terminar. La máquina virtual se quedó sin memoria una vez durante la sesión (pytest en un contenedor más el stack): las pruebas se corren con el stack quieto.
+
+### 2026-11-12 19:40 · PRUEBA · —
+
+Simulación de los 4 aprendices en las rutas 2, 4 y 5. Valentina (92 %) obtuvo las 3 insignias. Andrés (78 %) obtuvo 2. Camila (62 %) y Julián (45 %) obtuvieron 1 cada uno. Todas las inscripciones que no terminaron se detuvieron en un reintento de la final por **B-011**. Hubo 2 errores más, que no son del producto: un `503 AI_SERVICE_UNAVAILABLE` momentáneo (la IA no respondió a una consulta y a la siguiente sí) y un `401` porque el script no renovaba el token de 5 min. El script ahora renueva el token y reintenta los 503.
+
+### 2026-11-12 19:40 · BUG · B-011
+
+Corregido con la opción que eligió el dueño, igual que el quiz. Si en un reintento quedan menos de 10 preguntas no vistas, o no queda ninguna, `start_final` pide `items.generate_final_bank` (una versión, 1 respuesta corta) y responde `202`. Las preguntas que pasan la revisión automática entran `approved`, marcadas `on_demand`. La llave del trabajo es `enrollment:<id>:attempt:<n>`: a lo sumo una generación por intento, así que no hay ciclo. Nuevo `FinalBankIngestor`: los bancos generados al publicar siguen yendo al ingestor de contenido.
+
+En la app, E8 y el «Reintentar» de E9 muestran «Preparando preguntas nuevas para tu evaluación final» y después piden el intento con una clave nueva. OpenAPI regenerado y `api-v2.md` actualizado.
+
+Pruebas:
+- **app:** Ruff, formato y mypy en verde; **628 pruebas en verde** (3 nuevas para B-011, 4 de la renovación del token y 1 de B-010).
+- **api:** Ruff, formato y mypy en verde; unitarias con 445 en verde y 2 que fallan solo en este equipo (`test_core.py` de la URL de la base: el `.env` real con `DATABASE_SSL=true` se cuela en la prueba; en la CI pasan).
+- **api, integración:** sin correr aquí. `prepare-test-db` usaría el `.env`, que apunta a Neon. Hay una prueba nueva (`test_a_final_retake_without_unseen_items_answers_202_until_they_are_ingested`) y se ajustó la del flujo completo. Las corre la CI.
+
+Se reconstruyó la imagen de la API para probar en vivo.
+
+
+### 2026-11-12 20:06 · PRUEBA · B-011
+
+Primera prueba en vivo de la corrección. Funcionó: Camila repitió la final de Extracción con preguntas nuevas y la aprobó (90 %). También salió un error propio: si las preguntas nuevas seguían siendo menos de 10, la API volvía a pedir el banco con la misma llave pero con otra entrada; `ai/` respondía 422 y la API lo devolvía como 503. Se corrigió así: las preguntas generadas guardan en `auto_review` para qué inscripción e intento se pidieron, no se vuelven a pedir para ese intento, y la llave incluye cuántas preguntas había. Se reconstruyó la API y se repitió la prueba sin errores: Andrés aprobó la final de Extracción (80 %), y Julián generó preguntas nuevas dos veces en MLOps.
+
+**Resultado final de los 4 aprendices** (todos hicieron diagnóstico, objetivo, temas con reintentos y encuesta donde aprobaron):
+
+| Aprendiz | Extracción | MLOps | Claude Code |
+| --- | --- | --- | --- |
+| Valentina (92 %) | Insignia | Insignia | Insignia |
+| Andrés (78 %) | Insignia | Insignia | Insignia |
+| Camila (62 %) | Insignia | Insignia | 3 intentos de la final usados, sin aprobar |
+| Julián (45 %) | 3 intentos de la final usados, sin aprobar | 3 intentos de la final usados, sin aprobar | Insignia |
+
+Los que agotaron la final quedan en `final_ready` con `next_action` `none` (E9c): el instructor puede darles intentos extra. Se reconstruyó también la imagen de la app (B-010, renovación del token y B-011).

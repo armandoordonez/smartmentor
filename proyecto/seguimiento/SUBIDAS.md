@@ -61,3 +61,18 @@ Correcciones que pidió la CI. Las pruebas no se pueden correr en este equipo (n
 | ai | ✔ | ✔ (150) | ✔ (145) | ✔ 463 en verde, 10 omitidas |
 
 También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint y enlaces), secrets (gitleaks) e images (Trivy). Fallan solo `audit (api)` y `audit (app)`, que son informativos y ya fallaban en `dev` ([B-009](BUGS.md)).
+
+### S-003 · 2026-11-12 20:11 · `feature/seguimiento-trazabilidad`
+
+- **Commits:**
+  - `ec2dd00` fix(app): el nivel por tema de D4 sale de 0 a 100 % y no en 670 % [B-010]
+  - `ddb3784` feat(auth): renovación silenciosa del token y sesión de 3 horas
+  - `040bf54` fix: el reintento de la evaluación final genera preguntas nuevas [B-011]
+  - `c585fa1` feat(scripts): simula aprendices que recorren cada ruta publicada
+  - el commit del seguimiento (esta entrada)
+- **IDs:** B-010, B-011, F-015, M-006
+- **PR:** ninguno todavía
+- **CI:** se anota al terminar
+- **Pruebas locales:** app con Ruff, formato y mypy en verde, y 628 pruebas en verde. API con Ruff, formato y mypy en verde; unitarias con 445 en verde y 2 que fallan solo en este equipo por el `.env` real. La integración de la API no se corrió aquí porque apunta a Neon; la corre la CI. Prueba en vivo con 4 aprendices simulados (ver la bitácora).
+- **Fuera de la subida:** `.claude/` (configuración local) y `pr-3-descripcion-actualizada.md`
+- **Quién aprobó la subida:** el dueño, en el chat (2026-11-12 20:11)
