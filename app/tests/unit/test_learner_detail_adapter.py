@@ -75,9 +75,9 @@ API_DETAIL: dict[str, Any] = {
         "origin": None,
     },
     "level_by_topic": [
-        {"topic_id": "103", "level": 0.2, "classification": "to_learn", "test_score": None},
-        {"topic_id": "101", "level": 0.9, "classification": "mastered", "test_score": 90.0},
-        {"topic_id": "102", "level": 0.5, "classification": "to_reinforce", "test_score": 50.0},
+        {"topic_id": "103", "level": 20.0, "classification": "to_learn", "test_score": None},
+        {"topic_id": "101", "level": 90.0, "classification": "mastered", "test_score": 90.0},
+        {"topic_id": "102", "level": 50.0, "classification": "to_reinforce", "test_score": 50.0},
     ],
     "steps": [
         _step(502, 2, 102, "ETL", "attempts_exhausted", attempts_used=3, best_score=60.0),
@@ -120,6 +120,8 @@ def test_api_detail_becomes_the_screen_model() -> None:
         (102, "ETL"),
         (103, "Ética"),
     ]
+    # La API manda el nivel de 0 a 100 y la pantalla lo espera de 0 a 1 (antes salía «670 %»).
+    assert [t.level for t in detail.topic_levels] == [0.9, 0.5, 0.2]
 
     # Solo los intentos entregados, con el nombre del tema del paso.
     assert [(a.attempt_id, a.topic_name) for a in detail.attempts] == [

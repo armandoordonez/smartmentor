@@ -4,7 +4,8 @@ El contrato (api-v2.md) solo dice «perfil reducido (A3c), niveles e intentos»,
 interfaz eligieron formas distintas. Este adaptador es el único punto que conoce las dos:
 
 * Los niveles por tema (`level_by_topic`) vienen tal como los guardó el diagnóstico, con
-  `topic_id` como texto y sin nombre: el nombre sale de los pasos de la ruta.
+  `topic_id` como texto, sin nombre y de 0 a 100: el nombre sale de los pasos de la ruta y el
+  nivel se pasa a la escala de 0 a 1 de `LearnerTopicLevel`.
 * Los intentos traen `step_id` y no el tema: el tema sale del paso. Los de la evaluación final no
   tienen paso. Solo se listan los intentos entregados y calificados (con puntaje y resultado).
 * Los pasos `attempts_exhausted` son los «intentos agotados» de D4b. El tope es el de la regla más
@@ -74,7 +75,8 @@ def _topic_levels(data: dict[str, Any], names: dict[int, str]) -> list[dict[str,
             {
                 "topic_id": topic_id,
                 "name": names.get(topic_id) or raw.get("name") or f"Tema {topic_id}",
-                "level": float(level),
+                # La API guarda el nivel de 0 a 100 (como E4); la pantalla lo espera de 0 a 1.
+                "level": min(max(float(level), 0.0), 100.0) / 100,
                 "classification": classification
                 if classification in _CLASSIFICATIONS
                 else "to_learn",
