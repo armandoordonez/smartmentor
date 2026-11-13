@@ -109,4 +109,3 @@ También en verde: liquibase, keycloak-realm, prompts, infra, docs (markdownlint
 - **Pruebas locales:** `pip-audit` de `api/` sin vulnerabilidades. API con Ruff y mypy en verde y 445 pruebas unitarias en verde (fallan las 2 de siempre, solo aquí, por el `.env` real). App con 632 pruebas en verde
 - **Queda:** `audit (app)` sigue fallando por `pillow` 12.3.0, que no se puede subir sin cambiar Streamlit 1.65 ([B-009](BUGS.md))
 - **Quién aprobó la subida:** el dueño, en el chat («corrígelo y sube los cambios»)
-
