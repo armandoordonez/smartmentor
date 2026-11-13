@@ -97,7 +97,7 @@ VIDEO_STATUS_BADGE: dict[VideoStatus, BadgeStyle] = {
 QUALITY_BADGE: dict[QualityStatus, BadgeStyle] = {
     "recommended": ("Recomendado", "green"),
     "observation": ("En observación", "orange"),
-    "under_review": ("En revisión", "red"),
+    "under_review": ("En revisión", "orange"),  # ámbar como Figma D5f (V-030)
     "measuring": ("Midiendo", "gray"),
 }
 

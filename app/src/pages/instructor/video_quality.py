@@ -72,7 +72,7 @@ rows = [
         key=str(row.video_candidate_id),
         cells=[
             row.topic_label,
-            "—" if row.index is None else str(row.index),
+            "—" if row.index is None else f"**{row.index}**",
             _rating(row),
             "—" if row.watched_fully_rate is None else percent(row.watched_fully_rate),
             _effect(row),
@@ -92,7 +92,7 @@ render_table(
         "Reportes",
         "Estado",
     ],
-    [5, 1, 2, 2, 2, 1, 2],
+    [5, 1, 2, 2, 2, 2, 2],
     rows,
     key="video-quality",
     empty_text="Todavía no hay calificaciones de videos.",
@@ -101,33 +101,40 @@ render_table(
 by_candidate: dict[int, VideoFeedbackSummary] = {f.video_candidate_id: f for f in quality.feedback}
 flagged = [row for row in quality.rows if row.status == "under_review"]
 decision: tuple[int, str] | None = None
+# Lo que dicen los aprendices y la decisión, en dos tarjetas lado a lado (Figma D5f, V-030).
 for row in flagged:
     code = row.topic_label.split(" · ")[0]
     feedback = by_candidate.get(row.video_candidate_id)
+    said_col, decide_col = st.columns(2)
     if feedback is not None:
-        st.subheader(f"{code} · Qué dicen los aprendices", anchor=False)
-        with st.container(horizontal=True):
-            for label in feedback.labels:
-                st.badge(f"{_LABELS.get(label.label, label.label)} · {label.count}", color="gray")
-        for comment in feedback.comments:
-            st.markdown(f"«{comment}»")
-        if feedback.comments_total:
-            st.caption(
-                f"{feedback.comments_total} comentarios anónimos, agrupados con IA por tema. Tú "
-                "ves el texto, nunca el nombre de quien lo escribió."
-            )
-    st.subheader(f"Tu decisión sobre el video de {code}", anchor=False)
-    st.caption(
-        "Mientras decides, el video deja de recomendarse y los aprendices ven el video de "
-        "respaldo del tema."
-    )
-    choice = st.radio(
-        "Decisión",
-        (REPLACE, KEEP, RETIRE),
-        index=None,
-        label_visibility="collapsed",
-        key=f"vq-choice-{row.video_candidate_id}",
-    )
+        with said_col.container(key=f"card-vq-feedback-{row.video_candidate_id}"):
+            st.subheader(f"{code} · Qué dicen los aprendices", anchor=False)
+            with st.container(horizontal=True):
+                for label in feedback.labels:
+                    st.badge(
+                        f"{_LABELS.get(label.label, label.label)} · {label.count}", color="gray"
+                    )
+            for index, comment in enumerate(feedback.comments):
+                with st.container(key=f"panel-vq-comment-{row.video_candidate_id}-{index}"):
+                    st.markdown(f"«{comment}»")
+            if feedback.comments_total:
+                st.caption(
+                    f"{feedback.comments_total} comentarios anónimos, agrupados con IA por tema. "
+                    "Tú ves el texto, nunca el nombre de quien lo escribió."
+                )
+    with decide_col.container(key=f"card-vq-decision-{row.video_candidate_id}"):
+        st.subheader(f"Tu decisión sobre el video de {code}", anchor=False)
+        st.caption(
+            "Mientras decides, el video deja de recomendarse y los aprendices ven el video de "
+            "respaldo del tema."
+        )
+        choice = st.radio(
+            "Decisión",
+            (REPLACE, KEEP, RETIRE),
+            index=None,
+            label_visibility="collapsed",
+            key=f"vq-choice-{row.video_candidate_id}",
+        )
     if choice:
         decision = (row.video_candidate_id, choice)
 

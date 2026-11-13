@@ -118,10 +118,28 @@ def render_status_screen(
     message: str,
     primary_label: str,
     secondary_label: str | None = None,
+    card: bool = False,
 ) -> tuple[bool, bool]:
-    """Pantalla centrada de estado (A6 · 403, A7 · sesión expirada). Devuelve qué botón se pulsó."""
+    """Pantalla centrada de estado (A6 · 403, A7 · sesión expirada). Devuelve qué botón se pulsó.
+
+    Con `card=True` es la variante de A7 (V-031): tarjeta blanca con el texto a la izquierda, el
+    botón principal a todo el ancho y el secundario como enlace.
+    """
     st.space("large")
     render_brand(role_label, role)
+    if card:
+        with st.container(key="status-card"):
+            st.subheader(title, anchor=False)
+            st.caption(message)
+            primary = st.button(
+                primary_label, type="primary", key="status-primary", width="stretch"
+            )
+            secondary = (
+                st.button(secondary_label, key="status-secondary", type="tertiary")
+                if secondary_label
+                else False
+            )
+        return primary, secondary
     with st.container(key="status-screen", horizontal_alignment="center"):
         if code:
             st.markdown(f"# :red[{code}]", width="content")

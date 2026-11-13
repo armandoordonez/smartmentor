@@ -81,9 +81,9 @@ def _meta(video: VideoCandidate) -> str:
 
 
 def _candidate(rank: int, video: VideoCandidate) -> None:
-    with st.container(border=True, key=f"video-candidate-{video.id}"):
-        rank_col, play_col, body_col, action_col = st.columns(
-            [1, 3, 7, 2], vertical_alignment="center"
+    with st.container(key=f"video-candidate-{video.id}"):
+        rank_col, play_col, body_col, relevant_col, action_col = st.columns(
+            [1, 3, 6, 4, 2], vertical_alignment="center"
         )
         rank_col.markdown(f"**{rank}**")
         # La portada de YouTube abre el video para que el instructor lo vea antes de juzgarlo.
@@ -95,6 +95,7 @@ def _candidate(rank: int, video: VideoCandidate) -> None:
             st.caption(_meta(video))
             if video.relevance is not None:
                 st.caption(f"Relevancia {percent(video.relevance)} · solo la ve el instructor")
+        with relevant_col:
             current = (
                 None
                 if video.is_relevant is None
@@ -104,6 +105,7 @@ def _candidate(rank: int, video: VideoCandidate) -> None:
                 "¿Es pertinente?",
                 (RELEVANT, NOT_RELEVANT),
                 default=current,
+                label_visibility="collapsed",
                 key=f"vid-rel-{video.id}",
             )
         with action_col:
@@ -123,42 +125,48 @@ def _candidate(rank: int, video: VideoCandidate) -> None:
             )
 
 
-for rank, candidate in enumerate(candidates, start=1):
-    _candidate(rank, candidate)
+# Candidatos en una tarjeta; respaldo y «Agregar video» en otra, como Figma D5e (V-029).
+if candidates:
+    with st.container(key="card-video-candidates"):
+        for rank, candidate in enumerate(candidates, start=1):
+            _candidate(rank, candidate)
 
-st.subheader("Videos de respaldo", anchor=False)
-st.caption("Curados por ti")
-st.caption(
+backup_card = st.container(key="card-video-backups")
+with backup_card, st.container(horizontal=True, vertical_alignment="center"):
+    st.subheader("Videos de respaldo", anchor=False, width="content")
+    st.badge("Curados por ti", color="violet")
+backup_card.caption(
     "Si ningún candidato sirve o el video deja de estar disponible, los aprendices ven el "
     "primero de esta lista."
 )
-if not backups:
-    st.caption("Todavía no hay videos de respaldo.")
-for position, backup in enumerate(backups, start=1):
-    text_col, button_col = st.columns([8, 2], vertical_alignment="center")
-    link = video_link_markdown(backup.title, backup.youtube_video_id)
-    text_col.markdown(f"{position}.  {link} · {video_minutes(backup.duration_seconds)}")
-    if button_col.button("Quitar", key=f"vid-del-{backup.id}", type="tertiary"):
-        _act(client.update_video_candidate, backup.id, status="rejected", is_relevant=None)
+with backup_card:
+    if not backups:
+        st.caption("Todavía no hay videos de respaldo.")
+    for position, backup in enumerate(backups, start=1):
+        text_col, button_col = st.columns([8, 2], vertical_alignment="center")
+        link = video_link_markdown(backup.title, backup.youtube_video_id)
+        text_col.markdown(f"{position}.  {link} · {video_minutes(backup.duration_seconds)}")
+        if button_col.button("Quitar", key=f"vid-del-{backup.id}", type="tertiary"):
+            _act(client.update_video_candidate, backup.id, status="rejected", is_relevant=None)
 
-with st.container(border=True, key="panel-add-video"):
-    st.markdown("**Agregar video**")
-    link = st.text_input("Pega el enlace de YouTube", key="vid-link")
-    title = st.text_input("Título (opcional)", key="vid-title")
-    match = YOUTUBE_ID.search(link.strip()) if link.strip() else None
-    if link.strip() and match is None:
-        st.caption("No reconocemos ese enlace de YouTube.")
-    if st.button("Agregar", key="vid-add", disabled=match is None) and match:
-        video_id = match.group(1)
-        try:
-            added = client.add_video_candidate(
-                topic_id, video_id, title.strip() or f"Video de YouTube {video_id}"
-            )
-            client.update_video_candidate(added.id, status="backup", is_relevant=None)
-        except ApiError as error:
-            show_staff_error(error)
-        else:
-            st.rerun()
+    with st.container(key="add-video"):
+        st.markdown("**Agregar video**")
+        link = st.text_input("Pega el enlace de YouTube", key="vid-link")
+        title = st.text_input("Título (opcional)", key="vid-title")
+        match = YOUTUBE_ID.search(link.strip()) if link.strip() else None
+        if link.strip() and match is None:
+            st.caption("No reconocemos ese enlace de YouTube.")
+        if st.button("Agregar", key="vid-add", disabled=match is None) and match:
+            video_id = match.group(1)
+            try:
+                added = client.add_video_candidate(
+                    topic_id, video_id, title.strip() or f"Video de YouTube {video_id}"
+                )
+                client.update_video_candidate(added.id, status="backup", is_relevant=None)
+            except ApiError as error:
+                show_staff_error(error)
+            else:
+                st.rerun()
 
 with st.container(horizontal=True):
     if st.button("Volver", key="vid-back"):
@@ -166,5 +174,5 @@ with st.container(horizontal=True):
     if st.button("Guardar", type="primary", key="vid-save"):
         st.toast("Cambios guardados")
         st.switch_page(CONTENT_REVIEW)
-if st.button("Ver la calidad según los aprendices →", type="tertiary", key="vid-quality"):
-    st.switch_page(VIDEO_QUALITY)
+    if st.button("Ver la calidad según los aprendices →", type="tertiary", key="vid-quality"):
+        st.switch_page(VIDEO_QUALITY)

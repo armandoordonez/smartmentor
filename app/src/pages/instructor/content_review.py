@@ -158,12 +158,14 @@ def _resource_editor(resource: Resource) -> None:
     rid = resource.id
     with st.container(border=True, key=f"panel-edit-resource-{rid}"):
         st.subheader("Editar la explicación del tema", anchor=False)
-        if resource.faithfulness is not None:
-            st.badge(f"Fidelidad {decimal(resource.faithfulness, 2)}", color="green")
         prompt = (
             f" · prompt recurso_texto {resource.prompt_version}" if resource.prompt_version else ""
         )
-        st.caption(f"{topic.name} · versión {resource.version}{prompt}")
+        # Fidelidad y versión en la misma línea, como Figma D5d (V-028).
+        with st.container(horizontal=True, vertical_alignment="center"):
+            if resource.faithfulness is not None:
+                st.badge(f"Fidelidad {decimal(resource.faithfulness, 2)}", color="green")
+            st.caption(f"{topic.name} · versión {resource.version}{prompt}")
         edited_sections: list[tuple[str, str]] = []
         for index, section in enumerate(sections):
             heading = st.text_input(
@@ -201,13 +203,14 @@ def _resource_editor(resource: Resource) -> None:
                     "license": None,
                 }
             )
-        st.caption(
+        render_notice(
             "Al guardar, tu versión reemplaza la de la caché para todos los aprendices del tema "
             f"y queda como versión {next_version(resource.version)} (editada por instructor). "
             "La fidelidad se recalcula sobre las fuentes citadas."
         )
         with st.container(horizontal=True):
             regenerate = st.button("Regenerar con IA", key=f"cr-regen-{rid}")
+            st.space("stretch")
             cancel = st.button("Cancelar", key=f"cr-cancel-{rid}")
             save = st.button("Guardar y aprobar", type="primary", key=f"cr-save-{rid}")
     if cancel:

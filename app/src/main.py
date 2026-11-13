@@ -51,6 +51,7 @@ def _login_screen() -> None:
         title="Inicia sesión para continuar",
         message="Tu cuenta y tu contraseña las gestiona Keycloak; SmartMentor nunca las ve.",
         primary_label="Iniciar sesión",
+        card=True,
     )
     if primary:
         auth.clear_end_session_url()
@@ -84,6 +85,7 @@ def _error_screen(error: ApiError, *, page_title: str) -> None:
             message=view.message,
             primary_label="Volver a mi inicio" if is_forbidden else "Iniciar sesión",
             secondary_label="Cambiar de cuenta",
+            card=not is_forbidden,
         )
         if go_home and is_forbidden and role is not None:
             st.switch_page(home_for(role))
