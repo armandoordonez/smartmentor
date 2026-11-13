@@ -55,7 +55,8 @@ def test_catalog_pagination_slices_the_items() -> None:
 
 
 def test_enrolling_returns_next_action_complete_profile() -> None:
-    client = FixturesClient("learner")
+    # Sin descripción en el perfil: con ella, la API inscribe directo al diagnóstico.
+    client = FixturesClient("learner_new")
     enrollment = client.create_enrollment(2)
     assert enrollment.learning_path.name == "Estadística para ciencia de datos"
     assert enrollment.next_action.type == "complete_profile"
@@ -109,3 +110,19 @@ def test_missing_fixture_file_is_a_404(tmp_path: object) -> None:
 
     with pytest.raises(ApiError):
         FixturesClient("learner", directory=Path(str(tmp_path)))
+
+
+def test_saving_the_description_moves_the_enrollment_to_the_diagnostic() -> None:
+    """Como la API: con descripción, `profiling` pasa a `diagnosing` (E2b → E3)."""
+    client = FixturesClient("learner_new")
+    enrollment = client.create_enrollment(1)
+    assert enrollment.next_action.screen == "E2"
+    client.update_profile(ProfileUpdate(description="Analista de datos"))
+    moved = client.get_enrollment(enrollment.id)
+    assert (moved.status, moved.next_action.type, moved.next_action.screen) == (
+        "diagnosing",
+        "start_diagnostic",
+        "E3",
+    )
+    # Con el perfil ya guardado, una inscripción nueva entra directo al diagnóstico.
+    assert client.create_enrollment(2).next_action.type == "start_diagnostic"
