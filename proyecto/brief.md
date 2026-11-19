@@ -1,6 +1,6 @@
 # Brief del proyecto: Plataforma de cursos adaptativos generados con IA
 
-Proyecto de grado · Maestría en Ciencia de Datos · Octubre de 2026 · Documento vivo: cada cohorte lo actualiza.
+Proyecto de grado · Maestría en Inteligencia Artificial Aplicada · Noviembre de 2026 · Documento vivo: cada cohorte lo actualiza.
 
 > **Brief base.** Este documento fija el problema, los objetivos, el alcance, las métricas y la forma de trabajar del proyecto, y se conserva como referencia común. **Cada cohorte tiene su propio brief** en `proyecto/cohorte_N/`, que cuenta qué se construyó, qué se midió, qué cambió frente a este plan y qué pasa a la siguiente cohorte. La cohorte 1 cerró en noviembre de 2026: ver [`cohorte_1/brief.md`](cohorte_1/brief.md).
 >
