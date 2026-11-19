@@ -68,11 +68,11 @@ El bucle por tema es donde actúa la personalización: los temas ya dominados en
 
 ## Fase 0: prototipado de la interfaz y del flujo
 
-Antes de escribir código de producción, la primera semana se dedica a prototipar la experiencia y validar el flujo con un docente y 3 a 5 estudiantes. Esto evita construir pantallas que nadie usa y fija los contratos de datos entre la interfaz y la IA.
+Antes de escribir código de producción, la primera semana se dedica a prototipar la experiencia. Esto evita construir pantallas que nadie usa y fija los contratos de datos entre la interfaz y la IA.
 
 | Actividad | Herramienta sugerida | Resultado |
 | --- | --- | --- |
-| Mapa del flujo y casos de uso (estudiante, docente, admin) | Diagrama BPMN o de estados (Mermaid, draw.io) | Flujo aprobado por el director |
+| Mapa del flujo y casos de uso (aprendiz, mentor, admin) | Diagrama BPMN o de estados (Mermaid, draw.io) | Flujo aprobado por el director |
 | Wireframes de baja fidelidad de 7 pantallas: login, catálogo de rutas, perfil, diagnóstico, vista de ruta, tema (video + texto + quiz), badge | Papel o Excalidraw | Estructura de cada pantalla |
 | Prototipo navegable de alta fidelidad | Figma (o Streamlit con datos de ejemplo) | Enlace clicable para pruebas |
 | Prueba de prompts tipo “Mago de Oz”: el equipo genera a mano con el LLM el syllabus estructurado, el diagnóstico y un tema, y los muestra en el prototipo | Notebook + LLM | Primeros ejemplos reales de salida y esquemas JSON |
