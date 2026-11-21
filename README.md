@@ -1,6 +1,11 @@
 # SmartMentor
 
-Plataforma de cursos adaptativos generados con IA: a partir de un syllabus genera un diagnóstico, una ruta de aprendizaje personalizada, recursos y evaluaciones, y otorga un badge al aprobar. Proyecto de grado de la Maestría en Ciencia de Datos; documento vivo que cada cohorte actualiza. El detalle del proyecto está en [`proyecto/brief.md`](proyecto/brief.md).
+Plataforma de cursos adaptativos generados con IA: a partir de un syllabus genera un diagnóstico, una ruta de aprendizaje personalizada, recursos y evaluaciones, y otorga un badge al aprobar. Proyecto de grado de la Maestría en Inteligencia Artificial Aplicada; documento vivo que cada cohorte actualiza. El detalle del proyecto está en:
+
+| Documento | Qué cuenta |
+| --- | --- |
+| [Brief base](proyecto/brief.md) | Plantea el proyecto: problema, hipótesis, objetivos, alcance, métricas, gestión y continuidad entre cohortes. Se conserva como referencia común |
+| [Brief de la cohorte 1](proyecto/cohorte_1/brief.md) | Lo que construyó, midió y cambió la cohorte 1 (octubre y noviembre de 2026), lo que no alcanzó y lo que pasa a la siguiente fase |
 
 ## Estado
 
@@ -17,7 +22,7 @@ Plataforma de cursos adaptativos generados con IA: a partir de un syllabus gener
 | Integración de punta a punta con el LLM real (Fase 6) | En curso: detenida por el tope de gasto de Google AI Studio |
 | Anotación de expertos, usabilidad y piloto (Fase 9b), revisión final (10) y cierre (11) | Pendiente |
 
-Seguimiento: [`PLAN_IMPLEMENTACION_V3.md`](PLAN_IMPLEMENTACION_V3.md) (fuente vigente). [`proyecto/cohorte_1/checklist.md`](proyecto/cohorte_1/brief.md) y [`HANDOFF.md`](HANDOFF.md) son anteriores a la versión 3 y se actualizan en la Fase 10.
+Seguimiento: [`PLAN_IMPLEMENTACION_V3.md`](PLAN_IMPLEMENTACION_V3.md) (fuente vigente), la [trazabilidad de la cohorte 1](docs/cohorte_1/trazabilidad/TRAZABILIDAD.md) y [`HANDOFF.md`](HANDOFF.md) (estado técnico, deuda y traspaso).
 
 ## Requisitos
 
@@ -79,7 +84,8 @@ La integración continua (GitHub Actions) repite estas validaciones y además re
 | [`database/`](database/README.md) | PostgreSQL, Liquibase, bootstrap, respaldos y modelo de datos |
 | [`keycloak/`](keycloak/README.md) | Proveedor de identidad: realm versionado y guía de configuración |
 | [`docs/adr/`](docs/adr/README.md) | Decisiones de arquitectura |
-| [`proyecto/`](proyecto/brief.md) | Brief y decisiones pendientes |
+| [`proyecto/`](proyecto/brief.md) | Los dos briefs: el base y el de la cohorte 1 |
+| [`docs/cohorte_1/`](docs/cohorte_1/README.md) | Anexos, evaluación, trazabilidad, bitácoras y runbook de despliegue de la cohorte 1 |
 | [`app/`](app/README.md) | Interfaz en Streamlit (versión 3 del diseño) |
 | [`ai/`](ai/README.md) | Servicio de IA: API, worker, tarifas y arnés de evaluación |
 | [`prompts/`](prompts/README.md) | Prompts versionados y esquemas |
