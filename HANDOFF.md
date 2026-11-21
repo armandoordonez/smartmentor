@@ -1,6 +1,6 @@
 # HANDOFF
 
-Estado técnico del proyecto, deuda y próximos pasos para la siguiente cohorte. **Última actualización: 2026-11-17 (cierre de la cohorte 1).**
+Estado técnico del proyecto, deuda y próximos pasos para la siguiente cohorte. **Última actualización: 2026-11-21 (release `v1.0-cohorte1` publicado).**
 
 Dónde está cada cosa:
 
@@ -36,7 +36,6 @@ Dónde está cada cosa:
 
 | Pendiente | Detalle |
 | --- | --- |
-| Publicar el release | Las notas están en `dev` (PR 95). Falta que el dueño del repositorio promueva `dev` → `stage` → `main`, cree la etiqueta `v1.0-cohorte1` y publique el Release, con los pasos de [`release-v1.0-cohorte1.md`](docs/cohorte_1/release.md) (T-052) |
 | Piloto con personas | Pasa a la siguiente fase con lo que depende de él: syllabus del curso piloto (T-031), textos legales (T-040), fechas (F-007), despliegue y operación (T-043), usabilidad (T-042), endurecimiento (T-050) y los experimentos E4, E9 y E10. Detalle en «Migrados a la siguiente fase» de [`TRAZABILIDAD.md`](docs/cohorte_1/trazabilidad/TRAZABILIDAD.md) |
 | Calibración humana | E3, E6 y E7 se midieron con jueces-agente: los resultados son indicativos. Falta que una persona califique 15 a 20 elementos por experimento y se compare con los jueces |
 | Calidad de las preguntas | 26 a 60 % de preguntas válidas según la medición (E3, E3b y E3c), lejos de la meta de 80 % (B-062) |
@@ -59,17 +58,16 @@ Dónde está cada cosa:
 
 ## Próximos pasos sugeridos
 
-1. Publicar el release `v1.0-cohorte1` (dueño del repositorio, T-052).
-2. Escribir el documento final con los resultados de `docs/cohorte_1/evaluation/results/` y el brief de la cohorte 1.
-3. Calibrar los jueces-agente con una persona en E3, E6 y E7.
-4. Para la siguiente fase: endurecimiento (T-050), textos legales, despliegue y el piloto con 15 a 30 aprendices (E4, E9 y E10).
-5. Mejorar la calidad de las preguntas (B-062) y construir la explicación alterna de E7b (B-049).
+1. Escribir el documento final con los resultados de `docs/cohorte_1/evaluation/results/` y el brief de la cohorte 1.
+2. Calibrar los jueces-agente con una persona en E3, E6 y E7.
+3. Para la siguiente fase: endurecimiento (T-050), textos legales, despliegue y el piloto con 15 a 30 aprendices (E4, E9 y E10).
+4. Mejorar la calidad de las preguntas (B-062) y construir la explicación alterna de E7b (B-049).
 
 ## Traspaso entre cohortes
 
 Checklist del brief:
 
-- [ ] **Versión etiquetada en Git (`v1.0-cohorte1`, T-052).** Las notas están listas ([`release.md`](docs/cohorte_1/release.md) y [`CHANGELOG.md`](CHANGELOG.md)), pero **no hay etiqueta ni Release publicados**. Hoy `stage` y `main` siguen en `3dae23d`, 603 commits por detrás de `dev`. Las únicas etiquetas son internas: `schema-v1-final` (último estado de la base v1) y `b040` (local, sin valor). Lo hace el dueño del repositorio: promover `dev` a `stage` y `main`, etiquetar sobre `main` y publicar el Release.
+- [x] **Versión etiquetada en Git (`v1.0-cohorte1`, T-052).** Publicada el 2026-11-21: etiqueta anotada sobre `main` (`8a73b3e`) y [GitHub Release](https://github.com/armandoordonez/smartmentor/releases/tag/v1.0-cohorte1) «Cohorte 1 - Versión 1.0», tras promover `dev` → `stage` ([PR 107](https://github.com/armandoordonez/smartmentor/pull/107)) → `main` ([PR 108](https://github.com/armandoordonez/smartmentor/pull/108)). Las notas están en [`release.md`](docs/cohorte_1/release.md) y [`CHANGELOG.md`](CHANGELOG.md). Las otras etiquetas son internas: `schema-v1-final` (último estado de la base v1).
 - [x] **Aplicación funcionando en local.** Todo el trabajo y las pruebas fueron locales, con Docker Compose en Linux y Windows con WSL2: ocho servicios y base local o compartida en Neon. Se levanta con `scripts/local-up.sh` y el [runbook](docs/cohorte_1/runbook-despliegue.md).
 - [ ] **Despliegue en un entorno web (QA o producción).** No existe: no hay servidor, hosting ni CD, y la base compartida de Neon es un plan gratuito de desarrollo. Pasa a la siguiente fase junto con el piloto: destino y operador ([ADR 0020](docs/adr/0020-deployment-target.md), T-043) y endurecimiento (T-050).
 - [x] Este `HANDOFF.md` actualizado (2026-11-17).
