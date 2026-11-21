@@ -316,7 +316,7 @@ services:
   # Buzón de desarrollo (perfil mail): recibe los correos de Keycloak sin enviarlos. Con este perfil, en .env:
   # SMTP_HOST=mailpit, SMTP_PORT=1025, SMTP_STARTTLS=false, SMTP_USER y SMTP_PASSWORD con cualquier texto.
   mailpit:
-    image: axllent/mailpit:v1.29.0
+    image: axllent/mailpit:v1.34.0
     container_name: smartmentor-mailpit
     restart: unless-stopped
     profiles: [mail]
