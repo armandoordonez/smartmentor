@@ -1,6 +1,6 @@
 # Brief de la cohorte 1: SmartMentor, plataforma de rutas de aprendizaje con IA
 
-Proyecto de grado · Maestría en Ciencia de Datos · Cohorte 1 · Octubre a noviembre de 2026 · Cierre: 2026-11-17
+Proyecto de grado · Maestría en Inteligencia Artificial Aplicada · Cohorte 1 · Octubre a noviembre de 2026 · Cierre: 2026-11-21
 
 Este es el brief de la cohorte 1. Parte del [brief base](../brief.md), que plantea el proyecto y se conserva como referencia común, y cuenta lo que esta cohorte construyó, midió y cambió, lo que no alcanzó y lo que deja a la siguiente. El soporte técnico está en los [anexos](#16-anexos-y-evidencia) y la evidencia día a día en la [trazabilidad](../../docs/cohorte_1/trazabilidad/TRAZABILIDAD.md).
 
