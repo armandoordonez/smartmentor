@@ -220,7 +220,7 @@ services:
       disable: true
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.0
+    image: quay.io/keycloak/keycloak:26.8.2-3
     container_name: smartmentor-keycloak
     restart: unless-stopped
     # start-dev: modo de desarrollo (HTTP). Sus datos están en el PostgreSQL del proyecto.
