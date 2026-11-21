@@ -1,0 +1,12 @@
+/* Editar objetivo (E4b): la vista previa va en azul suave, como en Figma (V-041). */
+.st-key-panel-objective-preview {
+  background: var(--learner-soft);
+  border-color: transparent;
+  border-radius: var(--radius-card);
+}
+
+/* «Volver a la propuesta de la IA» es un enlace azul subrayado. */
+.st-key-objective-reset button {
+  color: var(--learner-accent);
+  text-decoration: underline;
+}

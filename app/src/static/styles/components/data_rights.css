@@ -1,0 +1,7 @@
+/* A3c · «Quién ve cada dato»: el título y la tabla comparten una sola tarjeta, así que la tabla
+   pierde su borde y su relleno propios para no dibujar una tarjeta dentro de otra. */
+.st-key-card-rights-who-sees [class*="st-key-panel-table-"] {
+  border: none;
+  padding: 0;
+  background: transparent;
+}

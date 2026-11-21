@@ -1,0 +1,36 @@
+{
+  "answers": [
+    {
+      "item_id": "q1",
+      "selected_option": 1,
+      "dont_know": false,
+      "text_answer": null
+    },
+    {
+      "item_id": "q2",
+      "selected_option": 1,
+      "dont_know": false,
+      "text_answer": null
+    },
+    {
+      "item_id": "q3",
+      "selected_option": 1,
+      "dont_know": false,
+      "text_answer": null
+    },
+    {
+      "item_id": "q4",
+      "selected_option": null,
+      "dont_know": false,
+      "text_answer": "Bajaría el umbral para que el modelo marque más pedidos como tardíos. Así se escapan menos pedidos tarde, aunque habrá más alarmas falsas."
+    }
+  ],
+  "meta": {
+    "prompt_id": "simulated_learner",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "42e8349fef99b3878b241191a0417fd9740a9a50194f4ed330612476a8caabc3",
+    "from_cache": false
+  }
+}

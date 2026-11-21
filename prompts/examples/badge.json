@@ -1,0 +1,41 @@
+{
+  "@context": "https://w3id.org/openbadges/v2",
+  "type": "Assertion",
+  "id": "https://smartmentor.example.org/api/v1/badges/7d1f9a3e-5b2c-4c8e-9f0a-1b2c3d4e5f60/assertion.json",
+  "recipient": {
+    "type": "email",
+    "hashed": true,
+    "salt": "3b8f1c2a9d4e",
+    "identity": "sha256$06f1141b3296ceda524f99d39abbe7427bc1d937beaefdf752cf297ad02c4d68"
+  },
+  "badge": {
+    "type": "BadgeClass",
+    "id": "https://smartmentor.example.org/api/v1/learning-paths/1/badge-class.json",
+    "name": "Fundamentos de Machine Learning: regresión y clasificación",
+    "description": "Acredita la construcción y evaluación de modelos supervisados básicos sobre datos tabulares. Se otorga tras aprobar la evaluación final de la ruta.",
+    "image": "https://smartmentor.example.org/api/v1/badges/7d1f9a3e-5b2c-4c8e-9f0a-1b2c3d4e5f60/image.png",
+    "criteria": {
+      "narrative": "Aprobar los quices de los temas de la ruta (70 % o más) y la evaluación final integradora con 80 % o más."
+    },
+    "issuer": {
+      "type": "Profile",
+      "id": "https://smartmentor.example.org/issuer.json",
+      "name": "SmartMentor (prototipo)",
+      "url": "https://smartmentor.example.org"
+    },
+    "tags": [
+      "Prepara datos tabulares sin fuga de información",
+      "Interpreta coeficientes de modelos lineales y logísticos",
+      "Ajusta el umbral de decisión según el costo de los errores"
+    ]
+  },
+  "issuedOn": "2026-11-07T15:30:00Z",
+  "verification": {
+    "type": "hosted"
+  },
+  "evidence": [
+    {
+      "narrative": "Evaluación final 86 (umbral 80); prompt badge_text v1"
+    }
+  ]
+}

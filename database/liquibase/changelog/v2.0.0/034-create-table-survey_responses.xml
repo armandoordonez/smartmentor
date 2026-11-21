@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/034-create-table-survey_responses.xml">
+
+    <changeSet id="v2.0.0-034-create-table-survey_responses" author="eduar.troyano">
+        <comment>Crea la tabla survey_responses: encuesta final (Likert) y SUS de una inscripción. Incluye secuencia propia, tabla de auditoría survey_responses_audit y el trigger survey_responses_audit_trg.</comment>
+
+        <createSequence sequenceName="survey_responses_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="survey_responses_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="survey_responses" remarks="Final survey (Likert) and SUS answers of an enrollment">
+            <column name="id" type="bigint" defaultValueSequenceNext="survey_responses_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="survey_responses_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment that answered">
+                <constraints nullable="false" foreignKeyName="survey_responses_enrollment_id_fk" references="enrollments(id)"/>
+            </column>
+            <column name="survey_type" type="varchar(10)" defaultValueComputed="'final'" remarks="Survey type: final">
+                <constraints nullable="false"/>
+            </column>
+            <column name="likert" type="jsonb" remarks="Likert answers"/>
+            <column name="sus_items" type="jsonb" remarks="The 10 SUS answers as integers"/>
+            <column name="sus_score" type="numeric(5,2)" remarks="SUS score from 0 to 100"/>
+            <column name="comment" type="text" remarks="Free-text comment"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="survey_responses" constraintName="survey_responses_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="survey_responses" constraintName="survey_responses_enrollment_type_uq" columnNames="enrollment_id,survey_type"/>
+        <sql>ALTER TABLE survey_responses ADD CONSTRAINT survey_responses_type_ck CHECK (survey_type IN ('final'))</sql>
+        <sql>ALTER TABLE survey_responses ADD CONSTRAINT survey_responses_sus_items_ck CHECK (sus_items IS NULL OR (jsonb_typeof(sus_items) = 'array' AND jsonb_array_length(sus_items) = 10))</sql>
+        <sql>ALTER TABLE survey_responses ADD CONSTRAINT survey_responses_sus_score_ck CHECK (sus_score IS NULL OR sus_score BETWEEN 0 AND 100)</sql>
+        <sql>CREATE TRIGGER survey_responses_set_updated_at_trg BEFORE UPDATE ON survey_responses FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="survey_responses_audit" remarks="Append-only change history of survey_responses">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="survey_responses_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="survey_responses_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in survey_responses">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE survey_responses_audit ADD CONSTRAINT survey_responses_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="survey_responses_audit" indexName="survey_responses_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER survey_responses_audit_trg AFTER INSERT OR UPDATE OR DELETE ON survey_responses FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS survey_responses_audit_trg ON survey_responses</sql>
+            <dropTable tableName="survey_responses_audit"/>
+            <dropTable tableName="survey_responses" cascadeConstraints="true"/>
+            <dropSequence sequenceName="survey_responses_audit_id_seq"/>
+            <dropSequence sequenceName="survey_responses_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

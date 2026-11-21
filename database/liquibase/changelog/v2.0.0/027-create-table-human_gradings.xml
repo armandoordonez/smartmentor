@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/027-create-table-human_gradings.xml">
+
+    <changeSet id="v2.0.0-027-create-table-human_gradings" author="eduar.troyano">
+        <comment>Crea la tabla human_gradings: calificación manual de respuestas cortas (muestra aleatoria o a solicitud) para el QWK. Incluye secuencia propia, tabla de auditoría human_gradings_audit y el trigger human_gradings_audit_trg.</comment>
+
+        <createSequence sequenceName="human_gradings_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="human_gradings_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="human_gradings" remarks="Manual grading of short answers on a sample (quadratic weighted kappa)">
+            <column name="id" type="bigint" defaultValueSequenceNext="human_gradings_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="human_gradings_pkey" nullable="false"/>
+            </column>
+            <column name="attempt_answer_id" type="bigint" remarks="Answer that was graded by hand">
+                <constraints nullable="false" foreignKeyName="human_gradings_attempt_answer_id_fk" references="attempt_answers(id)"/>
+            </column>
+            <column name="grader_user_id" type="bigint" remarks="Instructor or assigned evaluator that graded">
+                <constraints nullable="false" foreignKeyName="human_gradings_grader_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="sample_type" type="varchar(20)" remarks="Why the answer was graded: random or learner_request">
+                <constraints nullable="false"/>
+            </column>
+            <column name="criteria" type="jsonb" remarks="Score per rubric criterion"/>
+            <column name="score" type="numeric(5,2)" remarks="Total score given by the human grader">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="human_gradings" constraintName="human_gradings_answer_grader_uq" columnNames="attempt_answer_id,grader_user_id"/>
+        <createIndex tableName="human_gradings" indexName="human_gradings_grader_idx">
+            <column name="grader_user_id"/>
+        </createIndex>
+        <sql>ALTER TABLE human_gradings ADD CONSTRAINT human_gradings_sample_type_ck CHECK (sample_type IN ('random', 'learner_request'))</sql>
+        <sql>CREATE TRIGGER human_gradings_set_updated_at_trg BEFORE UPDATE ON human_gradings FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="human_gradings_audit" remarks="Append-only change history of human_gradings">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="human_gradings_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="human_gradings_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in human_gradings">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE human_gradings_audit ADD CONSTRAINT human_gradings_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="human_gradings_audit" indexName="human_gradings_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER human_gradings_audit_trg AFTER INSERT OR UPDATE OR DELETE ON human_gradings FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS human_gradings_audit_trg ON human_gradings</sql>
+            <dropTable tableName="human_gradings_audit"/>
+            <dropTable tableName="human_gradings" cascadeConstraints="true"/>
+            <dropSequence sequenceName="human_gradings_audit_id_seq"/>
+            <dropSequence sequenceName="human_gradings_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

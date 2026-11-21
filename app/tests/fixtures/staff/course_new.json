@@ -1,0 +1,19 @@
+{
+  "id": 7,
+  "name": "Curso nuevo",
+  "description": null,
+  "status": "draft",
+  "learning_path": {
+    "id": 17,
+    "name": "Curso nuevo",
+    "group_label": "Grupo 2026-2"
+  },
+  "owner": {
+    "id": 12,
+    "full_name": "Elena Ramírez"
+  },
+  "topics_count": 0,
+  "enrolled_count": 0,
+  "syllabus": null,
+  "extraction_job_id": null
+}

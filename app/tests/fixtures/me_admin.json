@@ -1,0 +1,41 @@
+{
+  "id": 1,
+  "email": "admin.ejemplo@example.org",
+  "full_name": "Administrador de ejemplo",
+  "roles": [
+    "admin",
+    "instructor",
+    "learner"
+  ],
+  "role_labels": {
+    "learner": "Aprendiz",
+    "instructor": "Instructor",
+    "admin": "Administrador"
+  },
+  "role_short_labels": {
+    "learner": "Aprendiz",
+    "instructor": "Instructor",
+    "admin": "Admin"
+  },
+  "default_role": "admin",
+  "is_new_user": false,
+  "consent_status": {
+    "data_processing": {
+      "granted": true,
+      "document_version": "1.0",
+      "granted_at": "2026-11-07T14:02:11Z"
+    },
+    "pilot_research": {
+      "granted": false,
+      "document_version": null,
+      "granted_at": null
+    }
+  },
+  "requires_consent": false,
+  "profile_completeness": {
+    "description": true,
+    "resume": false,
+    "percent": 50
+  },
+  "second_factor": true
+}

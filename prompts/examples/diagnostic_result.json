@@ -1,0 +1,57 @@
+{
+  "algorithm": "weighted_difficulty v1",
+  "configured_weights": {
+    "test": 0.8,
+    "profile": 0.1,
+    "resume": 0.1
+  },
+  "thresholds": {
+    "mastery_skip_threshold": 80.0,
+    "reinforce_cutoff": 50.0
+  },
+  "level_by_topic": [
+    {
+      "topic_id": "fundamentos_datos",
+      "test_score": 100.0,
+      "profile_similarity": 0.6123,
+      "profile_prior": 85.0,
+      "resume_prior": 70.0,
+      "weights": {
+        "test": 0.8,
+        "profile": 0.1,
+        "resume": 0.1
+      },
+      "level": 95.5,
+      "classification": "mastered"
+    },
+    {
+      "topic_id": "regresion_lineal",
+      "test_score": 66.7,
+      "profile_similarity": 0.5402,
+      "profile_prior": 60.0,
+      "resume_prior": 50.0,
+      "weights": {
+        "test": 0.8,
+        "profile": 0.1,
+        "resume": 0.1
+      },
+      "level": 64.4,
+      "classification": "to_reinforce"
+    },
+    {
+      "topic_id": "regresion_logistica",
+      "test_score": 0.0,
+      "profile_similarity": 0.4417,
+      "profile_prior": 40.0,
+      "resume_prior": null,
+      "weights": {
+        "test": 0.8888888888888888,
+        "profile": 0.1111111111111111,
+        "resume": 0.0
+      },
+      "level": 4.4,
+      "classification": "to_learn"
+    }
+  ],
+  "overall_score": 55.6
+}

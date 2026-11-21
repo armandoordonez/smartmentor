@@ -1,0 +1,39 @@
+{
+  "@context": "https://w3id.org/openbadges/v2",
+  "type": "Assertion",
+  "id": "https://smartmentor.example.org/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/assertion.json",
+  "recipient": {
+    "type": "email",
+    "hashed": true,
+    "salt": "sal-de-ejemplo",
+    "identity": "sha256$ejemplo"
+  },
+  "badge": {
+    "type": "BadgeClass",
+    "id": "https://smartmentor.example.org/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/assertion.json#badge",
+    "name": "Fundamentos de Machine Learning",
+    "description": "Aprobó la evaluación final con 88 %.",
+    "image": "https://smartmentor.example.org/api/v1/badges/0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12/image.png",
+    "criteria": {
+      "narrative": "Completar todos los temas de la ruta (aprobados u omitidos por dominio) y obtener al menos 80 % en la evaluación final."
+    },
+    "issuer": {
+      "type": "Profile",
+      "id": "https://example.org#issuer",
+      "name": "SmartMentor",
+      "url": "https://example.org"
+    },
+    "tags": [
+      "machine-learning"
+    ]
+  },
+  "issuedOn": "2026-10-05T18:00:00Z",
+  "verification": {
+    "type": "hosted"
+  },
+  "evidence": [
+    {
+      "narrative": "Aprobó la evaluación final de la ruta «Fundamentos de Machine Learning» con 88 % (umbral 80 %)."
+    }
+  ]
+}

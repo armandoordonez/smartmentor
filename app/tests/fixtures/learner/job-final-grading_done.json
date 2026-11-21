@@ -1,0 +1,9 @@
+{
+  "job_id": "job-final-grading",
+  "job_type": "grading.short_answer",
+  "status": "succeeded",
+  "progress_label": "Listo",
+  "ingested": true,
+  "next_action": null,
+  "error": null
+}

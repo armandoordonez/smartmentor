@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/008-create-table-consents.xml">
+
+    <changeSet id="v2.0.0-008-create-table-consents" author="eduar.troyano">
+        <comment>Crea la tabla consents: autorizaciones de tratamiento de datos y de participación en el piloto; solo una vigente por usuario y tipo. Incluye secuencia propia, tabla de auditoría consents_audit y el trigger consents_audit_trg.</comment>
+
+        <createSequence sequenceName="consents_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="consents_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="consents" remarks="Consents granted or revoked by users (Law 1581 data processing and pilot research)">
+            <column name="id" type="bigint" defaultValueSequenceNext="consents_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="consents_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint" remarks="User that gave the consent">
+                <constraints nullable="false" foreignKeyName="consents_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="consent_type" type="varchar(30)" remarks="Consent type: data_processing or pilot_research">
+                <constraints nullable="false"/>
+            </column>
+            <column name="document_version" type="varchar(50)" remarks="Version of the legal document the user accepted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="granted_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment the consent was granted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revoked_at" type="timestamp with time zone" remarks="Moment the consent was revoked; null while valid"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="consents" constraintName="consents_public_id_uq" columnNames="public_id"/>
+        <createIndex tableName="consents" indexName="consents_user_id_idx">
+            <column name="user_id"/>
+        </createIndex>
+        <sql>ALTER TABLE consents ADD CONSTRAINT consents_type_ck CHECK (consent_type IN ('data_processing', 'pilot_research'))</sql>
+        <sql>ALTER TABLE consents ADD CONSTRAINT consents_revoked_ck CHECK (revoked_at IS NULL OR revoked_at &gt;= granted_at)</sql>
+        <sql>CREATE UNIQUE INDEX consents_user_type_open_uq ON consents (user_id, consent_type) WHERE revoked_at IS NULL</sql>
+        <sql>CREATE TRIGGER consents_set_updated_at_trg BEFORE UPDATE ON consents FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="consents_audit" remarks="Append-only change history of consents">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="consents_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="consents_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in consents">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE consents_audit ADD CONSTRAINT consents_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="consents_audit" indexName="consents_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER consents_audit_trg AFTER INSERT OR UPDATE OR DELETE ON consents FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS consents_audit_trg ON consents</sql>
+            <dropTable tableName="consents_audit"/>
+            <dropTable tableName="consents" cascadeConstraints="true"/>
+            <dropSequence sequenceName="consents_audit_id_seq"/>
+            <dropSequence sequenceName="consents_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

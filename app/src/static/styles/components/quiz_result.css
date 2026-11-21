@@ -1,0 +1,12 @@
+/* Resultado del quiz (E7b) y cierre de la evaluación final (E9) (V-046, V-048). */
+/* «Otra forma de verlo»: tarjeta azul suave a la derecha de la revisión. */
+.st-key-card-alt-view {
+  background: var(--learner-soft);
+  border-color: var(--learner-accent);
+}
+
+/* Encuesta final: caja azul suave sin borde. */
+.st-key-card-survey {
+  background: var(--learner-soft);
+  border-color: transparent;
+}

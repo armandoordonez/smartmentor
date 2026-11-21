@@ -1,0 +1,33 @@
+/* Historial de intentos (E7c, E9c, D4b): el intento agotado va en tono de aviso, con texto. */
+[class*="st-key-attempt-exhausted-"] {
+  background: var(--warning-soft);
+  border-left: 4px solid var(--warning-accent);
+  border-radius: var(--radius-chip);
+  padding: var(--space-8) var(--space-12);
+}
+
+/* Tarjetas de E7c y E9c (V-047): dos columnas con la misma altura de tarjeta. */
+[class*="st-key-card-attempts-"] {
+  gap: var(--space-8);
+}
+/* El puntaje de cada intento va a la derecha. */
+[class*="st-key-attempt-score-"] {
+  text-align: right;
+}
+/* Las filas de insignia y texto no estiran sus hijos: la insignia queda junto al texto. */
+[class*="st-key-attempts-title-"] > *,
+[class*="st-key-route-row-"] > * {
+  flex: 0 1 auto;
+  width: auto;
+}
+[class*="st-key-card-attempts-"] h3 {
+  margin: 0;
+  padding: 0 0 var(--space-8);
+}
+[class*="st-key-attempt-score-"] p,
+[class*="st-key-attempt-score-"] {
+  text-align: right;
+}
+[class*="st-key-attempts-title-"] h3 {
+  padding: 0;
+}

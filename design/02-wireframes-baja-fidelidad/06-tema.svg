@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -60 1000 960" width="1000" height="960" font-family="'Comic Sans MS', 'Comic Neue', 'Segoe Print', cursive">
+<rect x="-20" y="-60" width="1000" height="960" fill="#ffffff"/>
+<text x="0" y="-26" font-size="20" fill="#1e1e1e">6 · Tema: video, texto y quiz (Figma E6; resultado en E7)</text>
+<rect x="0" y="0" width="960" height="880" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="0" y="0" width="960" height="56" rx="0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="24" y="34.2" font-size="18" fill="#1e1e1e" text-anchor="start">SmartMentor</text>
+<text x="300" y="32.6" font-size="14" fill="#1e1e1e" text-anchor="start">Rutas</text>
+<line x1="300" y1="42" x2="340" y2="42" stroke="#1e1e1e" stroke-width="3.0"/>
+<text x="380" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Mi progreso</text>
+<text x="508" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Logros</text>
+<ellipse cx="920.0" cy="28.0" rx="16.0" ry="16.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="32" y="81.7" font-size="13" fill="#868e96" text-anchor="start">Mi ruta  ›  Tema 3 de 5</text>
+<text x="32" y="113.6" font-size="24" fill="#1e1e1e" text-anchor="start">Regresión logística</text>
+<rect x="32" y="130" width="112.39999999999999" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="88.19999999999999" y="145.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Bloom: aplicar</text>
+<rect x="152.39999999999998" y="130" width="112.39999999999999" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="208.59999999999997" y="145.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Intento 2 de 3</text>
+<rect x="32" y="170" width="440" height="248" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="32" y1="170" x2="472" y2="418" stroke="#868e96" stroke-width="1.5"/>
+<line x1="472" y1="170" x2="32" y2="418" stroke="#868e96" stroke-width="1.5"/>
+<rect x="184.0" y="281.0" width="136" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="252.0" y="297.7" font-size="13" fill="#868e96" text-anchor="middle">Video (YouTube)</text>
+<text x="32" y="438.8" font-size="12" fill="#868e96" text-anchor="start">Título del video · 12 min · relevancia 0,87</text>
+<text x="496" y="185.3" font-size="17" fill="#1e1e1e" text-anchor="start">Explicación</text>
+<line x1="496" y1="204" x2="928" y2="204" stroke="#868e96" stroke-width="3.0"/>
+<line x1="496" y1="218" x2="928" y2="218" stroke="#868e96" stroke-width="3.0"/>
+<line x1="496" y1="232" x2="928" y2="232" stroke="#868e96" stroke-width="3.0"/>
+<line x1="496" y1="246" x2="755.2" y2="246" stroke="#868e96" stroke-width="3.0"/>
+<text x="800" y="250.8" font-size="12" fill="#868e96" text-anchor="start">[1]</text>
+<line x1="496" y1="272" x2="928" y2="272" stroke="#868e96" stroke-width="3.0"/>
+<line x1="496" y1="286" x2="928" y2="286" stroke="#868e96" stroke-width="3.0"/>
+<line x1="496" y1="300" x2="755.2" y2="300" stroke="#868e96" stroke-width="3.0"/>
+<text x="800" y="304.8" font-size="12" fill="#868e96" text-anchor="start">[2]</text>
+<text x="496" y="342.6" font-size="14" fill="#1e1e1e" text-anchor="start">Fuentes</text>
+<text x="496" y="364.8" font-size="12" fill="#868e96" text-anchor="start">[1] Libro abierto, cap. 4</text>
+<text x="496" y="384.8" font-size="12" fill="#868e96" text-anchor="start">[2] Apuntes del docente, p. 12</text>
+<text x="496" y="413.9" font-size="11" fill="#868e96" text-anchor="start">Generado con IA · explicacion_tema v1.3</text>
+<rect x="32" y="456" width="896" height="48" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="48" y="482.7" font-size="13" fill="#1e1e1e" text-anchor="start">Explicación alterna: este intento usa un enfoque distinto al anterior.</text>
+<line x1="32" y1="528" x2="928" y2="528" stroke="#868e96" stroke-width="1.5"/>
+<text x="32" y="562.0" font-size="20" fill="#1e1e1e" text-anchor="start">Quiz del tema</text>
+<text x="32" y="585.7" font-size="13" fill="#868e96" text-anchor="start">Necesitas ≥ 70 % para aprobar · preguntas nuevas en cada intento</text>
+<text x="32" y="621.5" font-size="15" fill="#1e1e1e" text-anchor="start">1. Pregunta de opción múltiple</text>
+<ellipse cx="56.0" cy="646.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="650.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción A</text>
+<ellipse cx="56.0" cy="674.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="678.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción B</text>
+<ellipse cx="56.0" cy="702.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="706.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción C</text>
+<ellipse cx="56.0" cy="730.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="76" y="734.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción D</text>
+<text x="32" y="775.5" font-size="15" fill="#1e1e1e" text-anchor="start">2. Pregunta de respuesta corta</text>
+<rect x="32" y="790" width="600" height="56" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="44" y="813.7" font-size="13" fill="#868e96" text-anchor="start">Escribe tu respuesta…</text>
+<rect x="768" y="802" width="160" height="44" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="848.0" y="828.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Enviar quiz</text>
+</svg>

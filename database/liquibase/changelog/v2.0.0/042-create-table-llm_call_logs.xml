@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/042-create-table-llm_call_logs.xml">
+
+    <changeSet id="v2.0.0-042-create-table-llm_call_logs" author="eduar.troyano">
+        <comment>Crea la tabla llm_call_logs: registro solo de inserción de cada llamada al LLM (la escribe ai/; sin auditoría). Incluye secuencia propia (sin tabla de auditoría: tabla de volumen alto o de solo inserción).</comment>
+
+        <createSequence sequenceName="llm_call_logs_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="llm_call_logs" remarks="Append-only log of every LLM call attempt. Written by the ai service. No audit table">
+            <column name="id" type="bigint" defaultValueSequenceNext="llm_call_logs_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="llm_call_logs_pkey" nullable="false"/>
+            </column>
+            <column name="ai_job_id" type="bigint" remarks="AI job that made the call">
+                <constraints foreignKeyName="llm_call_logs_ai_job_id_fk" references="ai_jobs(id)"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment related to the call, when applicable">
+                <constraints foreignKeyName="llm_call_logs_enrollment_id_fk" references="enrollments(id)"/>
+            </column>
+            <column name="provider" type="varchar(50)" remarks="LLM provider"/>
+            <column name="task" type="varchar(100)" remarks="Task performed (syllabus extraction, grading, ...)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="varchar(100)" remarks="Model used"/>
+            <column name="prompt_id" type="varchar(100)" remarks="Prompt id"/>
+            <column name="prompt_version" type="varchar(50)" remarks="Prompt version"/>
+            <column name="input_sha256" type="char(64)" remarks="SHA-256 of the input; the input itself is not stored"/>
+            <column name="json_valid" type="boolean" remarks="Whether the output was valid JSON for the contract"/>
+            <column name="call_attempt" type="smallint" defaultValueComputed="1" remarks="Attempt number of the call inside the job">
+                <constraints nullable="false"/>
+            </column>
+            <column name="from_cache" type="boolean" defaultValueComputed="false" remarks="Whether the output came from the cache">
+                <constraints nullable="false"/>
+            </column>
+            <column name="input_tokens" type="integer" remarks="Input tokens"/>
+            <column name="output_tokens" type="integer" remarks="Output tokens"/>
+            <column name="cost_usd" type="numeric(12,6)" remarks="Estimated cost in USD; null when the model has no price"/>
+            <column name="latency_ms" type="integer" remarks="Latency in milliseconds"/>
+            <column name="status" type="varchar(20)" defaultValueComputed="'success'" remarks="Call result: success, error, invalid_output or budget_exceeded">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="text" remarks="Error message when the call failed"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="llm_call_logs" indexName="llm_call_logs_ai_job_id_idx">
+            <column name="ai_job_id"/>
+        </createIndex>
+        <createIndex tableName="llm_call_logs" indexName="llm_call_logs_enrollment_id_idx">
+            <column name="enrollment_id"/>
+        </createIndex>
+        <createIndex tableName="llm_call_logs" indexName="llm_call_logs_created_at_idx">
+            <column name="created_at"/>
+        </createIndex>
+        <sql>ALTER TABLE llm_call_logs ADD CONSTRAINT llm_call_logs_status_ck CHECK (status IN ('success', 'error', 'invalid_output', 'budget_exceeded'))</sql>
+
+        <rollback>
+            <dropTable tableName="llm_call_logs" cascadeConstraints="true"/>
+            <dropSequence sequenceName="llm_call_logs_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

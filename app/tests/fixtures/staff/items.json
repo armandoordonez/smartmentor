@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "id": 700,
+      "topic_id": 103,
+      "stem": "¿Qué valores devuelve la función sigmoide?",
+      "item_type": "multiple_choice",
+      "bloom_level": "remember",
+      "options": [
+        "Entre 0 y 1",
+        "Cualquier real",
+        "Solo 0 o 1",
+        "Negativos"
+      ],
+      "correct_option": 0,
+      "model_answer": null,
+      "rubric": [],
+      "source": "llm",
+      "review_status": "approved",
+      "auto_review": null
+    },
+    {
+      "id": 701,
+      "topic_id": 103,
+      "stem": "¿Qué métrica conviene si los falsos negativos son costosos?",
+      "item_type": "multiple_choice",
+      "bloom_level": "apply",
+      "options": [
+        "Entre 0 y 1",
+        "Cualquier real",
+        "Solo 0 o 1",
+        "Negativos"
+      ],
+      "correct_option": 0,
+      "model_answer": null,
+      "rubric": [],
+      "source": "llm",
+      "review_status": "pending_review",
+      "auto_review": null
+    },
+    {
+      "id": 702,
+      "topic_id": 103,
+      "stem": "Explica por qué no usarías regresión lineal para clasificar.",
+      "item_type": "short_answer",
+      "bloom_level": "analyze",
+      "options": [],
+      "correct_option": null,
+      "model_answer": "Porque predice valores fuera de 0 y 1.",
+      "rubric": [
+        "Relaciona el rango",
+        "Nombra la alternativa"
+      ],
+      "source": "llm",
+      "review_status": "pending_review",
+      "auto_review": null
+    }
+  ],
+  "total": 3,
+  "limit": 100,
+  "offset": 0
+}

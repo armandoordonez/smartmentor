@@ -1,0 +1,27 @@
+/* Filas de la ruta (E5, E5b): compactas, con el motivo en color (V-042, V-043). */
+[class*="st-key-step-body-"] {
+  gap: var(--space-4);
+}
+[class*="st-key-panel-step-"] {
+  background: var(--bg-surface);
+  padding: var(--space-8) var(--space-12);
+}
+
+/* El tema en curso lleva borde azul. */
+[class*="st-key-panel-step-"][class*="-current"] {
+  border-color: var(--learner-accent);
+}
+
+/* E5b: una sola tarjeta con las filas separadas por una línea. */
+.st-key-card-path-rows {
+  gap: 0;
+}
+.st-key-card-path-rows [class*="st-key-panel-step-"] {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-default);
+  border-radius: 0;
+}
+.st-key-card-path-rows [data-testid="stLayoutWrapper"]:last-child [class*="st-key-panel-step-"] {
+  border-bottom: 0;
+}

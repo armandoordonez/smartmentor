@@ -1,0 +1,20 @@
+/* Apuntes y lecturas (R-004 en D1b, R-010 en D2): cada apunte en una fila gris, como el archivo
+   del syllabus en D1b. */
+[class*="st-key-material-row-"],
+[class*="st-key-material-item-"] {
+  background: var(--bg-neutral);
+  border-radius: var(--radius-row);
+  padding: var(--space-8) var(--space-12);
+  align-items: center;
+}
+
+/* Mismo cuadro punteado azul que el cargador del syllabus de D1b (V-101). */
+.st-key-nc-materials section,
+.st-key-sr-materials-upload section {
+  border: 1.5px dashed var(--learner-accent);
+  border-radius: var(--radius-card);
+  background: var(--learner-soft);
+  min-height: 96px;
+  justify-content: center;
+  align-items: center;
+}

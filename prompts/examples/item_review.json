@@ -1,0 +1,51 @@
+{
+  "reviews": [
+    {
+      "item_id": "q1",
+      "single_correct_answer": true,
+      "clear_stem": true,
+      "bloom_matches": true,
+      "aligned_with_outcome": true,
+      "issues": []
+    },
+    {
+      "item_id": "q2",
+      "single_correct_answer": true,
+      "clear_stem": false,
+      "bloom_matches": true,
+      "aligned_with_outcome": true,
+      "issues": [
+        "El enunciado no aclara que la clase positiva es «entrega a tiempo»."
+      ]
+    },
+    {
+      "item_id": "q3",
+      "single_correct_answer": false,
+      "clear_stem": true,
+      "bloom_matches": true,
+      "aligned_with_outcome": true,
+      "issues": [
+        "Sin indicar que C es la inversa de la fuerza de regularización, la primera y la segunda opción son defendibles."
+      ]
+    },
+    {
+      "item_id": "q4",
+      "single_correct_answer": true,
+      "clear_stem": true,
+      "bloom_matches": true,
+      "aligned_with_outcome": true,
+      "issues": []
+    }
+  ],
+  "discarded_item_ids": [
+    "q3"
+  ],
+  "meta": {
+    "prompt_id": "item_review",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "ee4e4d57729aa5cf140f21f8afb14e2834bd0a48842fa508d901ca39f2c7865f",
+    "from_cache": false
+  }
+}

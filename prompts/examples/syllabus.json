@@ -1,0 +1,111 @@
+{
+  "course_key": "fundamentos_machine_learning",
+  "course_name": "Fundamentos de Machine Learning",
+  "default_objective": "Construir, evaluar y comparar modelos supervisados básicos sobre datos tabulares y justificar la elección del modelo con métricas adecuadas, con al menos 80 % en la evaluación final.",
+  "topics": [
+    {
+      "id": "fundamentos_datos",
+      "name": "Fundamentos y preparación de datos",
+      "description": "Aprendizaje supervisado frente a no supervisado, partición de los datos y preprocesamiento sin fuga de información.",
+      "subtopics": [
+        "Supervisado vs. no supervisado",
+        "Variables y etiquetas",
+        "Partición entrenamiento/prueba",
+        "Fuga de datos",
+        "Escalado de variables",
+        "Codificación de variables categóricas"
+      ],
+      "learning_outcomes": [
+        {
+          "id": "lo_fundamentos_datos_1",
+          "statement": "Distinguir problemas de regresión y de clasificación a partir del tipo de etiqueta, sin errores en 4 casos dados.",
+          "bloom_level": "understand"
+        },
+        {
+          "id": "lo_fundamentos_datos_2",
+          "statement": "Aplicar una partición entrenamiento/prueba con preprocesamiento ajustado solo al entrenamiento, evitando la fuga de datos en un caso práctico.",
+          "bloom_level": "apply"
+        }
+      ],
+      "bloom_level": "apply",
+      "prerequisites": [],
+      "estimated_minutes": null,
+      "is_mandatory": false
+    },
+    {
+      "id": "regresion_lineal",
+      "name": "Regresión lineal",
+      "description": "Modelo lineal estimado por mínimos cuadrados, interpretación de coeficientes y métricas de regresión.",
+      "subtopics": [
+        "Modelo lineal",
+        "Mínimos cuadrados",
+        "Interpretación de coeficientes",
+        "Error cuadrático medio",
+        "R²"
+      ],
+      "learning_outcomes": [
+        {
+          "id": "lo_regresion_lineal_1",
+          "statement": "Interpretar el coeficiente de una variable en un modelo lineal manteniendo las demás constantes, en un ejemplo dado.",
+          "bloom_level": "understand"
+        },
+        {
+          "id": "lo_regresion_lineal_2",
+          "statement": "Calcular e interpretar el MSE y el R² de un modelo para decidir si mejora a predecir la media.",
+          "bloom_level": "apply"
+        }
+      ],
+      "bloom_level": "apply",
+      "prerequisites": [
+        "fundamentos_datos"
+      ],
+      "estimated_minutes": null,
+      "is_mandatory": false
+    },
+    {
+      "id": "regresion_logistica",
+      "name": "Regresión logística",
+      "description": "Clasificación binaria con la función sigmoide, umbral de decisión, log-loss, log-odds y regularización L2.",
+      "subtopics": [
+        "Clasificación binaria",
+        "Función sigmoide",
+        "Umbral de decisión",
+        "Log-loss",
+        "Coeficientes como log-odds",
+        "Regularización L2"
+      ],
+      "learning_outcomes": [
+        {
+          "id": "lo_regresion_logistica_1",
+          "statement": "Explicar cómo la función sigmoide convierte una combinación lineal en una probabilidad y cómo el umbral define la clase.",
+          "bloom_level": "understand"
+        },
+        {
+          "id": "lo_regresion_logistica_2",
+          "statement": "Interpretar un coeficiente como cambio en el logaritmo de las odds y su exponencial como razón de odds.",
+          "bloom_level": "apply"
+        },
+        {
+          "id": "lo_regresion_logistica_3",
+          "statement": "Analizar el efecto de cambiar el umbral o la fuerza de la regularización sobre los errores del modelo en un caso con costos distintos.",
+          "bloom_level": "analyze"
+        }
+      ],
+      "bloom_level": "analyze",
+      "prerequisites": [
+        "fundamentos_datos",
+        "regresion_lineal"
+      ],
+      "estimated_minutes": null,
+      "is_mandatory": false
+    }
+  ],
+  "meta": {
+    "prompt_id": "syllabus_structuring",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "131d8dc8c1e3a16c613adadb1247a1781533a550855b5347200094044a4570f2",
+    "from_cache": false
+  }
+}

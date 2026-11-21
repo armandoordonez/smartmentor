@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -60 1000 770" width="1000" height="770" font-family="'Comic Sans MS', 'Comic Neue', 'Segoe Print', cursive">
+<rect x="-20" y="-60" width="1000" height="770" fill="#ffffff"/>
+<text x="0" y="-26" font-size="20" fill="#1e1e1e">2 · Catálogo de rutas (Figma E1)</text>
+<rect x="0" y="0" width="960" height="690" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="0" y="0" width="960" height="56" rx="0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="24" y="34.2" font-size="18" fill="#1e1e1e" text-anchor="start">SmartMentor</text>
+<text x="300" y="32.6" font-size="14" fill="#1e1e1e" text-anchor="start">Rutas</text>
+<line x1="300" y1="42" x2="340" y2="42" stroke="#1e1e1e" stroke-width="3.0"/>
+<text x="380" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Mi progreso</text>
+<text x="508" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Logros</text>
+<ellipse cx="920.0" cy="28.0" rx="16.0" ry="16.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="32" y="101.6" font-size="24" fill="#1e1e1e" text-anchor="start">Rutas disponibles</text>
+<text x="32" y="127.6" font-size="14" fill="#868e96" text-anchor="start">Elige una ruta. Primero harás un diagnóstico corto.</text>
+<rect x="32" y="150" width="896" height="64" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="52" y="175.6" font-size="14" fill="#1e1e1e" text-anchor="start">Continúa donde quedaste</text>
+<text x="52" y="197.7" font-size="13" fill="#868e96" text-anchor="start">Fundamentos de ML · 2 de 5 temas</text>
+<rect x="380" y="176" width="300" height="12" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="380" y="176" width="120.0" height="12" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="780" y="162" width="128" height="40" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="844.0" y="186.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Continuar</text>
+<rect x="32" y="236" width="560" height="40" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="48" y="260.6" font-size="14" fill="#868e96" text-anchor="start">Buscar ruta…</text>
+<rect x="608" y="236" width="200" height="40" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="624" y="260.6" font-size="14" fill="#868e96" text-anchor="start">Filtrar: todas  ▾</text>
+<rect x="32" y="296" width="288" height="176" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="44" y="308" width="264" height="60" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="44" y1="308" x2="308" y2="368" stroke="#868e96" stroke-width="1.5"/>
+<line x1="308" y1="308" x2="44" y2="368" stroke="#868e96" stroke-width="1.5"/>
+<rect x="144.0" y="325.0" width="64" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="176.0" y="341.7" font-size="13" fill="#868e96" text-anchor="middle">imagen</text>
+<text x="44" y="391.5" font-size="15" fill="#1e1e1e" text-anchor="start">Fundamentos de ML</text>
+<text x="44" y="410.8" font-size="12" fill="#868e96" text-anchor="start">5 temas · ~6 h · docente</text>
+<rect x="44" y="432" width="72.8" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="80.4" y="447.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Inscrito</text>
+<rect x="208" y="426" width="100" height="34" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="258.0" y="447.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Ver ruta</text>
+<rect x="336" y="296" width="288" height="176" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="348" y="308" width="264" height="60" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="348" y1="308" x2="612" y2="368" stroke="#868e96" stroke-width="1.5"/>
+<line x1="612" y1="308" x2="348" y2="368" stroke="#868e96" stroke-width="1.5"/>
+<rect x="448.0" y="325.0" width="64" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="480.0" y="341.7" font-size="13" fill="#868e96" text-anchor="middle">imagen</text>
+<text x="348" y="391.5" font-size="15" fill="#1e1e1e" text-anchor="start">Estadística</text>
+<text x="348" y="410.8" font-size="12" fill="#868e96" text-anchor="start">5 temas · ~6 h · docente</text>
+<rect x="348" y="432" width="86.0" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="391.0" y="447.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Disponible</text>
+<rect x="512" y="426" width="100" height="34" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="562.0" y="447.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Ver ruta</text>
+<rect x="640" y="296" width="288" height="176" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="652" y="308" width="264" height="60" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="652" y1="308" x2="916" y2="368" stroke="#868e96" stroke-width="1.5"/>
+<line x1="916" y1="308" x2="652" y2="368" stroke="#868e96" stroke-width="1.5"/>
+<rect x="752.0" y="325.0" width="64" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="784.0" y="341.7" font-size="13" fill="#868e96" text-anchor="middle">imagen</text>
+<text x="652" y="391.5" font-size="15" fill="#1e1e1e" text-anchor="start">Python</text>
+<text x="652" y="410.8" font-size="12" fill="#868e96" text-anchor="start">5 temas · ~6 h · docente</text>
+<rect x="652" y="432" width="86.0" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="695.0" y="447.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Disponible</text>
+<rect x="816" y="426" width="100" height="34" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="866.0" y="447.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Ver ruta</text>
+<rect x="32" y="488" width="288" height="176" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="44" y="500" width="264" height="60" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="44" y1="500" x2="308" y2="560" stroke="#868e96" stroke-width="1.5"/>
+<line x1="308" y1="500" x2="44" y2="560" stroke="#868e96" stroke-width="1.5"/>
+<rect x="144.0" y="517.0" width="64" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="176.0" y="533.7" font-size="13" fill="#868e96" text-anchor="middle">imagen</text>
+<text x="44" y="583.5" font-size="15" fill="#1e1e1e" text-anchor="start">Series de tiempo</text>
+<text x="44" y="602.8" font-size="12" fill="#868e96" text-anchor="start">5 temas · ~6 h · docente</text>
+<rect x="44" y="624" width="86.0" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="87.0" y="639.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Disponible</text>
+<rect x="208" y="618" width="100" height="34" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="258.0" y="639.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Ver ruta</text>
+<rect x="336" y="488" width="288" height="176" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="348" y="500" width="264" height="60" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="348" y1="500" x2="612" y2="560" stroke="#868e96" stroke-width="1.5"/>
+<line x1="612" y1="500" x2="348" y2="560" stroke="#868e96" stroke-width="1.5"/>
+<rect x="448.0" y="517.0" width="64" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="480.0" y="533.7" font-size="13" fill="#868e96" text-anchor="middle">imagen</text>
+<text x="348" y="583.5" font-size="15" fill="#1e1e1e" text-anchor="start">Visualización</text>
+<text x="348" y="602.8" font-size="12" fill="#868e96" text-anchor="start">5 temas · ~6 h · docente</text>
+<rect x="348" y="624" width="99.19999999999999" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="397.6" y="639.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Próximamente</text>
+<rect x="512" y="618" width="100" height="34" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="562.0" y="639.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Ver ruta</text>
+<rect x="640" y="488" width="288" height="176" rx="6" fill="none" stroke="#868e96" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="784" y="567.7" font-size="13" fill="#868e96" text-anchor="middle">Estado vacío:</text>
+<text x="784" y="589.7" font-size="13" fill="#868e96" text-anchor="middle">«Aún no hay rutas publicadas»</text>
+</svg>

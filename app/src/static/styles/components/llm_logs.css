@@ -1,0 +1,8 @@
+/* AD2: el enlace al catálogo de prompts es un texto azul subrayado, como en Figma (V-017). Sigue
+   siendo un botón de texto (`type="tertiary"`) que navega con `st.switch_page`. */
+.st-key-ll-catalog button,
+.st-key-ll-catalog button p {
+  color: var(--learner-text);
+  text-decoration: underline;
+  font-weight: 600;
+}

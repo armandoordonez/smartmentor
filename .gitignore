@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+venv312/
+env/
+
+# IDE (.vscode/ se versiona: extensions.json y settings.json son compartidos)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# SonarQube (local scanner)
+.scannerwork/
+
+# Local test output
+test_output.txt
+
+# Pytest
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+*.history
+
+# Base de datos local (database/)
+database/data/*
+!database/data/.gitkeep
+database/backups/*
+!database/backups/.gitkeep
+
+.vscode/extensions.json
+.vscode/settings.json
+
+# Exports crudos del realm de Keycloak (llevan secretos): nunca se versionan
+keycloak/realm/*.raw.json
+keycloak/realm/*.local.json
+
+# Exportaciones pesadas de Figma (se regeneran; DEF-17) y checkpoints de Jupyter
+design/03-prototipo-alta-fidelidad/archivo_completo.json
+design/03-prototipo-alta-fidelidad/smartmentor_prototipo_v3.json
+design/03-prototipo-alta-fidelidad/smartmentor_figma/
+.ipynb_checkpoints/
+
+# Syllabus reales de cursos (material de terceros): no se suben al repositorio público sin autorización de su autor
+ai/docs/syllabus/
+ai/syllabus/

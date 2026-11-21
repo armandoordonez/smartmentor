@@ -1,0 +1,40 @@
+/* D5c · Calificación humana. Los criterios y la nota del LLM siguen el diseño de Figma (V-100). */
+
+/* «Cumple» y «No cumple» son dos pastillas sueltas; la elegida va en verde o en rojo. La elección
+   se lee del atributo `aria-checked` del botón de radio, no de clases internas de Streamlit. */
+[class*="st-key-dg-c-"] [role="radiogroup"] {
+  gap: var(--space-8);
+  background: transparent;
+  border: 0;
+}
+
+[class*="st-key-dg-c-"] button[role="radio"] {
+  background: var(--bg-neutral);
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+[class*="st-key-dg-c-"] button[role="radio"]:nth-of-type(1)[aria-checked="true"] {
+  background: var(--instructor-soft);
+  color: var(--instructor-text);
+  font-weight: 600;
+}
+
+[class*="st-key-dg-c-"] button[role="radio"]:nth-of-type(2)[aria-checked="true"] {
+  background: var(--error-soft);
+  color: var(--error-text);
+  font-weight: 600;
+}
+
+/* El antetítulo de la nota del LLM (en negrita) va en azul y la nota, en grande. */
+.st-key-grading-llm-note [data-testid="stCaptionContainer"] strong {
+  color: var(--learner-text);
+}
+
+.st-key-grading-llm-note h3 {
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}

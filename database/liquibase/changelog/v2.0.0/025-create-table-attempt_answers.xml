@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/025-create-table-attempt_answers.xml">
+
+    <changeSet id="v2.0.0-025-create-table-attempt_answers" author="eduar.troyano">
+        <comment>Crea la tabla attempt_answers: respuestas de cada intento con calificación, retroalimentación y solicitud de revisión humana. Incluye secuencia propia, tabla de auditoría attempt_answers_audit y el trigger attempt_answers_audit_trg.</comment>
+
+        <createSequence sequenceName="attempt_answers_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="attempt_answers_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="attempt_answers" remarks="Answers of an attempt, one per item, with the grading result">
+            <column name="id" type="bigint" defaultValueSequenceNext="attempt_answers_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="attempt_answers_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assessment_attempt_id" type="bigint" remarks="Attempt the answer belongs to">
+                <constraints nullable="false" foreignKeyName="attempt_answers_assessment_attempt_id_fk" references="assessment_attempts(id)"/>
+            </column>
+            <column name="assessment_item_id" type="bigint" remarks="Item answered">
+                <constraints nullable="false" foreignKeyName="attempt_answers_assessment_item_id_fk" references="assessment_items(id)"/>
+            </column>
+            <column name="selected_option" type="varchar(10)" remarks="Option selected in a multiple choice item"/>
+            <column name="dont_know" type="boolean" defaultValueComputed="false" remarks="Whether the learner answered I do not know">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text_answer" type="text" remarks="Text of a short answer"/>
+            <column name="is_correct" type="boolean" remarks="Whether the answer is correct"/>
+            <column name="score" type="numeric(5,2)" remarks="Score of the answer"/>
+            <column name="grader" type="varchar(10)" remarks="Who graded: rule, llm_judge or human"/>
+            <column name="rubric_detail" type="jsonb" remarks="Score per rubric criterion"/>
+            <column name="feedback" type="text" remarks="Feedback shown to the learner"/>
+            <column name="review_requested_at" type="timestamp with time zone" remarks="Moment the learner asked for a human review"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="attempt_answers" constraintName="attempt_answers_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="attempt_answers" constraintName="attempt_answers_attempt_item_uq" columnNames="assessment_attempt_id,assessment_item_id"/>
+        <createIndex tableName="attempt_answers" indexName="attempt_answers_item_idx">
+            <column name="assessment_item_id"/>
+        </createIndex>
+        <sql>ALTER TABLE attempt_answers ADD CONSTRAINT attempt_answers_grader_ck CHECK (grader IS NULL OR grader IN ('rule', 'llm_judge', 'human'))</sql>
+        <sql>CREATE TRIGGER attempt_answers_set_updated_at_trg BEFORE UPDATE ON attempt_answers FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="attempt_answers_audit" remarks="Append-only change history of attempt_answers">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="attempt_answers_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="attempt_answers_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in attempt_answers">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE attempt_answers_audit ADD CONSTRAINT attempt_answers_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="attempt_answers_audit" indexName="attempt_answers_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER attempt_answers_audit_trg AFTER INSERT OR UPDATE OR DELETE ON attempt_answers FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS attempt_answers_audit_trg ON attempt_answers</sql>
+            <dropTable tableName="attempt_answers_audit"/>
+            <dropTable tableName="attempt_answers" cascadeConstraints="true"/>
+            <dropSequence sequenceName="attempt_answers_audit_id_seq"/>
+            <dropSequence sequenceName="attempt_answers_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,125 @@
+[
+  {
+    "id": 1,
+    "topic_id": 103,
+    "kind": "explanation",
+    "title": "Texto: explicación v1.3",
+    "version": "1.3",
+    "prompt_version": "v1",
+    "sources": [
+      "Apuntes unidad 3",
+      "ISLR cap. 4"
+    ],
+    "faithfulness": 0.86,
+    "relevance": null,
+    "review_status": "approved",
+    "edited_by_user_id": null,
+    "content": {
+      "topic_id": "103",
+      "kind": "explanation",
+      "audience": "learner",
+      "version": "1.3",
+      "edited_by_user_id": null,
+      "title": "Regresión logística",
+      "sections": [
+        {
+          "heading": "Idea principal",
+          "body": "La regresión logística estima la probabilidad de que un caso pertenezca a una clase. Combina las variables en un puntaje lineal y lo transforma con la función sigmoide en un valor entre 0 y 1 [1]. Para clasificar se compara esa probabilidad con un umbral de decisión, que por defecto es 0,5 y se ajusta según el costo de cada tipo de error [2]."
+        }
+      ],
+      "worked_example": "Un banco decide si marca una transacción como fraude.",
+      "summary": "La regresión logística convierte un puntaje lineal en una probabilidad.",
+      "reflection_questions": [
+        "¿Qué pasa si bajas el umbral?"
+      ],
+      "gaps_detected": [],
+      "sources": [
+        {
+          "n": 1,
+          "source_id": "apuntes-u3-p12",
+          "title": "Apuntes unidad 3, p. 12",
+          "url": "https://example.org/apuntes-unidad-3",
+          "license": null
+        },
+        {
+          "n": 2,
+          "source_id": "islr-4-3",
+          "title": "ISLR, cap. 4.3",
+          "url": "https://example.org/islr",
+          "license": null
+        }
+      ],
+      "faithfulness": 0.86,
+      "unsupported_claims": []
+    }
+  },
+  {
+    "id": 2,
+    "topic_id": 103,
+    "kind": "alternate_explanation",
+    "title": "Texto: explicación alterna",
+    "version": "1.0",
+    "prompt_version": "v1",
+    "sources": [
+      "Apuntes unidad 3"
+    ],
+    "faithfulness": 0.81,
+    "relevance": null,
+    "review_status": "pending_review",
+    "edited_by_user_id": null,
+    "content": {
+      "topic_id": "103",
+      "kind": "explanation",
+      "audience": "learner",
+      "version": "1.0",
+      "edited_by_user_id": null,
+      "title": "Regresión logística",
+      "sections": [
+        {
+          "heading": "Idea principal",
+          "body": "Otra explicación del tema, con un ejemplo distinto [1]."
+        }
+      ],
+      "worked_example": "Un banco decide si marca una transacción como fraude.",
+      "summary": "La regresión logística convierte un puntaje lineal en una probabilidad.",
+      "reflection_questions": [
+        "¿Qué pasa si bajas el umbral?"
+      ],
+      "gaps_detected": [],
+      "sources": [
+        {
+          "n": 1,
+          "source_id": "apuntes-u3-p12",
+          "title": "Apuntes unidad 3, p. 12",
+          "url": "https://example.org/apuntes-unidad-3",
+          "license": null
+        },
+        {
+          "n": 2,
+          "source_id": "islr-4-3",
+          "title": "ISLR, cap. 4.3",
+          "url": "https://example.org/islr",
+          "license": null
+        }
+      ],
+      "faithfulness": 0.86,
+      "unsupported_claims": []
+    }
+  },
+  {
+    "id": 3,
+    "topic_id": 103,
+    "kind": "video",
+    "title": "Video: Regresión logística (11 min)",
+    "version": "1.0",
+    "prompt_version": null,
+    "sources": [
+      "YouTube"
+    ],
+    "faithfulness": null,
+    "relevance": 0.94,
+    "review_status": "pending_review",
+    "edited_by_user_id": null,
+    "content": null
+  }
+]

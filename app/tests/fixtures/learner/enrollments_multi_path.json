@@ -1,0 +1,103 @@
+{
+  "items": [
+    {
+      "id": 8,
+      "learning_path": {
+        "id": 2,
+        "name": "Estadística para ciencia de datos",
+        "group_label": "Piloto 2026-2"
+      },
+      "status": "in_path",
+      "objective": {
+        "statement": "Aplicar regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa, logrando al menos 80 % en la evaluación final.",
+        "bloom_verb": "Aplicar",
+        "content": "regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa,",
+        "criterion": "logrando al menos 80 % en la evaluación final",
+        "origin": "llm_proposed"
+      },
+      "progress": {
+        "steps_total": 5,
+        "steps_done": 3,
+        "percent": 60
+      },
+      "pilot_arm": "personalized",
+      "analysis_included": true,
+      "next_action": {
+        "type": "study_topic",
+        "step_id": 813,
+        "attempt_id": null,
+        "job_id": null,
+        "screen": "E6"
+      },
+      "created_at": "2026-10-20T09:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": 9,
+      "learning_path": {
+        "id": 3,
+        "name": "Python para análisis de datos",
+        "group_label": "Piloto 2026-2"
+      },
+      "status": "in_path",
+      "objective": {
+        "statement": "Aplicar regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa, logrando al menos 80 % en la evaluación final.",
+        "bloom_verb": "Aplicar",
+        "content": "regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa,",
+        "criterion": "logrando al menos 80 % en la evaluación final",
+        "origin": "llm_proposed"
+      },
+      "progress": {
+        "steps_total": 4,
+        "steps_done": 1,
+        "percent": 25
+      },
+      "pilot_arm": "personalized",
+      "analysis_included": true,
+      "next_action": {
+        "type": "study_topic",
+        "step_id": 813,
+        "attempt_id": null,
+        "job_id": null,
+        "screen": "E6"
+      },
+      "created_at": "2026-11-02T09:00:00Z",
+      "completed_at": null
+    },
+    {
+      "id": 7,
+      "learning_path": {
+        "id": 1,
+        "name": "Fundamentos de Machine Learning",
+        "group_label": "Piloto 2026-2"
+      },
+      "status": "completed",
+      "objective": {
+        "statement": "Aplicar regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa, logrando al menos 80 % en la evaluación final.",
+        "bloom_verb": "Aplicar",
+        "content": "regresión logística y árboles de decisión para predecir la demanda en un caso de tu empresa,",
+        "criterion": "logrando al menos 80 % en la evaluación final",
+        "origin": "llm_proposed"
+      },
+      "progress": {
+        "steps_total": 5,
+        "steps_done": 5,
+        "percent": 100
+      },
+      "pilot_arm": "personalized",
+      "analysis_included": true,
+      "next_action": {
+        "type": "view_badge",
+        "step_id": null,
+        "attempt_id": null,
+        "job_id": null,
+        "screen": "E10"
+      },
+      "created_at": "2026-10-01T14:05:00Z",
+      "completed_at": "2026-10-05T18:00:00Z"
+    }
+  ],
+  "total": 3,
+  "limit": 20,
+  "offset": 0
+}

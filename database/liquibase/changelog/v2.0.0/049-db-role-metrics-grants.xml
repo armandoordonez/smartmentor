@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/049-db-role-metrics-grants.xml">
+
+    <!-- Cuarto usuario del ADR 0019 (solo lectura), para el notebook de métricas. El rol smartmentor_metrics
+         lo crea el bootstrap; si no existe, el changeset se omite con un aviso. Este changeset se incluye antes
+         de la etiqueta v2.0.0 aunque su número sea posterior (se agregó después de publicar 045). -->
+    <changeSet id="v2.0.0-049-db-role-metrics-grants" author="eduar.troyano">
+        <comment>Otorga a smartmentor_metrics solo SELECT sobre las tablas y vistas que lee notebooks/metrics_data.py (y las vistas del tablero). Sin acceso a users, consents, data_subject_requests ni a las tablas _audit.</comment>
+        <sql splitStatements="false">
+            DO $grants$
+            DECLARE
+                t text;
+                readable text[] := ARRAY[
+                    'syllabus_extractions', 'topics', 'topic_prerequisites', 'item_annotations', 'attempt_answers',
+                    'assessment_attempts', 'enrollments', 'human_gradings', 'video_relevance_judgments',
+                    'video_candidates', 'user_profiles', 'badges', 'path_steps', 'diagnostics', 'survey_responses',
+                    'llm_call_logs', 'ai_jobs', 'resources',
+                    'v_path_step_metrics', 'v_llm_cost_summary', 'v_item_validity'];
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_metrics') THEN
+                    GRANT USAGE ON SCHEMA public TO smartmentor_metrics;
+                    FOREACH t IN ARRAY readable LOOP
+                        EXECUTE format('GRANT SELECT ON %I TO smartmentor_metrics', t);
+                    END LOOP;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_metrics does not exist: grants skipped';
+                END IF;
+            END
+            $grants$;
+        </sql>
+        <rollback>
+            <sql splitStatements="false">
+                DO $revoke$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_metrics') THEN
+                        REVOKE ALL ON ALL TABLES IN SCHEMA public FROM smartmentor_metrics;
+                        REVOKE USAGE ON SCHEMA public FROM smartmentor_metrics;
+                    END IF;
+                END
+                $revoke$;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

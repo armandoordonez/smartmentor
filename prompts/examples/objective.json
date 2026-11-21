@@ -1,0 +1,19 @@
+{
+  "origin": "llm_proposed",
+  "statement": "Construir y evaluar un modelo de regresión logística para predecir pedidos con entrega tardía, ajustando el umbral según el costo de los errores, con al menos 80 % en la evaluación final.",
+  "bloom_verb": "Construir y evaluar",
+  "content": "un modelo de regresión logística para predecir pedidos con entrega tardía, ajustando el umbral según el costo de los errores",
+  "criterion": "con al menos 80 % en la evaluación final",
+  "focus_topics": [
+    "regresion_logistica"
+  ],
+  "rationale": "Su nivel es bajo en regresión logística y su interés declarado es predecir entregas tardías; ya domina la preparación de datos.",
+  "meta": {
+    "prompt_id": "learning_objective",
+    "prompt_version": "v1",
+    "model": "example-llm-model",
+    "generated_at": "2026-11-07T15:00:00Z",
+    "input_sha256": "d119b953c71bff201090c65e206a97981533fbf1fc99d4fd443b13d4d6fbb30e",
+    "from_cache": false
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "id": 55,
+  "status": "in_progress",
+  "items": [
+    {
+      "item_id": 301,
+      "topic_id": 10,
+      "stem": "Si la etiqueta que quieres predecir es una categoría, ¿qué tipo de problema tienes?",
+      "item_type": "multiple_choice",
+      "options": [
+        "Regresión",
+        "Clasificación",
+        "Agrupamiento",
+        "Reducción de dimensión"
+      ],
+      "allows_dont_know": true
+    },
+    {
+      "item_id": 302,
+      "topic_id": 11,
+      "stem": "¿Qué mide el coeficiente de determinación R²?",
+      "item_type": "multiple_choice",
+      "options": [
+        "La proporción de varianza explicada",
+        "El error medio absoluto",
+        "La correlación entre dos variables",
+        "El número de variables útiles"
+      ],
+      "allows_dont_know": true
+    }
+  ],
+  "answers": [
+    {
+      "item_id": 301,
+      "selected_option": 1,
+      "dont_know": false,
+      "text_answer": null
+    }
+  ],
+  "submitted_at": null
+}

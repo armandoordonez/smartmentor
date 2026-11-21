@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/026-create-table-item_annotations.xml">
+
+    <changeSet id="v2.0.0-026-create-table-item_annotations" author="eduar.troyano">
+        <comment>Crea la tabla item_annotations: anotación ciega de ítems con la rúbrica por dos evaluadores (insumo del kappa). Incluye secuencia propia, tabla de auditoría item_annotations_audit y el trigger item_annotations_audit_trg.</comment>
+
+        <createSequence sequenceName="item_annotations_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="item_annotations_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="item_annotations" remarks="Blind annotations of items with the rubric by two evaluators (Cohen kappa)">
+            <column name="id" type="bigint" defaultValueSequenceNext="item_annotations_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="item_annotations_pkey" nullable="false"/>
+            </column>
+            <column name="assessment_item_id" type="bigint" remarks="Annotated item">
+                <constraints nullable="false" foreignKeyName="item_annotations_assessment_item_id_fk" references="assessment_items(id)"/>
+            </column>
+            <column name="annotator_user_id" type="bigint" remarks="Instructor or assigned evaluator that annotated">
+                <constraints nullable="false" foreignKeyName="item_annotations_annotator_user_id_fk" references="users(id)"/>
+            </column>
+            <column name="evaluator_slot" type="smallint" remarks="Evaluator position: 1 or 2">
+                <constraints nullable="false"/>
+            </column>
+            <column name="single_correct" type="boolean" remarks="Rubric: exactly one correct answer"/>
+            <column name="clear_stem" type="boolean" remarks="Rubric: clear statement"/>
+            <column name="bloom_ok" type="boolean" remarks="Rubric: Bloom level matches"/>
+            <column name="plausible_distractors" type="boolean" remarks="Rubric: plausible distractors"/>
+            <column name="verdict" type="varchar(10)" remarks="Overall verdict: valid or invalid">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="text" remarks="Free-text comment"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="item_annotations" constraintName="item_annotations_item_annotator_uq" columnNames="assessment_item_id,annotator_user_id"/>
+        <createIndex tableName="item_annotations" indexName="item_annotations_annotator_idx">
+            <column name="annotator_user_id"/>
+        </createIndex>
+        <sql>ALTER TABLE item_annotations ADD CONSTRAINT item_annotations_slot_ck CHECK (evaluator_slot IN (1, 2))</sql>
+        <sql>ALTER TABLE item_annotations ADD CONSTRAINT item_annotations_verdict_ck CHECK (verdict IN ('valid', 'invalid'))</sql>
+        <sql>CREATE TRIGGER item_annotations_set_updated_at_trg BEFORE UPDATE ON item_annotations FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="item_annotations_audit" remarks="Append-only change history of item_annotations">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="item_annotations_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="item_annotations_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in item_annotations">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE item_annotations_audit ADD CONSTRAINT item_annotations_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="item_annotations_audit" indexName="item_annotations_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER item_annotations_audit_trg AFTER INSERT OR UPDATE OR DELETE ON item_annotations FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS item_annotations_audit_trg ON item_annotations</sql>
+            <dropTable tableName="item_annotations_audit"/>
+            <dropTable tableName="item_annotations" cascadeConstraints="true"/>
+            <dropSequence sequenceName="item_annotations_audit_id_seq"/>
+            <dropSequence sequenceName="item_annotations_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

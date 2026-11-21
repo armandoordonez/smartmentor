@@ -1,0 +1,4 @@
+/* Nivel por tema (E4): el porcentaje va en gris, pegado a la insignia (V-040). */
+[class*="st-key-level-value-"] {
+  text-align: right;
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/020-create-table-diagnostics.xml">
+
+    <changeSet id="v2.0.0-020-create-table-diagnostics" author="eduar.troyano">
+        <comment>Crea la tabla diagnostics: diagnóstico de la inscripción con guardado parcial y nivel por tema. Incluye secuencia propia, tabla de auditoría diagnostics_audit y el trigger diagnostics_audit_trg.</comment>
+
+        <createSequence sequenceName="diagnostics_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="diagnostics_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="diagnostics" remarks="Diagnostic test of an enrollment (one per enrollment), with partial saving">
+            <column name="id" type="bigint" defaultValueSequenceNext="diagnostics_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="diagnostics_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment that takes the diagnostic">
+                <constraints nullable="false" foreignKeyName="diagnostics_enrollment_id_fk" references="enrollments(id)"/>
+            </column>
+            <column name="status" type="varchar(20)" defaultValueComputed="'created'" remarks="Diagnostic status: created, in_progress, submitted, scoring, scored or scoring_failed">
+                <constraints nullable="false"/>
+            </column>
+            <column name="item_ids" type="jsonb" defaultValueComputed="'[]'::jsonb" remarks="Ids of the assessment items shown, as a JSON array">
+                <constraints nullable="false"/>
+            </column>
+            <column name="answers" type="jsonb" defaultValueComputed="'{}'::jsonb" remarks="Learner answers (partial saving)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="level_by_topic" type="jsonb" remarks="Level per topic with test_score, resume_prior, profile_prior, weights, level and classification"/>
+            <column name="submitted_at" type="timestamp with time zone" remarks="Moment the learner submitted the diagnostic"/>
+            <column name="scored_at" type="timestamp with time zone" remarks="Moment the diagnostic was scored"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="diagnostics" constraintName="diagnostics_public_id_uq" columnNames="public_id"/>
+        <addUniqueConstraint tableName="diagnostics" constraintName="diagnostics_enrollment_id_uq" columnNames="enrollment_id"/>
+        <sql>ALTER TABLE diagnostics ADD CONSTRAINT diagnostics_status_ck CHECK (status IN ('created', 'in_progress', 'submitted', 'scoring', 'scored', 'scoring_failed'))</sql>
+        <sql>ALTER TABLE diagnostics ADD CONSTRAINT diagnostics_item_ids_ck CHECK (jsonb_typeof(item_ids) = 'array')</sql>
+        <sql>CREATE TRIGGER diagnostics_set_updated_at_trg BEFORE UPDATE ON diagnostics FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="diagnostics_audit" remarks="Append-only change history of diagnostics">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="diagnostics_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="diagnostics_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in diagnostics">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE diagnostics_audit ADD CONSTRAINT diagnostics_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="diagnostics_audit" indexName="diagnostics_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER diagnostics_audit_trg AFTER INSERT OR UPDATE OR DELETE ON diagnostics FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS diagnostics_audit_trg ON diagnostics</sql>
+            <dropTable tableName="diagnostics_audit"/>
+            <dropTable tableName="diagnostics" cascadeConstraints="true"/>
+            <dropSequence sequenceName="diagnostics_audit_id_seq"/>
+            <dropSequence sequenceName="diagnostics_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

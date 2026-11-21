@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "item_id": 701,
+      "topic_id": 103,
+      "topic_name": "Regresión logística",
+      "bloom_level": "apply",
+      "stem": "Si no detectar un fraude es muy costoso, ¿qué harías con el umbral de decisión?",
+      "options": [
+        "Subirlo a 0,7",
+        "Bajarlo a 0,3",
+        "Dejarlo en 0,5 y revisar la exactitud",
+        "Quitar variables del modelo"
+      ],
+      "correct_option": 1,
+      "evaluator_slot": 1,
+      "evaluator_slots_total": 2
+    }
+  ],
+  "annotated": 23,
+  "total": 60
+}

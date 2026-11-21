@@ -1,0 +1,68 @@
+/* Hoja de preguntas (E3, E6b, E8, E14): enunciado grande y opciones en tarjeta (V-033). */
+[class*="st-key-question-stem-"] p {
+  font-size: var(--font-size-card-title);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.35;
+}
+
+/* Cada opción es una tarjeta; la elegida lleva el fondo azul suave de Figma. El atributo
+   data-testid de Streamlit es la única forma de apuntar a la opción (no tiene clase propia). */
+[class*="st-key-option-"],
+[class*="st-key-option-"] [data-testid="stRadio"] {
+  width: 100%;
+}
+[class*="st-key-option-"] [role="radiogroup"] {
+  align-items: stretch;
+}
+[class*="st-key-option-"] [role="radiogroup"] > div {
+  width: 100%;
+}
+[class*="st-key-option-"] [data-testid="stRadioOption"] {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-field);
+  padding: var(--space-10) var(--space-12);
+  margin-bottom: var(--space-8);
+}
+[class*="st-key-option-"] [data-testid="stRadioOption"]:has(input:checked) {
+  background: var(--learner-soft);
+  border-color: var(--learner-accent);
+}
+
+/* Revisión de respuestas (E7): la insignia y la pregunta van en una línea; el texto largo se parte
+   dentro de su columna, no baja debajo de la insignia (V-045). */
+[class*="st-key-answer-line-"] {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+[class*="st-key-answer-line-"] > *:first-child {
+  flex: 0 0 auto;
+  width: auto;
+}
+[class*="st-key-answer-line-"] > *:last-child {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Barra de progreso de la hoja (V-034): azul del Aprendiz sobre pista neutra. */
+[class*="st-key-card-quiz-"] [data-testid="stProgress"],
+[data-testid="stProgress"] {
+  margin-bottom: var(--space-4);
+}
+
+/* «Cómo se califica» (E6c): caja azul suave sin borde (V-036). */
+[class*="st-key-card-rubric-"] {
+  background: var(--learner-soft);
+  border-color: transparent;
+}
+[class*="st-key-card-rubric-"] p {
+  color: var(--text-primary);
+}
+
+/* «No lo sé» en la fila de navegación (E3): enlace azul, como en Figma. */
+[class*="st-key-action-row-nav-"] [class*="-dont-know-"] button {
+  color: var(--learner-accent);
+}

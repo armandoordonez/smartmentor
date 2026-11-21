@@ -1,0 +1,76 @@
+# Actualizaciones automáticas de dependencias. Los pull requests van a dev.
+version: 2
+updates:
+  # Python con uv (api/, app/ y ai/).
+  - package-ecosystem: uv
+    directory: /api
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: uv
+    directory: /app
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: uv
+    directory: /ai
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci(deps)"
+
+  # Imágenes de docker-compose.yml (PostgreSQL, Keycloak, Mailpit).
+  - package-ecosystem: docker-compose
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+
+  # Imágenes base de los Dockerfile (ai/Dockerfile lo crea la Fase 4).
+  - package-ecosystem: docker
+    directory: /api
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: docker
+    directory: /app
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: docker
+    directory: /ai
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"
+  - package-ecosystem: docker
+    directory: /database/liquibase
+    target-branch: dev
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "build(deps)"

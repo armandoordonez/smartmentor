@@ -1,0 +1,29 @@
+/* Video del tema (E6): unos 230 px de alto como en Figma (V-012). */
+.st-key-video-player iframe,
+.st-key-video-player video {
+  height: 230px;
+  width: 100%;
+}
+.st-key-video-player [data-testid="stVideo"] {
+  height: 230px;
+}
+
+/* Recuadro con los datos del video: oscuro y centrado, como el recuadro de Figma. */
+.st-key-panel-video {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  border-radius: var(--radius-card);
+  min-height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.st-key-panel-video * {
+  color: var(--text-on-accent);
+}
+
+/* Explicación en una tarjeta (V-013): el estilo de tarjeta lo da layout.css. */
+.st-key-card-explanation {
+  padding: var(--space-16) var(--space-16);
+}

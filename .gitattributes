@@ -1,0 +1,8 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+docker-entrypoint.sh text eol=lf
+# Los prompts se verifican por su sha256 en prompts/catalog.yaml: con CRLF (Windows) el hash no coincide y el ai-worker no arranca.
+prompts/** text eol=lf

@@ -1,0 +1,39 @@
+{
+  "id": 42,
+  "email": "nuevo.ejemplo@example.org",
+  "full_name": "Camilo Rojas",
+  "roles": [
+    "learner"
+  ],
+  "role_labels": {
+    "learner": "Aprendiz",
+    "instructor": "Instructor",
+    "admin": "Administrador"
+  },
+  "role_short_labels": {
+    "learner": "Aprendiz",
+    "instructor": "Instructor",
+    "admin": "Admin"
+  },
+  "default_role": "learner",
+  "is_new_user": true,
+  "consent_status": {
+    "data_processing": {
+      "granted": false,
+      "document_version": null,
+      "granted_at": null
+    },
+    "pilot_research": {
+      "granted": false,
+      "document_version": null,
+      "granted_at": null
+    }
+  },
+  "requires_consent": true,
+  "profile_completeness": {
+    "description": false,
+    "resume": false,
+    "percent": 0
+  },
+  "second_factor": false
+}

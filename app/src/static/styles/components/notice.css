@@ -1,0 +1,6 @@
+/* Nota informativa en caja azul suave (E5b: nota del grupo, V-043). */
+.st-key-notice-info {
+  background: var(--learner-soft);
+  border-radius: var(--radius-row);
+  padding: var(--space-12) var(--space-16);
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/006-objective-proposal.xml">
+
+    <changeSet id="v2.0.1-006-objective-proposal" author="eduar.troyano">
+        <comment>B-033: guarda la propuesta de objetivo (de la IA o el objetivo por defecto de la ruta) aparte del objetivo confirmado. Antes el objetivo confirmado sobrescribía las columnas objective_* y «Volver a la propuesta de la IA» (E4b) traía lo editado. Las columnas nuevas las escribe solo la ingesta de diagnostic.finalize y no cambian al confirmar. Las filas existentes cuyo objetivo no fue editado (origen llm_proposed o path_default) copian su objetivo como propuesta; en las editadas la propuesta original ya se perdió y queda en NULL. La tabla de auditoría enrollments_audit registra las columnas nuevas sin cambios, porque audit_row_change() guarda la fila completa en jsonb, y los permisos de la API son por tabla.</comment>
+        <addColumn tableName="enrollments">
+            <column name="objective_proposal_bloom_verb" type="varchar(60)" remarks="Objective proposal (AI or path default), part 1: Bloom verb. Not overwritten when the learner confirms or edits the objective"/>
+            <column name="objective_proposal_content" type="text" remarks="Objective proposal (AI or path default), part 2: content"/>
+            <column name="objective_proposal_criterion" type="text" remarks="Objective proposal (AI or path default), part 3: success criterion"/>
+            <column name="objective_proposal_origin" type="varchar(20)" remarks="Origin of the objective proposal: path_default or llm_proposed"/>
+        </addColumn>
+        <sql>ALTER TABLE enrollments ADD CONSTRAINT enrollments_objective_proposal_origin_ck CHECK (objective_proposal_origin IS NULL OR objective_proposal_origin IN ('path_default', 'llm_proposed'))</sql>
+        <sql>UPDATE enrollments SET objective_proposal_bloom_verb = objective_bloom_verb, objective_proposal_content = objective_content, objective_proposal_criterion = objective_criterion, objective_proposal_origin = objective_origin WHERE objective_origin IN ('path_default', 'llm_proposed') AND objective_bloom_verb IS NOT NULL</sql>
+        <rollback>
+            <sql>ALTER TABLE enrollments DROP CONSTRAINT IF EXISTS enrollments_objective_proposal_origin_ck</sql>
+            <dropColumn tableName="enrollments">
+                <column name="objective_proposal_bloom_verb"/>
+                <column name="objective_proposal_content"/>
+                <column name="objective_proposal_criterion"/>
+                <column name="objective_proposal_origin"/>
+            </dropColumn>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

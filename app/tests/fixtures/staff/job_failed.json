@@ -1,0 +1,12 @@
+{
+  "job_id": "0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e12",
+  "job_type": "syllabus.structure",
+  "status": "failed",
+  "progress_label": null,
+  "ingested": false,
+  "next_action": null,
+  "error": {
+    "code": "AI_TASK_FAILED",
+    "retryable": true
+  }
+}

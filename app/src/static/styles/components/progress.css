@@ -1,0 +1,29 @@
+/* Mi progreso (E11): tarjetas de metas, datos y prueba de retención (V-050). */
+.st-key-card-retention {
+  background: var(--learner-soft);
+  border-color: transparent;
+}
+
+/* Subtarjetas «Hoy» y «Este mes» dentro de «Mis metas». */
+[class*="st-key-goal-card-"] {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-14);
+}
+
+/* «minutos de estudio» y «Faltan 10 min» van a la derecha de la subtarjeta. */
+[data-testid="stLayoutWrapper"]:has(> [class*="st-key-goal-right-"]) {
+  flex: 1;
+}
+[class*="st-key-goal-right-"] {
+  align-items: flex-end;
+}
+
+/* Riel gris de las barras de la tarjeta de la ruta y de las metas (B-061). Sin él, el riel toma el
+   blanco de la tarjeta y con 0 % no se ve nada, solo un hueco. El data-testid de la pista es del
+   DOM de Streamlit (P1, como en learner_detail.css). */
+.st-key-card-progress-route [data-testid="stProgressBarTrack"],
+[class*="st-key-goal-card-"] [data-testid="stProgressBarTrack"] {
+  background: var(--bg-neutral);
+}

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/040-create-table-source_documents.xml">
+
+    <changeSet id="v2.0.0-040-create-table-source_documents" author="eduar.troyano">
+        <comment>Crea la tabla source_documents: documentos fuente del RAG de un curso, con licencia y hash (la escribe ai/). Incluye secuencia propia, tabla de auditoría source_documents_audit y el trigger source_documents_audit_trg.</comment>
+
+        <createSequence sequenceName="source_documents_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="source_documents_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="source_documents" remarks="Reference documents (notes, books) used as RAG sources of a course. Written by the ai service">
+            <column name="id" type="bigint" defaultValueSequenceNext="source_documents_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="source_documents_pkey" nullable="false"/>
+            </column>
+            <column name="course_id" type="bigint" remarks="Course the document belongs to">
+                <constraints nullable="false" foreignKeyName="source_documents_course_id_fk" references="courses(id)"/>
+            </column>
+            <column name="title" type="varchar(500)" remarks="Document title">
+                <constraints nullable="false"/>
+            </column>
+            <column name="url" type="varchar(1000)" remarks="Document URL"/>
+            <column name="license" type="varchar(200)" remarks="Document license">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sha256" type="char(64)" remarks="SHA-256 of the document content">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="source_documents" constraintName="source_documents_course_sha256_uq" columnNames="course_id,sha256"/>
+        <sql>CREATE TRIGGER source_documents_set_updated_at_trg BEFORE UPDATE ON source_documents FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="source_documents_audit" remarks="Append-only change history of source_documents">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="source_documents_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="source_documents_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in source_documents">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE source_documents_audit ADD CONSTRAINT source_documents_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="source_documents_audit" indexName="source_documents_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER source_documents_audit_trg AFTER INSERT OR UPDATE OR DELETE ON source_documents FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS source_documents_audit_trg ON source_documents</sql>
+            <dropTable tableName="source_documents_audit"/>
+            <dropTable tableName="source_documents" cascadeConstraints="true"/>
+            <dropSequence sequenceName="source_documents_audit_id_seq"/>
+            <dropSequence sequenceName="source_documents_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,14 @@
+{
+  "title": "Regresión logística, otra mirada: del puntaje a la decisión",
+  "sections": [
+    {"heading": "Un semáforo de riesgo", "body": "Piensa en un tablero que asigna a cada pedido un puntaje de riesgo de llegar tarde. La regresión logística calcula ese puntaje como combinación lineal y la sigmoide lo convierte en una probabilidad entre 0 y 1 [1]."},
+    {"heading": "Dónde pones la línea", "body": "La clase se decide comparando la probabilidad con un umbral, que por defecto es 0,5 pero se ajusta según el costo de los errores [1]. Pregúntate qué error es más caro en tu operación antes de fijarlo."}
+  ],
+  "worked_example": "En tu tablero de logística, un pedido con probabilidad 0,42 de llegar tarde no se marca con umbral 0,5, pero sí con umbral 0,4 [1]. Si dejar pasar un pedido tardío es costoso, el umbral más bajo puede convenir [1].",
+  "summary": "La sigmoide transforma el puntaje en probabilidad y el umbral convierte esa probabilidad en una decisión que depende del costo de los errores [1].",
+  "reflection_questions": [
+    "¿Qué pedidos de tu operación cambiarían de clase si bajas el umbral de 0,5 a 0,4?",
+    "¿Cómo explicarías a tu equipo por qué el umbral no tiene que ser 0,5?"
+  ],
+  "gaps_detected": []
+}

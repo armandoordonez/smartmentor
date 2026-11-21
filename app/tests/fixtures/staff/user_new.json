@@ -1,0 +1,9 @@
+{
+  "id": 400,
+  "email": "nuevo@organizacion.example",
+  "full_name": "Nuevo",
+  "roles": [
+    "learner"
+  ],
+  "active": true
+}

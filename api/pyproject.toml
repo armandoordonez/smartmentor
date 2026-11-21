@@ -1,0 +1,72 @@
+[project]
+name = "smartmentor-api"
+version = "0.1.0"
+description = "API de negocio de SmartMentor: usuarios, cursos, rutas y evaluaciones"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "python-multipart>=0.0.20",
+    "httpx>=0.28",
+    "pypdf>=5.1",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "pydantic[email]>=2.9",
+    "pydantic-settings>=2.6",
+    "pyjwt[crypto]>=2.9",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "jsonschema>=4.23",
+    "types-jsonschema>=4.23",
+]
+
+# La API no es un paquete instalable: solo se resuelven sus dependencias.
+[tool.uv]
+package = false
+
+[tool.ruff]
+extend = "../ruff.toml"
+
+[tool.ruff.lint]
+# Las reglas comunes están en ../ruff.toml; aquí solo van las excepciones justificadas.
+
+[tool.ruff.lint.per-file-ignores]
+# Pruebas: `assert` es la forma de afirmar en pytest (S101); las fixtures se piden por su efecto
+# (base limpia, cliente, tablas) o para sobrescribir una firma, sin usar el valor (ARG001/ARG002).
+"tests/**" = ["S101", "S105", "S106", "ARG001", "ARG002"]
+# `assert` para acotar el tipo de la excepción que recibe cada manejador de Starlette.
+"app/core/exceptions.py" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app"]
+
+# El router genérico recibe las clases de esquema como parámetros de ejecución
+# (FastAPI las lee de las anotaciones), algo que mypy no puede expresar.
+[[tool.mypy.overrides]]
+module = ["app.common.controller"]
+disable_error_code = ["valid-type", "misc", "attr-defined"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]
+markers = ["integration: pruebas que requieren la base de datos smartmentor_test"]
+
+# SQLAlchemy asíncrono ejecuta el código de los repositorios dentro de greenlets: sin esto, la
+# cobertura no cuenta las líneas que siguen a cada `await` sobre la base.
+[tool.coverage.run]
+source = ["app"]
+branch = false
+omit = ["tests/*"]
+concurrency = ["greenlet", "thread"]

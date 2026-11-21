@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/023-create-table-assessment_items.xml">
+
+    <changeSet id="v2.0.0-023-create-table-assessment_items" author="eduar.troyano">
+        <comment>Crea la tabla assessment_items: banco de ítems pregenerados (diagnóstico, quiz, final y retención) con su estado de revisión. Incluye secuencia propia, tabla de auditoría assessment_items_audit y el trigger assessment_items_audit_trg.</comment>
+
+        <createSequence sequenceName="assessment_items_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="assessment_items_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="assessment_items" remarks="Pre-generated item bank (diagnostic, topic quiz, final and retention items)">
+            <column name="id" type="bigint" defaultValueSequenceNext="assessment_items_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="assessment_items_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_id" type="bigint" remarks="Topic the item evaluates">
+                <constraints nullable="false" foreignKeyName="assessment_items_topic_id_fk" references="topics(id)"/>
+            </column>
+            <column name="learning_outcome_id" type="bigint" remarks="Learning outcome the item evaluates">
+                <constraints foreignKeyName="assessment_items_learning_outcome_id_fk" references="learning_outcomes(id)"/>
+            </column>
+            <column name="source" type="varchar(15)" remarks="Item bank: diagnostic, topic_quiz, final or retention">
+                <constraints nullable="false"/>
+            </column>
+            <column name="item_type" type="varchar(20)" remarks="Item type: multiple_choice or short_answer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bloom_level" type="varchar(20)" remarks="Bloom taxonomy level of the item">
+                <constraints nullable="false"/>
+            </column>
+            <column name="difficulty" type="smallint" remarks="Difficulty from 1 (easy) to 3 (hard)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stem" type="text" remarks="Question statement">
+                <constraints nullable="false"/>
+            </column>
+            <column name="options" type="jsonb" remarks="Options of a multiple choice item"/>
+            <column name="correct_option" type="varchar(10)" remarks="Key of the correct option"/>
+            <column name="model_answer" type="text" remarks="Model answer of a short answer item"/>
+            <column name="rubric" type="jsonb" remarks="Grading rubric of a short answer item"/>
+            <column name="equivalence_group" type="varchar(100)" remarks="Group of equivalent items (final and retention versions)"/>
+            <column name="review_status" type="varchar(20)" defaultValueComputed="'pending_review'" remarks="Review status: auto_rejected, pending_review, approved or retired">
+                <constraints nullable="false"/>
+            </column>
+            <column name="auto_review" type="jsonb" remarks="Result of the automatic review by the LLM"/>
+            <column name="prompt_version" type="varchar(50)" remarks="Version of the prompt that generated the item"/>
+            <column name="ai_job_id" type="bigint" remarks="AI job that generated the item">
+                <constraints foreignKeyName="assessment_items_ai_job_id_fk" references="ai_jobs(id)"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="assessment_items" constraintName="assessment_items_public_id_uq" columnNames="public_id"/>
+        <createIndex tableName="assessment_items" indexName="assessment_items_topic_source_idx">
+            <column name="topic_id"/>
+            <column name="source"/>
+            <column name="review_status"/>
+        </createIndex>
+        <createIndex tableName="assessment_items" indexName="assessment_items_outcome_idx">
+            <column name="learning_outcome_id"/>
+        </createIndex>
+        <sql>ALTER TABLE assessment_items ADD CONSTRAINT assessment_items_source_ck CHECK (source IN ('diagnostic', 'topic_quiz', 'final', 'retention'))</sql>
+        <sql>ALTER TABLE assessment_items ADD CONSTRAINT assessment_items_type_ck CHECK (item_type IN ('multiple_choice', 'short_answer'))</sql>
+        <sql>ALTER TABLE assessment_items ADD CONSTRAINT assessment_items_bloom_level_ck CHECK (bloom_level IN ('remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'))</sql>
+        <sql>ALTER TABLE assessment_items ADD CONSTRAINT assessment_items_difficulty_ck CHECK (difficulty BETWEEN 1 AND 3)</sql>
+        <sql>ALTER TABLE assessment_items ADD CONSTRAINT assessment_items_review_status_ck CHECK (review_status IN ('auto_rejected', 'pending_review', 'approved', 'retired'))</sql>
+        <sql>ALTER TABLE assessment_items ADD CONSTRAINT assessment_items_shape_ck CHECK ((item_type = 'multiple_choice' AND options IS NOT NULL AND correct_option IS NOT NULL) OR (item_type = 'short_answer' AND model_answer IS NOT NULL))</sql>
+        <sql>CREATE TRIGGER assessment_items_set_updated_at_trg BEFORE UPDATE ON assessment_items FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="assessment_items_audit" remarks="Append-only change history of assessment_items">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="assessment_items_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="assessment_items_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in assessment_items">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE assessment_items_audit ADD CONSTRAINT assessment_items_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="assessment_items_audit" indexName="assessment_items_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER assessment_items_audit_trg AFTER INSERT OR UPDATE OR DELETE ON assessment_items FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS assessment_items_audit_trg ON assessment_items</sql>
+            <dropTable tableName="assessment_items_audit"/>
+            <dropTable tableName="assessment_items" cascadeConstraints="true"/>
+            <dropSequence sequenceName="assessment_items_audit_id_seq"/>
+            <dropSequence sequenceName="assessment_items_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

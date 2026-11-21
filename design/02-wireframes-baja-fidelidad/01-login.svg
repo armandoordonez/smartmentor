@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -60 1000 680" width="1000" height="680" font-family="'Comic Sans MS', 'Comic Neue', 'Segoe Print', cursive">
+<rect x="-20" y="-60" width="1000" height="680" fill="#ffffff"/>
+<text x="0" y="-26" font-size="20" fill="#1e1e1e">1 · Login (Figma A2 y A4)</text>
+<rect x="0" y="0" width="960" height="600" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="0" y="0" width="420" height="600" rx="0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="40" y="120" width="340" height="260" rx="0" fill="none" stroke="#868e96" stroke-width="1.5"/>
+<line x1="40" y1="120" x2="380" y2="380" stroke="#868e96" stroke-width="1.5"/>
+<line x1="380" y1="120" x2="40" y2="380" stroke="#868e96" stroke-width="1.5"/>
+<rect x="158.0" y="237.0" width="104" height="26" rx="6" fill="#ffffff" stroke="#868e96" stroke-width="1.5"/>
+<text x="210.0" y="253.7" font-size="13" fill="#868e96" text-anchor="middle">Ilustración</text>
+<text x="40" y="426.2" font-size="18" fill="#1e1e1e" text-anchor="start">Rutas de aprendizaje con IA</text>
+<line x1="40" y1="450" x2="380" y2="450" stroke="#868e96" stroke-width="3.0"/>
+<line x1="40" y1="464" x2="244.0" y2="464" stroke="#868e96" stroke-width="3.0"/>
+<text x="690" y="95.2" font-size="28" fill="#1e1e1e" text-anchor="middle">SmartMentor</text>
+<text x="690" y="131.2" font-size="18" fill="#868e96" text-anchor="middle">Inicia sesión</text>
+<text x="520" y="171.7" font-size="13" fill="#1e1e1e" text-anchor="start">Correo institucional</text>
+<rect x="520" y="182" width="340" height="36" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="532" y="203.7" font-size="13" fill="#868e96" text-anchor="start">nombre@universidad.edu.co</text>
+<text x="520" y="251.7" font-size="13" fill="#1e1e1e" text-anchor="start">Contraseña</text>
+<rect x="520" y="262" width="340" height="36" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="532" y="283.7" font-size="13" fill="#868e96" text-anchor="start">••••••••</text>
+<text x="520" y="321.7" font-size="13" fill="#868e96" text-anchor="start">¿Olvidaste tu contraseña?</text>
+<rect x="520" y="345" width="340" height="44" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="690.0" y="371.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Entrar</text>
+<line x1="520" y1="412" x2="860" y2="412" stroke="#868e96" stroke-width="1.5" stroke-dasharray="8 6"/>
+<rect x="520" y="430" width="340" height="44" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="690.0" y="456.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Entrar con cuenta institucional</text>
+<text x="520" y="510.8" font-size="12" fill="#868e96" text-anchor="start">Docente y admin: verificación en dos pasos al entrar.</text>
+<text x="520" y="535.8" font-size="12" fill="#868e96" text-anchor="start">Error: «Correo o contraseña incorrectos» bajo el botón.</text>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "claims": [
+    {"text": "La regresión logística es un modelo de clasificación binaria.", "citations": [1], "supported": true, "comment": "El fragmento 1 lo dice textualmente."},
+    {"text": "La sigmoide devuelve valores entre 0 y 1 interpretables como probabilidad.", "citations": [1], "supported": true, "comment": "Soportada por el fragmento 1."},
+    {"text": "El umbral por defecto es 0,5 y puede ajustarse según el costo de los errores.", "citations": [1], "supported": true, "comment": "Soportada por el fragmento 1."},
+    {"text": "exp(coeficiente) es la razón de odds.", "citations": [2], "supported": true, "comment": "Soportada por el fragmento 2."},
+    {"text": "Un C menor implica más regularización.", "citations": [2], "supported": true, "comment": "Soportada por el fragmento 2."},
+    {"text": "La regularización L2 siempre mejora la exactitud en prueba.", "citations": [2], "supported": false, "comment": "El fragmento 2 dice que reduce el sobreajuste, no que siempre mejore la exactitud."}
+  ]
+}
