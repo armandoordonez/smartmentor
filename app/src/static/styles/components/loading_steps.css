@@ -1,0 +1,34 @@
+/* Estado de carga (U1x, D1c): tarjeta blanca centrada con el anillo de progreso arriba y tres
+   pasos con su estado escrito además del color (V-055). */
+/* Los botones «Reintentar» y «Volver» también llevan «loading-» en su key y no son la tarjeta. */
+[class*="st-key-loading-"]:not([class*="st-key-loading-retry-"]):not([class*="st-key-loading-back-"]) {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+  max-width: 560px;
+  /* Figma centra la tarjeta en vertical: se baja con un margen proporcional a la ventana. */
+  margin: 16vh auto 0;
+}
+
+/* Anillo grande y azul que gira (el ícono progress_activity de Material). */
+[class*="st-key-spinner-"] span {
+  display: inline-block;
+  font-size: 3.5rem;
+  line-height: 1;
+  color: var(--learner-accent);
+  animation: loading-spin 1.2s linear infinite;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Quien pide menos movimiento ve el anillo quieto. */
+@media (prefers-reduced-motion: reduce) {
+  [class*="st-key-spinner-"] span {
+    animation: none;
+  }
+}

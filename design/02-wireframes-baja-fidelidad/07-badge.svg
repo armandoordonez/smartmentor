@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -60 1000 720" width="1000" height="720" font-family="'Comic Sans MS', 'Comic Neue', 'Segoe Print', cursive">
+<rect x="-20" y="-60" width="1000" height="720" fill="#ffffff"/>
+<text x="0" y="-26" font-size="20" fill="#1e1e1e">7 · Badge (Figma E10; colección en E12)</text>
+<rect x="0" y="0" width="960" height="640" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="0" y="0" width="960" height="56" rx="0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="24" y="34.2" font-size="18" fill="#1e1e1e" text-anchor="start">SmartMentor</text>
+<text x="300" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Rutas</text>
+<text x="380" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Mi progreso</text>
+<text x="508" y="32.6" font-size="14" fill="#1e1e1e" text-anchor="start">Logros</text>
+<line x1="508" y1="42" x2="556" y2="42" stroke="#1e1e1e" stroke-width="3.0"/>
+<ellipse cx="920.0" cy="28.0" rx="16.0" ry="16.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<ellipse cx="480.0" cy="164.0" rx="80.0" ry="80.0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="480" y="170.2" font-size="18" fill="#868e96" text-anchor="middle">Badge</text>
+<text x="480" y="291.4" font-size="26" fill="#1e1e1e" text-anchor="middle">¡Ruta completada!</text>
+<text x="480" y="322.6" font-size="14" fill="#868e96" text-anchor="middle">Fundamentos de ML · evaluación final 88 % · 5 oct 2026</text>
+<rect x="209" y="346" width="170" height="40" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="294.0" y="370.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Descargar imagen</text>
+<rect x="395" y="346" width="170" height="40" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="480.0" y="370.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Descargar JSON</text>
+<rect x="581" y="346" width="170" height="40" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="666.0" y="370.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Copiar enlace</text>
+<rect x="209" y="410" width="542" height="150" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="229" y="439.7" font-size="13" fill="#868e96" text-anchor="start">Emisor</text>
+<text x="420" y="439.7" font-size="13" fill="#1e1e1e" text-anchor="start">Maestría en Ciencia de Datos</text>
+<text x="229" y="469.7" font-size="13" fill="#868e96" text-anchor="start">Criterio</text>
+<text x="420" y="469.7" font-size="13" fill="#1e1e1e" text-anchor="start">Evaluación final ≥ 80 %</text>
+<text x="229" y="499.7" font-size="13" fill="#868e96" text-anchor="start">Fecha de emisión</text>
+<text x="420" y="499.7" font-size="13" fill="#1e1e1e" text-anchor="start">5 oct 2026</text>
+<text x="229" y="529.7" font-size="13" fill="#868e96" text-anchor="start">Formato</text>
+<text x="420" y="529.7" font-size="13" fill="#1e1e1e" text-anchor="start">Open Badges (imagen + JSON)</text>
+<text x="480" y="602.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Ver todos mis logros  ›</text>
+</svg>

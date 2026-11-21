@@ -1,6 +1,10 @@
 # Brief del proyecto: Plataforma de cursos adaptativos generados con IA
 
-Proyecto de grado · Maestría en Ciencia de Datos · Octubre de 2026 · Documento vivo: cada cohorte lo actualiza.
+Proyecto de grado · Maestría en Inteligencia Artificial Aplicada · Noviembre de 2026 · Documento vivo: cada cohorte lo actualiza.
+
+> **Brief base.** Este documento fija el problema, los objetivos, el alcance, las métricas y la forma de trabajar del proyecto, y se conserva como referencia común. **Cada cohorte tiene su propio brief** en `proyecto/cohorte_N/`, que cuenta qué se construyó, qué se midió, qué cambió frente a este plan y qué pasa a la siguiente cohorte. La cohorte 1 cerró en noviembre de 2026: ver [`cohorte_1/brief.md`](cohorte_1/brief.md).
+>
+> **Nota de vocabulario.** Este texto habla de «docente» y «estudiante». En el producto, desde la cohorte 1, los roles son neutros para servir también a contextos empresariales: **instructor** (el docente) y **aprendiz** (el estudiante), con los códigos `instructor`, `learner` y `admin` ([ADR 0021](../docs/adr/0021-neutral-roles-and-label-glossary.md)).
 
 ## Resumen ejecutivo
 
@@ -64,11 +68,11 @@ El bucle por tema es donde actúa la personalización: los temas ya dominados en
 
 ## Fase 0: prototipado de la interfaz y del flujo
 
-Antes de escribir código de producción, la primera semana se dedica a prototipar la experiencia y validar el flujo con un docente y 3 a 5 estudiantes. Esto evita construir pantallas que nadie usa y fija los contratos de datos entre la interfaz y la IA.
+Antes de escribir código de producción, la primera semana se dedica a prototipar la experiencia. Esto evita construir pantallas que nadie usa y fija los contratos de datos entre la interfaz y la IA.
 
 | Actividad | Herramienta sugerida | Resultado |
 | --- | --- | --- |
-| Mapa del flujo y casos de uso (estudiante, docente, admin) | Diagrama BPMN o de estados (Mermaid, draw.io) | Flujo aprobado por el director |
+| Mapa del flujo y casos de uso (aprendiz, mentor, admin) | Diagrama BPMN o de estados (Mermaid, draw.io) | Flujo aprobado por el director |
 | Wireframes de baja fidelidad de 7 pantallas: login, catálogo de rutas, perfil, diagnóstico, vista de ruta, tema (video + texto + quiz), badge | Papel o Excalidraw | Estructura de cada pantalla |
 | Prototipo navegable de alta fidelidad | Figma (o Streamlit con datos de ejemplo) | Enlace clicable para pruebas |
 | Prueba de prompts tipo “Mago de Oz”: el equipo genera a mano con el LLM el syllabus estructurado, el diagnóstico y un tema, y los muestra en el prototipo | Notebook + LLM | Primeros ejemplos reales de salida y esquemas JSON |
@@ -259,11 +263,13 @@ smartmentor/
 ├── README.md            # cómo instalar y correr en < 1 hora
 ├── HANDOFF.md           # estado, deuda técnica y próximos pasos
 ├── CHANGELOG.md         # cambios por versión y cohorte
-├── proyecto/            # este brief y documentos de gestión
+├── proyecto/            # brief base (este documento) y un brief por cohorte: cohorte_1/, cohorte_2/...
 ├── docs/adr/            # decisiones de arquitectura (una por archivo)
 ├── design/              # prototipo, wireframes, enlace a Figma
-├── app/                 # interfaz (Streamlit o Next.js)
+├── app/                 # interfaz (Streamlit)
 ├── api/                 # FastAPI: usuarios, cursos, rutas, evaluaciones
+├── database/            # PostgreSQL + pgvector: Liquibase, bootstrap, backups, volumen local
+├── keycloak/            # proveedor de identidad (Keycloak): volumen local y guía de configuración
 ├── ai/                  # generación, RAG, motor de ruta, calificador
 ├── prompts/             # prompts versionados + esquemas JSON
 ├── data/                # syllabus de ejemplo y anotaciones (sin datos personales)
@@ -277,7 +283,7 @@ Reglas mínimas: rama `main` protegida y siempre desplegable; trabajo en ramas `
 
 ### Documento vivo
 
-Este brief es el documento de referencia del proyecto y cada cohorte lo actualiza en lugar de escribir uno nuevo. Las decisiones técnicas van como ADR en el repositorio, y el documento de grado de cada grupo cita la versión etiquetada que entregó.
+Este brief es el documento de referencia del proyecto. Cada cohorte lo conserva como base y deja su propio brief en `proyecto/cohorte_N/`, con su documentación de soporte: anexos técnicos, resultados, trazabilidad y bitácoras. Así el original no se pierde y cada cohorte cuenta lo suyo. Las decisiones técnicas van como ADR en el repositorio, y el documento de grado de cada grupo cita la versión etiquetada que entregó.
 
 ### Traspaso entre cohortes
 
@@ -288,7 +294,7 @@ La semana 8 incluye una sesión de traspaso de 2 horas con el grupo entrante y e
 - [ ] Notebook de métricas reproducible con los resultados de su piloto.
 - [ ] Datos anonimizados y anotaciones de expertos en `data/`.
 - [ ] Accesos transferidos (organización de GitHub, despliegue, claves de API, Figma).
-- [ ] Este documento actualizado: estado, métricas obtenidas y lecciones aprendidas.
+- [ ] El brief de la cohorte (`proyecto/cohorte_N/brief.md`) actualizado: estado, métricas obtenidas y lecciones aprendidas.
 
 El grupo entrante dedica su semana 1 a reproducir el entorno y recalcular las métricas de la cohorte anterior; esa es su línea base.
 
@@ -296,7 +302,7 @@ El grupo entrante dedica su semana 1 a reproducir el entorno y recalcular las m�
 
 | Cohorte | Foco | Aporte de investigación |
 | --- | --- | --- |
-| 1 | Prototipo, MVP de punta a punta y primera evaluación | Calidad del contenido generado y validez del diagnóstico |
+| 1 | Prototipo, MVP de punta a punta y primera evaluación | Calidad del contenido generado y validez del diagnóstico. Resultado: [`cohorte_1/brief.md`](cohorte_1/brief.md) |
 | 2 | Modelado del estudiante: knowledge tracing (BKT o DKT) y diagnóstico adaptativo con IRT | Mejora de predicción y eficiencia frente a la cohorte 1 |
 | 3 | Secuenciación con bandits o aprendizaje por refuerzo, piloto ampliado con grupo de control | Efecto causal de la personalización en el aprendizaje |
 | 4 | Integración con el LMS institucional, analítica docente y escalamiento | Adopción y costo por estudiante a escala |

@@ -1,0 +1,5 @@
+/* Tarjeta del objetivo (E4, E5): azul suave con borde azul (V-040). */
+.st-key-card-objective {
+  background: var(--learner-soft);
+  border-color: var(--learner-accent);
+}

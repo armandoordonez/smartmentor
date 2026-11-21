@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/009-video-candidates-search-position.xml">
+
+    <changeSet id="v2.0.1-009-video-candidates-search-position" author="alexander.amador">
+        <comment>E6: guarda la posición del video en los resultados de la búsqueda de YouTube (1 = el primero). Es la línea base «orden de YouTube» con la que se compara el ranking del recomendador. Nula en los videos que agrega el instructor y en los candidatos anteriores a este cambio. La tabla de auditoría video_candidates_audit registra la columna nueva sin cambios, porque audit_row_change() guarda la fila completa en jsonb, y los permisos son por tabla.</comment>
+        <addColumn tableName="video_candidates">
+            <column name="search_position" type="smallint" remarks="Position of the video in the YouTube search results (1 = first); NULL for instructor videos and older candidates. Baseline of experiment E6"/>
+        </addColumn>
+        <sql>ALTER TABLE video_candidates ADD CONSTRAINT video_candidates_search_position_ck CHECK (search_position IS NULL OR search_position &gt;= 1)</sql>
+        <rollback>
+            <sql>ALTER TABLE video_candidates DROP CONSTRAINT IF EXISTS video_candidates_search_position_ck</sql>
+            <dropColumn tableName="video_candidates" columnName="search_position"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

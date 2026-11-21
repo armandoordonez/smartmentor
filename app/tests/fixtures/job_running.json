@@ -1,0 +1,9 @@
+{
+  "job_id": "0b8e3c1e-6a4f-4f51-9a39-7d2a1f0c9e11",
+  "job_type": "diagnostic.finalize",
+  "status": "running",
+  "progress_label": "Calculando tu nivel por tema",
+  "ingested": false,
+  "next_action": null,
+  "error": null
+}

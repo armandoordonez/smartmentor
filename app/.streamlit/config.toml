@@ -1,0 +1,74 @@
+# Configuración de Streamlit. Los colores son los de src/static/styles/tokens.css (único lugar con
+# hexadecimales de la interfaz); tests/unit/test_styles.py verifica que coinciden. Para cambiar un
+# color: editar tokens.css y, si aparece aquí, este archivo (ver app/CLAUDE.md, sección 7).
+
+[server]
+# Sirve src/static/ (la fuente Inter) en app/static/.
+enableStaticServing = true
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+# "minimal" quita el menú «⋮» de Streamlit (Settings, Print, Record, Rerun…): la barra propia de la
+# app (render_header) queda pegada arriba, como en Figma (V-088).
+toolbarMode = "minimal"
+
+[theme]
+base = "light"
+# Un solo primaryColor para toda la app (azul del Aprendiz); roles.css pinta el botón principal
+# del Instructor (verde) y del Administrador (violeta).
+primaryColor = "#1D5FD1"           # --learner-accent
+# Fondo gris de la página y superficie blanca para campos y tarjetas (fondo/pagina y fondo/superficie).
+backgroundColor = "#F5F6F8"        # --bg-page
+secondaryBackgroundColor = "#FFFFFF" # --bg-surface
+textColor = "#15181E"              # --text-primary
+# PROPUESTA: borde/default (1,25:1) y borde/fuerte (1,59:1) no llegan a 3:1 (WCAG 1.4.11).
+borderColor = "#838B9B"            # --border-field
+linkColor = "#174EA6"              # --learner-text
+linkUnderline = false
+showWidgetBorder = true
+
+font = "Inter, sans-serif"
+headingFont = "Inter, sans-serif"
+baseFontSize = 14
+headingFontSizes = ["1.75rem", "1.5rem", "1.125rem", "1rem", "0.875rem", "0.75rem"]
+headingFontWeights = [700, 700, 600, 600, 600, 600]
+metricValueFontSize = "1.5rem"
+metricValueFontWeight = 700
+
+baseRadius = "10px"
+buttonRadius = "full"
+
+# Paleta de badges y avisos (componente Badge de Figma: Verde, Azul, Ámbar, Gris, Violeta).
+# El texto usa la variable «texto» de cada grupo, que cumple 4,5:1 sobre su fondo suave.
+greenColor = "#11774A"             # --instructor-accent
+greenBackgroundColor = "#E5F4EC"   # --instructor-soft
+greenTextColor = "#0D6640"         # --instructor-text
+blueColor = "#1D5FD1"              # --learner-accent
+blueBackgroundColor = "#E8F0FC"    # --learner-soft
+blueTextColor = "#174EA6"          # --learner-text
+orangeColor = "#8A5300"            # --warning-text (aviso/acento solo es decorativo)
+orangeBackgroundColor = "#FFF4DE"  # --warning-soft
+orangeTextColor = "#8A5300"        # --warning-text
+yellowColor = "#8A5300"            # --warning-text
+yellowBackgroundColor = "#FFF4DE"  # --warning-soft
+yellowTextColor = "#8A5300"        # --warning-text
+grayColor = "#4A5160"              # --text-secondary
+grayBackgroundColor = "#EEF0F3"    # --bg-neutral
+grayTextColor = "#4A5160"          # --text-secondary
+violetColor = "#5B3CC4"            # --admin-accent
+violetBackgroundColor = "#EEEAFB"  # --admin-soft
+violetTextColor = "#4B2FB0"        # --admin-text
+redColor = "#9B1C14"               # --error-text
+redBackgroundColor = "#FDECEA"     # --error-soft
+redTextColor = "#9B1C14"           # --error-text
+
+chartCategoricalColors = ["#1D5FD1", "#11774A", "#5B3CC4", "#8A5300", "#4A5160"]
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/InterVariable.woff2"
+weight = "100 900"
+style = "normal"

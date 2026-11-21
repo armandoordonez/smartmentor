@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SmartMentor: changelog maestro del esquema de la base de datos `smartmentor`.
+
+  Autor:      eduar.troyano
+  Fecha:      2026-10-07 (re-base v2.0.0: 2026-11-07)
+  Recurso:    proyecto/brief.md, secciones "Modelo de datos principal" y
+              "Arquitectura técnica y stack sugerido" (PostgreSQL con pgvector como única base).
+  Decisiones: docs/adr/0001-postgres-pgvector.md, docs/adr/0002-liquibase-schema-versioning.md y docs/adr/0007-schema-rebase-v2.md
+  Motor:      PostgreSQL 17 + pgvector 0.8.7, Liquibase 5.0.4
+  Operación:  database/liquibase/README.md
+
+  Cada versión vive en su propia carpeta (vX.Y.Z) e incluye sus changesets en orden.
+  Un changeset ya aplicado nunca se edita: las correcciones van en un changeset nuevo.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- v2.0.0: re-base del esquema para el prototipo v3 y la capa de IA (ADR 0007). Reemplaza a v1.0.0 y v1.0.1,
+         que se retiraron de este maestro; su último estado está en git con la etiqueta schema-v1-final. -->
+    <include file="v2.0.0/db.changelog-v2.0.0.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1: usuarios de desarrollo (instructor y aprendiz) sembrados desde variables de entorno. -->
+    <include file="v2.0.1/001-seed-dev-users.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1: función purge_user_audit(bigint) para la supresión de datos (ADR 0018). -->
+    <include file="v2.0.1/002-purge-user-audit.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-003: valores por defecto de learning_paths alineados con la API. -->
+    <include file="v2.0.1/003-learning-paths-defaults.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-004: SELECT de smartmentor_metrics sobre interaction_events para la métrica m27 (R-003). -->
+    <include file="v2.0.1/004-metrics-read-interaction-events.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-005: usuarios de desarrollo «vacío» (aprendiz sin inscripciones e instructor sin cursos; T-053). -->
+    <include file="v2.0.1/005-seed-empty-dev-users.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-006: propuesta de objetivo guardada aparte del objetivo confirmado (B-033). -->
+    <include file="v2.0.1/006-objective-proposal.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-007: el dueño del curso también es evaluador (B-036): sin trigger y con backfill. -->
+    <include file="v2.0.1/007-course-owner-evaluator.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-008: apuntes y lecturas del curso como fuentes del RAG (R-004), con sus permisos. -->
+    <include file="v2.0.1/008-create-table-course_materials.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-009: posición del video en la búsqueda de YouTube, línea base del experimento E6. -->
+    <include file="v2.0.1/009-video-candidates-search-position.xml" relativeToChangelogFile="true"/>
+
+    <!-- v2.0.1-010: el rol de métricas lee assessment_items para la equivalencia de ítems (T-057). -->
+    <include file="v2.0.1/010-metrics-read-assessment-items.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

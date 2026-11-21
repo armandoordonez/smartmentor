@@ -1,0 +1,27 @@
+{
+  "id": 103,
+  "name": "Regresión logística",
+  "description": null,
+  "subtopics": [
+    "Función sigmoide",
+    "Umbral de decisión",
+    "Métricas de clasificación"
+  ],
+  "position": 3,
+  "estimated_minutes": 120,
+  "is_mandatory": false,
+  "bloom_level": "apply",
+  "learning_outcomes": [
+    {
+      "id": 43,
+      "statement": "un modelo de regresión logística a un problema de clasificación binaria",
+      "bloom_level": "apply"
+    }
+  ],
+  "prerequisite_topic_ids": [
+    102
+  ],
+  "review_status": "corrected",
+  "origin": "llm",
+  "embedding_status": "generated"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "course_id": 1,
+    "file_name": "apuntes_u1_supervisado.pdf",
+    "source_type": "pdf",
+    "origin": "own_notes",
+    "byte_size": 389120,
+    "page_count": 12,
+    "extracted_char_count": 18240,
+    "active": true,
+    "created_at": "2026-11-15T15:00:00Z"
+  },
+  {
+    "id": 2,
+    "course_id": 1,
+    "file_name": "ISLR_cap3_regresion.md",
+    "source_type": "text",
+    "origin": "open_license",
+    "byte_size": 52410,
+    "page_count": null,
+    "extracted_char_count": 51022,
+    "active": true,
+    "created_at": "2026-11-15T15:01:00Z"
+  }
+]

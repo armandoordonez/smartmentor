@@ -1,0 +1,33 @@
+/* A1: tarjeta de rol con borde de 2 px y botón del color de cada rol (V-058). */
+.st-key-card-role-learner,
+.st-key-card-role-instructor,
+.st-key-card-role-admin {
+  border-width: 2px;
+  border-style: solid;
+}
+
+.st-key-card-role-learner {
+  --role-accent: var(--learner-accent);
+}
+.st-key-card-role-instructor {
+  --role-accent: var(--instructor-accent);
+}
+.st-key-card-role-admin {
+  --role-accent: var(--admin-accent);
+}
+
+[class*="st-key-card-role-"] {
+  border-color: var(--role-accent);
+}
+
+/* El botón es secundario (sin type="primary"): el color sale de la tarjeta, no del rol activo. */
+[class*="st-key-card-role-"] [class*="st-key-enter-"] button {
+  background-color: var(--role-accent);
+  border-color: var(--role-accent);
+  color: var(--text-on-accent);
+}
+
+[class*="st-key-card-role-"] [class*="st-key-enter-"] button:hover {
+  filter: brightness(0.92);
+  color: var(--text-on-accent);
+}

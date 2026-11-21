@@ -1,0 +1,298 @@
+Modelos disponibles:
+
+- Nombre técnico: models/gemini-2.5-flash
+  Nombre visible: Gemini 2.5 Flash
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-pro
+  Nombre visible: Gemini 2.5 Pro
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-flash-preview-tts
+  Nombre visible: Gemini 2.5 Flash Preview TTS
+  Acciones soportadas: ['countTokens', 'generateContent']
+
+- Nombre técnico: models/gemini-2.5-pro-preview-tts
+  Nombre visible: Gemini 2.5 Pro Preview TTS
+  Acciones soportadas: ['countTokens', 'generateContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemma-4-26b-a4b-it
+  Nombre visible: Gemma 4 26B A4B IT
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemma-4-31b-it
+  Nombre visible: Gemma 4 31B IT
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-flash-latest
+  Nombre visible: Gemini Flash Latest
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-flash-lite-latest
+  Nombre visible: Gemini Flash-Lite Latest
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-pro-latest
+  Nombre visible: Gemini Pro Latest
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-flash-lite
+  Nombre visible: Gemini 2.5 Flash-Lite
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-flash-image
+  Nombre visible: Nano Banana
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3-flash-preview
+  Nombre visible: Gemini 3 Flash Preview
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-pro-preview
+  Nombre visible: Gemini 3.1 Pro Preview
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-pro-preview-customtools
+  Nombre visible: Gemini 3.1 Pro Preview Custom Tools
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-flash-lite-preview
+  Nombre visible: Gemini 3.1 Flash Lite Preview
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-flash-lite
+  Nombre visible: Gemini 3.1 Flash Lite
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3-pro-image-preview
+  Nombre visible: Nano Banana Pro
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3-pro-image
+  Nombre visible: Nano Banana Pro
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/nano-banana-pro-preview
+  Nombre visible: Nano Banana Pro
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-flash-image-preview
+  Nombre visible: Nano Banana 2
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-flash-image
+  Nombre visible: Nano Banana 2
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-flash-lite-image
+  Nombre visible: Nano Banana 2 Lite
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-nano-banana-2.1
+  Nombre visible: Nano Banana 2.1
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.5-flash
+  Nombre visible: Gemini 3.5 Flash
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.5-flash-lite
+  Nombre visible: Gemini 3.5 Flash Lite
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-omni-flash-preview
+  Nombre visible: Gemini Omni Flash Preview
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-omni-1.1-flash
+  Nombre visible: Gemini Omni 1.1 Flash
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-omni-1.2-flash
+  Nombre visible: Gemini Omni 1.2 Flash
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-3.5-transcribe
+  Nombre visible: Gemini 3.5 Transcribe
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-3.6-flash
+  Nombre visible: Gemini 3.6 Flash
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.7-flash
+  Nombre visible: Gemini 3.7 Flash
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.8-flash
+  Nombre visible: Gemini 3.8 Flash
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-4-argon
+  Nombre visible: Gemini 4 Argon
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-4-carbon
+  Nombre visible: Gemini 4 Carbon
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/lyria-3-clip-preview
+  Nombre visible: Lyria 3 Clip Preview
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/lyria-3-pro-preview
+  Nombre visible: Lyria 3 Pro Preview
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/lyria-3.5
+  Nombre visible: Lyria 3.5
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-3.1-flash-tts-preview
+  Nombre visible: Gemini 3.1 Flash TTS Preview
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.8-flash-tts
+  Nombre visible: Gemini 3.8 Flash TTS
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-3.8-flash-lite-tts
+  Nombre visible: Gemini 3.8 Flash Lite TTS
+  Acciones soportadas: ['generateContent', 'countTokens', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-robotics-er-2-preview
+  Nombre visible: Gemini Robotics-ER 2 Preview
+  Acciones soportadas: ['generateContent', 'countTokens', 'createCachedContent', 'batchGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-computer-use-preview-10-2025
+  Nombre visible: Gemini 2.5 Computer Use Preview 10-2025
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/antigravity-preview-05-2026
+  Nombre visible: Antigravity Agent Preview
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/antigravity-preview-09-2026
+  Nombre visible: Antigravity Agent Preview
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/antigravity-preview-latest
+  Nombre visible: Antigravity Agent Preview Latest
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/deep-research-max-preview-04-2026
+  Nombre visible: Deep Research Max Preview (Apr-21-2026)
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/deep-research-preview-04-2026
+  Nombre visible: Deep Research Preview (Apr-21-2026)
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/deep-research-pro-preview-12-2025
+  Nombre visible: Deep Research Pro Preview (Dec-12-2025) [Rerouted]
+  Acciones soportadas: ['generateContent', 'countTokens']
+
+- Nombre técnico: models/gemini-embedding-001
+  Nombre visible: Gemini Embedding 001
+  Acciones soportadas: ['embedContent', 'countTextTokens', 'countTokens', 'asyncBatchEmbedContent']
+
+- Nombre técnico: models/gemini-embedding-2-preview
+  Nombre visible: Gemini Embedding 2 Preview
+  Acciones soportadas: ['embedContent', 'countTextTokens', 'countTokens', 'asyncBatchEmbedContent']
+
+- Nombre técnico: models/gemini-embedding-2
+  Nombre visible: Gemini Embedding 2
+  Acciones soportadas: ['embedContent', 'countTextTokens', 'countTokens', 'asyncBatchEmbedContent']
+
+- Nombre técnico: models/aqa
+  Nombre visible: Model that performs Attributed Question Answering.
+  Acciones soportadas: ['generateAnswer']
+
+- Nombre técnico: models/gemini-3.5-transcribe-live
+  Nombre visible: Gemini 3.5 Transcribe Live
+  Acciones soportadas: ['bidiGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-flash-native-audio-latest
+  Nombre visible: Gemini 2.5 Flash Native Audio Latest
+  Acciones soportadas: ['countTokens', 'bidiGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-flash-native-audio-preview-09-2025
+  Nombre visible: Gemini 2.5 Flash Native Audio Preview 09-2025
+  Acciones soportadas: ['countTokens', 'bidiGenerateContent']
+
+- Nombre técnico: models/gemini-2.5-flash-native-audio-preview-12-2025
+  Nombre visible: Gemini 2.5 Flash Native Audio Preview 12-2025
+  Acciones soportadas: ['countTokens', 'bidiGenerateContent']
+
+- Nombre técnico: models/gemini-3.1-flash-live-preview
+  Nombre visible: Gemini 3.1 Flash Live Preview
+  Acciones soportadas: ['bidiGenerateContent']
+
+- Nombre técnico: models/gemini-3.8-live
+  Nombre visible: Gemini 3.8 Live
+  Acciones soportadas: ['bidiGenerateContent']
+
+- Nombre técnico: models/gemini-3.8-live-extended-thinking
+  Nombre visible: Gemini 3.8 Live Extended Thinking
+  Acciones soportadas: ['bidiGenerateContent']
+
+- Nombre técnico: models/gemini-robotics-er-2-streaming-preview
+  Nombre visible: Gemini Robotics-ER 2 Streaming Preview
+  Acciones soportadas: ['bidiGenerateContent']
+
+- Nombre técnico: models/gemini-3.5-live-translate-preview
+  Nombre visible: Gemini 3.5 Live Translate Preview
+  Acciones soportadas: ['bidiGenerateContent']
+
+- Nombre técnico: models/lyria-realtime-exp
+  Nombre visible: Lyria Realtime Experimental
+  Acciones soportadas: ['bidiGenerateMusic']
+
+models/gemini-2.5-flash
+models/gemini-2.5-pro
+models/gemini-2.5-flash-preview-tts
+models/gemini-2.5-pro-preview-tts
+models/gemma-4-26b-a4b-it
+models/gemma-4-31b-it
+models/gemini-flash-latest
+models/gemini-flash-lite-latest
+models/gemini-pro-latest
+models/gemini-2.5-flash-lite
+models/gemini-2.5-flash-image
+models/gemini-3-flash-preview
+models/gemini-3.1-pro-preview
+models/gemini-3.1-pro-preview-customtools
+models/gemini-3.1-flash-lite-preview
+models/gemini-3.1-flash-lite
+models/gemini-3-pro-image-preview
+models/gemini-3-pro-image
+models/nano-banana-pro-preview
+models/gemini-3.1-flash-image-preview
+models/gemini-3.1-flash-image
+models/gemini-3.1-flash-lite-image
+models/gemini-nano-banana-2.1
+models/gemini-3.5-flash
+models/gemini-3.5-flash-lite
+models/gemini-omni-flash-preview
+models/gemini-omni-1.1-flash
+models/gemini-omni-1.2-flash
+models/gemini-3.5-transcribe
+models/gemini-3.6-flash
+models/gemini-3.7-flash
+models/gemini-3.8-flash
+models/gemini-4-argon
+models/gemini-4-carbon
+models/lyria-3-clip-preview
+models/lyria-3-pro-preview
+models/lyria-3.5
+models/gemini-3.1-flash-tts-preview
+models/gemini-3.8-flash-tts
+models/gemini-3.8-flash-lite-tts
+models/gemini-robotics-er-2-preview
+models/gemini-2.5-computer-use-preview-10-2025
+models/antigravity-preview-05-2026
+models/antigravity-preview-09-2026
+models/antigravity-preview-latest
+models/deep-research-max-preview-04-2026
+models/deep-research-preview-04-2026
+models/deep-research-pro-preview-12-2025

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/038-create-table-ai_generation_cache.xml">
+
+    <changeSet id="v2.0.0-038-create-table-ai_generation_cache" author="eduar.troyano">
+        <comment>Crea la tabla ai_generation_cache: caché de salidas del LLM por clave SHA-256 (la escribe ai/; sin auditoría). Incluye secuencia propia (sin tabla de auditoría: tabla de volumen alto o de solo inserción).</comment>
+
+        <createSequence sequenceName="ai_generation_cache_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="ai_generation_cache" remarks="Cache of LLM outputs by SHA-256 key. Written by the ai service. No audit table">
+            <column name="id" type="bigint" defaultValueSequenceNext="ai_generation_cache_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="ai_generation_cache_pkey" nullable="false"/>
+            </column>
+            <column name="cache_key" type="char(64)" remarks="SHA-256 cache key, unique">
+                <constraints nullable="false"/>
+            </column>
+            <column name="task" type="varchar(100)" remarks="Task the output belongs to">
+                <constraints nullable="false"/>
+            </column>
+            <column name="prompt_version" type="varchar(50)" remarks="Prompt version of the output"/>
+            <column name="model" type="varchar(100)" remarks="Model that produced the output"/>
+            <column name="output" type="jsonb" remarks="Cached output">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="ai_generation_cache" constraintName="ai_generation_cache_cache_key_uq" columnNames="cache_key"/>
+
+        <rollback>
+            <dropTable tableName="ai_generation_cache" cascadeConstraints="true"/>
+            <dropSequence sequenceName="ai_generation_cache_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

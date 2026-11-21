@@ -1,0 +1,6 @@
+/* Consentimiento (A3, A3b): la elección se resalta con el acento del rol. */
+.st-key-consent-decision {
+  background: var(--accent-soft, var(--learner-soft));
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}

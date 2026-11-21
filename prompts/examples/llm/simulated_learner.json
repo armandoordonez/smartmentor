@@ -1,0 +1,8 @@
+{
+  "answers": [
+    {"item_id": "q1", "selected_option": 1, "dont_know": false, "text_answer": ""},
+    {"item_id": "q2", "selected_option": 1, "dont_know": false, "text_answer": ""},
+    {"item_id": "q3", "selected_option": 1, "dont_know": false, "text_answer": ""},
+    {"item_id": "q4", "selected_option": -1, "dont_know": false, "text_answer": "Bajaría el umbral para que el modelo marque más pedidos como tardíos. Así se escapan menos pedidos tarde, aunque habrá más alarmas falsas."}
+  ]
+}

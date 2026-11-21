@@ -1,0 +1,60 @@
+[project]
+name = "smartmentor-app"
+version = "0.1.0"
+description = "Interfaz de SmartMentor en Streamlit: aprendiz, instructor y administración"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "streamlit[auth]>=1.67,<1.68",
+    "httpx>=0.28",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "respx>=0.22",
+]
+
+# La interfaz no es un paquete instalable: solo se resuelven sus dependencias.
+[tool.uv]
+package = false
+
+[tool.ruff]
+extend = "../ruff.toml"
+src = ["src"]
+# Los .md son documentación: sus bloques de código no se formatean.
+extend-exclude = ["*.md"]
+
+[tool.ruff.lint]
+# Las reglas comunes están en ../ruff.toml; aquí solo van las excepciones justificadas.
+ignore = [
+    # La interfaz usa tipografía española (›, ‹, −, α) a propósito en los textos visibles.
+    "RUF001",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Pruebas: `assert` es la forma de afirmar en pytest (S101); las afirmaciones compuestas sobre
+# datos de ejemplo se leen mejor en una línea (PT018); los JWT de prueba llevan valores obvios.
+"tests/**" = ["S101", "PT018", "S105", "S106"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+files = ["src"]
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+
+# La cobertura solo se mide cuando se pide con `--cov` (la CI la informa, sin umbral).
+[tool.coverage.run]
+source = ["src"]
+branch = false
+omit = ["tests/*"]

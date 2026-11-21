@@ -1,0 +1,14 @@
+/* Detalle por criterio de la rúbrica (E7): sin caja propia, va dentro de la tarjeta de revisión (V-045). */
+[class*="st-key-rubric-"] {
+  gap: var(--space-4);
+}
+
+/* «Pedir revisión del instructor» es un enlace azul subrayado, no un botón. */
+[class*="st-key-request-review-"] button {
+  color: var(--learner-text);
+  font-weight: var(--font-weight-bold);
+  text-decoration: underline;
+  padding: 0;
+  min-height: 0;
+  justify-content: flex-start;
+}

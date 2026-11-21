@@ -1,0 +1,8 @@
+{
+  "reviews": [
+    {"item_id": "q1", "single_correct_answer": true, "clear_stem": true, "bloom_matches": true, "aligned_with_outcome": true, "issues": []},
+    {"item_id": "q2", "single_correct_answer": true, "clear_stem": false, "bloom_matches": true, "aligned_with_outcome": true, "issues": ["El enunciado no aclara que la clase positiva es «entrega a tiempo»."]},
+    {"item_id": "q3", "single_correct_answer": false, "clear_stem": true, "bloom_matches": true, "aligned_with_outcome": true, "issues": ["Sin indicar que C es la inversa de la fuerza de regularización, la primera y la segunda opción son defendibles."]},
+    {"item_id": "q4", "single_correct_answer": true, "clear_stem": true, "bloom_matches": true, "aligned_with_outcome": true, "issues": []}
+  ]
+}

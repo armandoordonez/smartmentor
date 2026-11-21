@@ -1,0 +1,4 @@
+/* Hoja de vida (E2b, E15): «Tus derechos y quién ve cada dato →» como enlace azul (V-038). */
+[class*="st-key-"][class*="-rights"] button {
+  color: var(--learner-accent);
+}

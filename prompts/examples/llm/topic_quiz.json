@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "q1",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_1",
+      "item_type": "multiple_choice",
+      "bloom_level": "understand",
+      "difficulty": 1,
+      "stem": "La combinación lineal de un caso vale z = 0. ¿Qué probabilidad de la clase positiva asigna la regresión logística?",
+      "options": ["0", "0,5", "1", "No se puede saber sin el umbral"],
+      "correct_option": 1,
+      "model_answer": "sigmoide(0) = 1/(1+e^0) = 0,5. El umbral decide la clase, no la probabilidad.",
+      "rubric": [],
+      "equivalence_group": ""
+    },
+    {
+      "id": "q2",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_2",
+      "item_type": "multiple_choice",
+      "bloom_level": "apply",
+      "difficulty": 2,
+      "stem": "El coeficiente de «retraso_proveedor» es -0,5. ¿Cómo cambian las odds de entrega a tiempo por cada unidad adicional de retraso?",
+      "options": ["Se multiplican por exp(-0,5) ≈ 0,61", "Bajan 0,5 puntos porcentuales", "Se multiplican por 0,5", "No cambian"],
+      "correct_option": 0,
+      "model_answer": "Las odds se multiplican por exp(coeficiente) ≈ 0,61. El coeficiente no es un cambio en puntos porcentuales de la probabilidad.",
+      "rubric": [],
+      "equivalence_group": ""
+    },
+    {
+      "id": "q3",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_3",
+      "item_type": "multiple_choice",
+      "bloom_level": "analyze",
+      "difficulty": 3,
+      "stem": "En scikit-learn, pasar de C = 10 a C = 0,1 en una regresión logística con L2. ¿Qué esperas?",
+      "options": ["Coeficientes más grandes y más sobreajuste", "Coeficientes más pequeños y menos sobreajuste", "El mismo modelo", "Un umbral de decisión distinto"],
+      "correct_option": 1,
+      "model_answer": "Un C menor implica más regularización: coeficientes más pequeños y menos sobreajuste. C no cambia el umbral.",
+      "rubric": [],
+      "equivalence_group": ""
+    },
+    {
+      "id": "q4",
+      "topic_id": "regresion_logistica",
+      "outcome_id": "lo_regresion_logistica_3",
+      "item_type": "short_answer",
+      "bloom_level": "analyze",
+      "difficulty": 3,
+      "stem": "Una empresa de logística quiere detectar pedidos que llegarán tarde. Un falso negativo cuesta cinco veces más que una falsa alarma. Explica cómo ajustarías el umbral de decisión y qué efecto tendría sobre los dos tipos de error.",
+      "options": [],
+      "correct_option": -1,
+      "model_answer": "Bajaría el umbral por debajo de 0,5 para marcar como tardíos más pedidos: aumentan los verdaderos positivos y bajan los falsos negativos, a cambio de más falsas alarmas, lo que conviene porque los falsos negativos son más costosos.",
+      "rubric": [
+        {"criterion": "Propone bajar el umbral por debajo de 0,5", "points": 0.4},
+        {"criterion": "Explica que disminuyen los falsos negativos y aumentan los falsos positivos", "points": 0.4},
+        {"criterion": "Justifica la decisión con la diferencia de costos", "points": 0.2}
+      ],
+      "equivalence_group": ""
+    }
+  ]
+}

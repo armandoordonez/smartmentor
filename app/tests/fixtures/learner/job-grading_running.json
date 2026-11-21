@@ -1,0 +1,9 @@
+{
+  "job_id": "job-grading",
+  "job_type": "grading.short_answer",
+  "status": "running",
+  "progress_label": "Calificando tu respuesta corta",
+  "ingested": false,
+  "next_action": null,
+  "error": null
+}

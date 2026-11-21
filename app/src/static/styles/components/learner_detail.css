@@ -1,0 +1,18 @@
+/* D4b: «Intentos agotados» como tarjeta ámbar suave, sin borde gris (V-078). */
+.st-key-panel-exhausted {
+  background: var(--warning-soft);
+  border-color: var(--warning-soft);
+  border-radius: var(--radius-card);
+}
+
+/* D4: «‹ Volver a la ruta» en el color del rol (V-079). */
+.st-key-ld-back button,
+.st-key-ld-back button p {
+  color: var(--accent);
+}
+
+/* D4: riel gris de fondo en las barras de nivel (V-080). El data-testid de la pista es del DOM de
+   Streamlit (P1, como el del botón en roles.css); si cambia, las barras quedan sin riel. */
+.st-key-ld-level-bars [data-testid="stProgressBarTrack"] {
+  background: var(--bg-neutral);
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/041-create-table-document_chunks.xml">
+
+    <changeSet id="v2.0.0-041-create-table-document_chunks" author="eduar.troyano">
+        <comment>Crea la tabla document_chunks: fragmentos de los documentos fuente (el vector va en ai_embeddings; la escribe ai/; sin auditoría). Incluye secuencia propia (sin tabla de auditoría: tabla de volumen alto o de solo inserción).</comment>
+
+        <createSequence sequenceName="document_chunks_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="document_chunks" remarks="Text chunks of source documents; their vectors live in ai_embeddings. Written by the ai service. No audit table">
+            <column name="id" type="bigint" defaultValueSequenceNext="document_chunks_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="document_chunks_pkey" nullable="false"/>
+            </column>
+            <column name="source_document_id" type="bigint" remarks="Document the chunk belongs to">
+                <constraints nullable="false" foreignKeyName="document_chunks_source_document_id_fk" references="source_documents(id)"/>
+            </column>
+            <column name="chunk_index" type="integer" remarks="Position of the chunk inside the document">
+                <constraints nullable="false"/>
+            </column>
+            <column name="text" type="text" remarks="Chunk text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_count" type="integer" remarks="Tokens in the chunk"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="document_chunks" constraintName="document_chunks_document_index_uq" columnNames="source_document_id,chunk_index"/>
+
+        <rollback>
+            <dropTable tableName="document_chunks" cascadeConstraints="true"/>
+            <dropSequence sequenceName="document_chunks_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

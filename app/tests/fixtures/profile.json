@@ -1,0 +1,20 @@
+{
+  "description": "Soy ingeniera industrial y trabajo hace dos años como analista de datos. Uso Excel y SQL a diario y sé algo de Python (pandas). Nunca he entrenado un modelo de machine learning y quiero aprender a predecir la demanda de mi empresa.",
+  "education_level": "undergraduate",
+  "qualification_title": "Ingeniería industrial",
+  "job_title": "Analista de datos",
+  "experience_band": "1_3_years",
+  "tools": [
+    "Excel",
+    "SQL",
+    "Python"
+  ],
+  "languages": [
+    {
+      "code": "en",
+      "cefr_level": "B1"
+    }
+  ],
+  "resume_completed_at": null,
+  "recalculated_enrollment_ids": []
+}

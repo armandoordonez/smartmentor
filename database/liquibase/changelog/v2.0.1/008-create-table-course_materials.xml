@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/008-create-table-course_materials.xml">
+
+    <!-- R-004: apuntes y lecturas que el instructor sube desde D1b (y D2) como fuentes del RAG, además del
+         syllabus. La tabla es de la API (ADR 0009): la API extrae el texto y la escribe; ai/ solo la lee y
+         la indexa en source_documents y document_chunks (ADR 0013). -->
+    <changeSet id="v2.0.1-008-create-table-course_materials" author="carlos.villada">
+        <comment>Crea la tabla course_materials: apuntes y lecturas de un curso que alimentan el RAG (R-004), con el texto ya extraído por la API y su origen (licencia). Incluye secuencia propia, tabla de auditoría course_materials_audit y sus triggers.</comment>
+
+        <createSequence sequenceName="course_materials_id_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="course_materials_audit_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="course_materials" remarks="Notes and readings uploaded by the instructor as RAG sources of a course, besides the syllabus (R-004). Written by the API, read by ai">
+            <column name="id" type="bigint" defaultValueSequenceNext="course_materials_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="course_materials_pkey" nullable="false"/>
+            </column>
+            <column name="public_id" type="uuid" defaultValueComputed="gen_random_uuid()" remarks="Public identifier exposed by the API instead of the sequential id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="course_id" type="bigint" remarks="Course the material belongs to">
+                <constraints nullable="false" foreignKeyName="course_materials_course_id_fk" references="courses(id)"/>
+            </column>
+            <column name="source_type" type="varchar(10)" remarks="Source type: pdf or text (TXT and MD files are text)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="origin" type="varchar(20)" remarks="Origin of the material, used as its license: own_notes, open_license or permitted">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_name" type="varchar(300)" remarks="Original file name"/>
+            <column name="file_sha256" type="char(64)" remarks="SHA-256 of the file, used to avoid duplicates in the course">
+                <constraints nullable="false"/>
+            </column>
+            <column name="byte_size" type="integer" remarks="Size in bytes"/>
+            <column name="page_count" type="integer" remarks="Number of pages of the PDF"/>
+            <column name="extracted_char_count" type="integer" remarks="Characters extracted from the document"/>
+            <column name="extracted_text" type="text" remarks="Text extracted from the document">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Last update timestamp, maintained by the set_updated_at trigger">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addUniqueConstraint tableName="course_materials" constraintName="course_materials_public_id_uq" columnNames="public_id"/>
+        <createIndex tableName="course_materials" indexName="course_materials_course_id_idx">
+            <column name="course_id"/>
+        </createIndex>
+        <!-- El mismo archivo no se repite entre los apuntes activos del curso. -->
+        <sql>CREATE UNIQUE INDEX course_materials_course_sha256_active_uq ON course_materials (course_id, file_sha256) WHERE active</sql>
+        <sql>ALTER TABLE course_materials ADD CONSTRAINT course_materials_source_type_ck CHECK (source_type IN ('pdf', 'text'))</sql>
+        <sql>ALTER TABLE course_materials ADD CONSTRAINT course_materials_origin_ck CHECK (origin IN ('own_notes', 'open_license', 'permitted'))</sql>
+        <sql>CREATE TRIGGER course_materials_set_updated_at_trg BEFORE UPDATE ON course_materials FOR EACH ROW EXECUTE FUNCTION set_updated_at()</sql>
+
+        <createTable tableName="course_materials_audit" remarks="Append-only change history of course_materials">
+            <column name="audit_id" type="bigint" defaultValueSequenceNext="course_materials_audit_id_seq" remarks="Primary key of the audit row">
+                <constraints primaryKey="true" primaryKeyName="course_materials_audit_pkey" nullable="false"/>
+            </column>
+            <column name="record_id" type="bigint" remarks="Id of the audited row in course_materials">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operation" type="varchar(6)" remarks="INSERT, UPDATE or DELETE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="old_data" type="jsonb" remarks="Row before the change"/>
+            <column name="new_data" type="jsonb" remarks="Row after the change"/>
+            <column name="changed_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment of the change">
+                <constraints nullable="false"/>
+            </column>
+            <column name="db_user" type="varchar(100)" remarks="Database user that made the change"/>
+            <column name="app_user_id" type="varchar(100)" remarks="Application user that made the change (smartmentor.current_user_id)"/>
+        </createTable>
+        <sql>ALTER TABLE course_materials_audit ADD CONSTRAINT course_materials_audit_operation_ck CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE'))</sql>
+        <createIndex tableName="course_materials_audit" indexName="course_materials_audit_record_id_idx">
+            <column name="record_id"/>
+        </createIndex>
+
+        <sql>CREATE TRIGGER course_materials_audit_trg AFTER INSERT OR UPDATE OR DELETE ON course_materials FOR EACH ROW EXECUTE FUNCTION audit_row_change()</sql>
+
+        <rollback>
+            <sql>DROP TRIGGER IF EXISTS course_materials_audit_trg ON course_materials</sql>
+            <dropTable tableName="course_materials_audit"/>
+            <dropTable tableName="course_materials" cascadeConstraints="true"/>
+            <dropSequence sequenceName="course_materials_audit_id_seq"/>
+            <dropSequence sequenceName="course_materials_id_seq"/>
+        </rollback>
+    </changeSet>
+
+    <!-- Mínimo privilegio (ADR 0019), como el changeset v2.0.0-045: la API lee y escribe; ai/ solo lee para
+         indexar. Si un rol no existe (lo crea el bootstrap), su permiso se omite con un aviso. -->
+    <changeSet id="v2.0.1-008-course_materials-grants" author="carlos.villada">
+        <comment>Otorga a smartmentor_api lectura y escritura sobre course_materials (y su secuencia) y a smartmentor_ai solo lectura (R-004).</comment>
+        <sql splitStatements="false">
+            DO $grants$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_api') THEN
+                    GRANT SELECT, INSERT, UPDATE, DELETE ON course_materials TO smartmentor_api;
+                    GRANT USAGE, SELECT ON SEQUENCE course_materials_id_seq TO smartmentor_api;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_api does not exist: grants skipped';
+                END IF;
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_ai') THEN
+                    GRANT SELECT ON course_materials TO smartmentor_ai;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_ai does not exist: grant skipped';
+                END IF;
+            END
+            $grants$;
+        </sql>
+        <rollback>
+            <sql splitStatements="false">
+                DO $revoke$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_api') THEN
+                        REVOKE ALL ON course_materials FROM smartmentor_api;
+                        REVOKE ALL ON SEQUENCE course_materials_id_seq FROM smartmentor_api;
+                    END IF;
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_ai') THEN
+                        REVOKE ALL ON course_materials FROM smartmentor_ai;
+                    END IF;
+                END
+                $revoke$;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

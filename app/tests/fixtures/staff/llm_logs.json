@@ -1,0 +1,43 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "task": "Quiz del tema",
+      "task_label": "Quiz del tema",
+      "model": "claude-sonnet",
+      "prompt_id": "quiz_tema",
+      "prompt_version": "v1.2",
+      "tokens": 2140,
+      "cost_usd": 0.011,
+      "latency_ms": 8200,
+      "created_at": "2026-11-06T15:00:00Z"
+    },
+    {
+      "id": 2,
+      "task": "Explicación (RAG)",
+      "task_label": "Explicación (RAG)",
+      "model": "claude-sonnet",
+      "prompt_id": "recurso_texto",
+      "prompt_version": "v1.3",
+      "tokens": 3960,
+      "cost_usd": 0.021,
+      "latency_ms": 12400,
+      "created_at": "2026-11-06T15:00:00Z"
+    },
+    {
+      "id": 3,
+      "task": "Califica respuesta corta",
+      "task_label": "Califica respuesta corta",
+      "model": "claude-haiku",
+      "prompt_id": "rubrica_corta",
+      "prompt_version": "v1.0",
+      "tokens": 610,
+      "cost_usd": 0.001,
+      "latency_ms": 2100,
+      "created_at": "2026-11-06T15:00:00Z"
+    }
+  ],
+  "total": 3,
+  "limit": 50,
+  "offset": 0
+}

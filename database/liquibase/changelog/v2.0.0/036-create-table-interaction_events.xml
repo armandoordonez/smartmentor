@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.0/036-create-table-interaction_events.xml">
+
+    <changeSet id="v2.0.0-036-create-table-interaction_events" author="eduar.troyano">
+        <comment>Crea la tabla interaction_events: eventos de interacción solo de inserción para el tiempo en tarea (sin tabla de auditoría por volumen). Incluye secuencia propia (sin tabla de auditoría: tabla de volumen alto o de solo inserción).</comment>
+
+        <createSequence sequenceName="interaction_events_id_seq" startValue="1" incrementBy="1"/>
+
+        <createTable tableName="interaction_events" remarks="Append-only interaction events used to measure time on task. No audit table: high volume">
+            <column name="id" type="bigint" defaultValueSequenceNext="interaction_events_id_seq" remarks="Primary key">
+                <constraints primaryKey="true" primaryKeyName="interaction_events_pkey" nullable="false"/>
+            </column>
+            <column name="enrollment_id" type="bigint" remarks="Enrollment that produced the event">
+                <constraints nullable="false" foreignKeyName="interaction_events_enrollment_id_fk" references="enrollments(id)"/>
+            </column>
+            <column name="event_type" type="varchar(60)" remarks="Event type (for example topic_opened, resource_viewed)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="topic_id" type="bigint" remarks="Topic related to the event">
+                <constraints foreignKeyName="interaction_events_topic_id_fk" references="topics(id)"/>
+            </column>
+            <column name="occurred_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Moment the event occurred">
+                <constraints nullable="false"/>
+            </column>
+            <column name="payload" type="jsonb" remarks="Event details"/>
+            <column name="active" type="boolean" defaultValueBoolean="true" remarks="Logical state: false means deactivated (rows are never deleted)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp with time zone" defaultValueComputed="now()" remarks="Creation timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="interaction_events" indexName="interaction_events_enrollment_idx">
+            <column name="enrollment_id"/>
+            <column name="occurred_at"/>
+        </createIndex>
+        <createIndex tableName="interaction_events" indexName="interaction_events_topic_idx">
+            <column name="topic_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="interaction_events" cascadeConstraints="true"/>
+            <dropSequence sequenceName="interaction_events_id_seq"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

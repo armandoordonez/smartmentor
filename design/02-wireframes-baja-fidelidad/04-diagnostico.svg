@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -60 1000 700" width="1000" height="700" font-family="'Comic Sans MS', 'Comic Neue', 'Segoe Print', cursive">
+<rect x="-20" y="-60" width="1000" height="700" fill="#ffffff"/>
+<text x="0" y="-26" font-size="20" fill="#1e1e1e">4 · Diagnóstico (Figma E3; resultado en E4)</text>
+<rect x="0" y="0" width="960" height="620" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="0" y="0" width="960" height="56" rx="0" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="24" y="34.2" font-size="18" fill="#1e1e1e" text-anchor="start">SmartMentor</text>
+<text x="300" y="32.6" font-size="14" fill="#1e1e1e" text-anchor="start">Rutas</text>
+<line x1="300" y1="42" x2="340" y2="42" stroke="#1e1e1e" stroke-width="3.0"/>
+<text x="380" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Mi progreso</text>
+<text x="508" y="32.6" font-size="14" fill="#868e96" text-anchor="start">Logros</text>
+<ellipse cx="920.0" cy="28.0" rx="16.0" ry="16.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<ellipse cx="280.0" cy="88.0" rx="12.0" ry="12.0" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="280" y="117.7" font-size="13" fill="#868e96" text-anchor="middle">1 · Perfil</text>
+<line x1="296" y1="88" x2="464" y2="88" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="480.0" cy="88.0" rx="12.0" ry="12.0" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="480" y="117.7" font-size="13" fill="#1e1e1e" text-anchor="middle">2 · Diagnóstico</text>
+<line x1="496" y1="88" x2="664" y2="88" stroke="#868e96" stroke-width="1.5"/>
+<ellipse cx="680.0" cy="88.0" rx="12.0" ry="12.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="680" y="117.7" font-size="13" fill="#868e96" text-anchor="middle">3 · Objetivo</text>
+<text x="160" y="161.6" font-size="24" fill="#1e1e1e" text-anchor="start">Diagnóstico</text>
+<text x="800" y="157.7" font-size="13" fill="#868e96" text-anchor="end">Pregunta 3 de 10</text>
+<rect x="160" y="180" width="640" height="12" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="160" y="180" width="192.0" height="12" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<rect x="160" y="206" width="165.2" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="242.6" y="221.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Tema: Regresión lineal</text>
+<rect x="333.2" y="206" width="112.39999999999999" height="24" rx="6" fill="#f1f3f5" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="389.4" y="221.8" font-size="12" fill="#1e1e1e" text-anchor="middle">Bloom: aplicar</text>
+<text x="160" y="263.3" font-size="17" fill="#1e1e1e" text-anchor="start">Enunciado de la pregunta</text>
+<line x1="160" y1="284" x2="800" y2="284" stroke="#868e96" stroke-width="3.0"/>
+<line x1="160" y1="298" x2="544.0" y2="298" stroke="#868e96" stroke-width="3.0"/>
+<rect x="160" y="318" width="640" height="36" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<ellipse cx="180.0" cy="336.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="200" y="340.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción A</text>
+<rect x="160" y="362" width="640" height="36" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<ellipse cx="180.0" cy="380.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="200" y="384.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción B</text>
+<rect x="160" y="406" width="640" height="36" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<ellipse cx="180.0" cy="424.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="200" y="428.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción C</text>
+<rect x="160" y="450" width="640" height="36" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<ellipse cx="180.0" cy="468.0" rx="8.0" ry="8.0" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="200" y="472.6" font-size="14" fill="#1e1e1e" text-anchor="start">Opción D</text>
+<text x="160" y="514.8" font-size="12" fill="#868e96" text-anchor="start">No cuenta para tu nota. Si no sabes, elige «No lo sé».</text>
+<rect x="160" y="552" width="120" height="40" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="220.0" y="576.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Anterior</text>
+<rect x="400" y="552" width="160" height="40" rx="6" fill="none" stroke="#1e1e1e" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="480.0" y="576.6" font-size="14" fill="#1e1e1e" text-anchor="middle">No lo sé</text>
+<rect x="680" y="552" width="120" height="40" rx="6" fill="#ced4da" stroke="#1e1e1e" stroke-width="1.5"/>
+<text x="740.0" y="576.6" font-size="14" fill="#1e1e1e" text-anchor="middle">Siguiente</text>
+</svg>

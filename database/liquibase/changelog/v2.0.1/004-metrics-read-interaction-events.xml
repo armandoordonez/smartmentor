@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/004-metrics-read-interaction-events.xml">
+
+    <!-- R-003: la métrica m27 (eventos de interfaz) lee interaction_events desde el notebook de métricas. El changeset
+         v2.0.0-049 no incluía esa tabla; no se edita (ya está aplicado) y el permiso se agrega aquí. Igual que en 049,
+         si el rol smartmentor_metrics no existe (lo crea el bootstrap) el changeset se omite con un aviso. -->
+    <changeSet id="v2.0.1-004-metrics-read-interaction-events" author="eduar.troyano">
+        <comment>Otorga a smartmentor_metrics SELECT sobre interaction_events (métrica m27, R-003). Solo lectura; la operación es idempotente.</comment>
+        <sql splitStatements="false">
+            DO $grants$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_metrics') THEN
+                    GRANT USAGE ON SCHEMA public TO smartmentor_metrics;
+                    GRANT SELECT ON interaction_events TO smartmentor_metrics;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_metrics does not exist: grant skipped';
+                END IF;
+            END
+            $grants$;
+        </sql>
+        <rollback>
+            <sql splitStatements="false">
+                DO $revoke$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_metrics') THEN
+                        REVOKE SELECT ON interaction_events FROM smartmentor_metrics;
+                    END IF;
+                END
+                $revoke$;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

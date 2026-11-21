@@ -1,0 +1,55 @@
+{
+  "id": 1,
+  "attempt_answer_id": 417,
+  "sample_type": "random",
+  "criteria": [
+    {"criterion": "Relaciona el umbral con el costo del error", "met": true, "points_awarded": 1},
+    {"criterion": "Nombra una métrica adecuada", "met": true, "points_awarded": 1},
+    {"criterion": "Justifica con datos del caso", "met": false, "points_awarded": 0}
+  ],
+  "score": 67,
+  "llm_grading": {
+    "score": 66.67,
+    "is_correct": true,
+    "feedback": "Relaciona el umbral con el costo y nombra la sensibilidad, pero no usa datos del caso.",
+    "rubric_detail": {
+      "item_id": "q5",
+      "item_type": "short_answer",
+      "grader": "llm_judge",
+      "approval_rule": "min_criteria_ratio",
+      "min_criteria_ratio": 0.6667,
+      "score": 66.67,
+      "is_correct": true,
+      "criteria_met": 2,
+      "criteria_total": 3,
+      "rubric_detail": [
+        {
+          "criterion": "Relaciona el umbral con el costo del error",
+          "met": true,
+          "points": 0.3333,
+          "points_awarded": 0.3333,
+          "reason": "Se cumple: explica que es peor no detectar un fraude.",
+          "evidence": "es peor no detectar un fraude que revisar una transacción normal"
+        },
+        {
+          "criterion": "Nombra una métrica adecuada",
+          "met": true,
+          "points": 0.3333,
+          "points_awarded": 0.3333,
+          "reason": "Se cumple: nombra la sensibilidad.",
+          "evidence": "aumenta la sensibilidad"
+        },
+        {
+          "criterion": "Justifica con datos del caso",
+          "met": false,
+          "points": 0.3333,
+          "points_awarded": 0,
+          "reason": "No se cumple: no usa datos del caso.",
+          "evidence": ""
+        }
+      ],
+      "feedback": "Relaciona el umbral con el costo y nombra la sensibilidad, pero no usa datos del caso."
+    }
+  },
+  "created_at": "2026-11-11T18:40:00Z"
+}

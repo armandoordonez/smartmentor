@@ -1,0 +1,56 @@
+{
+  "topic_id": "regresion_logistica",
+  "origin": "youtube_api",
+  "embedding_model": "example-embedding-model",
+  "candidates": [
+    {
+      "youtube_video_id": "EXAMPLE0001",
+      "title": "Regresión logística explicada paso a paso",
+      "url": "https://www.youtube.com/watch?v=EXAMPLE0001",
+      "channel": "Canal de ejemplo",
+      "origin": "youtube_api",
+      "duration_seconds": 754,
+      "language": "es",
+      "has_captions": true,
+      "characterization": "Función sigmoide; Umbral de decisión; Coeficientes como log-odds",
+      "characterization_source": "metadata",
+      "similarity": 0.812,
+      "rank": 1,
+      "relevance_judgment": true
+    },
+    {
+      "youtube_video_id": "EXAMPLE0002",
+      "title": "Clasificación binaria con regresión logística",
+      "url": "https://www.youtube.com/watch?v=EXAMPLE0002",
+      "channel": "Canal de ejemplo",
+      "origin": "youtube_api",
+      "duration_seconds": 1210,
+      "language": "es",
+      "has_captions": true,
+      "characterization": "Clasificación binaria; Log-loss; Regularización L2",
+      "characterization_source": "metadata",
+      "similarity": 0.774,
+      "rank": 2,
+      "relevance_judgment": null
+    },
+    {
+      "youtube_video_id": "EXAMPLE0003",
+      "title": "Logistic regression in 10 minutes",
+      "url": "https://www.youtube.com/watch?v=EXAMPLE0003",
+      "channel": "Example channel",
+      "origin": "youtube_api",
+      "duration_seconds": 600,
+      "language": "en",
+      "has_captions": false,
+      "characterization": "Función sigmoide",
+      "characterization_source": "metadata",
+      "similarity": 0.701,
+      "rank": 3,
+      "relevance_judgment": null
+    }
+  ],
+  "selected_video_id": "EXAMPLE0001",
+  "backup_video_ids": [
+    "EXAMPLE0002"
+  ]
+}

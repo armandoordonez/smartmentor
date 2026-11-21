@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/010-metrics-read-assessment-items.xml">
+
+    <!-- T-057: la equivalencia de ítems entre el diagnóstico y la final (assessment_items.equivalence_group) no se
+         podía verificar desde el cuaderno de métricas porque el rol no tenía SELECT sobre assessment_items. El
+         changeset v2.0.0-049 ya está aplicado y no se edita: el permiso se agrega aquí, igual que en v2.0.1-004.
+         Si el rol smartmentor_metrics no existe (lo crea el bootstrap), el changeset se omite con un aviso. -->
+    <changeSet id="v2.0.1-010-metrics-read-assessment-items" author="alexander.amador">
+        <comment>Otorga a smartmentor_metrics SELECT sobre assessment_items (equivalencia de ítems, T-057). Solo lectura; la operación es idempotente.</comment>
+        <sql splitStatements="false">
+            DO $grants$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_metrics') THEN
+                    GRANT USAGE ON SCHEMA public TO smartmentor_metrics;
+                    GRANT SELECT ON assessment_items TO smartmentor_metrics;
+                ELSE
+                    RAISE NOTICE 'Role smartmentor_metrics does not exist: grant skipped';
+                END IF;
+            END
+            $grants$;
+        </sql>
+        <rollback>
+            <sql splitStatements="false">
+                DO $revoke$
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartmentor_metrics') THEN
+                        REVOKE SELECT ON assessment_items FROM smartmentor_metrics;
+                    END IF;
+                END
+                $revoke$;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

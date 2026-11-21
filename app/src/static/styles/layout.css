@@ -1,0 +1,139 @@
+/*
+ * Barra superior, tarjetas y rejilla. Solo clases propias y .st-key-{nombre} (el contenedor de
+ * Streamlit que lleva `key`). No se usan clases internas de Streamlit.
+ */
+
+/*
+ * Barra superior (render_header), como en Figma: blanca, de lado a lado y con borde inferior (V-001).
+ * El fondo se pinta fuera de la caja con box-shadow (no cuenta para el scroll, a diferencia de
+ * un ancho de 100vw) y clip-path lo recorta arriba y abajo. Así no se tocan los
+ * contenedores de Streamlit.
+ */
+
+/*
+ * Barra pegada arriba (V-088). Streamlit reserva 6 rem de relleno arriba para su encabezado; con
+ * `toolbarMode = "minimal"` ese encabezado queda vacío, así que en las páginas con barra propia se
+ * quita ese relleno y se deja el encabezado vacío sin capturar clics. Se usa data-testid (atributo
+ * estable) y :has() para no tocar las pantallas sin barra (acceso, selector de rol).
+ */
+[data-testid="stMainBlockContainer"]:has(.st-key-app-header) {
+  padding-top: 0;
+}
+[data-testid="stHeader"] {
+  pointer-events: none;
+}
+.st-key-app-header {
+  background: var(--bg-surface);
+  padding: var(--space-10) var(--space-16);
+  border-bottom: 1px solid var(--border-default);
+  /* La línea se alarga a los lados con border-image-outset (tampoco cuenta para el scroll). */
+  border-image: linear-gradient(var(--border-default), var(--border-default)) 0 0 1 0 / 0 0 1px 0 / 0
+    100vmax;
+  box-shadow: 0 0 0 100vmax var(--bg-surface);
+  clip-path: inset(0 -100vmax);
+}
+
+/* Tarjetas de Figma: superficie blanca, borde fino y radio de 14 px. */
+[class*="st-key-card-"] {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}
+
+/* Paneles y filas alternas. */
+[class*="st-key-panel-"] {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-row);
+  padding: var(--space-12);
+}
+
+/* Pantallas de estado (A6, A7): contenido centrado. */
+.st-key-status-screen {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 560px;
+}
+
+/* Tablas (render_table): tarjeta blanca como en Figma, no panel gris (V-004). */
+[class*="st-key-panel-table-"] {
+  background: var(--bg-surface);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}
+
+/* AD4: los dos grupos del sorteo en cajas de color (V-024). */
+.st-key-pilot-arm-personalized,
+.st-key-pilot-arm-fixed {
+  border-radius: var(--radius-row);
+  padding: var(--space-12);
+}
+.st-key-pilot-arm-personalized {
+  background: var(--learner-soft);
+}
+.st-key-pilot-arm-fixed {
+  background: var(--admin-soft);
+}
+
+/* D5b: la nota de anotación ciega va en una caja violeta (V-026). */
+[class*="-blind-note"] {
+  background: var(--admin-soft);
+  border-radius: var(--radius-row);
+  padding: var(--space-8) var(--space-12);
+}
+
+/* D5c: la nota del LLM va en una tarjeta azul (V-027). */
+.st-key-grading-llm-note {
+  background: var(--learner-soft);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+}
+
+/* A7 y el inicio de sesión: tarjeta blanca centrada (V-031). */
+.st-key-status-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-16);
+  margin: 0 auto;
+  max-width: 420px;
+}
+
+/* Barra superior: el enlace activo va en azul y en negrita, sin fondo gris (V-044). */
+.st-key-nav-link-active a,
+.st-key-nav-link-active a > span {
+  /* !important: Streamlit pinta el fondo gris del enlace de la página actual con más peso. */
+  background: transparent !important;
+  color: var(--accent);
+  font-weight: 700;
+}
+.st-key-nav-link-active a p {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Avatar de la barra superior: círculo con las iniciales, como en Figma (V-101). Sigue siendo el
+   botón del menú de la cuenta (`st.popover`); la flecha se oculta porque el círculo ya se lee como
+   botón y el nombre accesible no cambia. */
+.st-key-app-avatar [data-testid="stPopoverButton"] {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-bold);
+  justify-content: center;
+}
+
+.st-key-app-avatar [data-testid="stPopoverButton"] > div {
+  justify-content: center;
+  width: 100%;
+}
+
+.st-key-app-avatar [data-testid="stPopoverButton"] [aria-hidden="true"] {
+  display: none;
+}

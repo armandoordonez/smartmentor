@@ -1,0 +1,26 @@
+/* D2b: «Quitar» y «Eliminar tema» son enlaces rojos subrayados, y «+ Agregar resultado de
+   aprendizaje» un enlace azul en seminegrita, como en Figma (V-071, V-072). */
+[class*="st-key-sr-orm-"] button,
+[class*="st-key-sr-orm-"] button p,
+[class*="st-key-sr-del-"] button,
+[class*="st-key-sr-del-"] button p {
+  color: var(--error-text);
+  text-decoration: underline;
+}
+
+[class*="st-key-sr-oadd-"] button,
+[class*="st-key-sr-oadd-"] button p {
+  color: var(--learner-text);
+  font-weight: 600;
+}
+
+/* D2: «Volver a extraer temas» (abajo) y «Ver los temas como grafo» son enlaces azules subrayados,
+   como en Figma (V-097). Siguen siendo botones de texto (`type="tertiary"`). */
+.st-key-sr-reextract-bottom button,
+.st-key-sr-reextract-bottom button p,
+.st-key-sr-graph button,
+.st-key-sr-graph button p {
+  color: var(--learner-text);
+  text-decoration: underline;
+  font-weight: 600;
+}

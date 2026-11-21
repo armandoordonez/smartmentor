@@ -1,0 +1,27 @@
+# Configuración común de Ruff para api/, app/ y los servicios que vengan (ai/).
+# Cada servicio la hereda con `extend = "../ruff.toml"` en su pyproject.toml y declara allí
+# solo sus excepciones justificadas. Estándar: PLAN_IMPLEMENTACION_V3.md, sección 14.2.
+line-length = 100
+target-version = "py312"
+
+[lint]
+select = [
+    "E",     # pycodestyle (errores)
+    "F",     # pyflakes
+    "I",     # isort (orden de imports)
+    "B",     # flake8-bugbear
+    "UP",    # pyupgrade
+    "SIM",   # flake8-simplify
+    "ASYNC", # flake8-async
+    "S",     # flake8-bandit (seguridad)
+    "DTZ",   # flake8-datetimez (zonas horarias)
+    "C4",    # flake8-comprehensions
+    "PT",    # flake8-pytest-style
+    "RUF",   # reglas propias de Ruff
+    "ARG",   # argumentos sin usar
+    "T20",   # sin print()
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"

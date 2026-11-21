@@ -1,0 +1,8 @@
+{
+  "statement": "Construir y evaluar un modelo de regresión logística para predecir pedidos con entrega tardía, ajustando el umbral según el costo de los errores, con al menos 80 % en la evaluación final.",
+  "bloom_verb": "Construir y evaluar",
+  "content": "un modelo de regresión logística para predecir pedidos con entrega tardía, ajustando el umbral según el costo de los errores",
+  "criterion": "con al menos 80 % en la evaluación final",
+  "focus_topics": ["regresion_logistica"],
+  "rationale": "Su nivel es bajo en regresión logística y su interés declarado es predecir entregas tardías; ya domina la preparación de datos."
+}

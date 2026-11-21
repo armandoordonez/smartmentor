@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        logicalFilePath="v2.0.1/007-course-owner-evaluator.xml">
+
+    <changeSet id="v2.0.1-007-allow-owner-evaluator" author="eduar.troyano">
+        <comment>B-036 (decisión del dueño del 2026-11-15): el instructor dueño de un curso queda asignado como evaluador al publicarlo y puede sumarse cualquier otro instructor. Se retira el trigger que rechazaba al dueño en course_evaluators y se actualizan las descripciones de la tabla y de la columna.</comment>
+        <sql>DROP TRIGGER IF EXISTS course_evaluators_not_owner_trg ON course_evaluators</sql>
+        <sql>DROP FUNCTION IF EXISTS course_evaluators_check_not_owner()</sql>
+        <sql>COMMENT ON TABLE course_evaluators IS 'Instructors assigned as evaluators of a course; the owner is assigned when the course is published (replaces the evaluator role, DEF-24, B-036)'</sql>
+        <sql>COMMENT ON COLUMN course_evaluators.user_id IS 'Instructor assigned as evaluator; it can be the course owner'</sql>
+        <rollback>
+            <sql>COMMENT ON COLUMN course_evaluators.user_id IS 'Instructor assigned as evaluator; cannot be the course owner'</sql>
+            <sql>COMMENT ON TABLE course_evaluators IS 'Instructors assigned as evaluators of a course without owning it (replaces the evaluator role, DEF-24)'</sql>
+            <sql splitStatements="false">CREATE FUNCTION course_evaluators_check_not_owner() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM courses c WHERE c.id = NEW.course_id AND c.owner_user_id = NEW.user_id) THEN
+        RAISE EXCEPTION 'The course owner cannot be assigned as evaluator of the same course' USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+END
+$$</sql>
+            <sql>CREATE TRIGGER course_evaluators_not_owner_trg BEFORE INSERT OR UPDATE ON course_evaluators FOR EACH ROW EXECUTE FUNCTION course_evaluators_check_not_owner()</sql>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="v2.0.1-007-backfill-owner-evaluators" author="eduar.troyano">
+        <comment>B-036: asigna como evaluador al dueño de cada curso activo ya publicado (o generando contenido) que no tenga ninguna fila en course_evaluators, siempre que el dueño siga activo con el rol instructor. Es idempotente (NOT EXISTS sobre el par curso-usuario) y solo inserta; assigned_by_user_id es el propio dueño porque la asignación es automática.</comment>
+        <sql>INSERT INTO course_evaluators (course_id, user_id, assigned_by_user_id)
+SELECT c.id, c.owner_user_id, c.owner_user_id
+FROM courses c
+JOIN users u ON u.id = c.owner_user_id AND u.active
+WHERE c.active
+  AND c.status IN ('generating_content', 'published')
+  AND EXISTS (
+      SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+      WHERE ur.user_id = c.owner_user_id AND ur.active AND r.active AND r.code = 'instructor')
+  AND NOT EXISTS (
+      SELECT 1 FROM course_evaluators ce
+      WHERE ce.course_id = c.id AND ce.user_id = c.owner_user_id)</sql>
+        <!-- Rollback vacío a propósito: course_evaluators nunca borra filas (se desactivan) y el
+             rollback del changeset anterior vuelve a impedir al dueño solo hacia adelante. -->
+        <rollback/>
+    </changeSet>
+
+</databaseChangeLog>
