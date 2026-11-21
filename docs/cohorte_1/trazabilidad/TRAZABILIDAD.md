@@ -47,11 +47,9 @@ La entrega final pide «un recorrido integral por el proceso, observando los res
 
 Todo lo que falta o está en marcha: ☐ pendiente, ◐ en curso, ⛔ bloqueado y 🔼 con PR abierto. Ordenado por peso en la entrega final. La sección [General · G-001](#g-001--revisar-cada-pantalla-de-figma-frente-al-flujo-implementado) (revisión de las 96 pantallas) y la [deuda técnica](#deuda-técnica-sin-tarea) siguen abajo.
 
-**Faltan 1 de 98 puntos** (☐ pendientes 0 · ◐ en curso 1 · ⛔ bloqueados 0 · 🔼 con PR abierto 0); 87 ya están en «Realizado» y 10 pasaron a «Migrados a la siguiente fase». La columna `#` se renumera cada vez que se mueve una fila.
+**Faltan 0 de 98 puntos** (☐ pendientes 0 · ◐ en curso 0 · ⛔ bloqueados 0 · 🔼 con PR abierto 0); 88 ya están en «Realizado» y 10 pasaron a «Migrados a la siguiente fase». La columna `#` se renumera cada vez que se mueve una fila.
 
-| # | ID | Área | Pendiente | Funcionalidades | Estado | Responsable | Depende de | Peso | Recomendación (propuesta práctica) |
-| ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | T-052 | Hito y cierre | Release | • Etiqueta `v1.0-cohorte1` y notas de la versión<br>• **Avance 2026-11-17:** notas en `dev` (PR 95) en `CHANGELOG.md` y texto del GitHub Release en [`release-v1.0-cohorte1.md`](../release.md), con las métricas y los pasos para publicarlo<br>• **Falta (dueño del repositorio):** promover `dev` → `stage` → `main`, crear la etiqueta sobre `main` y el GitHub Release, como pide `GIT_VERSIONING_STRATEGY.md` | ◐ En curso | Alexander Amador | Dueño del repositorio (T-051 ya está cerrado) | Medio | Que el dueño del repositorio promueva y publique con los pasos de [`release-v1.0-cohorte1.md`](../release.md); Eduar Troyano fusiona los PR |
+No quedan puntos abiertos: el último, el release `v1.0-cohorte1` (T-052), se publicó el 2026-11-21.
 
 ## Migrados a la siguiente fase
 
@@ -76,7 +74,7 @@ Pendientes que **no se alcanzan en esta fase** y pasan a la siguiente: el piloto
 
 Lo que ya está en `dev` (✔) o se cerró sin hacer (✖, con el motivo). Corte: `dev` en `cbeb97f` (PR 48 a 75 fusionados) y Neon al día (62 changesets) el 2026-11-15.
 
-**Realizados: 87 de 98 puntos.** La columna `#` se renumera cada vez que se mueve una fila.
+**Realizados: 88 de 98 puntos.** La columna `#` se renumera cada vez que se mueve una fila.
 
 | # | ID | Área | Pendiente | Qué se hizo | Estado | Responsable |
 | ---: | --- | --- | --- | --- | --- | --- |
@@ -302,6 +300,7 @@ Recorrer las 96 pantallas de Figma v3 (incluidas las variantes por curso) y comp
 | ---: | --- | --- | --- | --- | --- | --- |
 | 1 | Biblioteca | [Abrir](https://www.figma.com/design/atp2fZdSolEoaww3n9jRLg/?node-id=24-2) (`24:2`) | Componentes · Biblioteca | N/A | N/A · Referencia de componentes, no es una pantalla |  |
 | 2 | Matriz | [Abrir](https://www.figma.com/design/atp2fZdSolEoaww3n9jRLg/?node-id=2-3) (`2:3`) | Matriz de permisos | N/A | N/A · Referencia de permisos, no es una pantalla |  |
+| 3 | T-052 | Hito y cierre | Release | Etiqueta anotada `v1.0-cohorte1` sobre `main` (`8a73b3e`) y GitHub Release «Cohorte 1 - Versión 1.0» con el texto final de la cohorte, las métricas y los informes. Promoción `dev` → `stage` → `main` por pull request | ✔ Finalizado · 2026-11-21 ([PR 107](https://github.com/armandoordonez/smartmentor/pull/107) a `stage` y [PR 108](https://github.com/armandoordonez/smartmentor/pull/108) a `main`; [Release](https://github.com/armandoordonez/smartmentor/releases/tag/v1.0-cohorte1)) | Alexander Amador |
 
 ## Notas de activación para QA y producción
 
